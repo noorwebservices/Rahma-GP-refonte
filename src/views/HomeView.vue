@@ -1,6 +1,7 @@
 <script setup>
 import Header from '@/components/Header.vue'
 import HeroSection from '@/components/HeroSection.vue'
+import AboutSection from '@/components/AboutSection.vue'
 import Footer from '@/components/Footer.vue'
 </script>
 
@@ -13,6 +14,9 @@ import Footer from '@/components/Footer.vue'
     <main class="flex-grow">
       <!-- Hero Section -->
       <HeroSection />
+
+      <!-- À Propos Section -->
+      <AboutSection />
     </main>
 
     <!-- Footer -->
