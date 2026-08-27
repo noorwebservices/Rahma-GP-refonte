@@ -9,7 +9,7 @@ const setTab = (id) => {
 </script>
 
 <template>
-  <section id="les-profils" class="py-10 sm:py-20 bg-slate-50/50 relative overflow-hidden">
+  <section id="les-profils" class="py-10 sm:py-10 bg-slate-50/50 relative overflow-hidden">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
       
       <!-- Section Header -->

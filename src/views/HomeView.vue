@@ -5,6 +5,7 @@ import AboutSection from '@/components/AboutSection.vue'
 import ProfilesSection from '@/components/ProfilesSection.vue'
 import HowItWorksSection from '@/components/HowItWorksSection.vue'
 import PartnershipSection from '@/components/PartnershipSection.vue'
+import RecordTimeSection from '@/components/RecordTimeSection.vue'
 import Footer from '@/components/Footer.vue'
 </script>
 
@@ -29,6 +30,9 @@ import Footer from '@/components/Footer.vue'
 
       <!-- Partenariat & Contact Section -->
       <PartnershipSection />
+
+      <!-- Temps Record Section -->
+      <RecordTimeSection />
     </main>
 
     <!-- Footer -->
