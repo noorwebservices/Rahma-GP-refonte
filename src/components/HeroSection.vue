@@ -3,7 +3,7 @@ import bannerHero from '@/assets/images/banner-hero.png'
 </script>
 
 <template>
-  <section id="accueil" class="relative min-h-[500px] sm:min-h-[600px] lg:min-h-[90vh] flex items-center bg-[#074C72] overflow-hidden">
+  <section id="accueil" class="relative min-h-125 sm:min-h-150 lg:min-h-[90vh] flex items-center bg-[#074C72] overflow-hidden">
     
     <!-- Background Image & Subtle Figma Overlay -->
     <div class="absolute inset-0 z-0">

@@ -4,6 +4,7 @@ import HeroSection from '@/components/HeroSection.vue'
 import AboutSection from '@/components/AboutSection.vue'
 import ProfilesSection from '@/components/ProfilesSection.vue'
 import HowItWorksSection from '@/components/HowItWorksSection.vue'
+import PartnershipSection from '@/components/PartnershipSection.vue'
 import Footer from '@/components/Footer.vue'
 </script>
 
@@ -25,6 +26,9 @@ import Footer from '@/components/Footer.vue'
 
       <!-- Comment ça marche Section -->
       <HowItWorksSection />
+
+      <!-- Partenariat & Contact Section -->
+      <PartnershipSection />
     </main>
 
     <!-- Footer -->

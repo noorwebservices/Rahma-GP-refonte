@@ -114,19 +114,19 @@ const setTab = (id) => {
 
             <ul class="space-y-3">
               <li class="flex items-start gap-3 text-xs sm:text-base text-texte font-medium">
-                <span class="flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
+                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
                 <span>Recherche simple par ville de départ et de destination</span>
               </li>
               <li class="flex items-start gap-3 text-xs sm:text-base text-texte font-medium">
-                <span class="flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
+                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
                 <span>Transparence totale sur les kilos restants et les dates</span>
               </li>
               <li class="flex items-start gap-3 text-xs sm:text-base text-texte font-medium">
-                <span class="flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
+                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
                 <span>Formulaire de demande détaillé pour vos colis</span>
               </li>
               <li class="flex items-start gap-3 text-xs sm:text-base text-texte font-medium">
-                <span class="flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
+                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
                 <span>Historique des envois et notifications instantanées</span>
               </li>
             </ul>
@@ -211,19 +211,19 @@ const setTab = (id) => {
 
             <ul class="space-y-3">
               <li class="flex items-start gap-3 text-xs sm:text-base text-texte font-medium">
-                <span class="flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
+                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
                 <span>Publication ultra-rapide de votre trajet (5 kg à 25 kg)</span>
               </li>
               <li class="flex items-start gap-3 text-xs sm:text-base text-texte font-medium">
-                <span class="flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
+                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
                 <span>Contrôle et vérification des demandes reçues</span>
               </li>
               <li class="flex items-start gap-3 text-xs sm:text-base text-texte font-medium">
-                <span class="flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
+                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
                 <span>Liberté absolue d'accepter ou de refuser chaque colis</span>
               </li>
               <li class="flex items-start gap-3 text-xs sm:text-base text-texte font-medium">
-                <span class="flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
+                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
                 <span>Déduction automatique des kilos acceptés</span>
               </li>
             </ul>
@@ -290,19 +290,19 @@ const setTab = (id) => {
 
             <ul class="space-y-3">
               <li class="flex items-start gap-3 text-xs sm:text-base text-texte font-medium">
-                <span class="flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
+                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
                 <span>Gestion multi-voyages et lignes régulières internationales</span>
               </li>
               <li class="flex items-start gap-3 text-xs sm:text-base text-texte font-medium">
-                <span class="flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
+                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
                 <span>Tableau de bord pro : suivi des capacités réservées & disponibles</span>
               </li>
               <li class="flex items-start gap-3 text-xs sm:text-base text-texte font-medium">
-                <span class="flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
+                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
                 <span>Gestion des statuts de livraison (Transit, Livré, Attente)</span>
               </li>
               <li class="flex items-start gap-3 text-xs sm:text-base text-texte font-medium">
-                <span class="flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
+                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
                 <span>Outils de statistique et d'optimisation de fret</span>
               </li>
             </ul>

@@ -157,7 +157,7 @@ const steps = [
             <!-- White Content Card (Toutes les bordures sont en bas: border-b-4) -->
             <div 
               :class="[
-                'w-full bg-white rounded-3xl pt-10 pb-6 px-4 shadow-xl border-t border-slate-100 text-center flex flex-col items-center justify-start min-h-[210px] border-b-4 relative',
+                'w-full bg-white rounded-3xl pt-10 pb-6 px-4 shadow-xl border-t border-slate-100 text-center flex flex-col items-center justify-start min-h-52.5 border-b-4 relative',
                 step.borderColor
               ]"
             >
