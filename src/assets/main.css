@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Charte Graphique Rahma GP - Palette Couleurs */
+  --color-primary: #074C72;
+  --color-primary-dark: #053754;
+  --color-primary-light: #0c6799;
+
+  --color-principal: #074C72;
+  --color-principal-dark: #053754;
+  --color-principal-light: #0c6799;
+
+  --color-secondary: #B50302;
+  --color-secondary-dark: #870202;
+  --color-secondary-light: #d60403;
+
+  --color-secondaire: #B50302;
+  --color-secondaire-dark: #870202;
+  --color-secondaire-light: #d60403;
+
+  --color-tertiary: #FF9F02;
+  --color-tertiary-dark: #d68300;
+  --color-tertiary-light: #ffb233;
+
+  --color-tertiaire: #FF9F02;
+  --color-tertiaire-dark: #d68300;
+  --color-tertiaire-light: #ffb233;
+
+  --color-texte: #737887;
+  --color-texte-dark: #1E293B;
+  --color-texte-muted: #94A3B8;
+
+  --color-text-main: #737887;
+}
+
+@layer utilities {
+  .bg-principal { background-color: #074C72; }
+  .bg-principal-dark { background-color: #053754; }
+  .bg-principal-light { background-color: #0c6799; }
+
+  .bg-secondaire { background-color: #B50302; }
+  .bg-secondaire-dark { background-color: #870202; }
+  .bg-secondaire-light { background-color: #d60403; }
+
+  .bg-tertiaire { background-color: #FF9F02; }
+
+  .text-principal { color: #074C72; }
+  .text-secondaire { color: #B50302; }
+  .text-tertiaire { color: #FF9F02; }
+  .text-texte { color: #737887; }
+  .text-texte-dark { color: #1E293B; }
+  .text-texte-muted { color: #94A3B8; }
+}
+
+:root {
+  --font-montserrat: 'Montserrat', sans-serif;
+  --color-principal: #074C72;
+  --color-secondaire: #B50302;
+  --color-tertiaire: #FF9F02;
+  --color-texte: #737887;
+}
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  color: #737887;
+  background-color: #ffffff;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
