@@ -2,6 +2,7 @@
 import Header from '@/components/Header.vue'
 import HeroSection from '@/components/HeroSection.vue'
 import AboutSection from '@/components/AboutSection.vue'
+import ProfilesSection from '@/components/ProfilesSection.vue'
 import Footer from '@/components/Footer.vue'
 </script>
 
@@ -17,6 +18,9 @@ import Footer from '@/components/Footer.vue'
 
       <!-- À Propos Section -->
       <AboutSection />
+
+      <!-- Les Profils Section -->
+      <ProfilesSection />
     </main>
 
     <!-- Footer -->

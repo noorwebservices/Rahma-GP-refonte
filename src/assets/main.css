@@ -52,6 +52,16 @@
   .text-texte { color: #737887; }
   .text-texte-dark { color: #1E293B; }
   .text-texte-muted { color: #94A3B8; }
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
 }
 
 :root {
