@@ -6,19 +6,19 @@ import bannerAPropos from '@/assets/images/banner-a-propos.png'
 </script>
 
 <template>
-  <section id="a-propos" class="relative py-16 sm:py-24 bg-white overflow-hidden">
+  <section id="a-propos" class="relative py-12 sm:py-10 bg-white overflow-hidden">
 
-    <!-- Background Decorative Banner Image (Atténué sur mobile à opacity-20 pour ne pas gêner la lisibilité, ultra net sur desktop) -->
-    <div class="absolute inset-0 pointer-events-none z-0 opacity-20 sm:opacity-40 lg:opacity-100">
+    <!-- Background Decorative Banner Image (Subtilisé à opacity-20 sur tout écran desktop pour éviter de gêner la lisibilité et surcharger l'écran) -->
+    <div class="absolute inset-0 pointer-events-none z-0 opacity-15 sm:opacity-20 lg:opacity-25">
       <img :src="bannerAPropos" alt="Decorative Banner Accents"
-        class="w-full h-full object-contain md:object-cover object-right" />
+        class="w-full h-full object-contain object-right" />
     </div>
 
-    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+    <div class="relative z-10 max-w-7xl 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-16 items-center">
 
-        <!-- LEFT COLUMN: Pre-Cut Images Composition (7 cols on lg) -->
-        <div class="lg:col-span-7 relative">
+        <!-- LEFT COLUMN: Pre-Cut Images Composition (7 cols on xl, 6 cols on lg) -->
+        <div class="lg:col-span-6 xl:col-span-7 relative">
           <div class="grid grid-cols-2 gap-4 sm:gap-6 items-center relative">
 
             <!-- Sub-Column 1: Image 1 + Image 2 + Circle Text in the cutout -->
@@ -71,8 +71,8 @@ import bannerAPropos from '@/assets/images/banner-a-propos.png'
           </div>
         </div>
 
-        <!-- RIGHT COLUMN: Content Text & Action (5 cols on lg) -->
-        <div class="lg:col-span-5 space-y-6">
+        <!-- RIGHT COLUMN: Content Text & Action (5 cols on xl, 6 cols on lg) -->
+        <div class="lg:col-span-6 xl:col-span-5 space-y-5 sm:space-y-6">
 
           <!-- Subtitle (Rouge Secondaire) -->
           <p class="text-xs sm:text-sm font-light tracking-widest text-secondaire uppercase">
@@ -80,12 +80,12 @@ import bannerAPropos from '@/assets/images/banner-a-propos.png'
           </p>
 
           <!-- Main Title (Bleu Principal) -->
-          <h2 class="text-3xl sm:text-4xl font-extrabold text-principal tracking-tight leading-tight">
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold text-principal tracking-tight leading-tight">
             QUI SOMMES-NOUS ?
           </h2>
 
           <!-- Paragraphs -->
-          <div class="space-y-4 text-texte font-normal text-sm sm:text-base leading-relaxed">
+          <div class="space-y-4 text-texte font-normal text-xs sm:text-base leading-relaxed">
             <p>
               Rahma Delivery est une plateforme qui facilite l'acheminement de colis à l'international en mettant en
               relation les clients avec des voyageurs et des entreprises disposant de capacité disponible.

@@ -17,7 +17,7 @@ import bannerHero from '@/assets/images/banner-hero.png'
     </div>
 
     <!-- Hero Content Container -->
-    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16 lg:pt-32 lg:pb-24 w-full">
+    <div class="relative z-10 max-w-7xl 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16 lg:pt-32 lg:pb-24 w-full">
       <div class="max-w-2xl sm:max-w-3xl lg:max-w-4xl space-y-4 sm:space-y-5 text-white">
 
         <!-- 1. Subtitle (12px = text-xs) -->

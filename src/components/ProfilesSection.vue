@@ -10,7 +10,7 @@ const setTab = (id) => {
 
 <template>
   <section id="les-profils" class="py-10 sm:py-10 bg-slate-50/50 relative overflow-hidden">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <div class="max-w-7xl 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
       
       <!-- Section Header -->
       <div class="text-center max-w-4xl mx-auto space-y-3 sm:space-y-4 mb-8 sm:mb-12">

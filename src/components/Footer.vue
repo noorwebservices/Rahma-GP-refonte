@@ -10,7 +10,7 @@ const navLinks = [
 
 <template>
   <footer class="bg-principal text-white pt-12 pb-6 border-t border-white/10">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8">
 
       <!-- Main Footer Columns Grid -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 pb-10 items-start">

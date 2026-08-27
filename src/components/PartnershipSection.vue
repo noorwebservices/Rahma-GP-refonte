@@ -27,10 +27,10 @@ const handleSubmit = () => {
 </script>
 
 <template>
-  <section id="devenir-partenaire" class="relative pt-6 sm:pt-0 pb-12 sm:pb-16 bg-white overflow-hidden">
+  <section id="devenir-partenaire" class="relative pt-6 sm:pt-10 pb-12 sm:pb-16 bg-white overflow-hidden">
     
     <!-- Section Header (Top Part) -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 sm:mb-8">
+    <div class="max-w-7xl 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 mb-6 sm:mb-8">
       <div class="text-center max-w-4xl mx-auto space-y-3">
         
         <!-- Subtitle Badge -->
@@ -67,8 +67,8 @@ const handleSubmit = () => {
         <div class="absolute inset-0 bg-black/68"></div>
       </div>
 
-      <!-- Content Grid inside max-w-7xl (2 Columns) -->
-      <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 lg:py-20">
+      <!-- Content Grid inside max-w-7xl 2xl:max-w-[1536px] (2 Columns) -->
+      <div class="relative z-10 max-w-7xl 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 lg:py-20">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           
           <!-- LEFT COLUMN: Privilèges (6 cols) -->

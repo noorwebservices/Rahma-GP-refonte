@@ -4,7 +4,7 @@ import broImg from '@/assets/images/bro.png'
 
 <template>
   <section class="py-16 sm:py-24 bg-white overflow-hidden border-t border-slate-100">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
         
         <!-- Left Text Column -->

@@ -61,7 +61,7 @@ const steps = [
 </script>
 
 <template>
-  <section id="comment-ca-marche" class="relative pt-12 pb-18 sm:pt-0 sm:pb-0 overflow-hidden">
+  <section id="comment-ca-marche" class="relative pt-12 pb-18 sm:pt-10 sm:pb-0 overflow-hidden">
     
     <!-- Background Decorative Banner Image (Dézoomé et ancré en bas sur mobile pour révéler les cartons 3D sans gêner le texte) -->
     <div class="absolute inset-0 pointer-events-none z-0 opacity-60 md:opacity-100">
@@ -72,7 +72,7 @@ const steps = [
       />
     </div>
 
-    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="relative z-10 max-w-7xl 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8">
       
       <!-- Section Header -->
       <div class="text-center max-w-3xl mx-auto space-y-3 sm:space-y-4 mb-20 lg:mb-28">
