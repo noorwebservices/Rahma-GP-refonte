@@ -11,13 +11,13 @@ import packageImg from '@/assets/images/package.png'
   <section id="a-propos" class="relative py-4 sm:py-16 bg-white overflow-hidden">
 
     <!-- Background Decorative Banner Image (Masqué complètement sur mobile pour ne pas surcharger) -->
-    <div class="hidden sm:block absolute inset-0 pointer-events-none z-0 opacity-15 sm:opacity-20 lg:opacity-25">
+    <div class="hidden  absolute inset-0 pointer-events-none z-0 ">
       <img :src="bannerAPropos" alt="Decorative Banner Accents"
         class="w-full h-full lg:object-fill object-contain object-right" />
     </div>
 
     <!-- Package Accent Image (Positionné en haut à droite) -->
-    <div class="absolute top-4 right-4 sm:right-12 w-42 pointer-events-none z-10 opacity-80 sm:opacity-100 block sm:hidden">  
+    <div class="absolute top-4 right-4 sm:right-12 w-42 sm:w-98 pointer-events-none z-10 opacity-80 sm:opacity-100 block ">  
       <img :src="packageImg" alt="3D Packages Accent" class="w-full h-auto object-contain" />
     </div>
 
@@ -77,7 +77,7 @@ import packageImg from '@/assets/images/package.png'
 
           </div>
            <!-- Bateau Train 3D Illustration Image -->
-           <div class="shrink-0 w-42 absolute -bottom-8 right-0 sm:right-4 lg:right-8 z-10 pointer-events-none block sm:hidden">
+           <div class="shrink-0 w-40 sm:w-72 absolute -bottom-2 sm:bottom-2 right-0 sm:right-4 lg:right-8 z-10 pointer-events-none block lg:hidden">
               <img :src="bateauTrain" alt="Transport Maritime & Ferroviaire" class="w-full h-auto object-contain" />
             </div>
         </div>
@@ -120,7 +120,10 @@ import packageImg from '@/assets/images/package.png'
               <span>NOUS CONTACTER</span>
             </a>
           </div>
-
+           <!-- Bateau Train 3D Illustration Image -->
+           <div class="shrink-0 w-72 absolute  -bottom-32 -right-24  z-10 pointer-events-none hidden lg:block ">
+              <img :src="bateauTrain" alt="Transport Maritime & Ferroviaire" class="w-full h-auto object-contain" />
+            </div>
         </div>
 
       </div>
