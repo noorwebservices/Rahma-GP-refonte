@@ -11,13 +11,13 @@ import packageImg from '@/assets/images/package.png'
   <section id="a-propos" class="relative py-4 sm:py-16 bg-white overflow-hidden">
 
     <!-- Background Decorative Banner Image (Masqué complètement sur mobile pour ne pas surcharger) -->
-    <div class="hidden  absolute inset-0 pointer-events-none z-0 ">
+    <div class="hidden absolute inset-0 pointer-events-none z-0">
       <img :src="bannerAPropos" alt="Decorative Banner Accents"
         class="w-full h-full lg:object-fill object-contain object-right" />
     </div>
 
     <!-- Package Accent Image (Positionné en haut à droite) -->
-    <div class="absolute top-4 right-4 sm:right-12 w-42 sm:w-98 pointer-events-none z-10 opacity-80 sm:opacity-100 block ">  
+    <div class="absolute top-4 right-4 sm:right-12 w-42 sm:w-98 pointer-events-none z-10 opacity-80 sm:opacity-100 block">  
       <img :src="packageImg" alt="3D Packages Accent" class="w-full h-auto object-contain" />
     </div>
 
@@ -113,15 +113,16 @@ import packageImg from '@/assets/images/package.png'
             </p>
           </div>
 
-          <!-- Action Button avec biseau exact de la maquette Figma -->
+          <!-- Action Button avec lien WhatsApp (+221 77 685 96 60) -->
           <div class="pt-2">
-            <a href="#devenir-partenaire"
+            <a href="https://wa.me/221776859660" target="_blank" rel="noopener noreferrer"
               class="relative inline-flex items-center justify-center bg-secondaire hover:bg-secondaire-light text-white font-bold text-xs sm:text-sm uppercase tracking-wider px-9 py-4 rounded-2xl shadow-xl shadow-secondaire/30 transition-all duration-200 transform hover:scale-[1.02] active:scale-95 text-center">
               <span>NOUS CONTACTER</span>
             </a>
           </div>
+
            <!-- Bateau Train 3D Illustration Image -->
-           <div class="shrink-0 w-72 absolute  -bottom-32 -right-24  z-10 pointer-events-none hidden lg:block ">
+           <div class="shrink-0 w-72 absolute -bottom-32 -right-24 z-10 pointer-events-none hidden lg:block">
               <img :src="bateauTrain" alt="Transport Maritime & Ferroviaire" class="w-full h-auto object-contain" />
             </div>
         </div>

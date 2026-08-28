@@ -51,8 +51,8 @@ import bannerHero from '@/assets/images/banner-hero.png'
             </svg>
           </a>
 
-          <!-- Secondary CTA Button (Nous contacter - Outline) -->
-          <a href="#devenir-partenaire"
+          <!-- Secondary CTA Button (NOUS CONTACTER - Redirige vers WhatsApp +221 77 685 96 60) -->
+          <a href="https://wa.me/221776859660" target="_blank" rel="noopener noreferrer"
             class="border-2 border-white/80 hover:border-white hover:bg-white/15 text-white font-bold text-xs sm:text-sm uppercase tracking-wider px-6 sm:px-7 py-3 rounded-xl transition-all duration-200 transform hover:scale-[1.02] active:scale-95 text-center backdrop-blur-xs">
             NOUS CONTACTER
           </a>
