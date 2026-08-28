@@ -3,18 +3,25 @@ import image1Coupe from '@/assets/images/image-1-coupé.png'
 import image2Coupe from '@/assets/images/image-2-coupé.png'
 import image3Coupe from '@/assets/images/image-3-coupé.png'
 import bannerAPropos from '@/assets/images/banner-a-propos.png'
+import bateauTrain from '@/assets/images/bateau-train.png'
+import packageImg from '@/assets/images/package.png'
 </script>
 
 <template>
-  <section id="a-propos" class="relative py-12 sm:py-10 bg-white overflow-hidden">
+  <section id="a-propos" class="relative py-4 sm:py-16 bg-white overflow-hidden">
 
-    <!-- Background Decorative Banner Image (Subtilisé à opacity-20 sur tout écran desktop pour éviter de gêner la lisibilité et surcharger l'écran) -->
-    <div class="absolute inset-0 pointer-events-none z-0 ">
+    <!-- Background Decorative Banner Image (Masqué complètement sur mobile pour ne pas surcharger) -->
+    <div class="hidden sm:block absolute inset-0 pointer-events-none z-0 opacity-15 sm:opacity-20 lg:opacity-25">
       <img :src="bannerAPropos" alt="Decorative Banner Accents"
         class="w-full h-full lg:object-fill object-contain object-right" />
     </div>
 
-    <div class="relative z-10 max-w-7xl 2xl:max-w-384 mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Package Accent Image (Positionné en haut à droite) -->
+    <div class="absolute top-4 right-4 sm:right-12 w-42 pointer-events-none z-10 opacity-80 sm:opacity-100 block sm:hidden">  
+      <img :src="packageImg" alt="3D Packages Accent" class="w-full h-auto object-contain" />
+    </div>
+
+    <div class="relative z-10 max-w-7xl 2xl:max-w-384 mx-auto px-4 sm:px-6 lg:px-8 pt-4">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-16 items-center">
 
         <!-- LEFT COLUMN: Pre-Cut Images Composition (7 cols on xl, 6 cols on lg) -->
@@ -58,7 +65,7 @@ import bannerAPropos from '@/assets/images/banner-a-propos.png'
                 <!-- Text ONLY overlay positioned cleanly inside top-right speech bubble cutout -->
                 <div
                   class="absolute top-[9%] sm:top-[9%] right-[6%] sm:right-[0%] w-[48%] sm:w-[50%] h-[20%] z-20 flex items-center justify-center text-left pointer-events-none">
-                  <p class="text-[10px] sm:text-[14px]  font-light text-principal leading-snug">
+                  <p class="text-[10px] sm:text-[14px] font-light text-principal leading-snug">
                     Voyagez,<br />
                     transportez,<br />
                     partagez.
@@ -69,20 +76,29 @@ import bannerAPropos from '@/assets/images/banner-a-propos.png'
             </div>
 
           </div>
+           <!-- Bateau Train 3D Illustration Image -->
+           <div class="shrink-0 w-42 absolute -bottom-8 right-0 sm:right-4 lg:right-8 z-10 pointer-events-none block sm:hidden">
+              <img :src="bateauTrain" alt="Transport Maritime & Ferroviaire" class="w-full h-auto object-contain" />
+            </div>
         </div>
 
         <!-- RIGHT COLUMN: Content Text & Action (5 cols on xl, 6 cols on lg) -->
-        <div class="lg:col-span-6 xl:col-span-5 space-y-5 sm:space-y-6">
+        <div class="lg:col-span-6 xl:col-span-5 space-y-5 sm:space-y-6 relative">
 
-          <!-- Subtitle (Rouge Secondaire) -->
-          <p class="text-xs sm:text-sm font-light tracking-widest text-secondaire uppercase">
-            À PROPOS DE RAHMA DELIVERY
-          </p>
+          <!-- Section Title with Bateau-Train Image next to it -->
+          <div class="flex items-center justify-between gap-4 relative">
+            <div class="space-y-1">
+              <!-- Subtitle (Rouge Secondaire) -->
+              <p class="text-xs sm:text-sm font-light tracking-widest text-secondaire uppercase">
+                À PROPOS DE RAHMA DELIVERY
+              </p>
 
-          <!-- Main Title (Bleu Principal) -->
-          <h2 class="text-lg sm:text-xl lg:text-xl xl:text-3xl font-extrabold text-principal tracking-tight leading-tight">
-            QUI SOMMES-NOUS ?
-          </h2>
+              <!-- Main Title (Bleu Principal) -->
+              <h2 class="text-lg sm:text-xl lg:text-xl xl:text-3xl font-extrabold text-principal tracking-tight leading-tight">
+                QUI SOMMES-NOUS ?
+              </h2>
+            </div>
+          </div>
 
           <!-- Paragraphs -->
           <div class="space-y-4 text-texte font-normal text-xs sm:text-base leading-relaxed">
@@ -100,7 +116,7 @@ import bannerAPropos from '@/assets/images/banner-a-propos.png'
           <!-- Action Button avec biseau exact de la maquette Figma -->
           <div class="pt-2">
             <a href="#devenir-partenaire"
-              class="relative inline-flex items-center justify-center bg-secondaire hover:bg-secondaire-light text-white font-bold text-xs sm:text-sm uppercase tracking-wider px-9 py-4 rounded-2xl shadow-xl shadow-secondaire/30 transition-all duration-200 transform hover:scale-[1.02] active:scale-95 text-center ">
+              class="relative inline-flex items-center justify-center bg-secondaire hover:bg-secondaire-light text-white font-bold text-xs sm:text-sm uppercase tracking-wider px-9 py-4 rounded-2xl shadow-xl shadow-secondaire/30 transition-all duration-200 transform hover:scale-[1.02] active:scale-95 text-center">
               <span>NOUS CONTACTER</span>
             </a>
           </div>

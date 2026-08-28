@@ -184,7 +184,7 @@ const steps = [
               </div>
 
               <!-- LINE 2: Attaché au bord droit de la Carte 2 vers la Carte 3 (Virage vers le haut + Flèche haut) -->
-              <div v-if="index === 1" class="absolute -bottom-4 -right-12 xl:-right-14 w-12 xl:w-16 h-30 pointer-events-none z-30">
+              <div v-if="index === 1" class="absolute -bottom-4 -right-12 xl:-right-14 w-12 xl:w-16 h-28 pointer-events-none z-30">
                 <svg class="w-full h-full overflow-visible" viewBox="0 0 60 120" preserveAspectRatio="none">
                   <path d="M 4,100 H 35 A 15,15 0 0,0 50,85 V 15" fill="none" stroke="#B50302" stroke-width="2.5" stroke-dasharray="5 5" />
                   <polygon points="43,17 57,17 50,5" fill="#B50302" />

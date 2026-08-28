@@ -2,27 +2,106 @@
 import { ref } from 'vue'
 import bannerContact from '@/assets/images/banner-contact.jpeg'
 
+// 🔗 Votre URL Web App Google Apps Script
+const GOOGLE_SCRIPT_URL = ref('https://script.google.com/macros/s/AKfycbwP6apm1hJQ-8uPXjpSkMspDInpaH-YiLiAsAu8ZfkWe0zyeyFvnhuu9H9bGMNia9-x/exec')
+
 const form = ref({
+  profileType: 'Entreprise Pro / Transporteur', // Type de déclarant
+  subject: 'Devenir Partenaire VIP', // Objet de la demande
   companyName: '',
   managerName: '',
   email: '',
   phone: '',
+  address: '', // Adresse / Ville
+  travelFrequency: '', // Nombre de voyages (Optionnel)
   comments: ''
 })
 
-const isSubmitted = ref(false)
+const isSubmitting = ref(false)
+const showSuccess = ref(false)
+const errorMessage = ref('')
 
-const handleSubmit = () => {
-  if (!form.value.companyName || !form.value.email || !form.value.phone) {
-    alert('Veuillez remplir les champs obligatoires (*)')
+const handleSubmit = async () => {
+  if (!form.value.profileType || !form.value.subject || !form.value.companyName || !form.value.email || !form.value.phone) {
+    errorMessage.value = 'Veuillez remplir tous les champs obligatoires (*)'
     return
   }
-  isSubmitted.value = true
+
+  errorMessage.value = ''
+  isSubmitting.value = true
+
+  const currentDate = new Date().toLocaleString('fr-FR')
+
+  const payload = {
+    date: currentDate,
+    profileType: form.value.profileType,
+    subject: form.value.subject,
+    companyName: form.value.companyName,
+    managerName: form.value.managerName,
+    email: form.value.email,
+    phone: form.value.phone,
+    address: form.value.address,
+    travelFrequency: form.value.travelFrequency,
+    comments: form.value.comments
+  }
+
+  // 1. Enregistrement de secours dans le navigateur (LocalStorage)
+  try {
+    const existingLeads = JSON.parse(localStorage.getItem('rahma_vip_leads') || '[]')
+    existingLeads.push(payload)
+    localStorage.setItem('rahma_vip_leads', JSON.stringify(existingLeads))
+  } catch (e) {
+    console.warn('Backup local storage error:', e)
+  }
+
+  // 2. Envoi vers Google Sheets via URLSearchParams (Compatible Google Apps Script no-cors)
+  if (GOOGLE_SCRIPT_URL.value) {
+    try {
+      const formData = new URLSearchParams()
+      formData.append('date', currentDate)
+      formData.append('profileType', form.value.profileType)
+      formData.append('subject', form.value.subject)
+      formData.append('companyName', form.value.companyName)
+      formData.append('managerName', form.value.managerName)
+      formData.append('email', form.value.email)
+      formData.append('phone', form.value.phone)
+      formData.append('address', form.value.address || '')
+      formData.append('travelFrequency', form.value.travelFrequency || '')
+      formData.append('comments', form.value.comments || '')
+
+      await fetch(GOOGLE_SCRIPT_URL.value, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: formData.toString()
+      })
+    } catch (err) {
+      console.error('Erreur envoi Google Sheet:', err)
+    }
+  }
+
+  // 3. Affichage du retour de succès
   setTimeout(() => {
-    isSubmitted.value = false
-    form.value = { companyName: '', managerName: '', email: '', phone: '', comments: '' }
-    alert('Votre demande de réservation VIP a été enregistrée avec succès ! Notre équipe vous recontactera rapidement.')
-  }, 1000)
+    isSubmitting.value = false
+    showSuccess.value = true
+    form.value = {
+      profileType: 'Entreprise Pro / Transporteur',
+      subject: 'Devenir Partenaire VIP',
+      companyName: '',
+      managerName: '',
+      email: '',
+      phone: '',
+      address: '',
+      travelFrequency: '',
+      comments: ''
+    }
+
+    setTimeout(() => {
+      showSuccess.value = false
+    }, 6000)
+  }, 600)
 }
 </script>
 
@@ -36,7 +115,7 @@ const handleSubmit = () => {
         <!-- Subtitle Badge -->
         <div>
           <span class="inline-block px-6 py-2 rounded-full border border-secondaire/40 bg-secondaire/5 text-secondaire text-xs sm:text-sm font-medium uppercase tracking-widest">
-            Partenariat
+            Partenariat & Contact
           </span>
         </div>
 
@@ -61,7 +140,7 @@ const handleSubmit = () => {
         <img 
           :src="bannerContact" 
           alt="Business Partnership Background" 
-          class="w-full h-full object-cover "
+          class="w-full h-full object-cover"
         />
         <!-- Overlay Noir 68% d'opacité -->
         <div class="absolute inset-0 bg-black/68"></div>
@@ -145,7 +224,7 @@ const handleSubmit = () => {
 
           <!-- RIGHT COLUMN: Formulaire de Réservation Prioritaire (6 cols) -->
           <div class="lg:col-span-6">
-            <div class="bg-white/10 backdrop-blur-md rounded-3xl p-6 sm:p-8 border border-white/20 shadow-2xl text-white">
+            <div class="bg-white/10 backdrop-blur-md rounded-3xl p-6 sm:p-8 border border-white/20 shadow-2xl text-white relative">
               
               <h3 class="text-xl sm:text-2xl font-extrabold mb-2">
                 Formulaire de Réservation Prioritaire
@@ -154,13 +233,65 @@ const handleSubmit = () => {
                 Complétez ce formulaire pour réserver le statut Partenaire VIP de votre entreprise.
               </p>
 
+              <!-- Banner Feedback Succès -->
+              <transition enter-active-class="transition duration-300 ease-out" enter-from-class="opacity-0 -translate-y-2" enter-to-class="opacity-100 translate-y-0" leave-active-class="transition duration-200 ease-in" leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 -translate-y-2">
+                <div v-if="showSuccess" class="mb-6 p-4 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-xs sm:text-sm font-medium flex items-center gap-3 shadow-lg">
+                  <svg class="w-6 h-6 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Votre pré-inscription Partenaire VIP a été enregistrée avec succès ! Notre équipe vous recontactera très rapidement.</span>
+                </div>
+              </transition>
+
+              <!-- Message Erreur Validation -->
+              <div v-if="errorMessage" class="mb-4 p-3 rounded-xl bg-red-500/20 border border-red-400/40 text-red-200 text-xs font-semibold">
+                {{ errorMessage }}
+              </div>
+
               <form @submit.prevent="handleSubmit" class="space-y-4">
                 
+                <!-- SELECT 1 & SELECT 2 : Type de Profil & Objet de la demande -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  
+                  <!-- Type de Profil (Entreprise Pro ou Voyageur Particulier uniquement) -->
+                  <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-white/90">
+                      Vous êtes ? <span class="text-secondaire-light">*</span>
+                    </label>
+                    <select 
+                      v-model="form.profileType"
+                      required
+                      class="w-full bg-slate-900/80 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-secondaire focus:ring-1 focus:ring-secondaire text-xs sm:text-sm transition-colors cursor-pointer"
+                    >
+                      <option value="Entreprise Pro / Transporteur" class="bg-slate-900 text-white">Entreprise Pro / Transporteur</option>
+                      <option value="Voyageur Particulier" class="bg-slate-900 text-white">Voyageur Particulier</option>
+                    </select>
+                  </div>
+
+                  <!-- Objet de la Demande -->
+                  <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-white/90">
+                      Objet de votre demande <span class="text-secondaire-light">*</span>
+                    </label>
+                    <select 
+                      v-model="form.subject"
+                      required
+                      class="w-full bg-slate-900/80 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-secondaire focus:ring-1 focus:ring-secondaire text-xs sm:text-sm transition-colors cursor-pointer"
+                    >
+                      <option value="Devenir Partenaire VIP" class="bg-slate-900 text-white">Devenir Partenaire VIP</option>
+                      <option value="Tester gratuitement au lancement (0% commission)" class="bg-slate-900 text-white">Être parmi les 1ers à tester gratuitement</option>
+                      <option value="Demande d'informations complémentaires" class="bg-slate-900 text-white">Avoir plus d'informations</option>
+                    </select>
+                  </div>
+
+                </div>
+
+                <!-- NOM ENTREPRISE & RESPONSABLE -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <!-- Nom de l'Entreprise -->
                   <div class="space-y-1.5">
                     <label class="block text-xs font-bold text-white/90">
-                      Nom de l'Entreprise <span class="text-secondaire-light">*</span>
+                      Nom de l'Entreprise / Entité <span class="text-secondaire-light">*</span>
                     </label>
                     <input 
                       v-model="form.companyName"
@@ -186,6 +317,7 @@ const handleSubmit = () => {
                   </div>
                 </div>
 
+                <!-- EMAIL & TÉLÉPHONE -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <!-- Email Professionnel -->
                   <div class="space-y-1.5">
@@ -216,6 +348,41 @@ const handleSubmit = () => {
                   </div>
                 </div>
 
+                <!-- ADRESSE & FRÉQUENCE DE VOYAGES -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  
+                  <!-- Adresse / Ville -->
+                  <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-white/90">
+                      Adresse ou Ville de résidence
+                    </label>
+                    <input 
+                      v-model="form.address"
+                      type="text" 
+                      placeholder="Ex: Dakar, Sénégal / Paris, France"
+                      class="w-full bg-slate-900/60 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-secondaire focus:ring-1 focus:ring-secondaire text-xs sm:text-sm transition-colors"
+                    />
+                  </div>
+
+                  <!-- Fréquence de voyages (Optionnel) -->
+                  <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-white/90">
+                      Voyages / semaine <span class="text-white/50 font-normal">(Optionnel)</span>
+                    </label>
+                    <select 
+                      v-model="form.travelFrequency"
+                      class="w-full bg-slate-900/80 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-secondaire focus:ring-1 focus:ring-secondaire text-xs sm:text-sm transition-colors cursor-pointer"
+                    >
+                      <option value="" class="bg-slate-900 text-white">Sélectionner la fréquence</option>
+                      <option value="Occasionnel (1 à 2 fois par mois)" class="bg-slate-900 text-white">Occasionnel (1 à 2 fois / mois)</option>
+                      <option value="1 voyage / semaine" class="bg-slate-900 text-white">1 voyage / semaine</option>
+                      <option value="2 à 3 voyages / semaine" class="bg-slate-900 text-white">2 à 3 voyages / semaine</option>
+                      <option value="4+ voyages / semaine" class="bg-slate-900 text-white">4+ voyages / semaine (Régulier)</option>
+                    </select>
+                  </div>
+
+                </div>
+
                 <!-- Remarques particulières -->
                 <div class="space-y-1.5">
                   <label class="block text-xs font-bold text-white/90">
@@ -233,11 +400,17 @@ const handleSubmit = () => {
                 <div class="pt-2">
                   <button
                     type="submit"
-                    :disabled="isSubmitted"
-                    class="w-full bg-secondaire hover:bg-secondaire-light text-white font-bold text-xs sm:text-sm uppercase tracking-wider py-4 px-6 rounded-xl shadow-lg transition-all duration-200 transform hover:scale-[1.01] active:scale-95 cursor-pointer text-center"
+                    :disabled="isSubmitting"
+                    class="w-full bg-secondaire hover:bg-secondaire-light text-white font-bold text-xs sm:text-sm uppercase tracking-wider py-4 px-6 rounded-xl shadow-lg transition-all duration-200 transform hover:scale-[1.01] active:scale-95 cursor-pointer text-center flex items-center justify-center gap-2"
                   >
-                    <span v-if="!isSubmitted">RÉSERVER VOTRE PLACE MAINTENANT</span>
-                    <span v-else>ENREGISTREMENT EN COURS...</span>
+                    <span v-if="!isSubmitting">RÉSERVER VOTRE PLACE MAINTENANT</span>
+                    <span v-else class="flex items-center gap-2">
+                      <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      ENREGISTREMENT EN COURS...
+                    </span>
                   </button>
                 </div>
 
