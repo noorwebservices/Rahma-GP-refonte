@@ -10,19 +10,19 @@ const setTab = (id) => {
 
 <template>
   <section id="les-profils" class="py-10 sm:py-10 bg-slate-50/50 relative overflow-hidden">
-    <div class="max-w-7xl 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <div class="max-w-7xl 2xl:max-w-384 mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
       
       <!-- Section Header -->
       <div class="text-center max-w-4xl mx-auto space-y-3 sm:space-y-4 mb-8 sm:mb-12">
         <!-- Subtitle Pill -->
         <div>
-          <span class="inline-block px-5 py-2 rounded-full border border-secondaire/40 bg-secondaire/5 text-secondaire text-xs sm:text-sm font-bold uppercase tracking-widest">
+          <span class="inline-block px-5 py-2 rounded-full border border-secondaire/40 bg-secondaire/5 text-secondaire text-xs sm:text-sm font-medium uppercase tracking-widest">
             TROIS EXPERIENCES DÉDIÉES
           </span>
         </div>
 
         <!-- Main Heading -->
-        <h2 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-principal tracking-tight">
+        <h2 class="text-lg sm:text-xl lg:text-xl xl:text-3xl font-extrabold text-principal tracking-tight">
           Des fonctionnalités adaptées à chaque rôle
         </h2>
 
@@ -104,7 +104,7 @@ const setTab = (id) => {
               Profil 1 : Client Expéditeur
             </span>
 
-            <h3 class="text-xl sm:text-3xl font-extrabold text-secondaire leading-tight">
+            <h3 class="text-lg sm:text-xl font-extrabold text-secondaire leading-tight">
               Envoyez vos colis vers l'international en toute sérénité
             </h3>
 
@@ -201,7 +201,7 @@ const setTab = (id) => {
               Profil 2 : Voyageur particulier
             </span>
 
-            <h3 class="text-xl sm:text-3xl font-extrabold text-secondaire leading-tight">
+            <h3 class="text-lg sm:text-xl font-extrabold text-secondaire leading-tight">
               Rentabilisez vos bagages et amortissez vos billets d'avion
             </h3>
 
@@ -280,8 +280,8 @@ const setTab = (id) => {
               Profil 3 : Entreprise Pro
             </span>
 
-            <h3 class="text-xl sm:text-3xl font-extrabold text-secondaire leading-tight">
-              Un véritable cockpit professionnel de gestion de transport
+            <h3 class="text-lg sm:text-xl font-extrabold text-secondaire leading-tight">
+              Un véritable espace professionnel de gestion du transport
             </h3>
 
             <p class="text-texte font-normal text-xs sm:text-base leading-relaxed">
@@ -315,7 +315,7 @@ const setTab = (id) => {
                 
                 <!-- Dark Blue Header -->
                 <div class="p-3 sm:p-4 text-white flex items-center justify-between border-b border-white/10">
-                  <span class="font-bold text-xs sm:text-base">Cockpit Entreprise Pro</span>
+                  <span class="font-bold text-xs sm:text-base">Espace Entreprise Pro</span>
                   <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full font-bold">
                     Dispo
                   </span>
