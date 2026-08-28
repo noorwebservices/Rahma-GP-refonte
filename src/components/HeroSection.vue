@@ -4,7 +4,7 @@ import bannerHero from '@/assets/images/banner-hero.png'
 
 <template>
   <section id="accueil"
-    class="relative min-h-125 sm:min-h-150 lg:min-h-[90vh] flex items-center bg-[#074C72] overflow-hidden">
+    class="relative min-h-125 sm:min-h-150 lg:min-h-screen flex items-center bg-[#074C72] overflow-hidden">
 
     <!-- Background Image & Subtle Figma Overlay -->
     <div class="absolute inset-0 z-0">
@@ -17,7 +17,7 @@ import bannerHero from '@/assets/images/banner-hero.png'
     </div>
 
     <!-- Hero Content Container -->
-    <div class="relative z-10 max-w-7xl 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16 lg:pt-32 lg:pb-24 w-full">
+    <div class="relative z-10 max-w-7xl 2xl:max-w-384 mx-auto px-4 sm:px-6 lg:px-8 pt-20 lg:pt-42 pb-16 lg:pb-24 w-full">
       <div class="max-w-2xl sm:max-w-3xl lg:max-w-4xl space-y-4 sm:space-y-5 text-white">
 
         <!-- 1. Subtitle (12px = text-xs) -->
@@ -26,14 +26,14 @@ import bannerHero from '@/assets/images/banner-hero.png'
         </p>
 
         <!-- 2. Main Title (Rahma Delivery: text-7xl | votre partenaire de confiance: text-5xl) -->
-        <h1 class="font-bold text-white tracking-tight leading-tight">
-          <span class="text-secondaire text-3xl sm:text-5xl lg:text-7xl inline-block font-bold">Rahma Delivery,</span>
+        <h1 class="font-bold text-white tracking-tight leading-loose">
+          <span class="text-secondaire text-3xl sm:text-5xl lg:text-7xl inline-block font-bold ">Rahma Delivery,</span>
           <br />
-          <span class="text-xl sm:text-3xl lg:text-5xl inline-block font-bold">votre partenaire de confiance</span>
+          <span class="text-xl sm:text-3xl lg:text-5xl inline-block font-bold leading-relaxed">votre partenaire de confiance</span>
         </h1>
 
         <!-- 3. Paragraph (16px = text-base) -->
-        <p class="text-sm sm:text-base font-medium text-white/95 leading-relaxed max-w-xl pt-1">
+        <p class="text-sm sm:text-base font-medium text-white/95 leading-relaxed max-w-2xl pt-1">
           Trouvez facilement un voyageur ou une entreprise disposant de capacité disponible et faites acheminer vos
           colis vers leur destination en toute simplicité.
         </p>

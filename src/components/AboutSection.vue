@@ -9,12 +9,12 @@ import bannerAPropos from '@/assets/images/banner-a-propos.png'
   <section id="a-propos" class="relative py-12 sm:py-10 bg-white overflow-hidden">
 
     <!-- Background Decorative Banner Image (Subtilisé à opacity-20 sur tout écran desktop pour éviter de gêner la lisibilité et surcharger l'écran) -->
-    <div class="absolute inset-0 pointer-events-none z-0 opacity-15 sm:opacity-20 lg:opacity-25">
+    <div class="absolute inset-0 pointer-events-none z-0 ">
       <img :src="bannerAPropos" alt="Decorative Banner Accents"
-        class="w-full h-full object-contain object-right" />
+        class="w-full h-full lg:object-fill object-contain object-right" />
     </div>
 
-    <div class="relative z-10 max-w-7xl 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="relative z-10 max-w-7xl 2xl:max-w-384 mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-16 items-center">
 
         <!-- LEFT COLUMN: Pre-Cut Images Composition (7 cols on xl, 6 cols on lg) -->
@@ -38,12 +38,12 @@ import bannerAPropos from '@/assets/images/banner-a-propos.png'
 
               <!-- Text ONLY overlay centered on the circular cutout boundary -->
               <div
-                class="absolute top-1/2 right-0 translate-x-[18%] translate-y-[-70%] z-20 flex flex-col justify-center items-center text-center w-24 sm:w-32 lg:w-36 pointer-events-none">
-                <span class="text-[10px] sm:text-base font-bold text-secondaire leading-tight">Simple.</span>
+                class="absolute top-1/2 right-0 lg:translate-x-[14%] sm:translate-x-[0%] translate-x-[20%] translate-y-[-70%] z-20 flex flex-col justify-center items-center text-center w-24 sm:w-32 lg:w-36 pointer-events-none">
+                <span class="text-[10px] sm:text-[14px] font-light text-secondaire leading-tight">Simple.</span>
                 <span
-                  class="text-[10px] sm:text-base font-bold text-secondaire leading-tight mt-0.5 sm:mt-1">Rapide.</span>
+                  class="text-[10px] sm:text-[14px] font-light text-secondaire leading-tight mt-0.5 sm:mt-1">Rapide.</span>
                 <span
-                  class="text-[10px] sm:text-base font-bold text-secondaire leading-tight mt-0.5 sm:mt-1">Fiable.</span>
+                  class="text-[10px] sm:text-[14px] font-light text-secondaire leading-tight mt-0.5 sm:mt-1">Fiable.</span>
               </div>
 
             </div>
@@ -57,8 +57,8 @@ import bannerAPropos from '@/assets/images/banner-a-propos.png'
 
                 <!-- Text ONLY overlay positioned cleanly inside top-right speech bubble cutout -->
                 <div
-                  class="absolute top-[9%] sm:top-[9%] right-[6%] sm:right-[8%] w-[48%] sm:w-[50%] h-[20%] z-20 flex items-center justify-center text-left pointer-events-none">
-                  <p class="text-[10px] sm:text-sm lg:text-base font-bold text-principal leading-snug">
+                  class="absolute top-[9%] sm:top-[9%] right-[6%] sm:right-[0%] w-[48%] sm:w-[50%] h-[20%] z-20 flex items-center justify-center text-left pointer-events-none">
+                  <p class="text-[10px] sm:text-[14px]  font-light text-principal leading-snug">
                     Voyagez,<br />
                     transportez,<br />
                     partagez.
@@ -80,7 +80,7 @@ import bannerAPropos from '@/assets/images/banner-a-propos.png'
           </p>
 
           <!-- Main Title (Bleu Principal) -->
-          <h2 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold text-principal tracking-tight leading-tight">
+          <h2 class="text-lg sm:text-xl lg:text-xl xl:text-3xl font-extrabold text-principal tracking-tight leading-tight">
             QUI SOMMES-NOUS ?
           </h2>
 
@@ -100,7 +100,7 @@ import bannerAPropos from '@/assets/images/banner-a-propos.png'
           <!-- Action Button avec biseau exact de la maquette Figma -->
           <div class="pt-2">
             <a href="#devenir-partenaire"
-              class="relative inline-flex items-center justify-center bg-secondaire hover:bg-secondaire-light text-white font-bold text-xs sm:text-sm uppercase tracking-wider px-9 py-4 rounded-2xl shadow-xl shadow-secondaire/30 transition-all duration-200 transform hover:scale-[1.02] active:scale-95 text-center [clip-path:polygon(0_0,100%_0,84%_100%,0_100%)]">
+              class="relative inline-flex items-center justify-center bg-secondaire hover:bg-secondaire-light text-white font-bold text-xs sm:text-sm uppercase tracking-wider px-9 py-4 rounded-2xl shadow-xl shadow-secondaire/30 transition-all duration-200 transform hover:scale-[1.02] active:scale-95 text-center ">
               <span>NOUS CONTACTER</span>
             </a>
           </div>

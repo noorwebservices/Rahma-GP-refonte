@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 const isMobileMenuOpen = ref(false)
 const activeLink = ref('#accueil')
@@ -29,9 +29,41 @@ const handleMobileClick = (href) => {
   closeMobileMenu()
 }
 
+let observer = null
+
 onMounted(() => {
   if (window.location.hash) {
     activeLink.value = window.location.hash
+  }
+
+  // Scrollspy via IntersectionObserver
+  const sectionIds = ['accueil', 'a-propos', 'les-profils', 'comment-ca-marche', 'devenir-partenaire']
+  const sections = sectionIds
+    .map(id => document.getElementById(id))
+    .filter(Boolean)
+
+  if (sections.length > 0) {
+    const observerOptions = {
+      root: null,
+      rootMargin: '-30% 0px -50% 0px', // Active la section quand elle entre dans la zone médiane de l'écran
+      threshold: 0
+    }
+
+    observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          activeLink.value = `#${entry.target.id}`
+        }
+      })
+    }, observerOptions)
+
+    sections.forEach(section => observer.observe(section))
+  }
+})
+
+onUnmounted(() => {
+  if (observer) {
+    observer.disconnect()
   }
 })
 </script>

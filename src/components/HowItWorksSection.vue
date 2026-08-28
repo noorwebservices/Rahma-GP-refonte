@@ -72,7 +72,7 @@ const steps = [
       />
     </div>
 
-    <div class="relative z-10 max-w-7xl 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="relative z-10 max-w-7xl 2xl:max-w-384 mx-auto px-4 sm:px-6 lg:px-8">
       
       <!-- Section Header -->
       <div class="text-center max-w-3xl mx-auto space-y-3 sm:space-y-4 mb-20 lg:mb-28">
