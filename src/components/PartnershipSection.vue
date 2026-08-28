@@ -30,18 +30,18 @@ const handleSubmit = () => {
   <section id="devenir-partenaire" class="relative pt-6 sm:pt-10 pb-12 sm:pb-16 bg-white overflow-hidden">
     
     <!-- Section Header (Top Part) -->
-    <div class="max-w-7xl 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 mb-6 sm:mb-8">
+    <div class="max-w-7xl 2xl:max-w-384 mx-auto px-4 sm:px-6 lg:px-8 mb-6 sm:mb-8">
       <div class="text-center max-w-4xl mx-auto space-y-3">
         
         <!-- Subtitle Badge -->
         <div>
-          <span class="inline-block px-6 py-2 rounded-full border border-secondaire/40 bg-secondaire/5 text-secondaire text-xs sm:text-sm font-bold uppercase tracking-widest">
+          <span class="inline-block px-6 py-2 rounded-full border border-secondaire/40 bg-secondaire/5 text-secondaire text-xs sm:text-sm font-medium uppercase tracking-widest">
             Partenariat
           </span>
         </div>
 
         <!-- Main Title -->
-        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-principal tracking-tight leading-tight">
+        <h2 class="text-lg sm:text-xl lg:text-xl xl:text-3xl font-extrabold text-principal tracking-tight leading-tight">
           Devenez l'une des 1ères Entreprises Partenaires VIP
         </h2>
 
@@ -61,20 +61,20 @@ const handleSubmit = () => {
         <img 
           :src="bannerContact" 
           alt="Business Partnership Background" 
-          class="w-full h-full object-cover object-center"
+          class="w-full h-full object-cover "
         />
         <!-- Overlay Noir 68% d'opacité -->
         <div class="absolute inset-0 bg-black/68"></div>
       </div>
 
       <!-- Content Grid inside max-w-7xl 2xl:max-w-[1536px] (2 Columns) -->
-      <div class="relative z-10 max-w-7xl 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 lg:py-20">
+      <div class="relative z-10 max-w-7xl 2xl:max-w-384 mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 lg:py-20">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           
           <!-- LEFT COLUMN: Privilèges (6 cols) -->
           <div class="lg:col-span-6 space-y-8 text-white">
             
-            <h3 class="text-2xl sm:text-3xl font-extrabold tracking-tight leading-snug">
+            <h3 class="text-xl sm:text-2xl font-extrabold tracking-tight leading-snug">
               Privilèges réservés aux premiers inscrits
             </h3>
 
@@ -147,7 +147,7 @@ const handleSubmit = () => {
           <div class="lg:col-span-6">
             <div class="bg-white/10 backdrop-blur-md rounded-3xl p-6 sm:p-8 border border-white/20 shadow-2xl text-white">
               
-              <h3 class="text-2xl sm:text-3xl font-extrabold mb-2">
+              <h3 class="text-xl sm:text-2xl font-extrabold mb-2">
                 Formulaire de Réservation Prioritaire
               </h3>
               <p class="text-white/80 text-xs sm:text-sm mb-6 pb-4 border-b border-white/10">
