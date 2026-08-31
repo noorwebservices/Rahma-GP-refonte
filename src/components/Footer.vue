@@ -96,7 +96,7 @@ const navLinks = [
       <!-- Copyright Bottom Bar -->
       <div class="pt-6 border-t border-white/20 text-center">
         <p class="text-xs sm:text-sm text-white/80">
-          © 2024 Rehma Delivery. Tous droits réservés. by binAbd
+          © 2026 Rehma Delivery. Tous droits réservés. by <a href="https://noorwebservices.com/" target="_blank" rel="noopener noreferrer" class="underline-offset-2 hover:underline hover:text-white transition-colors font-medium">Noor Webservices</a>
         </p>
       </div>
 
