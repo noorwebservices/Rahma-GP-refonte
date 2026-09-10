@@ -1,102 +1,190 @@
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 import CitySelect from '@/components/client/CitySelect.vue'
+import { fetchAdresseDepots, createAdresseDepot, fetchAdresseRecuperations, createAdresseRecuperation } from '@/services/adresseService'
+import { createVoyage } from '@/services/voyageService'
+import { useAuth } from '@/composables/useAuth'
 
 const router = useRouter()
+const { user } = useAuth()
+
 const currentStep = ref(1)
+const isLoading = ref(false)
+
+// Toast Helper
+const showToast = (icon, title) => {
+  Swal.fire({
+    toast: true,
+    position: 'top-end',
+    icon,
+    title,
+    showConfirmButton: false,
+    timer: 3500
+  })
+}
 
 // Min Date String for HTML datetime-local input
 const minDateDepart = computed(() => {
   const now = new Date()
   const tzOffset = now.getTimezoneOffset() * 60000
-  const localISOTime = new Date(now.getTime() - tzOffset).toISOString().slice(0, 16)
-  return localISOTime
+  return new Date(now.getTime() - tzOffset).toISOString().slice(0, 16)
 })
 
+// Main Form State matching backend StoreVoyageRequest schema
 const form = reactive({
-  // Trajet
+  adresse_depot_id: '',
+  adresse_recuperation_id: '',
   pays_depart: 'Sénégal',
   ville_depart: 'Dakar',
   pays_destination: 'France',
   ville_destination: 'Paris',
-
-  // Dates
   date_depart: '',
   date_arrivee: '',
-
-  // Capacité & Tarifs
-  capacite_totale: 20,
+  capacite_totale: 25,
   prix_kg: 8500,
   prix_objet: 15000,
   devise: 'XOF',
   description: 'Voyage régulier Dakar - Paris. Bagages sécurisés et scellés.',
-
-  // Dépôt & Retrait (Backend alignment: adresse_depots & adresse_recuperations)
-  adresse_depot: 'Point Relais Rahma - Parcelles Assainies, Dakar',
-  horaire_depot: 'Lun - Ven: 09h00 - 18h00',
-  instructions_depot: 'Remettre le colis en main propre au relais.',
-
-  adresse_retrait: 'Agence Rahma Paris 10ème (Gare du Nord)',
-  horaire_retrait: 'Lun - Sam: 09h00 - 19h00',
-  instructions_retrait: 'Présenter la pièce d\'identité du destinataire.',
-
-  // Catégories autorisées / refusées (JSON)
   objets_autorises: [
     'Vêtements & tissus',
     'Électronique & téléphones',
     'Documents & papiers',
-    'Cosmétiques & soins',
-    'Médicaments sur ordonnance'
+    'Cosmétiques & soins'
   ],
   objets_interdits: [
     'Aliments périssables',
-    'Liquides non scellés',
-    'Produits inflammables',
-    'Substances illégales'
+    'Liquides non scellés > 100ml',
+    'Substances inflammables',
+    'Objets tranchants'
   ],
   statut: 'brouillon'
 })
 
-// Presets selection state
-const selectedDepotPreset = ref('relais_dakar')
-const selectedRetraitPreset = ref('agence_paris_nord')
+// Addresses lists fetched from backend
+const adressesDepot = ref([])
+const adressesRecuperation = ref([])
 
-const onDepotPresetChange = () => {
-  if (selectedDepotPreset.value === 'relais_dakar') {
-    form.adresse_depot = 'Point Relais Rahma - Parcelles Assainies Unité 15, Dakar'
-    form.horaire_depot = 'Lun - Ven: 08h30 - 18h30'
-  } else if (selectedDepotPreset.value === 'aeroport_aibd') {
-    form.adresse_depot = 'Aéroport International Blaise Diagne (AIBD), Diass'
-    form.horaire_depot = 'Jour du départ: 3h avant le vol'
-  } else if (selectedDepotPreset.value === 'new') {
-    form.adresse_depot = ''
-    form.horaire_depot = ''
+// New Address Modal States
+const showDepotModal = ref(false)
+const showRecupModal = ref(false)
+
+const newDepotForm = reactive({
+  adresse: '',
+  ville: 'Dakar',
+  pays: 'Sénégal',
+  horaire_ouverture: 'Du Lundi au Samedi de 08h30 à 18h30',
+  instructions: 'Remettre le colis au comptoir Rahma GP.',
+  latitude: null,
+  longitude: null
+})
+
+const newRecupForm = reactive({
+  adresse: '',
+  ville: 'Paris',
+  pays: 'France',
+  horaire_ouverture: 'Du Lundi au Samedi de 09h00 à 19h00',
+  instructions: 'Présenter le code de réservation au guichet.',
+  latitude: null,
+  longitude: null
+})
+
+// Load existing addresses on mount
+onMounted(async () => {
+  await loadAddresses()
+})
+
+const loadAddresses = async () => {
+  try {
+    const resDepot = await fetchAdresseDepots()
+    if (resDepot && resDepot.data) {
+      adressesDepot.value = resDepot.data
+      if (adressesDepot.value.length > 0 && !form.adresse_depot_id) {
+        form.adresse_depot_id = adressesDepot.value[0].id
+      }
+    }
+  } catch (err) {
+    // Fallback default list if API offline or empty
+    if (adressesDepot.value.length === 0) {
+      adressesDepot.value = [
+        { id: '01a0828c-8880-7190-be0a-5e3294225ecd', adresse: '15 Rue de Rivoli, Agence Relais Rahma', ville: 'Paris', pays: 'France' },
+        { id: '01a0828c-8880-7190-be0a-5e3294225ece', adresse: 'Point Relais Rahma - Parcelles Assainies Unité 15', ville: 'Dakar', pays: 'Sénégal' }
+      ]
+      form.adresse_depot_id = adressesDepot.value[0].id
+    }
+  }
+
+  try {
+    const resRecup = await fetchAdresseRecuperations()
+    if (resRecup && resRecup.data) {
+      adressesRecuperation.value = resRecup.data
+      if (adressesRecuperation.value.length > 0 && !form.adresse_recuperation_id) {
+        form.adresse_recuperation_id = adressesRecuperation.value[0].id
+      }
+    }
+  } catch (err) {
+    // Fallback default list
+    if (adressesRecuperation.value.length === 0) {
+      adressesRecuperation.value = [
+        { id: '01a0828c-888a-724f-a324-ce1f1cdf2a6b', adresse: 'Agence Rahma Paris 10ème (Gare du Nord)', ville: 'Paris', pays: 'France' },
+        { id: '01a0828c-888a-724f-a324-ce1f1cdf2a6c', adresse: 'Aéroport Blaise Diagne (Zone Arrivée)', ville: 'Dakar', pays: 'Sénégal' }
+      ]
+      form.adresse_recuperation_id = adressesRecuperation.value[0].id
+    }
   }
 }
 
-const onRetraitPresetChange = () => {
-  if (selectedRetraitPreset.value === 'agence_paris_nord') {
-    form.adresse_retrait = 'Agence Rahma Paris 10ème (Gare du Nord, 14 Rue Lafayette)'
-    form.horaire_retrait = 'Lun - Sam: 09h00 - 19h00'
-  } else if (selectedRetraitPreset.value === 'aeroport_orly') {
-    form.adresse_retrait = 'Aéroport Paris-Orly (Zone Arrivée Terminal 4)'
-    form.horaire_retrait = 'À l\'arrivée du vol'
-  } else if (selectedRetraitPreset.value === 'new') {
-    form.adresse_retrait = ''
-    form.horaire_retrait = ''
+// Save New Adresse de Dépôt
+const submitNewDepotAddress = async () => {
+  if (!newDepotForm.adresse.trim() || !newDepotForm.ville.trim() || !newDepotForm.pays.trim()) {
+    showToast('warning', 'Veuillez remplir l\'adresse, la ville et le pays.')
+    return
+  }
+  isLoading.value = true
+  try {
+    const res = await createAdresseDepot({ ...newDepotForm })
+    showToast('success', 'Adresse de dépôt enregistrée avec succès !')
+    showDepotModal.value = false
+    await loadAddresses()
+    if (res && res.data && res.data.id) {
+      form.adresse_depot_id = res.data.id
+    }
+  } catch (err) {
+    showToast('error', err?.message || 'Erreur lors de la création de l\'adresse de dépôt.')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Save New Adresse de Récupération
+const submitNewRecupAddress = async () => {
+  if (!newRecupForm.adresse.trim() || !newRecupForm.ville.trim() || !newRecupForm.pays.trim()) {
+    showToast('warning', 'Veuillez remplir l\'adresse, la ville et le pays.')
+    return
+  }
+  isLoading.value = true
+  try {
+    const res = await createAdresseRecuperation({ ...newRecupForm })
+    showToast('success', 'Adresse de récupération enregistrée avec succès !')
+    showRecupModal.value = false
+    await loadAddresses()
+    if (res && res.data && res.data.id) {
+      form.adresse_recuperation_id = res.data.id
+    }
+  } catch (err) {
+    showToast('error', err?.message || 'Erreur lors de la création de l\'adresse de récupération.')
+  } finally {
+    isLoading.value = false
   }
 }
 
 // Custom category inputs
 const customAutorise = ref('')
 const customInterdit = ref('')
-
 const dateError = ref('')
 
-// Pre-defined category choices for air travel
-const presetAutorises = [
+const presetAutorises = ref([
   'Vêtements & tissus',
   'Électronique & téléphones',
   'Documents & papiers',
@@ -105,25 +193,33 @@ const presetAutorises = [
   'Bijoux & valeurs',
   'Artisanat & souvenirs',
   'Nourriture sèche & épices scellées'
-]
+])
 
-const presetInterdits = [
+const presetInterdits = ref([
   'Aliments périssables',
-  'Liquides non scellés (> 100ml)',
+  'Liquides non scellés > 100ml',
   'Produits inflammables & aérosols',
   'Substances illégales ou interdites',
-  'Armes & objets tranchants'
-]
+  'Objets tranchants'
+])
 
-// Strict Validation logic for dates
+const allAutorisesList = computed(() => {
+  return Array.from(new Set([...presetAutorises.value, ...form.objets_autorises]))
+})
+
+const allInterditsList = computed(() => {
+  return Array.from(new Set([...presetInterdits.value, ...form.objets_interdits]))
+})
+
+// Strict Validation matching backend rules
 const validateDates = () => {
   dateError.value = ''
   if (!form.date_depart) {
-    dateError.value = 'La date de départ est requise.'
+    dateError.value = 'La date de départ est obligatoire.'
     return false
   }
   if (!form.date_arrivee) {
-    dateError.value = 'La date d\'arrivée est requise.'
+    dateError.value = 'La date d\'arrivée est obligatoire.'
     return false
   }
 
@@ -132,59 +228,72 @@ const validateDates = () => {
   const arr = new Date(form.date_arrivee)
 
   if (dep < now) {
-    dateError.value = 'La date de départ ne peut pas être une date passée.'
+    dateError.value = 'La date de départ doit être aujourd\'hui ou une date future.'
     return false
   }
 
   if (arr <= dep) {
-    dateError.value = 'La date d\'arrivée doit être strictement postérieure à la date de départ.'
+    dateError.value = 'La date d\'arrivée doit être strictement supérieure à la date de départ.'
     return false
   }
   return true
 }
 
-const nextStep = () => {
-  if (currentStep.value === 2) {
+const validateStep = (step) => {
+  if (step === 1) {
+    if (!form.ville_depart || !form.ville_destination) {
+      showToast('warning', 'Veuillez sélectionner les villes de départ et de destination.')
+      return false
+    }
+  } else if (step === 2) {
     if (!validateDates()) {
-      return // BLOCKS NAVIGATION IF INVALID!
+      showToast('warning', dateError.value)
+      return false
+    }
+  } else if (step === 3) {
+    if (!form.capacite_totale || form.capacite_totale <= 0) {
+      showToast('warning', 'La capacité totale (en Kg) doit être supérieure à 0.')
+      return false
+    }
+  } else if (step === 4) {
+    if (!form.adresse_depot_id) {
+      showToast('warning', 'Veuillez sélectionner une adresse de dépôt.')
+      return false
+    }
+    if (!form.adresse_recuperation_id) {
+      showToast('warning', 'Veuillez sélectionner une adresse de récupération.')
+      return false
     }
   }
-  if (currentStep.value < 5) {
-    currentStep.value++
-  }
+  return true
+}
+
+const nextStep = () => {
+  if (!validateStep(currentStep.value)) return
+  if (currentStep.value < 5) currentStep.value++
 }
 
 const prevStep = () => {
-  if (currentStep.value > 1) {
-    currentStep.value--
-  }
+  if (currentStep.value > 1) currentStep.value--
 }
 
-// Toggle Autorises & Interdits
 const toggleAutorise = (cat) => {
   const index = form.objets_autorises.indexOf(cat)
-  if (index > -1) {
-    form.objets_autorises.splice(index, 1)
-  } else {
-    form.objets_autorises.push(cat)
-  }
+  if (index > -1) form.objets_autorises.splice(index, 1)
+  else form.objets_autorises.push(cat)
 }
 
 const toggleInterdit = (cat) => {
   const index = form.objets_interdits.indexOf(cat)
-  if (index > -1) {
-    form.objets_interdits.splice(index, 1)
-  } else {
-    form.objets_interdits.push(cat)
-  }
+  if (index > -1) form.objets_interdits.splice(index, 1)
+  else form.objets_interdits.push(cat)
 }
 
 const addCustomAutorise = () => {
   if (customAutorise.value.trim()) {
     const val = customAutorise.value.trim()
-    if (!form.objets_autorises.includes(val)) {
-      form.objets_autorises.push(val)
-    }
+    if (!presetAutorises.value.includes(val)) presetAutorises.value.push(val)
+    if (!form.objets_autorises.includes(val)) form.objets_autorises.push(val)
     customAutorise.value = ''
   }
 }
@@ -192,32 +301,63 @@ const addCustomAutorise = () => {
 const addCustomInterdit = () => {
   if (customInterdit.value.trim()) {
     const val = customInterdit.value.trim()
-    if (!form.objets_interdits.includes(val)) {
-      form.objets_interdits.push(val)
-    }
+    if (!presetInterdits.value.includes(val)) presetInterdits.value.push(val)
+    if (!form.objets_interdits.includes(val)) form.objets_interdits.push(val)
     customInterdit.value = ''
   }
 }
 
-const submitVoyage = () => {
-  Swal.fire({
-    toast: true,
-    position: 'top-end',
-    icon: 'success',
-    title: 'Voyage enregistré en brouillon avec succès !',
-    showConfirmButton: false,
-    timer: 3000
-  })
-  router.push('/voyageur')
+// Format date string for Backend API
+const formatDateForApi = (dateStr) => {
+  if (!dateStr) return null
+  return dateStr.replace('T', ' ') + ':00'
+}
+
+// Submit Voyage to Backend API
+const handleSaveVoyage = async (targetStatut) => {
+  if (!validateStep(1) || !validateStep(2) || !validateStep(3) || !validateStep(4)) return
+
+  form.statut = targetStatut
+  isLoading.value = true
+
+  const payload = {
+    adresse_depot_id: form.adresse_depot_id,
+    adresse_recuperation_id: form.adresse_recuperation_id,
+    pays_depart: form.pays_depart,
+    ville_depart: form.ville_depart,
+    pays_destination: form.pays_destination,
+    ville_destination: form.ville_destination,
+    date_depart: formatDateForApi(form.date_depart),
+    date_arrivee: formatDateForApi(form.date_arrivee),
+    capacite_totale: Number(form.capacite_totale),
+    prix_kg: Number(form.prix_kg) || 0,
+    prix_objet: Number(form.prix_objet) || 0,
+    devise: form.devise,
+    description: form.description,
+    objets_autorises: form.objets_autorises,
+    objets_interdits: form.objets_interdits,
+    statut: form.statut
+  }
+
+  try {
+    await createVoyage(payload)
+    showToast('success', targetStatut === 'publie' ? 'Voyage publié avec succès !' : 'Voyage enregistré en brouillon !')
+    router.push('/voyageur')
+  } catch (err) {
+    const errMsg = err?.message || 'Une erreur est survenue lors de l\'enregistrement du voyage.'
+    showToast('error', errMsg)
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>
 
 <template>
-  <div class="space-y-6 pb-16">
+  <div class="space-y-6 pb-20 font-sans">
     <!-- Header -->
     <div class="space-y-1">
       <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark">Publier un voyage</h1>
-      <p class="text-xs sm:text-sm text-gray-500">Renseignez votre trajet et vos disponibilités pour transporter des colis</p>
+      <p class="text-xs sm:text-sm text-gray-500">Renseignez votre trajet, vos adresses et vos disponibilités pour transporter des colis</p>
     </div>
 
     <!-- Multi-Step Progress Indicator -->
@@ -227,7 +367,7 @@ const submitVoyage = () => {
         <span v-if="currentStep === 1">1. Trajet</span>
         <span v-else-if="currentStep === 2">2. Dates & Heures</span>
         <span v-else-if="currentStep === 3">3. Capacité & Tarifs</span>
-        <span v-else-if="currentStep === 4">4. Points Relais</span>
+        <span v-else-if="currentStep === 4">4. Adresses Dépôt & Récupération</span>
         <span v-else>5. Catégories d'objets</span>
       </div>
 
@@ -242,14 +382,14 @@ const submitVoyage = () => {
     <!-- Form Content Container -->
     <div class="bg-white rounded-3xl p-6 border border-gray-200 shadow-sm space-y-6">
       
-      <!-- STEP 1: TRAJET (Uses CitySelect component!) -->
+      <!-- STEP 1: TRAJET -->
       <div v-if="currentStep === 1" class="space-y-4">
         <h3 class="text-base font-extrabold text-[#053754] border-b border-gray-100 pb-2">1. Sélectionnez votre trajet</h3>
 
         <div class="space-y-4">
           <!-- Departure City Select -->
           <div class="space-y-1.5">
-            <label class="block text-xs font-bold text-gray-700">Ville & Pays de Départ</label>
+            <label class="block text-xs font-bold text-gray-700">Ville de Départ</label>
             <CitySelect
               v-model="form.ville_depart"
               placeholder="Rechercher une ville de départ..."
@@ -258,7 +398,7 @@ const submitVoyage = () => {
 
           <!-- Destination City Select -->
           <div class="space-y-1.5">
-            <label class="block text-xs font-bold text-gray-700">Ville & Pays de Destination</label>
+            <label class="block text-xs font-bold text-gray-700">Ville de Destination</label>
             <CitySelect
               v-model="form.ville_destination"
               placeholder="Rechercher une ville de destination..."
@@ -267,7 +407,7 @@ const submitVoyage = () => {
         </div>
       </div>
 
-      <!-- STEP 2: DATES & STRICT VALIDATIONS -->
+      <!-- STEP 2: DATES & HEURES -->
       <div v-else-if="currentStep === 2" class="space-y-4">
         <h3 class="text-base font-extrabold text-[#053754] border-b border-gray-100 pb-2">2. Dates et Heures du voyage</h3>
 
@@ -281,7 +421,7 @@ const submitVoyage = () => {
               type="datetime-local"
               class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 outline-none focus:bg-white focus:ring-2 focus:ring-[#074C72]/20"
             />
-            <span class="text-[11px] text-gray-400">Les dates passées ne sont pas autorisées</span>
+            <span class="text-[11px] text-gray-400">Date obligatoire (Aujourd'hui ou future)</span>
           </div>
 
           <div class="space-y-1.5">
@@ -293,7 +433,7 @@ const submitVoyage = () => {
               type="datetime-local"
               class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 outline-none focus:bg-white focus:ring-2 focus:ring-[#074C72]/20"
             />
-            <span class="text-[11px] text-gray-400">L'arrivée doit être postérieure au départ</span>
+            <span class="text-[11px] text-gray-400">Strictement supérieure à la date de départ</span>
           </div>
         </div>
 
@@ -312,14 +452,14 @@ const submitVoyage = () => {
             <input
               v-model.number="form.capacite_totale"
               type="number"
-              placeholder="ex: 20"
+              placeholder="ex: 25"
               class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 outline-none focus:bg-white focus:ring-2 focus:ring-[#074C72]/20"
             />
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="space-y-1.5">
-              <label class="block text-xs font-bold text-gray-700">Prix au Kg (F CFA)</label>
+              <label class="block text-xs font-bold text-gray-700">Prix au Kg ({{ form.devise }})</label>
               <input
                 v-model.number="form.prix_kg"
                 type="number"
@@ -329,7 +469,7 @@ const submitVoyage = () => {
             </div>
 
             <div class="space-y-1.5">
-              <label class="block text-xs font-bold text-gray-700">Prix objet spécifique (Optionnel)</label>
+              <label class="block text-xs font-bold text-gray-700">Prix par objet spécifique (Optionnel)</label>
               <input
                 v-model.number="form.prix_objet"
                 type="number"
@@ -338,91 +478,85 @@ const submitVoyage = () => {
               />
             </div>
           </div>
+
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-gray-700">Description du voyage</label>
+            <textarea
+              v-model="form.description"
+              rows="3"
+              placeholder="Fournissez des détails sur votre vol, vos consignes et disponibilités..."
+              class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 outline-none focus:bg-white focus:ring-2 focus:ring-[#074C72]/20"
+            ></textarea>
+          </div>
         </div>
       </div>
 
-      <!-- STEP 4: POINTS RELAIS (SELECT PRESETS & DISABLED FIELDS) -->
-      <div v-else-if="currentStep === 4" class="space-y-4">
+      <!-- STEP 4: ADRESSES DÉPÔT ET RÉCUPÉRATION -->
+      <div v-else-if="currentStep === 4" class="space-y-6">
         <h3 class="text-base font-extrabold text-[#053754] border-b border-gray-100 pb-2">4. Lieux de Dépôt & Récupération</h3>
 
-        <div class="space-y-4">
-          <!-- Point Dépôt Select & Disabled Inputs -->
-          <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200 space-y-3">
-            <h4 class="text-xs font-extrabold text-[#053754] flex items-center gap-1.5">
-              <span>📍</span> Point de Dépôt (Ville de Départ)
-            </h4>
+        <div class="space-y-5">
+          <!-- Adresse Dépôt Selector Card -->
+          <div class="bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200 space-y-3">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <h4 class="text-xs font-extrabold text-[#053754] flex items-center gap-1.5 uppercase tracking-wider">
+                <span>📍</span> Adresse de Dépôt (Départ)
+              </h4>
+              <button
+                @click="showDepotModal = true"
+                type="button"
+                class="text-xs font-extrabold text-[#B50302] hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                <span>+ Nouvelle adresse de dépôt</span>
+              </button>
+            </div>
 
             <div class="space-y-2">
-              <label class="block text-[11px] font-bold text-gray-600">Choisissez une adresse enregistrée :</label>
+              <label class="block text-[11px] font-bold text-gray-600">Sélectionnez le lieu de remise du colis :</label>
               <select
-                v-model="selectedDepotPreset"
-                @change="onDepotPresetChange"
-                class="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 font-bold outline-none"
+                v-model="form.adresse_depot_id"
+                class="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 font-bold outline-none focus:ring-2 focus:ring-[#074C72]/20"
               >
-                <option value="relais_dakar">Point Relais Rahma - Parcelles Assainies, Dakar</option>
-                <option value="aeroport_aibd">Aéroport International Blaise Diagne (AIBD), Diass</option>
-                <option value="new">➕ Enregistrer une nouvelle adresse de dépôt...</option>
+                <option value="" disabled>-- Sélectionner une adresse de dépôt --</option>
+                <option v-for="addr in adressesDepot" :key="addr.id" :value="addr.id">
+                  {{ addr.adresse }} ({{ addr.ville }}, {{ addr.pays }})
+                </option>
               </select>
-
-              <div class="space-y-2 pt-1">
-                <input
-                  v-model="form.adresse_depot"
-                  :disabled="selectedDepotPreset !== 'new'"
-                  type="text"
-                  placeholder="Adresse de dépôt"
-                  class="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 outline-none disabled:bg-gray-200/70 disabled:text-gray-500 disabled:cursor-not-allowed font-medium"
-                />
-                <input
-                  v-model="form.horaire_depot"
-                  :disabled="selectedDepotPreset !== 'new'"
-                  type="text"
-                  placeholder="Horaires d'ouverture"
-                  class="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 outline-none disabled:bg-gray-200/70 disabled:text-gray-500 disabled:cursor-not-allowed font-medium"
-                />
-              </div>
             </div>
           </div>
 
-          <!-- Point Retrait Select & Disabled Inputs -->
-          <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200 space-y-3">
-            <h4 class="text-xs font-extrabold text-[#053754] flex items-center gap-1.5">
-              <span>📍</span> Point de Retrait (Ville de Destination)
-            </h4>
+          <!-- Adresse Récupération Selector Card -->
+          <div class="bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200 space-y-3">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <h4 class="text-xs font-extrabold text-[#053754] flex items-center gap-1.5 uppercase tracking-wider">
+                <span>📍</span> Adresse de Récupération (Arrivée)
+              </h4>
+              <button
+                @click="showRecupModal = true"
+                type="button"
+                class="text-xs font-extrabold text-[#B50302] hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                <span>+ Nouvelle adresse de récupération</span>
+              </button>
+            </div>
 
             <div class="space-y-2">
-              <label class="block text-[11px] font-bold text-gray-600">Choisissez une adresse enregistrée :</label>
+              <label class="block text-[11px] font-bold text-gray-600">Sélectionnez le lieu de retrait du colis :</label>
               <select
-                v-model="selectedRetraitPreset"
-                @change="onRetraitPresetChange"
-                class="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 font-bold outline-none"
+                v-model="form.adresse_recuperation_id"
+                class="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 font-bold outline-none focus:ring-2 focus:ring-[#074C72]/20"
               >
-                <option value="agence_paris_nord">Agence Rahma Paris 10ème (Gare du Nord)</option>
-                <option value="aeroport_orly">Aéroport Paris-Orly (Zone Arrivée)</option>
-                <option value="new">➕ Enregistrer une nouvelle adresse de retrait...</option>
+                <option value="" disabled>-- Sélectionner une adresse de récupération --</option>
+                <option v-for="addr in adressesRecuperation" :key="addr.id" :value="addr.id">
+                  {{ addr.adresse }} ({{ addr.ville }}, {{ addr.pays }})
+                </option>
               </select>
-
-              <div class="space-y-2 pt-1">
-                <input
-                  v-model="form.adresse_retrait"
-                  :disabled="selectedRetraitPreset !== 'new'"
-                  type="text"
-                  placeholder="Adresse de retrait"
-                  class="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 outline-none disabled:bg-gray-200/70 disabled:text-gray-500 disabled:cursor-not-allowed font-medium"
-                />
-                <input
-                  v-model="form.horaire_retrait"
-                  :disabled="selectedRetraitPreset !== 'new'"
-                  type="text"
-                  placeholder="Horaires d'ouverture"
-                  class="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 outline-none disabled:bg-gray-200/70 disabled:text-gray-500 disabled:cursor-not-allowed font-medium"
-                />
-              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- STEP 5: CATÉGORIES ACCEPTÉES ET REFUSÉES AVEC SAISIE PERSONNALISÉE DES DEUX CÔTÉS -->
+      <!-- STEP 5: CATÉGORIES ACCEPTÉES / REFUSÉES -->
       <div v-else-if="currentStep === 5" class="space-y-6">
         <h3 class="text-base font-extrabold text-[#053754] border-b border-gray-100 pb-2">5. Catégories d'objets autorisées & interdites</h3>
 
@@ -432,7 +566,7 @@ const submitVoyage = () => {
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div
-              v-for="cat in presetAutorises"
+              v-for="cat in allAutorisesList"
               :key="cat"
               @click="toggleAutorise(cat)"
               class="p-3 rounded-xl border text-xs font-bold flex items-center justify-between cursor-pointer transition-all"
@@ -448,12 +582,12 @@ const submitVoyage = () => {
             <input
               v-model="customAutorise"
               type="text"
-              placeholder="✍️ Autre objet accepté (ex: Épices et thés scellés)"
+              placeholder="✍️ Autre objet accepté (ex: Épices scellées)"
               class="flex-1 bg-[#F3F4F6] border border-gray-200 rounded-xl px-4 py-2.5 text-xs text-gray-800 outline-none"
-              @keyup.enter="addCustomAutorise"
+              @keyup.enter.prevent="addCustomAutorise"
             />
             <button
-              @click="addCustomAutorise"
+              @click.prevent="addCustomAutorise"
               type="button"
               class="bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl cursor-pointer shrink-0"
             >
@@ -468,7 +602,7 @@ const submitVoyage = () => {
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div
-              v-for="cat in presetInterdits"
+              v-for="cat in allInterditsList"
               :key="cat"
               @click="toggleInterdit(cat)"
               class="p-3 rounded-xl border text-xs font-bold flex items-center justify-between cursor-pointer transition-all"
@@ -484,12 +618,12 @@ const submitVoyage = () => {
             <input
               v-model="customInterdit"
               type="text"
-              placeholder="✍️ Autre objet refusé (ex: Parfums > 100ml)"
+              placeholder="✍️ Autre objet interdit (ex: Produits corrosifs)"
               class="flex-1 bg-[#F3F4F6] border border-gray-200 rounded-xl px-4 py-2.5 text-xs text-gray-800 outline-none"
-              @keyup.enter="addCustomInterdit"
+              @keyup.enter.prevent="addCustomInterdit"
             />
             <button
-              @click="addCustomInterdit"
+              @click.prevent="addCustomInterdit"
               type="button"
               class="bg-[#B50302] hover:bg-[#8B0000] text-white font-extrabold text-xs px-4 py-2.5 rounded-xl cursor-pointer shrink-0"
             >
@@ -497,11 +631,10 @@ const submitVoyage = () => {
             </button>
           </div>
         </div>
-
       </div>
 
       <!-- Navigation Buttons -->
-      <div class="border-t border-gray-100 pt-4 flex items-center justify-between gap-3">
+      <div class="border-t border-gray-100 pt-4 flex items-center justify-between gap-3 flex-wrap">
         <button
           v-if="currentStep > 1"
           @click="prevStep"
@@ -511,7 +644,7 @@ const submitVoyage = () => {
           Précédent
         </button>
 
-        <div class="ml-auto">
+        <div class="ml-auto flex items-center gap-2">
           <button
             v-if="currentStep < 5"
             @click="nextStep"
@@ -521,17 +654,115 @@ const submitVoyage = () => {
             Suivant
           </button>
 
-          <button
-            v-else
-            @click="submitVoyage"
-            type="button"
-            class="bg-[#B50302] hover:bg-[#8B0000] text-white font-extrabold text-xs sm:text-sm py-3.5 px-6 rounded-xl shadow-lg transition-all cursor-pointer uppercase tracking-wider active:scale-[0.99]"
-          >
-            ENREGISTRER CE VOYAGE (BROUILLON)
-          </button>
+          <template v-else>
+            <button
+              @click="handleSaveVoyage('brouillon')"
+              :disabled="isLoading"
+              type="button"
+              class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-extrabold text-xs py-3.5 px-5 rounded-xl transition-all cursor-pointer uppercase tracking-wider"
+            >
+              Brouillon
+            </button>
+
+            <button
+              @click="handleSaveVoyage('publie')"
+              :disabled="isLoading"
+              type="button"
+              class="bg-[#B50302] hover:bg-[#8B0000] text-white font-extrabold text-xs sm:text-sm py-3.5 px-6 rounded-xl shadow-lg transition-all cursor-pointer uppercase tracking-wider active:scale-[0.99]"
+            >
+              PUBLIER LE VOYAGE
+            </button>
+          </template>
         </div>
       </div>
 
     </div>
+
+    <!-- MODAL: NOUVELLE ADRESSE DE DÉPÔT -->
+    <div v-if="showDepotModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+      <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 font-sans">
+        <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+          <h3 class="text-base font-bold text-[#053754] font-serif">Créer une adresse de dépôt</h3>
+          <button @click="showDepotModal = false" class="text-gray-400 hover:text-gray-600">✕</button>
+        </div>
+
+        <form @submit.prevent="submitNewDepotAddress" class="space-y-3 text-xs">
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Adresse complète *</label>
+            <input v-model="newDepotForm.adresse" type="text" placeholder="ex: 15 Rue de Rivoli, Agence Relais Rahma" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-gray-700 mb-1">Ville *</label>
+              <input v-model="newDepotForm.ville" type="text" placeholder="Dakar" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none" />
+            </div>
+            <div>
+              <label class="block font-bold text-gray-700 mb-1">Pays *</label>
+              <input v-model="newDepotForm.pays" type="text" placeholder="Sénégal" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Horaire d'ouverture</label>
+            <input v-model="newDepotForm.horaire_ouverture" type="text" placeholder="Du Lundi au Samedi de 08h30 à 19h00" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none" />
+          </div>
+
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Instructions de dépôt</label>
+            <textarea v-model="newDepotForm.instructions" rows="2" placeholder="Consignes particulières pour le client..." class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none"></textarea>
+          </div>
+
+          <div class="pt-2 flex justify-end gap-2">
+            <button type="button" @click="showDepotModal = false" class="px-4 py-2 text-gray-600 font-bold">Annuler</button>
+            <button type="submit" :disabled="isLoading" class="bg-[#053754] text-white font-bold px-5 py-2 rounded-xl">Enregistrer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: NOUVELLE ADRESSE DE RÉCUPÉRATION -->
+    <div v-if="showRecupModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+      <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 font-sans">
+        <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+          <h3 class="text-base font-bold text-[#053754] font-serif">Créer une adresse de récupération</h3>
+          <button @click="showRecupModal = false" class="text-gray-400 hover:text-gray-600">✕</button>
+        </div>
+
+        <form @submit.prevent="submitNewRecupAddress" class="space-y-3 text-xs">
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Adresse complète *</label>
+            <input v-model="newRecupForm.adresse" type="text" placeholder="ex: Agence Rahma Paris 10ème (Gare du Nord)" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-gray-700 mb-1">Ville *</label>
+              <input v-model="newRecupForm.ville" type="text" placeholder="Paris" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none" />
+            </div>
+            <div>
+              <label class="block font-bold text-gray-700 mb-1">Pays *</label>
+              <input v-model="newRecupForm.pays" type="text" placeholder="France" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Horaire d'ouverture</label>
+            <input v-model="newRecupForm.horaire_ouverture" type="text" placeholder="Du Lundi au Samedi de 09h00 à 19h00" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none" />
+          </div>
+
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Instructions de récupération</label>
+            <textarea v-model="newRecupForm.instructions" rows="2" placeholder="Consignes particulières pour le destinataire..." class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none"></textarea>
+          </div>
+
+          <div class="pt-2 flex justify-end gap-2">
+            <button type="button" @click="showRecupModal = false" class="px-4 py-2 text-gray-600 font-bold">Annuler</button>
+            <button type="submit" :disabled="isLoading" class="bg-[#053754] text-white font-bold px-5 py-2 rounded-xl">Enregistrer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
   </div>
 </template>

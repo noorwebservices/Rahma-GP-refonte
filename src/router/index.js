@@ -102,6 +102,10 @@ const router = createRouter({
           component: () => import('../views/voyageur/VoyagesView.vue')
         },
         {
+          path: 'voyages',
+          redirect: '/voyageur'
+        },
+        {
           path: 'voyages/nouveau',
           name: 'voyageur-create-voyage',
           component: () => import('../views/voyageur/CreateVoyageView.vue'),

@@ -1,18 +1,87 @@
 <script setup>
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { fetchVoyage } from '@/services/voyageService'
+import { formatVoyageDate } from '@/utils/flagHelper'
+import CountryFlag from '@/components/common/CountryFlag.vue'
 
+const route = useRoute()
 const router = useRouter()
+const voyageId = route.params.id
+
+const isLoading = ref(true)
+const errorMsg = ref('')
+const voyage = ref(null)
+
+onMounted(async () => {
+  if (!voyageId) {
+    errorMsg.value = 'Identifiant du voyage manquant.'
+    isLoading.value = false
+    return
+  }
+
+  isLoading.value = true
+  errorMsg.value = ''
+
+  try {
+    const res = await fetchVoyage(voyageId)
+    if (res && res.data) {
+      const v = res.data
+      voyage.value = {
+        id: v.id,
+        depart: v.ville_depart || 'Départ',
+        paysDepart: v.pays_depart || '',
+        destination: v.ville_destination || 'Destination',
+        paysDest: v.pays_destination || '',
+        dateDepart: v.date_depart,
+        dateArrivee: v.date_arrivee,
+        poidsDispo: v.capacite_dispo !== undefined ? Number(v.capacite_dispo) : Number(v.capacite_totale || 0),
+        poidsTotal: Number(v.capacite_totale) || 0,
+        prixKg: v.prix_kg ? `${v.prix_kg} ${v.devise || 'FCFA'}` : 'Non défini',
+        prixObjet: v.prix_objet ? `${v.prix_objet} ${v.devise || 'FCFA'}` : 'Non défini',
+        transporteur: v.voyageur ? `${v.voyageur.prenom || v.voyageur.user?.prenom || ''} ${v.voyageur.nom || v.voyageur.user?.nom || ''}`.trim() || 'Transporteur GP' : (v.transporteur_nom || 'Transporteur GP'),
+        adresseDepotObj: v.adresse_depot || null,
+        adresseDepotText: v.adresse_depot ? `${v.adresse_depot.adresse} (${v.adresse_depot.ville}, ${v.adresse_depot.pays})` : 'Adresse non spécifiée',
+        horaireDepot: v.adresse_depot?.horaire_ouverture || 'Non précisé',
+        adresseRetraitObj: v.adresse_recuperation || null,
+        adresseRetraitText: v.adresse_recuperation ? `${v.adresse_recuperation.adresse} (${v.adresse_recuperation.ville}, ${v.adresse_recuperation.pays})` : 'Adresse non spécifiée',
+        horaireRetrait: v.adresse_recuperation?.horaire_ouverture || 'Non précisé',
+        categoriesAutorisees: Array.isArray(v.objets_autorises) ? v.objets_autorises : [],
+        categoriesRefusees: Array.isArray(v.objets_interdits) ? v.objets_interdits : []
+      }
+    } else {
+      errorMsg.value = 'Voyage non trouvé.'
+    }
+  } catch (err) {
+    errorMsg.value = err?.message || 'Erreur lors du chargement du voyage.'
+  } finally {
+    isLoading.value = false
+  }
+})
 
 const startBooking = () => {
-  router.push('/client/booking/step-1')
+  if (voyage.value) {
+    router.push(`/client/booking/step-1?voyage_id=${voyage.value.id}`)
+  }
 }
 </script>
 
 <template>
   <div class="space-y-6 pb-12">
-    
+    <!-- Loading State -->
+    <div v-if="isLoading" class="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm space-y-4">
+      <div class="w-10 h-10 border-4 border-[#053754] border-t-transparent rounded-full animate-spin mx-auto"></div>
+      <p class="text-sm font-bold text-gray-600">Chargement du voyage...</p>
+    </div>
+
+    <!-- Error State -->
+    <div v-else-if="errorMsg" class="bg-red-50 border border-red-200 rounded-3xl p-8 text-center space-y-3">
+      <p class="text-sm font-bold text-red-800">{{ errorMsg }}</p>
+      <button @click="router.push('/client')" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-xl">Retour à l'accueil</button>
+    </div>
+
     <!-- Responsive Grid Layout: 2 Columns on Desktop (lg:) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <div v-else-if="voyage" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
       
       <!-- Left Column: Hero Voyage Card, Capacité, Tarif & Points (lg:col-span-7) -->
       <div class="lg:col-span-7 space-y-5">
@@ -22,16 +91,18 @@ const startBooking = () => {
           <div class="flex items-center justify-between">
             <div></div>
             <span class="bg-white/15 backdrop-blur-md px-3.5 py-1 rounded-full text-[11px] font-extrabold text-gray-200 border border-white/10 flex items-center gap-1.5">
-              <span>👤</span> Entreprise GP
+              <span>👤</span> {{ voyage.transporteur }}
             </span>
           </div>
 
           <!-- Route Flag visual -->
           <div class="flex items-center justify-between text-lg sm:text-xl font-black px-2">
-            <div>
-              <span class="text-2xl">🇸🇳</span>
-              <div class="text-base sm:text-lg font-bold text-white">Dakar</div>
-              <div class="text-xs text-gray-300 font-normal">Sénégal</div>
+            <div class="flex items-center gap-2.5">
+              <CountryFlag :city="voyage.depart" :country="voyage.paysDepart" size="w-7 h-5" />
+              <div>
+                <div class="text-base sm:text-lg font-bold text-white">{{ voyage.depart }}</div>
+                <div class="text-xs text-gray-300 font-normal">{{ voyage.paysDepart }}</div>
+              </div>
             </div>
 
             <div class="flex-1 flex items-center justify-center px-4 relative">
@@ -41,10 +112,12 @@ const startBooking = () => {
               </div>
             </div>
 
-            <div class="text-right">
-              <span class="text-2xl">🇫🇷</span>
-              <div class="text-base sm:text-lg font-bold text-white">Paris</div>
-              <div class="text-xs text-gray-300 font-normal">France</div>
+            <div class="flex items-center gap-2.5 text-right">
+              <div>
+                <div class="text-base sm:text-lg font-bold text-white">{{ voyage.destination }}</div>
+                <div class="text-xs text-gray-300 font-normal">{{ voyage.paysDest }}</div>
+              </div>
+              <CountryFlag :city="voyage.destination" :country="voyage.paysDest" size="w-7 h-5" />
             </div>
           </div>
 
@@ -52,11 +125,11 @@ const startBooking = () => {
           <div class="grid grid-cols-2 gap-4 pt-4 border-t border-white/15 text-xs">
             <div>
               <div class="text-gray-300 font-medium">Départ</div>
-              <div class="font-bold text-white text-xs sm:text-sm mt-0.5">22 Septembre 2026</div>
+              <div class="font-bold text-white text-xs sm:text-sm mt-0.5">{{ formatVoyageDate(voyage.dateDepart) }}</div>
             </div>
             <div class="text-right">
               <div class="text-gray-300 font-medium">Arrivée Estimée</div>
-              <div class="font-bold text-white text-xs sm:text-sm mt-0.5">23 Septembre 2026</div>
+              <div class="font-bold text-white text-xs sm:text-sm mt-0.5">{{ formatVoyageDate(voyage.dateArrivee) }}</div>
             </div>
           </div>
         </div>
@@ -65,72 +138,88 @@ const startBooking = () => {
         <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-2xs space-y-2">
           <div class="flex items-center justify-between font-bold text-sm">
             <span class="text-[#074C72]">Capacité disponible</span>
-            <span class="text-[#074C72] font-black text-base">15kg</span>
+            <span class="text-[#074C72] font-black text-base">{{ voyage.poidsDispo }}kg</span>
           </div>
           <div class="w-full h-2.5 bg-gray-200 rounded-full overflow-hidden">
-            <div class="h-full bg-[#B50302] w-[40%] rounded-full"></div>
+            <div
+              class="h-full bg-[#B50302] rounded-full transition-all"
+              :style="{ width: `${Math.min(100, Math.max(0, ((voyage.poidsTotal - voyage.poidsDispo) / voyage.poidsTotal) * 100))}%` }"
+            ></div>
           </div>
           <div class="text-right text-[11px] text-gray-400 font-medium">
-            10 kg déjà réservés sur 25 kg
+            {{ voyage.poidsTotal - voyage.poidsDispo }} kg déjà réservés sur {{ voyage.poidsTotal }} kg
           </div>
         </div>
 
-        <!-- Tarif Card -->
-        <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-2xs flex items-center justify-between">
-          <div class="space-y-0.5">
-            <div class="text-xs font-bold text-gray-400">Tarif</div>
-            <div class="text-xl sm:text-2xl font-black text-[#B50302]">
-              8 500 FCFA
-            </div>
-            <div class="text-xs text-gray-400 font-medium">par kilogramme</div>
-          </div>
-          <div class="w-12 h-12 rounded-2xl bg-red-50 text-[#B50302] flex items-center justify-center text-2xl shadow-xs shrink-0">
-            ⚖️
-          </div>
-        </div>
-
-        <!-- Où déposer mon colis ? Card (Dakar) -->
+        <!-- Tarif Card displaying BOTH Tariffs -->
         <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-2xs space-y-3">
-          <div class="text-xs font-bold text-gray-400">Où déposer mon colis ?</div>
+          <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Tarification appliquée</div>
+          
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1">
+              <span class="text-xs text-gray-400 font-bold block">Tarif / Kg</span>
+              <span class="text-base sm:text-lg font-black text-[#B50302] block">{{ voyage.prixKg }}</span>
+              <span class="text-[10px] text-gray-400 block font-medium">par kilogramme</span>
+            </div>
+
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1">
+              <span class="text-xs text-gray-400 font-bold block">Tarif / Objet</span>
+              <span class="text-base sm:text-lg font-black text-[#053754] block">{{ voyage.prixObjet }}</span>
+              <span class="text-[10px] text-gray-400 block font-medium">forfait par objet</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Où déposer mon colis ? Card avec lien Google Maps -->
+        <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-2xs space-y-3">
+          <div class="text-xs font-bold text-gray-400">Où déposer mon colis ? (Lieu de Départ)</div>
           <div class="flex items-start gap-3">
             <div class="w-8 h-8 rounded-full bg-red-50 text-[#B50302] flex items-center justify-center shrink-0 font-bold">
               📍
             </div>
-            <div>
-              <div class="text-sm font-bold text-[#074C72]">Parcelles Assainies, Dakar</div>
-              <div class="text-xs text-gray-500 mt-1 flex items-center gap-2">
-                <span>Horaires de dépôt :</span>
-                <span class="font-bold text-[#074C72]">Lun - Ven: 09h00 - 18h00</span>
+            <div class="space-y-1 flex-1">
+              <div class="text-sm font-bold text-[#074C72]">{{ voyage.adresseDepotText }}</div>
+              <div class="text-xs text-gray-500 flex items-center gap-2">
+                <span>Horaires :</span>
+                <span class="font-bold text-[#074C72]">{{ voyage.horaireDepot }}</span>
               </div>
+              <a
+                :href="`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(voyage.adresseDepotText)}`"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-1.5 text-xs text-[#B50302] hover:underline font-bold pt-1.5 cursor-pointer"
+              >
+                <span>🗺️ Voir l'adresse sur Google Maps</span>
+                <span>➔</span>
+              </a>
             </div>
           </div>
-
-          <button type="button" class="w-full py-2.5 rounded-xl border border-red-200 bg-red-50/50 hover:bg-red-50 text-[#B50302] font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer">
-            <span>📖</span>
-            <span>Voir l'itinéraire</span>
-          </button>
         </div>
 
-        <!-- Point de retrait à l'arrivée Card (Paris) -->
+        <!-- Point de retrait à l'arrivée Card avec lien Google Maps -->
         <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-2xs space-y-3">
-          <div class="text-xs font-bold text-gray-400">Point de retrait à l'arrivée</div>
+          <div class="text-xs font-bold text-gray-400">Point de retrait à l'arrivée (Destination)</div>
           <div class="flex items-start gap-3">
             <div class="w-8 h-8 rounded-full bg-red-50 text-[#B50302] flex items-center justify-center shrink-0 font-bold">
               📍
             </div>
-            <div>
-              <div class="text-sm font-bold text-[#074C72]">Agence Paris 10ème (Gare du Nord)</div>
-              <div class="text-xs text-gray-500 mt-1 flex items-center gap-2">
-                <span>Horaires de dépôt :</span>
-                <span class="font-bold text-[#074C72]">Lun - Ven: 09h00 - 18h00</span>
+            <div class="space-y-1 flex-1">
+              <div class="text-sm font-bold text-[#074C72]">{{ voyage.adresseRetraitText }}</div>
+              <div class="text-xs text-gray-500 flex items-center gap-2">
+                <span>Horaires :</span>
+                <span class="font-bold text-[#074C72]">{{ voyage.horaireRetrait }}</span>
               </div>
+              <a
+                :href="`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(voyage.adresseRetraitText)}`"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-1.5 text-xs text-[#B50302] hover:underline font-bold pt-1.5 cursor-pointer"
+              >
+                <span>🗺️ Voir l'adresse sur Google Maps</span>
+                <span>➔</span>
+              </a>
             </div>
           </div>
-
-          <button type="button" class="w-full py-2.5 rounded-xl border border-red-200 bg-red-50/50 hover:bg-red-50 text-[#B50302] font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer">
-            <span>📖</span>
-            <span>Voir l'itinéraire</span>
-          </button>
         </div>
 
       </div>
@@ -146,24 +235,13 @@ const startBooking = () => {
             </svg>
             <span>Colis acceptés :</span>
           </div>
-          <ul class="space-y-2 text-xs font-semibold text-gray-600 pl-1">
-            <li class="flex items-center gap-2">
+          <ul v-if="voyage.categoriesAutorisees.length > 0" class="space-y-2 text-xs font-semibold text-gray-600 pl-1">
+            <li v-for="item in voyage.categoriesAutorisees" :key="item" class="flex items-center gap-2">
               <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
-              <span>Vêtements & tissus</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
-              <span>Documents & papiers</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
-              <span>Cosmétiques scellés</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
-              <span>Petite électronique</span>
+              <span>{{ item }}</span>
             </li>
           </ul>
+          <p v-else class="text-xs text-gray-400 italic">Aucune catégorie spécifiée.</p>
         </div>
 
         <!-- Objets interdits Card (Red Border) -->
@@ -174,27 +252,16 @@ const startBooking = () => {
             </svg>
             <span>Objets interdits</span>
           </div>
-          <ul class="space-y-2 text-xs font-semibold text-gray-600 pl-1">
-            <li class="flex items-center gap-2">
+          <ul v-if="voyage.categoriesRefusees.length > 0" class="space-y-2 text-xs font-semibold text-gray-600 pl-1">
+            <li v-for="item in voyage.categoriesRefusees" :key="item" class="flex items-center gap-2">
               <span class="w-2 h-2 rounded-full bg-[#B50302]"></span>
-              <span>Liquides inflammable</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-[#B50302]"></span>
-              <span>Substances illicites</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-[#B50302]"></span>
-              <span>Objets dangereux ou armes</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-[#B50302]"></span>
-              <span>Contrefaçons</span>
+              <span>{{ item }}</span>
             </li>
           </ul>
+          <p v-else class="text-xs text-gray-400 italic">Aucune interdiction spécifique.</p>
         </div>
 
-        <!-- À propos du transporteur Card -->
+        <!-- À propos du transporteur Card avec le vrai nom du transporteur -->
         <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-2xs space-y-3">
           <div class="flex items-center gap-2 text-[#074C72] font-extrabold text-sm">
             <svg class="w-5 h-5 text-[#074C72]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -206,25 +273,18 @@ const startBooking = () => {
           <div class="flex items-center justify-between pt-1">
             <div class="flex items-center gap-3">
               <div class="w-11 h-11 rounded-full bg-[#053754] text-white font-black text-xs flex items-center justify-center shadow-xs">
-                RGP
+                GP
               </div>
               <div>
-                <div class="font-bold text-[#074C72] text-sm">Rahma Gp Express</div>
+                <div class="font-bold text-[#074C72] text-sm">{{ voyage.transporteur }}</div>
                 <div class="text-xs text-[#FF9F02] font-extrabold flex items-center gap-1">
                   <span>★</span> <span>4.9</span>
                 </div>
               </div>
             </div>
 
-            <button class="text-xs text-[#074C72] font-bold hover:underline flex items-center gap-1">
-              <span>32 avis</span>
-              <span>➔</span>
-            </button>
+            <span class="text-xs text-gray-400 font-bold">Vérifié ✓</span>
           </div>
-
-          <p class="text-xs text-gray-500 leading-relaxed font-medium">
-            Entreprise de fret GP agréée. 4 liaisons régulières par semaine Dakar - Paris avec assurance transport incluse.
-          </p>
         </div>
 
         <!-- CTA Button -->

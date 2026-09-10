@@ -1,7 +1,8 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import VoyageCard from '@/components/client/VoyageCard.vue'
 import CitySelect from '@/components/client/CitySelect.vue'
+import { fetchVoyages } from '@/services/voyageService'
 
 const departCity = ref('Dakar')
 const destinationCity = ref('Paris')
@@ -87,6 +88,34 @@ const staticVoyages = ref([
   }
 ])
 
+onMounted(async () => {
+  try {
+    const res = await fetchVoyages({ statut: 'publie' })
+    if (res && res.data && res.data.length > 0) {
+      staticVoyages.value = res.data.map((v) => ({
+        id: v.id,
+        depart: v.ville_depart,
+        pays_depart: v.pays_depart,
+        destination: v.ville_destination,
+        pays_destination: v.pays_destination,
+        date: v.date_depart,
+        date_raw: v.date_depart,
+        type_transporteur: 'Voyageur GP',
+        poids_disponible: v.capacite_dispo !== undefined ? Number(v.capacite_dispo) : Number(v.capacite_totale || 0),
+        poids_total: Number(v.capacite_totale) || 0,
+        point_collecte: v.adresse_depot ? `${v.adresse_depot.adresse} (${v.adresse_depot.ville})` : 'Point Relais Rahma',
+        transporteur_nom: v.voyageur ? `${v.voyageur.prenom || v.voyageur.user?.prenom || ''} ${v.voyageur.nom || v.voyageur.user?.nom || ''}`.trim() || 'Transporteur GP' : 'Transporteur GP',
+        note: '4.9',
+        prix: `${v.prix_kg}`,
+        devise: v.devise || 'FCFA',
+        voyageur: v.voyageur
+      }))
+    }
+  } catch (err) {
+    // Keep fallback initial voyages if API call fails
+  }
+})
+
 const filteredVoyages = computed(() => {
   return staticVoyages.value.filter(v => {
     // City Search Filter (when search button is triggered or cities are selected)
@@ -96,9 +125,14 @@ const filteredVoyages = computed(() => {
       if (!matchDepart || !matchDest) return false
     }
 
-    // Category Filter Pills
-    if (activeFilter.value === 'recommande') return v.recommande
-    if (activeFilter.value === 'urgent') return v.poids_disponible < 15
+    // Category Filter Pills: 'semaine' filters trips within next 7 days
+    if (activeFilter.value === 'semaine') {
+      const now = new Date()
+      const next7Days = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+      const d = new Date(v.date_raw || v.date)
+      if (isNaN(d.getTime())) return true
+      return d >= new Date(now.getFullYear(), now.getMonth(), now.getDate()) && d <= next7Days
+    }
     return true
   })
 })
@@ -192,31 +226,19 @@ const resetSearch = () => {
                   : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
               ]"
             >
-              Tout ({{ filteredVoyages.length }})
+              Tous les voyages ({{ filteredVoyages.length }})
             </button>
 
             <button
-              @click="activeFilter = 'recommande'; currentPage = 1"
+              @click="activeFilter = 'semaine'; currentPage = 1"
               :class="[
                 'px-4 py-2.5 rounded-full text-xs font-extrabold whitespace-nowrap transition-all cursor-pointer shadow-2xs',
-                activeFilter === 'recommande'
+                activeFilter === 'semaine'
                   ? 'bg-[#074C72] text-white shadow-md'
                   : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
               ]"
             >
-              Recommandés
-            </button>
-
-            <button
-              @click="activeFilter = 'urgent'; currentPage = 1"
-              :class="[
-                'px-4 py-2.5 rounded-full text-xs font-extrabold whitespace-nowrap transition-all cursor-pointer shadow-2xs',
-                activeFilter === 'urgent'
-                  ? 'bg-[#074C72] text-white shadow-md'
-                  : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
-              ]"
-            >
-              Urgents
+              📅 Voyages de la semaine
             </button>
           </div>
 

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 
@@ -17,7 +17,14 @@ const {
   logout
 } = useAuth()
 
-const activeTab = ref('info') // 'info' | 'voyageur' | 'edit'
+const activeTab = ref('info') // 'info' | 'voyageur' | 'revenus' | 'edit'
+
+// Reset active tab if client mode is active and user was on revenus tab
+watch(modeActuel, (newMode) => {
+  if (newMode !== 'voyageur' && activeTab.value === 'revenus') {
+    activeTab.value = 'info'
+  }
+}, { immediate: true })
 const showVoyageurModal = ref(false)
 
 // Edit Profile Form State
@@ -326,6 +333,7 @@ const handleLogout = async () => {
           Statut & Profil Voyageur
         </button>
         <button
+          v-if="modeActuel === 'voyageur'"
           @click="activeTab = 'revenus'"
           :class="[
             'pb-3 border-b-2 transition-colors cursor-pointer shrink-0',
