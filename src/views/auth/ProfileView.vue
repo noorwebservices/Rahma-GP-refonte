@@ -177,6 +177,8 @@ const handleCreateVoyageur = async () => {
 }
 
 import Swal from 'sweetalert2'
+import ClientHeader from '@/components/client/ClientHeader.vue'
+import ClientBottomNav from '@/components/client/ClientBottomNav.vue'
 
 // Logout with SweetAlert confirmation
 const handleLogout = async () => {
@@ -202,26 +204,9 @@ const handleLogout = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#FAF7F2] font-sans pb-12">
-    <!-- Header Navigation -->
-    <header class="bg-principal-dark text-white py-4 px-4 sm:px-8 shadow-md sticky top-0 z-30">
-      <div class="max-w-6xl mx-auto flex items-center justify-between">
-        <RouterLink to="/" class="flex items-center gap-3">
-          <img src="@/assets/images/logo-blanc.svg" alt="Rahma GP" class="h-9 sm:h-10 w-auto object-contain" />
-        </RouterLink>
-        <div class="flex items-center gap-3">
-          <RouterLink to="/" class="text-xs sm:text-sm font-semibold text-white/80 hover:text-white transition-colors">
-            Accueil
-          </RouterLink>
-          <button
-            @click="handleLogout"
-            class="bg-secondaire hover:bg-secondaire-dark text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-xl transition-all shadow-sm"
-          >
-            Déconnexion
-          </button>
-        </div>
-      </div>
-    </header>
+  <div class="min-h-screen bg-[#FAF7F2] font-sans pb-24">
+    <!-- Top Client Header (Identical to all other pages) -->
+    <ClientHeader />
 
     <!-- Main Container -->
     <main class="max-w-5xl mx-auto px-4 sm:px-6 pt-6">
@@ -275,7 +260,7 @@ const handleLogout = async () => {
           </div>
         </div>
 
-        <!-- Action Mode Switcher Button -->
+        <!-- Action Buttons (Mode Switcher & Déconnexion) -->
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <button
             v-if="user.roles?.includes('voyageur') || user.voyageur"
@@ -298,6 +283,17 @@ const handleLogout = async () => {
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
             <span>Devenir un Voyageur GP</span>
+          </button>
+
+          <!-- Déconnexion Button -->
+          <button
+            @click="handleLogout"
+            class="px-5 py-3 rounded-2xl bg-red-50 hover:bg-red-100 border border-red-200 text-[#B50302] font-bold text-xs sm:text-sm shadow-2xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <svg class="w-4 h-4 text-[#B50302]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            <span>Déconnexion</span>
           </button>
         </div>
       </div>
@@ -581,5 +577,7 @@ const handleLogout = async () => {
         </form>
       </div>
     </div>
+    <!-- Client Bottom Navigation Bar -->
+    <ClientBottomNav />
   </div>
 </template>

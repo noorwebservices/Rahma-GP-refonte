@@ -109,7 +109,7 @@ const handleSubmit = async () => {
 
   try {
     await login(payload)
-    router.push('/profile')
+    router.push('/client')
   } catch (err) {
     // Handled by useAuth state
   }

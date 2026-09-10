@@ -10,8 +10,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: HomeView,
+      redirect: '/client',
     },
     {
       path: '/auth',
@@ -37,8 +36,49 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/client',
+      component: () => import('../views/client/ClientLayout.vue'),
+      children: [
+        {
+          path: '',
+          name: 'client-home',
+          component: () => import('../views/client/ClientHomeView.vue')
+        },
+        {
+          path: 'voyage/:id',
+          name: 'voyage-detail',
+          component: () => import('../views/client/VoyageDetailView.vue')
+        },
+        {
+          path: 'booking/step-1',
+          name: 'booking-step-1',
+          component: () => import('../views/client/BookingStep1View.vue')
+        },
+        {
+          path: 'booking/step-2',
+          name: 'booking-step-2',
+          component: () => import('../views/client/BookingStep2View.vue')
+        },
+        {
+          path: 'booking/step-3',
+          name: 'booking-step-3',
+          component: () => import('../views/client/BookingStep3View.vue')
+        },
+        {
+          path: 'messages',
+          name: 'client-messages',
+          component: () => import('../views/client/MessagesView.vue')
+        },
+        {
+          path: 'colis',
+          name: 'client-colis',
+          component: () => import('../views/client/ColisView.vue')
+        }
+      ]
+    },
+    {
       path: '/:pathMatch(.*)*',
-      redirect: '/',
+      redirect: '/client',
     },
   ],
   scrollBehavior(to) {

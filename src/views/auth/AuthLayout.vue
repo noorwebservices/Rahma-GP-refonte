@@ -18,7 +18,7 @@ const navigateTab = (tab) => {
   } else if (tab === 'register') {
     router.push('/auth/register')
   } else if (tab === 'visiteur') {
-    router.push('/')
+    router.push('/client')
   }
 }
 </script>
