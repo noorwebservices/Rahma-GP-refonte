@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import { RouterLink } from 'vue-router'
 
 const isMobileMenuOpen = ref(false)
 const activeLink = ref('#accueil')
@@ -91,8 +92,14 @@ onUnmounted(() => {
           </a>
         </nav>
 
-        <!-- Desktop Action Button (Rouge Secondaire, >= 1024px) -->
-        <div class="hidden lg:flex items-center">
+        <!-- Desktop Action Buttons (>= 1024px) -->
+        <div class="hidden lg:flex items-center gap-3">
+          <RouterLink
+            to="/auth/login"
+            class="bg-white/10 hover:bg-white/20 text-white font-semibold text-xs xl:text-sm px-4 xl:px-5 py-2.5 rounded-2xl border border-white/20 transition-all duration-200 text-center whitespace-nowrap"
+          >
+            Connexion / Profil
+          </RouterLink>
           <a href="#devenir-partenaire" @click="setActiveLink('#devenir-partenaire')"
             class="bg-secondaire hover:bg-secondaire-light text-white font-semibold text-xs xl:text-sm px-5 xl:px-6 py-2.5 rounded-2xl shadow-md transition-all duration-200 hover:scale-[1.02] active:scale-95 text-center whitespace-nowrap">
             Devenir un partenaire
@@ -130,7 +137,14 @@ onUnmounted(() => {
         ]">
           {{ link.name }}
         </a>
-        <div class="pt-3 border-t border-white/10">
+        <div class="pt-3 border-t border-white/10 space-y-2">
+          <RouterLink
+            to="/auth/login"
+            @click="isMobileMenuOpen = false"
+            class="block w-full bg-white/10 hover:bg-white/20 text-white font-bold text-center text-base py-3 rounded-xl border border-white/20 transition-colors"
+          >
+            Connexion / Mon Profil
+          </RouterLink>
           <a href="#devenir-partenaire" @click="handleMobileClick('#devenir-partenaire')"
             class="block w-full bg-secondaire hover:bg-secondaire-light text-white font-bold text-center text-base py-3.5 rounded-xl shadow-md transition-colors">
             Devenir un partenaire

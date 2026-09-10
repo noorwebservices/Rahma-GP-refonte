@@ -1,12 +1,12 @@
 <script setup>
-import Header from '@/components/Header.vue'
-import HeroSection from '@/components/HeroSection.vue'
-import AboutSection from '@/components/AboutSection.vue'
-import ProfilesSection from '@/components/ProfilesSection.vue'
-import HowItWorksSection from '@/components/HowItWorksSection.vue'
-import PartnershipSection from '@/components/PartnershipSection.vue'
-import RecordTimeSection from '@/components/RecordTimeSection.vue'
-import Footer from '@/components/Footer.vue'
+import Header from '@/components/home/Header.vue'
+import HeroSection from '@/components/home/HeroSection.vue'
+import AboutSection from '@/components/home/AboutSection.vue'
+import ProfilesSection from '@/components/home/ProfilesSection.vue'
+import HowItWorksSection from '@/components/home/HowItWorksSection.vue'
+import PartnershipSection from '@/components/home/PartnershipSection.vue'
+import RecordTimeSection from '@/components/home/RecordTimeSection.vue'
+import Footer from '@/components/home/Footer.vue'
 </script>
 
 <template>
