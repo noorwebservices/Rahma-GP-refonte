@@ -80,7 +80,13 @@ const userInitials = computed(() => {
 // Mode toggle action
 const handleToggleMode = async () => {
   try {
-    await toggleMode()
+    const res = await toggleMode()
+    const targetMode = res?.mode_actuel || (modeActuel.value === 'client' ? 'voyageur' : 'client')
+    if (targetMode === 'voyageur') {
+      router.push('/voyageur')
+    } else {
+      router.push('/client')
+    }
   } catch (err) {
     // Error state managed by useAuth
   }
@@ -179,6 +185,7 @@ const handleCreateVoyageur = async () => {
 import Swal from 'sweetalert2'
 import ClientHeader from '@/components/client/ClientHeader.vue'
 import ClientBottomNav from '@/components/client/ClientBottomNav.vue'
+import VoyageurBottomNav from '@/components/voyageur/VoyageurBottomNav.vue'
 
 // Logout with SweetAlert confirmation
 const handleLogout = async () => {
@@ -319,6 +326,15 @@ const handleLogout = async () => {
           Statut & Profil Voyageur
         </button>
         <button
+          @click="activeTab = 'revenus'"
+          :class="[
+            'pb-3 border-b-2 transition-colors cursor-pointer shrink-0',
+            activeTab === 'revenus' ? 'border-principal text-principal-dark font-bold' : 'border-transparent text-gray-500 hover:text-gray-800'
+          ]"
+        >
+          Mes Revenus GP
+        </button>
+        <button
           @click="activeTab = 'edit'"
           :class="[
             'pb-3 border-b-2 transition-colors cursor-pointer shrink-0',
@@ -435,6 +451,114 @@ const handleLogout = async () => {
           >
             Soumettre mes pièces d'identité
           </button>
+        </div>
+      </div>
+
+      <!-- Tab: Mes Revenus GP -->
+      <div v-else-if="activeTab === 'revenus'" class="space-y-6">
+        <!-- Revenue Summary Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+          <div class="bg-[#053754] text-white rounded-3xl p-4 sm:p-5 shadow-md space-y-1 relative overflow-hidden">
+            <span class="text-[11px] sm:text-xs font-bold text-sky-200 uppercase tracking-wider block">Total Revenus Générés</span>
+            <div class="text-xl sm:text-2xl font-black text-white">170 000 F CFA</div>
+            <p class="text-[10px] sm:text-[11px] text-sky-300">Sur 3 réservations transportées</p>
+          </div>
+
+          <div class="bg-white rounded-3xl p-4 sm:p-5 border border-emerald-200 shadow-2xs space-y-1">
+            <span class="text-[11px] sm:text-xs font-bold text-emerald-600 uppercase tracking-wider block">Revenus Disponibles</span>
+            <div class="text-xl sm:text-2xl font-black text-emerald-800">136 000 F CFA</div>
+            <p class="text-[10px] sm:text-[11px] text-emerald-600 font-semibold">Paiements validés & reçus</p>
+          </div>
+
+          <div class="bg-white rounded-3xl p-4 sm:p-5 border border-amber-200 shadow-2xs space-y-1">
+            <span class="text-[11px] sm:text-xs font-bold text-amber-600 uppercase tracking-wider block">Revenus en Attente</span>
+            <div class="text-xl sm:text-2xl font-black text-amber-800">34 000 F CFA</div>
+            <p class="text-[10px] sm:text-[11px] text-amber-600 font-semibold">Colis en cours de livraison</p>
+          </div>
+        </div>
+
+        <!-- Payout Method Configured Card -->
+        <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-sky-50 text-principal flex items-center justify-center font-bold text-lg">
+              💳
+            </div>
+            <div>
+              <h4 class="text-xs sm:text-sm font-bold text-gray-900">Mode de versement principal</h4>
+              <p class="text-[11px] sm:text-xs text-gray-500">Wave Mobile Money (+221 77 *** ** 10)</p>
+            </div>
+          </div>
+          <span class="bg-green-100 text-green-800 text-[10px] sm:text-xs font-extrabold px-3 py-1 rounded-full uppercase">Actif</span>
+        </div>
+
+        <!-- Recent Transactions Preview -->
+        <div class="bg-white p-5 sm:p-6 rounded-3xl shadow-sm border border-gray-100 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h3 class="text-base font-extrabold text-[#053754]">Derniers revenus perçus</h3>
+              <p class="text-xs text-gray-400 font-medium sm:hidden">Cliquez sur un reçu pour voir l'historique complet</p>
+            </div>
+            <button
+              @click="router.push('/voyageur/revenus')"
+              class="text-xs font-bold text-principal hover:text-principal-dark flex items-center gap-1 cursor-pointer self-start sm:self-auto"
+            >
+              <span>Voir tout l'historique</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+
+          <div class="divide-y divide-gray-100 text-xs">
+            <div
+              @click="router.push('/voyageur/revenus')"
+              class="py-3 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50 -mx-1 px-2 rounded-xl transition-all"
+            >
+              <div class="min-w-0 space-y-0.5">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="font-extrabold text-[#053754] text-xs">{{ '#RS-7729' }}</span>
+                  <span class="text-xs text-gray-500 font-medium truncate">• Mariama Diallo</span>
+                </div>
+                <p class="text-[11px] text-gray-400 font-medium truncate">Dakar ➔ Paris</p>
+              </div>
+              <div class="text-right shrink-0">
+                <div class="font-black text-xs sm:text-sm text-gray-900">51 000 F CFA</div>
+                <span class="inline-block text-[9px] text-emerald-700 font-bold bg-emerald-100 px-2 py-0.5 rounded-full uppercase">✓ DISPONIBLE</span>
+              </div>
+            </div>
+
+            <div
+              @click="router.push('/voyageur/revenus')"
+              class="py-3 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50 -mx-1 px-2 rounded-xl transition-all"
+            >
+              <div class="min-w-0 space-y-0.5">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="font-extrabold text-[#053754] text-xs">{{ '#RS-6640' }}</span>
+                  <span class="text-xs text-gray-500 font-medium truncate">• Abdoulaye Faye</span>
+                </div>
+                <p class="text-[11px] text-gray-400 font-medium truncate">Dakar ➔ Paris</p>
+              </div>
+              <div class="text-right shrink-0">
+                <div class="font-black text-xs sm:text-sm text-gray-900">85 000 F CFA</div>
+                <span class="inline-block text-[9px] text-emerald-700 font-bold bg-emerald-100 px-2 py-0.5 rounded-full uppercase">✓ DISPONIBLE</span>
+              </div>
+            </div>
+
+            <div
+              @click="router.push('/voyageur/revenus')"
+              class="py-3 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50 -mx-1 px-2 rounded-xl transition-all"
+            >
+              <div class="min-w-0 space-y-0.5">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="font-extrabold text-[#053754] text-xs">{{ '#RS-5510' }}</span>
+                  <span class="text-xs text-gray-500 font-medium truncate">• Aïssatou Ba</span>
+                </div>
+                <p class="text-[11px] text-gray-400 font-medium truncate">Dakar ➔ Paris</p>
+              </div>
+              <div class="text-right shrink-0">
+                <div class="font-black text-xs sm:text-sm text-gray-900">34 000 F CFA</div>
+                <span class="inline-block text-[9px] text-amber-700 font-bold bg-amber-100 px-2 py-0.5 rounded-full uppercase">⏳ EN ATTENTE</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -577,7 +701,8 @@ const handleLogout = async () => {
         </form>
       </div>
     </div>
-    <!-- Client Bottom Navigation Bar -->
-    <ClientBottomNav />
+    <!-- Dynamic Bottom Navigation Bar based on current mode -->
+    <VoyageurBottomNav v-if="modeActuel === 'voyageur'" />
+    <ClientBottomNav v-else />
   </div>
 </template>

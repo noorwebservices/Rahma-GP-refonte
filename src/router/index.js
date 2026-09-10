@@ -93,6 +93,68 @@ const router = createRouter({
       ]
     },
     {
+      path: '/voyageur',
+      component: () => import('../views/voyageur/VoyageurLayout.vue'),
+      children: [
+        {
+          path: '',
+          name: 'voyageur-dashboard',
+          component: () => import('../views/voyageur/VoyagesView.vue')
+        },
+        {
+          path: 'voyages/nouveau',
+          name: 'voyageur-create-voyage',
+          component: () => import('../views/voyageur/CreateVoyageView.vue'),
+          meta: { showBack: true, headerTitle: 'Publier un voyage' }
+        },
+        {
+          path: 'voyages/:id',
+          name: 'voyageur-voyage-detail',
+          component: () => import('../views/voyageur/VoyageDetailView.vue'),
+          meta: { showBack: true }
+        },
+        {
+          path: 'voyages/:id/edit',
+          name: 'voyageur-edit-voyage',
+          component: () => import('../views/voyageur/EditVoyageView.vue'),
+          meta: { showBack: true, headerTitle: 'Modifier le voyage' }
+        },
+        {
+          path: 'demandes',
+          name: 'voyageur-demandes',
+          component: () => import('../views/voyageur/DemandesView.vue')
+        },
+        {
+          path: 'demandes/:id',
+          name: 'voyageur-demande-detail',
+          component: () => import('../views/voyageur/DemandeDetailView.vue'),
+          meta: { showBack: true, headerTitle: 'Détails de la demande' }
+        },
+        {
+          path: 'messages',
+          name: 'voyageur-messages',
+          component: () => import('../views/voyageur/VoyageurMessagesView.vue')
+        },
+        {
+          path: 'messages/:id',
+          name: 'voyageur-message-detail',
+          component: () => import('../views/voyageur/VoyageurMessageDetailView.vue')
+        },
+        {
+          path: 'revenus',
+          name: 'voyageur-revenus',
+          component: () => import('../views/voyageur/RevenusView.vue'),
+          meta: { showBack: true, headerTitle: 'Mes Revenus GP' }
+        },
+        {
+          path: 'evaluations',
+          name: 'voyageur-evaluations',
+          component: () => import('../views/voyageur/EvaluationsView.vue'),
+          meta: { showBack: true, headerTitle: 'Avis & Évaluations' }
+        }
+      ]
+    },
+    {
       path: '/:pathMatch(.*)*',
       redirect: '/client',
     },

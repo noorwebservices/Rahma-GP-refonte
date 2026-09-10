@@ -108,8 +108,13 @@ const handleSubmit = async () => {
   }
 
   try {
-    await login(payload)
-    router.push('/client')
+    const res = await login(payload)
+    const mode = res?.user?.mode_actuel || (res?.user?.voyageur && !res?.user?.voyageur?.mode_client ? 'voyageur' : 'client')
+    if (mode === 'voyageur') {
+      router.push('/voyageur')
+    } else {
+      router.push('/client')
+    }
   } catch (err) {
     // Handled by useAuth state
   }
