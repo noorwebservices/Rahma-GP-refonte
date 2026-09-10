@@ -5,7 +5,7 @@ import BookingProgressBar from '@/components/client/BookingProgressBar.vue'
 const router = useRouter()
 
 const handlePayment = () => {
-  alert('Redirection vers le système de paiement sécurisé (Wave, Orange Money, Carte)...')
+  router.push('/client/booking/step-4')
 }
 </script>
 

@@ -8,7 +8,7 @@ const route = useRoute()
 
 // Check if page needs back button in top header
 const showBack = computed(() => {
-  return route.path.includes('/voyage/') || route.path.includes('/booking/')
+  return route.path.includes('/voyage/') || route.path.includes('/booking/') || route.path.includes('/colis/') || Boolean(route.meta?.showBack)
 })
 </script>
 

@@ -65,14 +65,30 @@ const router = createRouter({
           component: () => import('../views/client/BookingStep3View.vue')
         },
         {
+          path: 'booking/step-4',
+          name: 'booking-step-4',
+          component: () => import('../views/client/BookingStep4View.vue')
+        },
+        {
           path: 'messages',
           name: 'client-messages',
           component: () => import('../views/client/MessagesView.vue')
         },
         {
+          path: 'messages/:id',
+          name: 'client-message-detail',
+          component: () => import('../views/client/MessageDetailView.vue')
+        },
+        {
           path: 'colis',
           name: 'client-colis',
           component: () => import('../views/client/ColisView.vue')
+        },
+        {
+          path: 'colis/:id',
+          name: 'client-colis-detail',
+          component: () => import('../views/client/ColisDetailView.vue'),
+          meta: { headerTitle: 'Suivi de livraison', headerSubtitle: '#RS-7729' }
         }
       ]
     },

@@ -1,5 +1,6 @@
 <script setup>
-import { useRouter } from 'vue-router'
+import { computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 
 const props = defineProps({
   showBack: {
@@ -21,6 +22,10 @@ const props = defineProps({
 })
 
 const router = useRouter()
+const route = useRoute()
+
+const headerTitle = computed(() => props.title || route.meta?.headerTitle || '')
+const headerSubtitle = computed(() => route.meta?.headerSubtitle || '')
 
 const goBack = () => {
   router.back()
@@ -56,7 +61,7 @@ const goBack = () => {
       </div>
     </div>
 
-    <!-- Sub-Header Row: Back Arrow (Left) + Route Bar (CENTERED) - Fixed/Sticky on Detail/Booking Pages -->
+    <!-- Sub-Header Row: Back Arrow (Left) + Route/Title Bar (CENTERED) -->
     <div v-if="showBack" class="w-full py-2.5 px-4 sm:px-6 border-t border-gray-100 bg-white sticky top-[53px] z-30">
       <div class="max-w-4xl mx-auto flex items-center relative min-h-[36px]">
         
@@ -70,8 +75,17 @@ const goBack = () => {
           </svg>
         </button>
 
+        <!-- Custom Header Title (e.g. Suivi de livraison / #RS-7729) -->
+        <div v-if="headerTitle" class="flex flex-col items-center justify-center mx-auto text-center">
+          <h2 class="text-sm sm:text-base font-extrabold text-[#074C72] leading-tight">{{ headerTitle }}</h2>
+          <div v-if="headerSubtitle" class="text-xs font-bold text-[#074C72] flex items-center gap-1">
+            <span class="text-sm">📦</span>
+            <span>{{ headerSubtitle }}</span>
+          </div>
+        </div>
+
         <!-- Route Display CENTERED (Dakar -> Paris) -->
-        <div class="flex items-center justify-center gap-3 text-sm sm:text-base font-extrabold text-[#074C72] mx-auto">
+        <div v-else class="flex items-center justify-center gap-3 text-sm sm:text-base font-extrabold text-[#074C72] mx-auto">
           <span class="flex items-center gap-1.5">
             <span class="text-lg">🇸🇳</span>
             <span>{{ routeFrom }}</span>
