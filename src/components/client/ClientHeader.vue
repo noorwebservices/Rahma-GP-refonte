@@ -1,6 +1,8 @@
 <script setup>
 import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { headerState } from '@/utils/headerState'
+import CountryFlag from '@/components/common/CountryFlag.vue'
 
 const props = defineProps({
   showBack: {
@@ -13,19 +15,22 @@ const props = defineProps({
   },
   routeFrom: {
     type: String,
-    default: 'Dakar'
+    default: ''
   },
   routeTo: {
     type: String,
-    default: 'Paris'
+    default: ''
   }
 })
 
 const router = useRouter()
 const route = useRoute()
 
-const headerTitle = computed(() => props.title || route.meta?.headerTitle || '')
-const headerSubtitle = computed(() => route.meta?.headerSubtitle || '')
+const headerTitle = computed(() => props.title || headerState.title || route.meta?.headerTitle || '')
+const headerSubtitle = computed(() => headerState.subtitle || route.meta?.headerSubtitle || '')
+
+const displayFrom = computed(() => headerState.routeFrom || props.routeFrom || 'Dakar')
+const displayTo = computed(() => headerState.routeTo || props.routeTo || 'Paris')
 
 const goBack = () => {
   router.back()
@@ -35,7 +40,7 @@ const goBack = () => {
 <template>
   <header class="w-full bg-white border-b border-gray-200 sticky top-0 z-40 shadow-2xs">
     
-    <!-- Top Bar Header (Logo, Language FR Badge & Notification Bell) - Fixed/Sticky on all pages -->
+    <!-- Top Bar Header (Logo, Language FR Badge & Notification Bell) -->
     <div class="w-full py-2.5 px-4 sm:px-6 bg-white">
       <div class="max-w-4xl mx-auto flex items-center justify-between gap-3">
         <!-- Logo Rahma Delivery -->
@@ -61,7 +66,7 @@ const goBack = () => {
       </div>
     </div>
 
-    <!-- Sub-Header Row: Back Arrow (Left) + Route/Title Bar (CENTERED) -->
+    <!-- Sub-Header Row: Back Arrow (Left) + Dynamic Route/Title Bar (CENTERED) -->
     <div v-if="showBack" class="w-full py-2.5 px-4 sm:px-6 border-t border-gray-100 bg-white sticky top-[53px] z-30">
       <div class="max-w-4xl mx-auto flex items-center relative min-h-[36px]">
         
@@ -75,7 +80,7 @@ const goBack = () => {
           </svg>
         </button>
 
-        <!-- Custom Header Title (e.g. Suivi de livraison / #RS-7729) -->
+        <!-- Custom Header Title -->
         <div v-if="headerTitle" class="flex flex-col items-center justify-center mx-auto text-center">
           <h2 class="text-sm sm:text-base font-extrabold text-[#074C72] leading-tight">{{ headerTitle }}</h2>
           <div v-if="headerSubtitle" class="text-xs font-bold text-[#074C72] flex items-center gap-1">
@@ -84,12 +89,12 @@ const goBack = () => {
           </div>
         </div>
 
-        <!-- Route Display CENTERED (Dakar -> Paris) -->
-        <div v-else class="flex items-center justify-center gap-3 text-sm sm:text-base font-extrabold text-[#074C72] mx-auto">
-          <span class="flex items-center gap-1.5">
-            <span class="text-lg">🇸🇳</span>
-            <span>{{ routeFrom }}</span>
-          </span>
+        <!-- Route Display CENTERED (Dynamic Route with Flags) -->
+        <div v-else class="flex items-center justify-center gap-2 text-sm sm:text-base font-extrabold text-[#074C72] mx-auto">
+          <div class="flex items-center gap-1.5">
+            <CountryFlag :city="displayFrom" :country="headerState.countryFrom" size="w-5 h-3.5" />
+            <span>{{ displayFrom }}</span>
+          </div>
 
           <!-- Circle Arrow Icon -->
           <div class="w-6 h-6 rounded-full border-2 border-[#074C72] text-[#074C72] flex items-center justify-center shrink-0">
@@ -98,14 +103,13 @@ const goBack = () => {
             </svg>
           </div>
 
-          <span class="flex items-center gap-1.5">
-            <span class="text-lg">🇫🇷</span>
-            <span>{{ routeTo }}</span>
-          </span>
+          <div class="flex items-center gap-1.5">
+            <CountryFlag :city="displayTo" :country="headerState.countryTo" size="w-5 h-3.5" />
+            <span>{{ displayTo }}</span>
+          </div>
         </div>
 
       </div>
     </div>
-
   </header>
 </template>

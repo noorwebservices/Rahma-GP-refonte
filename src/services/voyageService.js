@@ -1,4 +1,5 @@
 import api from './api'
+import { decodeId } from '@/utils/idMasker'
 
 export const fetchVoyages = async (params = {}) => {
   try {
@@ -10,7 +11,8 @@ export const fetchVoyages = async (params = {}) => {
 
 export const fetchVoyage = async (id) => {
   try {
-    return await api.get(`/voyages/${id}`)
+    const rawId = decodeId(id)
+    return await api.get(`/voyages/${rawId}`)
   } catch (error) {
     throw error
   }
@@ -26,7 +28,8 @@ export const createVoyage = async (payload) => {
 
 export const updateVoyage = async (id, payload) => {
   try {
-    return await api.put(`/voyages/${id}`, payload)
+    const rawId = decodeId(id)
+    return await api.put(`/voyages/${rawId}`, payload)
   } catch (error) {
     throw error
   }
@@ -34,7 +37,8 @@ export const updateVoyage = async (id, payload) => {
 
 export const deleteVoyage = async (id) => {
   try {
-    return await api.delete(`/voyages/${id}`)
+    const rawId = decodeId(id)
+    return await api.delete(`/voyages/${rawId}`)
   } catch (error) {
     throw error
   }
@@ -42,7 +46,8 @@ export const deleteVoyage = async (id) => {
 
 export const publierVoyage = async (id) => {
   try {
-    return await api.post(`/voyages/${id}/publier`)
+    const rawId = decodeId(id)
+    return await api.post(`/voyages/${rawId}/publier`)
   } catch (error) {
     throw error
   }
@@ -50,7 +55,8 @@ export const publierVoyage = async (id) => {
 
 export const annulerVoyage = async (id) => {
   try {
-    return await api.post(`/voyages/${id}/annuler`)
+    const rawId = decodeId(id)
+    return await api.post(`/voyages/${rawId}/annuler`)
   } catch (error) {
     throw error
   }

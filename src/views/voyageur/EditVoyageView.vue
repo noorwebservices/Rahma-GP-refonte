@@ -5,12 +5,13 @@ import Swal from 'sweetalert2'
 import CitySelect from '@/components/client/CitySelect.vue'
 import { fetchVoyage, updateVoyage, publierVoyage } from '@/services/voyageService'
 import { fetchAdresseDepots, fetchAdresseRecuperations } from '@/services/adresseService'
+import { decodeId } from '@/utils/idMasker'
 
 const route = useRoute()
 const router = useRouter()
 const isLoading = ref(false)
 
-const voyageId = route.params.id
+const voyageId = decodeId(route.params.id)
 
 // Toast helper
 const showToast = (icon, title) => {

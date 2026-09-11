@@ -4,94 +4,20 @@ import VoyageCard from '@/components/client/VoyageCard.vue'
 import CitySelect from '@/components/client/CitySelect.vue'
 import { fetchVoyages } from '@/services/voyageService'
 
-const departCity = ref('Dakar')
-const destinationCity = ref('Paris')
+const departCity = ref('')
+const destinationCity = ref('')
 const activeFilter = ref('all') // 'all' | 'recommande' | 'urgent'
 const isSearchActive = ref(false)
 
 const currentPage = ref(1)
 const itemsPerPage = 3
 
-const staticVoyages = ref([
-  {
-    id: 1,
-    recommande: true,
-    depart: 'Dakar',
-    destination: 'Paris',
-    date: '18 Septembre 2026',
-    type_transporteur: 'Entreprise GP',
-    poids_disponible: 15,
-    poids_total: 25,
-    point_collecte: 'Parcelle unité 26',
-    transporteur_nom: 'Rahma Gp Express',
-    note: '4.9',
-    prix: '5 500'
-  },
-  {
-    id: 2,
-    recommande: false,
-    badge: 'Entreprise GP',
-    depart: 'Dakar',
-    destination: 'Paris',
-    date: '20 Septembre 2026',
-    type_transporteur: 'Entreprise GP',
-    poids_disponible: 18,
-    poids_total: 30,
-    point_collecte: 'Mariste 2, Dakar',
-    transporteur_nom: 'Rahma Gp Express',
-    note: '4.9',
-    prix: '6 000'
-  },
-  {
-    id: 3,
-    recommande: false,
-    badge: 'Particulier Vérifié',
-    depart: 'Dakar',
-    destination: 'Paris',
-    date: '22 Septembre 2026',
-    type_transporteur: 'Voyageur GP',
-    poids_disponible: 10,
-    poids_total: 20,
-    point_collecte: 'Aéroport Blaise Diagne',
-    transporteur_nom: 'Fatou Ndiaye GP',
-    note: '5.0',
-    prix: '5 000'
-  },
-  {
-    id: 4,
-    recommande: true,
-    depart: 'Thiès',
-    destination: 'Lyon',
-    date: '24 Septembre 2026',
-    type_transporteur: 'Entreprise GP',
-    poids_disponible: 12,
-    poids_total: 25,
-    point_collecte: 'Gare routière Thiès',
-    transporteur_nom: 'Thiès Fret GP',
-    note: '4.8',
-    prix: '5 800'
-  },
-  {
-    id: 5,
-    recommande: false,
-    badge: 'Entreprise GP',
-    depart: 'Dakar',
-    destination: 'Marseille',
-    date: '25 Septembre 2026',
-    type_transporteur: 'Entreprise GP',
-    poids_disponible: 22,
-    poids_total: 40,
-    point_collecte: 'Point E, Dakar',
-    transporteur_nom: 'Dakar Cargo GP',
-    note: '4.9',
-    prix: '5 500'
-  }
-])
+const staticVoyages = ref([])
 
 onMounted(async () => {
   try {
     const res = await fetchVoyages({ statut: 'publie' })
-    if (res && res.data && res.data.length > 0) {
+    if (res && res.data && Array.isArray(res.data)) {
       staticVoyages.value = res.data.map((v) => ({
         id: v.id,
         depart: v.ville_depart,
@@ -112,7 +38,7 @@ onMounted(async () => {
       }))
     }
   } catch (err) {
-    // Keep fallback initial voyages if API call fails
+    console.error('Erreur chargement voyages:', err)
   }
 })
 
@@ -151,8 +77,8 @@ const handleSearch = () => {
 
 const resetSearch = () => {
   isSearchActive.value = false
-  departCity.value = 'Dakar'
-  destinationCity.value = 'Paris'
+  departCity.value = ''
+  destinationCity.value = ''
   activeFilter.value = 'all'
   currentPage.value = 1
 }

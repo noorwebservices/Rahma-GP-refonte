@@ -4,10 +4,13 @@ import { useRoute, useRouter } from 'vue-router'
 import { fetchVoyage } from '@/services/voyageService'
 import { formatVoyageDate } from '@/utils/flagHelper'
 import CountryFlag from '@/components/common/CountryFlag.vue'
+import { decodeId } from '@/utils/idMasker'
+
+import { setHeaderRoute } from '@/utils/headerState'
 
 const route = useRoute()
 const router = useRouter()
-const voyageId = route.params.id
+const voyageId = decodeId(route.params.id)
 
 const isLoading = ref(true)
 const errorMsg = ref('')
@@ -49,6 +52,13 @@ onMounted(async () => {
         categoriesAutorisees: Array.isArray(v.objets_autorises) ? v.objets_autorises : [],
         categoriesRefusees: Array.isArray(v.objets_interdits) ? v.objets_interdits : []
       }
+
+      setHeaderRoute({
+        routeFrom: voyage.value.depart,
+        countryFrom: voyage.value.paysDepart,
+        routeTo: voyage.value.destination,
+        countryTo: voyage.value.paysDest
+      })
     } else {
       errorMsg.value = 'Voyage non trouvé.'
     }
@@ -61,7 +71,8 @@ onMounted(async () => {
 
 const startBooking = () => {
   if (voyage.value) {
-    router.push(`/client/booking/step-1?voyage_id=${voyage.value.id}`)
+    sessionStorage.setItem('rahma_active_voyage_id', voyage.value.id)
+    router.push('/client/booking/step-1')
   }
 }
 </script>
@@ -80,8 +91,20 @@ const startBooking = () => {
       <button @click="router.push('/client')" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-xl">Retour à l'accueil</button>
     </div>
 
+    <!-- Top Return Bar -->
+    <div class="flex items-center justify-between gap-3">
+      <button
+        @click="router.push('/client')"
+        type="button"
+        class="inline-flex items-center gap-2 text-xs font-bold text-gray-600 bg-white border border-gray-200 px-3.5 py-2 rounded-xl hover:bg-gray-50 transition-colors shadow-2xs cursor-pointer"
+      >
+        <span>←</span>
+        <span>Retour aux trajets</span>
+      </button>
+    </div>
+
     <!-- Responsive Grid Layout: 2 Columns on Desktop (lg:) -->
-    <div v-else-if="voyage" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <div v-if="voyage" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
       
       <!-- Left Column: Hero Voyage Card, Capacité, Tarif & Points (lg:col-span-7) -->
       <div class="lg:col-span-7 space-y-5">

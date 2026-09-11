@@ -175,7 +175,10 @@ const router = createRouter({
 })
 
 // Navigation Guard for Protected Routes
+import { clearHeaderRoute } from '@/utils/headerState'
+
 router.beforeEach((to, from, next) => {
+  clearHeaderRoute()
   const token = localStorage.getItem('rahma_token') || localStorage.getItem('token')
   if (to.meta.requiresAuth && !token) {
     next({ name: 'login' })

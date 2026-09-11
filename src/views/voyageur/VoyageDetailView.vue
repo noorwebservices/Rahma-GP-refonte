@@ -1,18 +1,23 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import Swal from 'sweetalert2'
 import { fetchVoyage } from '@/services/voyageService'
+import { accepterReservation, refuserReservation, annulerReservation } from '@/services/reservationService'
 import { getCountryFlag, formatVoyageDate } from '@/utils/flagHelper'
 import CountryFlag from '@/components/common/CountryFlag.vue'
+import { decodeId, encodeId } from '@/utils/idMasker'
+import { setHeaderRoute, clearHeaderRoute } from '@/utils/headerState'
 
 const route = useRoute()
 const router = useRouter()
-const voyageId = route.params.id
+const voyageId = decodeId(route.params.id)
 
 const isLoading = ref(true)
 const errorMsg = ref('')
 const voyage = ref(null)
 const reservations = ref([])
+const isUpdatingStatus = ref(false)
 
 const getStatusBadge = (statut) => {
   switch (statut) {
@@ -33,7 +38,23 @@ const getStatusBadge = (statut) => {
   }
 }
 
-onMounted(async () => {
+const getReservationStatusBadge = (statut) => {
+  switch (statut) {
+    case 'en_attente':
+      return { text: '⏳ En Attente', cls: 'bg-amber-50 text-amber-800 border-amber-300' }
+    case 'acceptee':
+      return { text: '✓ Acceptée', cls: 'bg-emerald-50 text-emerald-800 border-emerald-300' }
+    case 'refusee':
+      return { text: '✕ Refusée', cls: 'bg-red-50 text-red-800 border-red-300' }
+    case 'annulee':
+    case 'annule':
+      return { text: '🚫 Annulée', cls: 'bg-gray-100 text-gray-700 border-gray-300' }
+    default:
+      return { text: statut || 'Inconnu', cls: 'bg-slate-100 text-slate-700 border-slate-200' }
+  }
+}
+
+const loadVoyageData = async () => {
   if (!voyageId) {
     errorMsg.value = 'Identifiant du voyage manquant.'
     isLoading.value = false
@@ -70,18 +91,47 @@ onMounted(async () => {
         categoriesRefusees: Array.isArray(v.objets_interdits) ? v.objets_interdits : []
       }
 
+      setHeaderRoute({
+        routeFrom: voyage.value.routeFrom,
+        countryFrom: voyage.value.countryFrom,
+        routeTo: voyage.value.routeTo,
+        countryTo: voyage.value.countryTo
+      })
+
       if (v.reservations && Array.isArray(v.reservations)) {
-        reservations.value = v.reservations.map(r => ({
-          id: r.id,
-          clientName: r.client?.user ? `${r.client.user.prenom || ''} ${r.client.user.nom || ''}`.trim() : (r.expediteur_nom || 'Client Rahma'),
-          clientPhone: r.client?.user?.telephone || r.expediteur_telephone || 'Non renseigné',
-          parcelType: r.type_colis || r.description || 'Colis de marchandise',
-          weight: r.poids ? `${r.poids} Kg` : 'Forfait objet',
-          price: `${r.prix_total || 0} ${v.devise || 'XOF'}`,
-          paymentMode: r.mode_paiement || 'Au dépôt',
-          status: r.statut || 'en_attente',
-          code: r.code_tracking ? `#${r.code_tracking}` : `#RS-${r.id.toString().slice(0, 5)}`
-        }))
+        reservations.value = v.reservations
+          .filter(r => r.statut !== 'annulee' && r.statut !== 'annule')
+          .map(r => {
+          const c = r.colis || {}
+          const u = r.client?.user || {}
+          const clientName = `${u.prenom || ''} ${u.nom || r.expediteur_nom || ''}`.trim() || 'Client Rahma'
+
+          return {
+            id: r.id,
+            numero: r.numero || `RES-${r.id.toString().slice(0, 8)}`,
+            codeTracking: c.numero_suivi || r.code_tracking || 'TRK-EN-ATTENTE',
+            statut: r.statut || 'en_attente',
+            clientNom: clientName,
+            clientPhone: u.telephone || r.expediteur_telephone || 'Non renseigné',
+            clientEmail: u.email || 'Non renseigné',
+
+            colisType: c.type || r.type_colis || 'Colis de marchandise',
+            colisDescription: c.description || r.description || 'Aucune description',
+            colisPoids: (c.poids !== undefined && c.poids !== null) ? `${c.poids} Kg` : (r.poids ? `${r.poids} Kg` : 'Forfait Objet'),
+            colisValeur: c.valeur_estimee ? `${c.valeur_estimee.toLocaleString()} ${v.devise || 'XOF'}` : 'Non renseignée',
+            colisEstFragile: Boolean(c.est_fragile),
+            colisPhoto: c.photo || null,
+
+            destinataireNom: `${c.destinataire_prenom || ''} ${c.destinataire_nom || ''}`.trim() || 'Non renseigné',
+            destinatairePhone: c.destinataire_numero || 'Non renseigné',
+            destinataireAdresse: c.destinataire_adresse || 'Non renseignée',
+
+            montantTotal: `${(r.montant_total || r.prix_total || 0).toLocaleString()} ${v.devise || 'XOF'}`,
+            modePaiement: r.mode_paiement_souhaite || r.mode_paiement || 'Au dépôt',
+            createdAt: r.created_at,
+            raw: r
+          }
+        })
       } else {
         reservations.value = []
       }
@@ -93,10 +143,61 @@ onMounted(async () => {
   } finally {
     isLoading.value = false
   }
-})
+}
 
-const goToChat = (id) => {
-  router.push(`/voyageur/messages/${id}`)
+onMounted(loadVoyageData)
+
+const goToDemandeDetail = (resId) => {
+  const masked = encodeId(resId)
+  router.push(`/voyageur/demandes/${masked}`)
+}
+
+const handleAccepter = async (resId) => {
+  isUpdatingStatus.value = true
+  try {
+    await accepterReservation(resId)
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: 'Demande de réservation acceptée !',
+      showConfirmButton: false,
+      timer: 3000
+    })
+    await loadVoyageData()
+  } catch (err) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Erreur',
+      text: err?.message || err?.data?.message || 'Impossible d\'accepter la réservation.'
+    })
+  } finally {
+    isUpdatingStatus.value = false
+  }
+}
+
+const handleRefuser = async (resId) => {
+  isUpdatingStatus.value = true
+  try {
+    await refuserReservation(resId)
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'info',
+      title: 'Demande de réservation refusée.',
+      showConfirmButton: false,
+      timer: 3000
+    })
+    await loadVoyageData()
+  } catch (err) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Erreur',
+      text: err?.message || err?.data?.message || 'Impossible de refuser la réservation.'
+    })
+  } finally {
+    isUpdatingStatus.value = false
+  }
 }
 
 const goBack = () => {
@@ -107,11 +208,11 @@ const goBack = () => {
 <template>
   <div class="space-y-6 pb-16">
     <!-- Top Action Bar -->
-    <div class="flex items-center justify-between gap-3">
+    <div class="flex items-center justify-between gap-2 border-b border-gray-200/60 pb-3">
       <button
         @click="goBack"
         type="button"
-        class="inline-flex items-center gap-2 text-xs font-bold text-gray-600 bg-white border border-gray-200 px-3.5 py-2 rounded-xl hover:bg-gray-50 transition-colors shadow-2xs"
+        class="inline-flex items-center gap-1.5 text-xs font-bold text-gray-700 bg-white border border-gray-200 px-3 py-2 rounded-xl hover:bg-gray-50 transition-colors shadow-2xs cursor-pointer shrink"
       >
         <span>←</span>
         <span>Retour aux voyages</span>
@@ -119,7 +220,7 @@ const goBack = () => {
 
       <span
         v-if="voyage"
-        class="text-xs font-extrabold px-3.5 py-1 rounded-full uppercase tracking-wider border"
+        class="text-[11px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider border shrink-0"
         :class="getStatusBadge(voyage.statut).cls"
       >
         {{ getStatusBadge(voyage.statut).text }}
@@ -198,18 +299,20 @@ const goBack = () => {
         </div>
 
         <!-- Capacity Progress Bar -->
-        <div class="space-y-1.5 pt-3 border-t border-sky-800/80">
-          <div class="flex justify-between text-xs font-bold text-sky-200">
-            <span>Capacité restante :</span>
-            <span class="text-white font-extrabold">
-              {{ voyage.capaciteDispo }} Kg disponibles sur {{ voyage.capaciteTotale }} Kg
-            </span>
+        <div class="space-y-2 pt-2 border-t border-sky-800/80">
+          <div class="flex items-center justify-between text-xs font-extrabold">
+            <span class="text-sky-200">Capacité Utilisée</span>
+            <span class="text-white">{{ voyage.capaciteTotale - voyage.capaciteDispo }} Kg / {{ voyage.capaciteTotale }} Kg</span>
           </div>
-          <div class="w-full bg-sky-950 h-3 rounded-full overflow-hidden p-0.5 border border-sky-800">
+          <div class="w-full h-3 bg-sky-950/80 rounded-full overflow-hidden border border-sky-700/50">
             <div
-              class="bg-amber-400 h-full rounded-full transition-all"
+              class="h-full bg-gradient-to-r from-amber-400 to-[#B50302] rounded-full transition-all duration-500"
               :style="{ width: `${Math.min(100, Math.max(0, ((voyage.capaciteTotale - voyage.capaciteDispo) / voyage.capaciteTotale) * 100))}%` }"
             ></div>
+          </div>
+          <div class="flex justify-between text-[11px] text-sky-300">
+            <span>Reste disponible : <strong class="text-white">{{ voyage.capaciteDispo }} Kg</strong></span>
+            <span>Tarif Kg : <strong class="text-white">{{ voyage.prixKg }}</strong> | Tarif Objet : <strong class="text-white">{{ voyage.prixObjet }}</strong></span>
           </div>
         </div>
       </div>
@@ -344,14 +447,15 @@ const goBack = () => {
 
       </div>
 
-      <!-- Reservations Section (Full Width) -->
+      <!-- Reservations Section (Premium Redesigned Cards) -->
       <div class="space-y-4 pt-4 border-t border-gray-200">
         <div class="flex items-center justify-between">
-          <h2 class="text-base sm:text-lg font-bold text-principal-dark">
-            Réservations effectuées sur ce vol ({{ reservations.length }})
+          <h2 class="text-base sm:text-lg font-bold text-principal-dark flex items-center gap-2">
+            <span>Demandes & Réservations associées</span>
+            <span class="bg-sky-100 text-[#074C72] text-xs px-2.5 py-0.5 rounded-full font-black">{{ reservations.length }}</span>
           </h2>
-          <span class="text-xs text-gray-500 font-medium">
-            Poids réservé : {{ voyage.capaciteTotale - voyage.capaciteDispo }} Kg / {{ voyage.capaciteTotale }} Kg
+          <span class="text-xs text-gray-500 font-medium hidden sm:inline">
+            Cliquez sur une carte pour voir les détails complets de la demande
           </span>
         </div>
 
@@ -359,52 +463,93 @@ const goBack = () => {
           <div
             v-for="res in reservations"
             :key="res.id"
-            class="bg-white rounded-3xl p-5 border border-gray-200 shadow-sm space-y-4 hover:border-sky-300 transition-all flex flex-col justify-between"
+            @click="goToDemandeDetail(res.id)"
+            class="bg-white rounded-3xl p-5 border border-gray-200 shadow-sm space-y-4 hover:border-[#074C72] hover:shadow-md transition-all flex flex-col justify-between cursor-pointer group"
           >
-            <!-- Top Row: Code + Status -->
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <span class="text-lg">📦</span>
-                <span class="font-extrabold text-[#053754] text-sm">{{ res.code }}</span>
+            <!-- Card Header: Client Avatar + Name + Status Badge -->
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-[#053754] text-white font-extrabold text-xs flex items-center justify-center shrink-0 shadow-xs group-hover:bg-[#B50302] transition-colors">
+                  {{ res.clientNom.slice(0, 2).toUpperCase() }}
+                </div>
+                <div>
+                  <h4 class="text-sm font-extrabold text-gray-900 group-hover:text-[#074C72] transition-colors flex items-center gap-2">
+                    <span>{{ res.clientNom }}</span>
+                  </h4>
+                  <p class="text-xs text-gray-400 font-mono flex items-center gap-1">
+                    <span>📞</span> {{ res.clientPhone }}
+                  </p>
+                </div>
               </div>
 
               <span
-                class="text-[11px] font-extrabold px-3 py-1 rounded-full border uppercase tracking-wider"
-                :class="res.status === 'en_attente' ? 'bg-amber-50 text-amber-700 border-amber-300' : 'bg-emerald-50 text-emerald-700 border-emerald-200'"
+                class="text-[11px] font-extrabold px-3 py-1 rounded-full border shrink-0"
+                :class="getReservationStatusBadge(res.statut).cls"
               >
-                {{ res.status === 'en_attente' ? 'En Attente' : (res.status === 'acceptee' ? 'Acceptée' : res.status) }}
+                {{ getReservationStatusBadge(res.statut).text }}
               </span>
             </div>
 
-            <!-- Client & Parcel Details -->
-            <div class="grid grid-cols-2 gap-3 text-xs bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
-              <div>
-                <span class="text-gray-400 block font-medium">Expéditeur / Client</span>
-                <span class="font-extrabold text-gray-900 block mt-0.5">{{ res.clientName }}</span>
-                <span class="text-gray-500 font-mono text-[11px] mt-0.5 block">{{ res.clientPhone }}</span>
+            <!-- Main Info Box -->
+            <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 space-y-2.5">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-gray-400 font-medium">N° Réservation :</span>
+                <span class="font-extrabold text-[#053754] font-mono bg-white px-2 py-0.5 rounded-md border border-gray-200">{{ res.numero }}</span>
               </div>
 
-              <div class="text-right">
-                <span class="text-gray-400 block font-medium">Contenu & Poids</span>
-                <span class="font-extrabold text-gray-900 block mt-0.5">{{ res.parcelType }}</span>
-                <span class="text-[#B50302] font-extrabold block mt-0.5">{{ res.weight }}</span>
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <div>
+                  <span class="text-gray-400 font-medium block">Contenu :</span>
+                  <span class="font-extrabold text-gray-900 block truncate">{{ res.colisType }}</span>
+                </div>
+                <div class="text-right">
+                  <span class="text-gray-400 font-medium block">Poids :</span>
+                  <span class="font-extrabold text-[#B50302] block">{{ res.colisPoids }}</span>
+                </div>
+              </div>
+
+              <div v-if="res.colisEstFragile" class="bg-amber-50 text-amber-800 text-[11px] font-bold px-2.5 py-1 rounded-lg border border-amber-200/80 flex items-center gap-1.5">
+                <span>⚠️</span> Colis fragile à manipuler avec précaution
               </div>
             </div>
 
-            <!-- Action Button -->
-            <div class="border-t border-gray-100 pt-3 flex items-center justify-between">
+            <!-- Footer Action & Price Row -->
+            <div class="border-t border-gray-100 pt-3 flex items-center justify-between gap-3">
               <div>
-                <span class="text-[11px] text-gray-400 block font-medium">Prix Total</span>
-                <span class="font-black text-[#053754] text-sm sm:text-base">{{ res.price }}</span>
+                <span class="text-[10px] text-gray-400 font-bold uppercase block">Montant Total</span>
+                <span class="font-black text-[#053754] text-base sm:text-lg">{{ res.montantTotal }}</span>
               </div>
 
-              <button
-                @click="goToChat(res.id)"
-                type="button"
-                class="bg-[#053754] hover:bg-[#074C72] text-white font-extrabold text-xs px-4 py-2.5 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5 shadow-xs"
-              >
-                💬 Discuter avec le client
-              </button>
+              <div class="flex items-center gap-2" @click.stop>
+                <button
+                  v-if="res.statut === 'en_attente'"
+                  @click="handleAccepter(res.id)"
+                  :disabled="isUpdatingStatus"
+                  type="button"
+                  class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-3.5 py-2 rounded-xl transition-colors cursor-pointer shadow-2xs"
+                >
+                  Accepter
+                </button>
+
+                <button
+                  v-if="res.statut === 'en_attente'"
+                  @click="handleRefuser(res.id)"
+                  :disabled="isUpdatingStatus"
+                  type="button"
+                  class="bg-red-50 hover:bg-red-100 text-[#B50302] border border-red-200 font-extrabold text-xs px-3 py-2 rounded-xl transition-colors cursor-pointer"
+                >
+                  Refuser
+                </button>
+
+                <button
+                  @click="goToDemandeDetail(res.id)"
+                  type="button"
+                  class="bg-[#053754] hover:bg-[#074C72] text-white font-extrabold text-xs px-3.5 py-2 rounded-xl transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
+                >
+                  <span>Détails</span>
+                  <span>➔</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -421,4 +566,3 @@ const goBack = () => {
     </template>
   </div>
 </template>
-

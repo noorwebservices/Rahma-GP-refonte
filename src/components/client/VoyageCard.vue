@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { formatVoyageDate } from '@/utils/flagHelper'
 import CountryFlag from '@/components/common/CountryFlag.vue'
+import { encodeId } from '@/utils/idMasker'
 
 const props = defineProps({
   voyage: {
@@ -54,7 +55,8 @@ const pointCollecte = computed(() => {
 })
 
 const goToDetail = () => {
-  router.push(`/client/voyage/${props.voyage.id || 1}`)
+  const masked = encodeId(props.voyage.id || 1)
+  router.push(`/client/voyage/${masked}`)
 }
 </script>
 

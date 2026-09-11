@@ -6,6 +6,7 @@ import CitySelect from '@/components/client/CitySelect.vue'
 import CountryFlag from '@/components/common/CountryFlag.vue'
 import { fetchVoyages, createVoyage, updateVoyage, publierVoyage } from '@/services/voyageService'
 import { fetchAdresseDepots, createAdresseDepot, fetchAdresseRecuperations, createAdresseRecuperation } from '@/services/adresseService'
+import { fetchReservations } from '@/services/reservationService'
 import { getCountryFlag } from '@/utils/flagHelper'
 
 const router = useRouter()
@@ -68,58 +69,7 @@ const statusOptions = [
 ]
 
 // Voyages List Data State
-const voyages = ref([
-  {
-    id: '01a0828c-8880-7190-be0a-5e3294225ecd',
-    routeFrom: 'Paris',
-    countryFrom: 'France',
-    flagFrom: '🇫🇷',
-    routeTo: 'Dakar',
-    countryTo: 'Sénégal',
-    flagTo: '🇸🇳',
-    departureDate: '2026-10-15 10:00:00',
-    arrivalDate: '2026-10-15 18:30:00',
-    capaciteTotale: 25.5,
-    capaciteDispo: 25.5,
-    prixKg: '10 EUR',
-    reservationsCount: 0,
-    statut: 'brouillon',
-    rawObject: {
-      adresse_depot_id: '01a0828c-8880-7190-be0a-5e3294225ecd',
-      adresse_recuperation_id: '01a0828c-888a-724f-a324-ce1f1cdf2a6b',
-      pays_depart: 'France',
-      ville_depart: 'Paris',
-      pays_destination: 'Sénégal',
-      ville_destination: 'Dakar',
-      date_depart: '2026-10-15 10:00:00',
-      date_arrivee: '2026-10-15 18:30:00',
-      capacite_totale: 25.5,
-      prix_kg: 10,
-      prix_objet: 15,
-      devise: 'EUR',
-      description: 'Voyage Paris-Dakar direct, bagages bien sécurisés.',
-      objets_autorises: ['Vêtements', 'Téléphones', 'Documents'],
-      objets_interdits: ['Produits liquides > 100ml', 'Objets tranchants', 'Substances inflammables']
-    }
-  },
-  {
-    id: 'voy-1',
-    routeFrom: 'Dakar',
-    countryFrom: 'Sénégal',
-    flagFrom: '🇸🇳',
-    routeTo: 'Paris',
-    countryTo: 'France',
-    flagTo: '🇫🇷',
-    departureDate: '2026-09-22 10:00:00',
-    arrivalDate: '2026-09-23 06:00:00',
-    capaciteTotale: 20,
-    capaciteDispo: 14,
-    prixKg: '8 500 F CFA',
-    reservationsCount: 2,
-    statut: 'publie',
-    rawObject: null
-  }
-])
+const voyages = ref([])
 
 const isLoading = ref(false)
 
@@ -150,15 +100,45 @@ const loadVoyages = async () => {
   }
 }
 
+const pendingDemandesCount = ref(0)
+
+const loadPendingDemandes = async () => {
+  try {
+    const res = await fetchReservations()
+    if (res && res.data) {
+      const items = Array.isArray(res.data) ? res.data : (res.data.data || [])
+      pendingDemandesCount.value = items.filter(r => r.statut === 'en_attente').length
+    }
+  } catch (err) {
+    pendingDemandesCount.value = 0
+  }
+}
+
 onMounted(async () => {
   await loadVoyages()
   await loadAddresses()
+  await loadPendingDemandes()
 })
 
-// Filtered Voyages List based on Status Filter
+const searchQuery = ref('')
+
+// Filtered Voyages List based on Status Filter and Search Query
 const filteredVoyages = computed(() => {
-  if (activeStatutFilter.value === 'tous') return voyages.value
-  return voyages.value.filter(v => v.statut === activeStatutFilter.value)
+  let list = voyages.value
+  if (activeStatutFilter.value !== 'tous') {
+    list = list.filter(v => v.statut === activeStatutFilter.value)
+  }
+  if (searchQuery.value.trim()) {
+    const q = searchQuery.value.toLowerCase().trim()
+    list = list.filter(v => 
+      (v.routeFrom && v.routeFrom.toLowerCase().includes(q)) ||
+      (v.routeTo && v.routeTo.toLowerCase().includes(q)) ||
+      (v.countryFrom && v.countryFrom.toLowerCase().includes(q)) ||
+      (v.countryTo && v.countryTo.toLowerCase().includes(q)) ||
+      (v.statut && v.statut.toLowerCase().includes(q))
+    )
+  }
+  return list
 })
 
 // Pagination logic: 10 items per page
@@ -550,8 +530,11 @@ const handleSaveVoyage = async (targetStatut) => {
   }
 }
 
+import { encodeId } from '@/utils/idMasker'
+
 const goToVoyageDetail = (id) => {
-  router.push(`/voyageur/voyages/${id}`)
+  const masked = encodeId(id)
+  router.push(`/voyageur/voyages/${masked}`)
 }
 const goToRevenus = () => router.push('/voyageur/revenus')
 const goToDemandes = () => router.push('/voyageur/demandes')
@@ -585,7 +568,9 @@ const goToDemandes = () => router.push('/voyageur/demandes')
 
       <div @click="goToDemandes" class="bg-white rounded-2xl p-4 border border-amber-200 bg-amber-50/40 shadow-2xs hover:border-amber-400 transition-all cursor-pointer space-y-1">
         <span class="text-[11px] font-bold text-amber-700 block uppercase">Demandes en attente</span>
-        <div class="text-base sm:text-lg font-black text-amber-900">2 demandes</div>
+        <div class="text-base sm:text-lg font-black text-amber-900 font-serif">
+          {{ pendingDemandesCount }} {{ pendingDemandesCount > 1 ? 'demandes' : 'demande' }}
+        </div>
         <span class="text-[10px] text-amber-600 font-bold underline">Répondre aux clients ➔</span>
       </div>
 
@@ -599,23 +584,35 @@ const goToDemandes = () => router.push('/voyageur/demandes')
       </div>
     </div>
 
-    <!-- Filter Bar: All backend Enum Statuses (brouillon, publie, complet, en_cours, termine, annule) -->
-    <div class="space-y-2">
-      <label class="block text-[11px] font-extrabold uppercase tracking-wider text-gray-500">Filtrer par statut de voyage :</label>
-      <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-        <button
-          v-for="opt in statusOptions"
-          :key="opt.value"
-          @click="activeStatutFilter = opt.value; currentPage = 1"
-          class="px-3.5 py-1.5 rounded-full text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap shrink-0 border"
-          :class="[
-            activeStatutFilter === opt.value
-              ? 'bg-[#053754] text-white border-[#053754] shadow-xs'
-              : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
-          ]"
-        >
-          {{ opt.label }}
-        </button>
+    <!-- Search Bar & Filter Bar -->
+    <div class="space-y-3 bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
+      <div class="relative w-full">
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Rechercher un voyage par ville, pays..."
+          class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium outline-none focus:border-[#074C72] focus:ring-2 focus:ring-[#074C72]/20"
+        />
+        <span class="absolute left-3.5 top-2.5 text-gray-400 text-sm">🔍</span>
+      </div>
+
+      <div class="space-y-1.5">
+        <label class="block text-[10px] font-extrabold uppercase tracking-wider text-gray-400">Filtrer par statut de voyage :</label>
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+          <button
+            v-for="opt in statusOptions"
+            :key="opt.value"
+            @click="activeStatutFilter = opt.value; currentPage = 1"
+            class="px-3.5 py-1.5 rounded-full text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap shrink-0 border"
+            :class="[
+              activeStatutFilter === opt.value
+                ? 'bg-[#053754] text-white border-[#053754] shadow-xs'
+                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+            ]"
+          >
+            {{ opt.label }}
+          </button>
+        </div>
       </div>
     </div>
 
@@ -702,12 +699,14 @@ const goToDemandes = () => router.push('/voyageur/demandes')
         <!-- Action Row: Éditer opens the multi-step Wizard Modal in edit mode! -->
         <div class="pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
           <button
+            v-if="voyage.statut !== 'publie'"
             @click="openEditModal(voyage)"
             type="button"
             class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs transition-colors cursor-pointer flex items-center gap-1.5"
           >
             <span>✏️ Éditer</span>
           </button>
+          <div v-else></div>
 
           <button
             @click="goToVoyageDetail(voyage.id)"

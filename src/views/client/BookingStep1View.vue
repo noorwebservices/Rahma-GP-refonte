@@ -1,60 +1,156 @@
 <script setup>
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import BookingProgressBar from '@/components/client/BookingProgressBar.vue'
+import { fetchVoyage } from '@/services/voyageService'
+import { getCategoryIcon, isElectronicType } from '@/utils/flagHelper'
 
+const route = useRoute()
 const router = useRouter()
 
-const selectedType = ref('vetements')
-const weightKg = ref(6)
-const estimatedValue = ref(75000)
-const description = ref('Vêtements pliés et chaussures légères pour la famille')
+const voyageId = ref(sessionStorage.getItem('rahma_active_voyage_id') || route.query.voyage_id || '')
+const voyageData = ref(null)
+const isLoadingVoyage = ref(false)
+
+const selectedType = ref('Vêtements')
+const weightKg = ref(1)
+const estimatedValue = ref('')
+const description = ref('')
+const estFragile = ref(false)
 const fileName = ref('')
 const previewImage = ref(null)
+const photoUrl = ref('')
 
-const packageTypes = [
-  { id: 'vetements', label: 'Vêtements & tissus', icon: '👗' },
-  { id: 'documents', label: 'Documents', icon: '📄' },
-  { id: 'electroniques', label: 'Électroniques', icon: '📱' },
-  { id: 'cosmetiques', label: 'Cosmétiques', icon: '💄' },
-  { id: 'cadeaux', label: 'Cadeaux', icon: '🎁' },
-  { id: 'autres', label: 'Autres objets', icon: '📦' }
+const defaultTypes = [
+  { id: 'Vêtements', label: 'Vêtements', icon: '👗' },
+  { id: 'Documents', label: 'Documents', icon: '📄' },
+  { id: 'Électronique & téléphones', label: 'Électroniques', icon: '📱' },
+  { id: 'Cosmétiques & soins', label: 'Cosmétiques', icon: '💄' },
+  { id: 'Cadeaux', label: 'Cadeaux', icon: '🎁' },
+  { id: 'Autres objets', label: 'Autres objets', icon: '📦' }
 ]
 
-const unitPrice = 8500
-const totalPrice = computed(() => weightKg.value * unitPrice)
+const packageTypes = ref(defaultTypes)
+
+onMounted(async () => {
+  // Load existing draft if present
+  const savedDraft = sessionStorage.getItem('rahma_booking_draft')
+  if (savedDraft) {
+    try {
+      const parsed = JSON.parse(savedDraft)
+      if (parsed.voyage_id) voyageId.value = parsed.voyage_id
+      if (parsed.colis) {
+        selectedType.value = parsed.colis.type || selectedType.value
+        description.value = parsed.colis.description ?? description.value
+        estimatedValue.value = parsed.colis.valeur_estimee ?? estimatedValue.value
+        weightKg.value = parsed.colis.poids || weightKg.value
+        estFragile.value = Boolean(parsed.colis.est_fragile)
+        photoUrl.value = parsed.colis.photo || photoUrl.value
+        if (photoUrl.value) {
+          previewImage.value = photoUrl.value
+        }
+      }
+    } catch (e) {}
+  }
+
+  if (voyageId.value) {
+    isLoadingVoyage.value = true
+    try {
+      const res = await fetchVoyage(voyageId.value)
+      if (res && res.data) {
+        voyageData.value = res.data
+        if (Array.isArray(res.data.objets_autorises) && res.data.objets_autorises.length > 0) {
+          packageTypes.value = res.data.objets_autorises.map(item => ({
+            id: item,
+            label: item,
+            icon: getCategoryIcon(item)
+          }))
+          if (!packageTypes.value.some(t => t.id === selectedType.value)) {
+            selectedType.value = packageTypes.value[0].id
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Voyage details failed to load, using default categories')
+    } finally {
+      isLoadingVoyage.value = false
+    }
+  }
+})
+
+const isElectronic = computed(() => isElectronicType(selectedType.value))
+const unitPriceKg = computed(() => voyageData.value?.prix_kg || 8500)
+const unitPriceObjet = computed(() => voyageData.value?.prix_objet || 15000)
+const devise = computed(() => voyageData.value?.devise || 'XOF')
+
+const totalPrice = computed(() => {
+  if (isElectronic.value) {
+    return Math.round(unitPriceObjet.value)
+  }
+  return Math.round(weightKg.value * unitPriceKg.value)
+})
 
 const handleFileChange = (e) => {
   const file = e.target.files[0]
   if (file) {
     fileName.value = file.name
-    previewImage.value = URL.createObjectURL(file)
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      previewImage.value = event.target.result
+      photoUrl.value = event.target.result
+    }
+    reader.readAsDataURL(file)
   }
 }
 
 const goToStep2 = () => {
+  const existingDraft = JSON.parse(sessionStorage.getItem('rahma_booking_draft') || '{}')
+  const updatedDraft = {
+    ...existingDraft,
+    voyage_id: voyageId.value || '01a08d03-a84c-70a7-945c-053fe2e67b57',
+    voyage: voyageData.value || existingDraft.voyage,
+    colis: {
+      ...(existingDraft.colis || {}),
+      type: selectedType.value,
+      description: description.value,
+      valeur_estimee: Number(estimatedValue.value) || 0,
+      poids: Number(weightKg.value) || 1,
+      est_fragile: Boolean(estFragile.value),
+      photo: photoUrl.value || 'https://example.com/photos/colis1.jpg'
+    }
+  }
+  sessionStorage.setItem('rahma_booking_draft', JSON.stringify(updatedDraft))
+  if (voyageId.value) {
+    sessionStorage.setItem('rahma_active_voyage_id', voyageId.value)
+  }
   router.push('/client/booking/step-2')
 }
 </script>
 
 <template>
-  <div class="space-y-6 pb-12 max-w-3xl mx-auto">
+  <div class="space-y-6 pb-12 max-w-3xl mx-auto font-sans">
     <!-- Progress Bar Step 1 -->
     <BookingProgressBar
       :step="1"
       :totalSteps="4"
       title="Détails du colis"
-      subtitle="Détails du colis"
+      subtitle="Sélection des objets et spécifications"
     />
 
     <!-- Form Section -->
     <div class="space-y-6 bg-white rounded-3xl p-6 sm:p-8 border border-gray-200 shadow-2xs">
       
-      <!-- Type de colis * -->
+      <!-- Type de colis (Accepted categories by traveler) * -->
       <div class="space-y-2.5">
-        <label class="block text-xs font-bold text-[#074C72]">
-          Type de colis <span class="text-[#B50302]">*</span>
-        </label>
+        <div class="flex items-center justify-between">
+          <label class="block text-xs font-bold text-[#074C72]">
+            Type de colis (objets acceptés par le voyageur) <span class="text-[#B50302]">*</span>
+          </label>
+          <span v-if="voyageData?.objets_autorises" class="text-[11px] font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
+            ✓ Exigences du trajet
+          </span>
+        </div>
+
         <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           <button
             v-for="type in packageTypes"
@@ -72,16 +168,25 @@ const goToStep2 = () => {
             <span class="text-xs sm:text-sm font-semibold truncate">{{ type.label }}</span>
           </button>
         </div>
+
+        <!-- Tariff notice box for electronic item vs standard -->
+        <div v-if="isElectronic" class="bg-blue-50 border border-blue-200 rounded-2xl p-3.5 flex items-center gap-3 text-xs text-[#053754]">
+          <span class="text-xl">📱</span>
+          <div>
+            <div class="font-extrabold text-[#074C72]">Tarification Forfait Objet (Appareil Électronique)</div>
+            <div class="text-[11px] text-gray-600 font-medium">Les objets électroniques bénéficient d'un tarif forfaitaire fixe de <strong class="text-[#B50302]">{{ unitPriceObjet.toLocaleString() }} {{ devise }} / objet</strong> (au lieu du prix au kilo).</div>
+          </div>
+        </div>
       </div>
 
-      <!-- Photo du contenu du colis * (Exact Mockup Match) -->
+      <!-- Photo du contenu du colis * -->
       <div class="space-y-2.5">
         <label class="block text-xs font-bold text-[#074C72]">
           Photo du contenu du colis <span class="text-[#B50302]">*</span>
         </label>
         
         <div class="border border-gray-200 bg-white rounded-2xl p-5 flex items-center gap-5">
-          <!-- Left Square Image Container (#EAEFF4) -->
+          <!-- Square Image Container -->
           <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[#EAEFF4] border border-gray-200/80 flex items-center justify-center shrink-0 overflow-hidden relative">
             <img v-if="previewImage" :src="previewImage" alt="Colis preview" class="w-full h-full object-cover" />
             <svg v-else class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -115,52 +220,75 @@ const goToStep2 = () => {
         <textarea
           v-model="description"
           rows="3"
-          placeholder="ex: 3 tenues traditionnelles brodées et 2 pagnes neufs..."
+          placeholder="ex: Quelques vêtements d'hiver..."
           class="w-full p-3.5 text-xs sm:text-sm bg-white border border-gray-300 rounded-2xl outline-none focus:border-[#074C72] focus:ring-2 focus:ring-[#074C72]/20 font-medium placeholder-gray-400"
         ></textarea>
       </div>
 
-      <!-- Valeur estimée(CFA) -->
-      <div class="space-y-2">
-        <label class="block text-xs font-bold text-[#074C72]">
-          Valeur estimée(CFA)
-        </label>
-        <input
-          v-model="estimatedValue"
-          type="number"
-          placeholder="0"
-          class="w-full px-4 py-3 text-xs sm:text-sm bg-white border border-gray-300 rounded-xl outline-none focus:border-[#074C72] focus:ring-2 focus:ring-[#074C72]/20 font-bold text-principal-dark"
-        />
+      <!-- Valeur estimée & Fragile Row -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="space-y-2">
+          <label class="block text-xs font-bold text-[#074C72]">
+            Valeur estimée ({{ devise }})
+          </label>
+          <input
+            v-model="estimatedValue"
+            type="number"
+            placeholder="25000"
+            class="w-full px-4 py-3 text-xs sm:text-sm bg-white border border-gray-300 rounded-xl outline-none focus:border-[#074C72] focus:ring-2 focus:ring-[#074C72]/20 font-bold text-principal-dark"
+          />
+        </div>
+
+        <div class="space-y-2 flex flex-col justify-end">
+          <label class="block text-xs font-bold text-[#074C72]">Nature du colis</label>
+          <button
+            type="button"
+            @click="estFragile = !estFragile"
+            :class="[
+              'w-full py-3 px-4 rounded-xl border font-bold text-xs flex items-center justify-between transition-all cursor-pointer',
+              estFragile ? 'bg-amber-50 border-amber-300 text-amber-900 ring-2 ring-amber-400/20' : 'bg-gray-50 border-gray-200 text-gray-600'
+            ]"
+          >
+            <span class="flex items-center gap-2">
+              <span>⚠️</span>
+              <span>Colis fragile</span>
+            </span>
+            <span class="text-xs font-extrabold uppercase">{{ estFragile ? 'Oui' : 'Non' }}</span>
+          </button>
+        </div>
       </div>
 
-      <!-- Poids estimée(Kg) Slider -->
+      <!-- Poids estimé(Kg) Slider -->
       <div class="bg-gray-50 rounded-2xl p-5 border border-gray-200 space-y-3">
         <div class="flex items-center justify-between">
           <div>
-            <div class="text-sm font-bold text-[#074C72]">Poids estimée(Kg)</div>
+            <div class="text-sm font-bold text-[#074C72]">Poids estimé (Kg)</div>
             <div class="text-[11px] text-gray-400 font-medium italic">Pesée certifiée au point de collecte</div>
           </div>
           <div class="text-lg font-black text-[#074C72]">
-            {{ weightKg }}kg
+            {{ weightKg }} Kg
           </div>
         </div>
 
         <!-- Slider Range Input -->
         <input
-          v-model="weightKg"
+          v-model.number="weightKg"
           type="range"
-          min="1"
-          max="15"
-          step="1"
+          min="0.5"
+          max="25"
+          step="0.5"
           class="w-full accent-[#B50302] cursor-pointer"
         />
 
         <div class="flex items-center justify-between text-xs pt-1">
-          <span class="text-[#FF9F02] font-extrabold bg-amber-50 border border-amber-200 px-3 py-1 rounded-full text-[11px]">
-            1kg= 8 500 F CFA
+          <span v-if="isElectronic" class="text-sky-800 font-extrabold bg-sky-50 border border-sky-200 px-3 py-1 rounded-full text-[11px]">
+            Tarif Objet = {{ unitPriceObjet.toLocaleString() }} {{ devise }}
           </span>
-          <span class="text-gray-400 font-medium text-[11px]">
-            Capacité restante: 15Kg
+          <span v-else class="text-[#FF9F02] font-extrabold bg-amber-50 border border-amber-200 px-3 py-1 rounded-full text-[11px]">
+            1 Kg = {{ unitPriceKg.toLocaleString() }} {{ devise }}
+          </span>
+          <span v-if="voyageData" class="text-gray-500 font-bold text-[11px]">
+            Capacité disponible: {{ voyageData.capacite_dispo || voyageData.capacite_totale }} Kg
           </span>
         </div>
       </div>
@@ -170,9 +298,14 @@ const goToStep2 = () => {
     <!-- Bottom Price Bar & Submit CTA -->
     <div class="flex items-center justify-between pt-4 border-t border-gray-200 bg-white p-5 rounded-2xl border shadow-xs">
       <div class="space-y-0.5">
-        <div class="text-xs text-gray-500 font-medium">Prix :</div>
+        <div class="text-xs text-gray-500 font-medium">Prix total estimé :</div>
         <div class="text-sm sm:text-base font-extrabold text-[#B50302]">
-          {{ weightKg }} * 8 500 = {{ totalPrice.toLocaleString() }} FCFA
+          <template v-if="isElectronic">
+            1 Objet Électronique = {{ totalPrice.toLocaleString() }} {{ devise }}
+          </template>
+          <template v-else>
+            {{ weightKg }} Kg × {{ unitPriceKg.toLocaleString() }} = {{ totalPrice.toLocaleString() }} {{ devise }}
+          </template>
         </div>
       </div>
 

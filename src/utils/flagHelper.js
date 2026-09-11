@@ -109,3 +109,31 @@ export const formatVoyageDate = (dateStr) => {
     return `${dayNum}-${monthStr}-${yearStr} ${timeStr}`
   }
 }
+
+/**
+ * Helper to match category names with suitable emoji icons
+ */
+export const getCategoryIcon = (name = '') => {
+  if (!name) return '📦'
+  const lower = name.toLowerCase()
+  if (lower.includes('vêtement') || lower.includes('vetement') || lower.includes('tissu') || lower.includes('habit') || lower.includes('laine')) return '👗'
+  if (lower.includes('téléphone') || lower.includes('telephone') || lower.includes('électronique') || lower.includes('electronique') || lower.includes('high-tech')) return '📱'
+  if (lower.includes('document') || lower.includes('papier') || lower.includes('lettre')) return '📄'
+  if (lower.includes('cosmétique') || lower.includes('cosmetique') || lower.includes('soin') || lower.includes('beauté')) return '💄'
+  if (lower.includes('médicament') || lower.includes('medicament') || lower.includes('ordonnance') || lower.includes('santé')) return '💊'
+  if (lower.includes('bijou') || lower.includes('valeur') || lower.includes('or')) return '💎'
+  if (lower.includes('nourriture') || lower.includes('épice') || lower.includes('epice') || lower.includes('aliment') || lower.includes('sec')) return '🍲'
+  if (lower.includes('livre') || lower.includes('scolaire') || lower.includes('fourniture')) return '📚'
+  if (lower.includes('cadeau')) return '🎁'
+  if (lower.includes('chaussure') || lower.includes('sac')) return '👠'
+  return '📦'
+}
+
+/**
+ * Checks if a category name is an electronic device (which applies fixed prix_objet tariff)
+ */
+export const isElectronicType = (name = '') => {
+  if (!name) return false
+  const lower = name.toLowerCase()
+  return lower.includes('électronique') || lower.includes('electronique') || lower.includes('téléphone') || lower.includes('telephone') || lower.includes('high-tech') || lower.includes('hightech') || lower.includes('ordinateur') || lower.includes('tablette')
+}
