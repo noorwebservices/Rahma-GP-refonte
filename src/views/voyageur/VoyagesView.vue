@@ -4,10 +4,12 @@ import { useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 import CitySelect from '@/components/client/CitySelect.vue'
 import CountryFlag from '@/components/common/CountryFlag.vue'
-import { fetchVoyages, createVoyage, updateVoyage, publierVoyage } from '@/services/voyageService'
+import { fetchVoyages, fetchVoyagesVoyageur, createVoyage, updateVoyage, publierVoyage } from '@/services/voyageService'
 import { fetchAdresseDepots, createAdresseDepot, fetchAdresseRecuperations, createAdresseRecuperation } from '@/services/adresseService'
 import { fetchReservations } from '@/services/reservationService'
 import { fetchMyEvaluations } from '@/services/evaluationService'
+import { fetchRevenus } from '@/services/revenuService'
+import { currentCurrency, formatPrice, convertAmount } from '@/utils/currencyState'
 import { getCountryFlag } from '@/utils/flagHelper'
 
 const router = useRouter()
@@ -76,9 +78,10 @@ const isLoading = ref(false)
 
 const loadVoyages = async () => {
   try {
-    const res = await fetchVoyages()
-    if (res && res.data && res.data.length > 0) {
-      voyages.value = res.data.map(v => ({
+    const res = await fetchVoyagesVoyageur()
+    if (res && res.data) {
+      const items = Array.isArray(res.data) ? res.data : (res.data.data || [])
+      voyages.value = items.map(v => ({
         id: v.id,
         routeFrom: v.ville_depart,
         countryFrom: v.pays_depart,
@@ -90,20 +93,52 @@ const loadVoyages = async () => {
         arrivalDate: v.date_arrivee,
         capaciteTotale: Number(v.capacite_totale) || 0,
         capaciteDispo: v.capacite_dispo !== undefined ? Number(v.capacite_dispo) : Number(v.capacite_totale || 0),
-        prixKg: `${v.prix_kg} ${v.devise || 'F CFA'}`,
+        rawPrixKg: v.prix_kg,
+        rawDevise: v.devise || 'XOF',
         reservationsCount: v.reservations ? v.reservations.length : 0,
         statut: v.statut,
         rawObject: v
       }))
     }
   } catch (err) {
-    // Keep initial mock list
+    console.error('Error loading voyages:', err)
   }
 }
 
 const pendingDemandesCount = ref(0)
 const voyageurRating = ref('4.9')
 const voyageurReviewsCount = ref(0)
+const rawRevenusList = ref([])
+
+const loadRevenusData = async () => {
+  try {
+    const res = await fetchRevenus()
+    if (res) {
+      const dataObj = res.data?.data ? res : res
+      const rawItems = Array.isArray(dataObj.data) ? dataObj.data : (Array.isArray(res.data) ? res.data : [])
+      rawRevenusList.value = rawItems
+    }
+  } catch (err) {
+    rawRevenusList.value = []
+  }
+}
+
+const totalRevenusConverted = computed(() => {
+  return rawRevenusList.value
+    .filter(item => item.statut === 'disponible' || item.statut === 'reussi' || !item.statut)
+    .reduce((sum, item) => {
+      const origDevise = item.reservation?.voyage?.devise || 'XOF'
+      return sum + convertAmount(item.montant || 0, origDevise, currentCurrency.value)
+    }, 0)
+})
+
+const paidReservationsCount = computed(() => {
+  return rawRevenusList.value.filter(item => item.statut === 'disponible' || item.statut === 'reussi' || !item.statut).length
+})
+
+const formattedTotalRevenus = computed(() => {
+  return formatPrice(totalRevenusConverted.value, currentCurrency.value)
+})
 
 const loadPendingDemandes = async () => {
   try {
@@ -141,6 +176,7 @@ onMounted(async () => {
   await loadAddresses()
   await loadPendingDemandes()
   await loadEvaluations()
+  await loadRevenusData()
 })
 
 const searchQuery = ref('')
@@ -161,7 +197,10 @@ const filteredVoyages = computed(() => {
       (v.statut && v.statut.toLowerCase().includes(q))
     )
   }
-  return list
+  return list.map(v => ({
+    ...v,
+    prixKg: formatPrice(v.rawPrixKg || 0, v.rawDevise || 'XOF')
+  }))
 })
 
 // Pagination logic: 10 items per page
@@ -585,8 +624,8 @@ const goToDemandes = () => router.push('/voyageur/demandes')
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
       <div @click="goToRevenus" class="bg-white rounded-2xl p-4 border border-gray-200 shadow-2xs hover:border-[#074C72] transition-all cursor-pointer space-y-1">
         <span class="text-[11px] font-bold text-gray-400 block uppercase">Revenus générés</span>
-        <div class="text-base sm:text-lg font-black text-[#053754]">350 000 F CFA</div>
-        <span class="text-[10px] text-emerald-600 font-bold flex items-center gap-0.5">↗ 3 réservations payées</span>
+        <div class="text-base sm:text-lg font-black text-[#053754]">{{ formattedTotalRevenus }}</div>
+        <span class="text-[10px] text-emerald-600 font-bold flex items-center gap-0.5">↗ {{ paidReservationsCount }} {{ paidReservationsCount > 1 ? 'réservations payées' : 'réservation payée' }}</span>
       </div>
 
       <div @click="goToDemandes" class="bg-white rounded-2xl p-4 border border-amber-200 bg-amber-50/40 shadow-2xs hover:border-amber-400 transition-all cursor-pointer space-y-1">

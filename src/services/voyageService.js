@@ -62,8 +62,11 @@ export const annulerVoyage = async (id) => {
   }
 }
 
+export const fetchVoyagesVoyageur = fetchVoyages
+
 export default {
   fetchVoyages,
+  fetchVoyagesVoyageur,
   fetchVoyage,
   createVoyage,
   updateVoyage,
@@ -71,3 +74,4 @@ export default {
   publierVoyage,
   annulerVoyage
 }
+

@@ -1,62 +1,113 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { fetchRevenus } from '@/services/revenuService'
+import { formatVoyageDate } from '@/utils/flagHelper'
+import { currentCurrency, availableCurrencies, setCurrency, formatPrice, convertAmount } from '@/utils/currencyState'
 
+const isLoading = ref(true)
+const errorMsg = ref('')
+
+const rawRevenusList = ref([])
 const selectedTransaction = ref(null)
 const showDetailModal = ref(false)
 
-const revenus = ref([
-  {
-    id: 1,
-    code: '#RS-7729',
-    client: 'Mariama Diallo',
-    telephone: '+33 7 23 34 56 78',
-    route: 'Dakar ➔ Paris',
-    date: '23 Septembre 2026',
-    datePaiement: '23 Sept. 2026 à 14:35',
-    montant: '51 000 F CFA',
-    poids: '6 Kg',
-    tarifKg: '8 500 F CFA / Kg',
-    colisType: 'Vêtements & tissus',
-    modePaiement: 'Wave Mobile Money',
-    statut: 'disponible',
-    commission: '0 F CFA (0%)',
-    netGain: '51 000 F CFA'
-  },
-  {
-    id: 2,
-    code: '#RS-6640',
-    client: 'Abdoulaye Faye',
-    telephone: '+221 77 654 32 10',
-    route: 'Dakar ➔ Paris',
-    date: '15 Septembre 2026',
-    datePaiement: '15 Sept. 2026 à 18:20',
-    montant: '85 000 F CFA',
-    poids: '10 Kg',
-    tarifKg: '8 500 F CFA / Kg',
-    colisType: 'Électronique & Accessoires',
-    modePaiement: 'Orange Money',
-    statut: 'disponible',
-    commission: '0 F CFA (0%)',
-    netGain: '85 000 F CFA'
-  },
-  {
-    id: 3,
-    code: '#RS-5510',
-    client: 'Aïssatou Ba',
-    telephone: '+33 6 12 34 56 78',
-    route: 'Dakar ➔ Paris',
-    date: '22 Septembre 2026',
-    datePaiement: 'En attente de livraison',
-    montant: '34 000 F CFA',
-    poids: '4 Kg',
-    tarifKg: '8 500 F CFA / Kg',
-    colisType: 'Documents & Cosmétiques',
-    modePaiement: 'Wave Mobile Money',
-    statut: 'en_attente',
-    commission: '0 F CFA (0%)',
-    netGain: '34 000 F CFA'
+const loadRevenusData = async () => {
+  isLoading.value = true
+  errorMsg.value = ''
+  try {
+    const res = await fetchRevenus()
+    if (res) {
+      const dataObj = res.data?.data ? res : res
+      const rawItems = Array.isArray(dataObj.data) ? dataObj.data : (Array.isArray(res.data) ? res.data : [])
+      rawRevenusList.value = rawItems
+    }
+  } catch (err) {
+    errorMsg.value = err?.message || 'Erreur lors du chargement de vos revenus.'
+  } finally {
+    isLoading.value = false
   }
-])
+}
+
+onMounted(loadRevenusData)
+
+const totalRevenusConverted = computed(() => {
+  return rawRevenusList.value
+    .filter(item => item.statut === 'disponible' || item.statut === 'reussi' || !item.statut)
+    .reduce((sum, item) => {
+      const origDevise = item.reservation?.voyage?.devise || 'XOF'
+      return sum + convertAmount(item.montant || 0, origDevise, currentCurrency.value)
+    }, 0)
+})
+
+const totalWaveConverted = computed(() => {
+  return rawRevenusList.value
+    .filter(item => {
+      const pMode = (item.reservation?.mode_paiement_souhaite || item.reservation?.mode_paiement || '').toLowerCase()
+      return pMode.includes('wave') && (item.statut === 'disponible' || item.statut === 'reussi' || !item.statut)
+    })
+    .reduce((sum, item) => {
+      const origDevise = item.reservation?.voyage?.devise || 'XOF'
+      return sum + convertAmount(item.montant || 0, origDevise, currentCurrency.value)
+    }, 0)
+})
+
+const totalEspecesConverted = computed(() => {
+  return rawRevenusList.value
+    .filter(item => {
+      const pMode = (item.reservation?.mode_paiement_souhaite || item.reservation?.mode_paiement || '').toLowerCase()
+      return !pMode.includes('wave') && (item.statut === 'disponible' || item.statut === 'reussi' || !item.statut)
+    })
+    .reduce((sum, item) => {
+      const origDevise = item.reservation?.voyage?.devise || 'XOF'
+      return sum + convertAmount(item.montant || 0, origDevise, currentCurrency.value)
+    }, 0)
+})
+
+const totalEnAttentePaiementConverted = computed(() => {
+  return rawRevenusList.value
+    .filter(item => item.statut === 'en_attente' || item.statut === 'non_paye' || (item.reservation?.statut === 'acceptee' && item.statut !== 'disponible' && item.statut !== 'reussi'))
+    .reduce((sum, item) => {
+      const origDevise = item.reservation?.voyage?.devise || 'XOF'
+      return sum + convertAmount(item.montant || 0, origDevise, currentCurrency.value)
+    }, 0)
+})
+
+const formattedRevenusList = computed(() => {
+  return rawRevenusList.value.map(item => {
+    const resObj = item.reservation || {}
+    const clientObj = resObj.client?.user || resObj.client || {}
+    const voyageObj = resObj.voyage || {}
+
+    const clientName = `${clientObj.prenom || ''} ${clientObj.nom || ''}`.trim() || 'Client Rahma'
+    const routeText = (voyageObj.ville_depart && voyageObj.ville_destination)
+      ? `${voyageObj.ville_depart} ➔ ${voyageObj.ville_destination}`
+      : 'Trajet Colis'
+
+    const origDevise = voyageObj.devise || 'XOF'
+    const pModeRaw = resObj.mode_paiement_souhaite || resObj.mode_paiement || 'Paiement'
+    const isWave = pModeRaw.toLowerCase().includes('wave')
+
+    return {
+      id: item.id,
+      code: resObj.numero || `#RES-${item.id.toString().slice(0, 8)}`,
+      client: clientName,
+      route: routeText,
+      date: formatVoyageDate(item.created_at),
+      montant: formatPrice(item.montant || 0, origDevise, currentCurrency.value),
+      originalMontant: `${Number(item.montant || 0).toLocaleString()} ${origDevise}`,
+      modePaiement: isWave ? '🌊 Wave (En ligne)' : '💵 Espèces (Dépôt/Livraison)',
+      isWave: isWave,
+      statut: item.statut || 'disponible',
+      colisType: resObj.colis?.type || 'Colis',
+      poids: resObj.colis?.poids ? `${resObj.colis.poids} Kg` : 'Objet',
+      tarifKg: formatPrice(voyageObj.prix_kg || 0, origDevise, currentCurrency.value),
+      commission: formatPrice(0, origDevise, currentCurrency.value),
+      netGain: formatPrice(item.montant || 0, origDevise, currentCurrency.value),
+      datePaiement: formatVoyageDate(item.created_at),
+      rawItem: item
+    }
+  })
+})
 
 const openDetail = (rev) => {
   selectedTransaction.value = rev
@@ -71,48 +122,84 @@ const closeDetail = () => {
 
 <template>
   <div class="space-y-6 pb-20 font-sans">
-    <!-- Header Title (Superposed vertical layout for title and subtitle) -->
-    <div class="space-y-1">
-      <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark">Mes revenus GP</h1>
-      <p class="text-xs sm:text-sm text-gray-500 leading-snug">Suivez l'historique des gains générés par le transport de vos colis</p>
+    <!-- Header Title & Currency Selector -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="space-y-1">
+        <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark">Mes revenus GP</h1>
+        <p class="text-xs sm:text-sm text-gray-500 leading-snug">Suivez l'ensemble des revenus générés par l'ensemble de vos voyages</p>
+      </div>
+
+      <!-- Currency Selector Dropdown -->
+      <div class="flex items-center gap-2 bg-white px-3.5 py-2 rounded-2xl border border-gray-200 shadow-2xs self-start sm:self-auto">
+        <span class="text-xs font-bold text-gray-600">Devise d'affichage :</span>
+        <select
+          :value="currentCurrency"
+          @change="setCurrency($event.target.value)"
+          class="bg-gray-50 border border-gray-300 text-xs font-extrabold text-[#053754] rounded-xl px-3 py-1.5 outline-none cursor-pointer focus:ring-2 focus:ring-[#074C72]/20"
+        >
+          <option v-for="curr in availableCurrencies" :key="curr.code" :value="curr.code">
+            {{ curr.label }}
+          </option>
+        </select>
+      </div>
     </div>
 
-    <!-- Revenue Summary Metric Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-      <!-- Total -->
+    <!-- Revenue Summary Metric Cards (4 Cards: Total Payé, Wave, Espèces, Accepté non payé) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+      <!-- Total Revenus Payés -->
       <div class="bg-[#053754] text-white rounded-3xl p-4 sm:p-5 shadow-md space-y-1 relative overflow-hidden">
-        <span class="text-[11px] sm:text-xs font-bold text-sky-200 uppercase tracking-wider block">Total Revenus Générés</span>
-        <div class="text-xl sm:text-2xl font-black text-white">170 000 F CFA</div>
-        <p class="text-[10px] sm:text-[11px] text-sky-300">Sur 3 réservations transportées</p>
+        <span class="text-[11px] sm:text-xs font-bold text-sky-200 uppercase tracking-wider block">Total Revenus Payés</span>
+        <div class="text-xl sm:text-2xl font-black text-white">{{ formatPrice(totalRevenusConverted, currentCurrency) }}</div>
+        <p class="text-[10px] sm:text-[11px] text-sky-300">Paiements encaissés</p>
       </div>
 
-      <!-- Disponibles -->
+      <!-- Wave / Numérique -->
+      <div class="bg-white rounded-3xl p-4 sm:p-5 border border-sky-200 shadow-2xs space-y-1">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] sm:text-xs font-bold text-sky-700 uppercase tracking-wider block">Paiements Wave</span>
+          <span class="text-sm">🌊</span>
+        </div>
+        <div class="text-xl sm:text-2xl font-black text-[#074C72]">{{ formatPrice(totalWaveConverted, currentCurrency) }}</div>
+        <p class="text-[10px] sm:text-[11px] text-sky-600 font-semibold">Réglés en ligne</p>
+      </div>
+
+      <!-- Espèces -->
       <div class="bg-white rounded-3xl p-4 sm:p-5 border border-emerald-200 shadow-2xs space-y-1">
-        <span class="text-[11px] sm:text-xs font-bold text-emerald-600 uppercase tracking-wider block">Revenus Disponibles</span>
-        <div class="text-xl sm:text-2xl font-black text-emerald-800">136 000 F CFA</div>
-        <p class="text-[10px] sm:text-[11px] text-emerald-600 font-semibold">Paiements validés & reçus</p>
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] sm:text-xs font-bold text-emerald-700 uppercase tracking-wider block">Paiements Espèces</span>
+          <span class="text-sm">💵</span>
+        </div>
+        <div class="text-xl sm:text-2xl font-black text-emerald-800">{{ formatPrice(totalEspecesConverted, currentCurrency) }}</div>
+        <p class="text-[10px] sm:text-[11px] text-emerald-600 font-semibold">Encaissés direct</p>
       </div>
 
-      <!-- En attente -->
+      <!-- Acceptées non payées -->
       <div class="bg-white rounded-3xl p-4 sm:p-5 border border-amber-200 shadow-2xs space-y-1">
-        <span class="text-[11px] sm:text-xs font-bold text-amber-600 uppercase tracking-wider block">Revenus en Attente</span>
-        <div class="text-xl sm:text-2xl font-black text-amber-800">34 000 F CFA</div>
-        <p class="text-[10px] sm:text-[11px] text-amber-600 font-semibold">Colis en cours de livraison</p>
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] sm:text-xs font-bold text-amber-700 uppercase tracking-wider block">Acceptés non Payés</span>
+          <span class="text-sm">⏳</span>
+        </div>
+        <div class="text-xl sm:text-2xl font-black text-amber-800">{{ formatPrice(totalEnAttentePaiementConverted, currentCurrency) }}</div>
+        <p class="text-[10px] sm:text-[11px] text-amber-600 font-semibold">Réservations validées</p>
       </div>
     </div>
 
     <!-- Earnings History List Card -->
     <div class="bg-white rounded-3xl p-5 sm:p-6 border border-gray-200 shadow-sm space-y-4">
-      <!-- Vertically stacked Header and Subtitle on Mobile -->
       <div class="flex flex-col gap-0.5">
         <h3 class="text-base font-extrabold text-[#053754]">Historique des transactions</h3>
-        <p class="text-xs text-gray-400 font-medium">Cliquez sur une ligne pour voir les détails</p>
+        <p class="text-xs text-gray-400 font-medium">Converti automatiquement dans votre devise sélectionnée ({{ currentCurrency }})</p>
+      </div>
+
+      <!-- Empty State -->
+      <div v-if="formattedRevenusList.length === 0 && !isLoading" class="py-8 text-center text-xs text-gray-400">
+        Aucun revenu enregistré pour le moment.
       </div>
 
       <!-- Simplified Clean List -->
-      <div class="divide-y divide-gray-100">
+      <div v-else class="divide-y divide-gray-100">
         <div
-          v-for="rev in revenus"
+          v-for="rev in formattedRevenusList"
           :key="rev.id"
           @click="openDetail(rev)"
           class="py-3.5 flex items-center justify-between gap-3 first:pt-0 last:pb-0 cursor-pointer hover:bg-slate-50 -mx-1 px-2 rounded-2xl transition-all"
@@ -128,15 +215,12 @@ const closeDetail = () => {
             </p>
           </div>
 
-          <!-- Right side: Montant, Badge & Eye Icon -->
+          <!-- Right side: Montant, Mode & Eye Icon -->
           <div class="flex items-center gap-2 sm:gap-3 shrink-0">
             <div class="text-right">
               <div class="font-black text-xs sm:text-sm text-gray-900">{{ rev.montant }}</div>
-              <span
-                class="inline-block text-[9px] sm:text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase"
-                :class="rev.statut === 'disponible' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'"
-              >
-                {{ rev.statut === 'disponible' ? '✓ DISPONIBLE' : '⏳ EN ATTENTE' }}
+              <span class="inline-block text-[9px] sm:text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase bg-slate-100 text-slate-700">
+                {{ rev.modePaiement }}
               </span>
             </div>
 
@@ -193,7 +277,7 @@ const closeDetail = () => {
         <div class="bg-slate-50 p-4 rounded-2xl space-y-3 border border-slate-100 text-xs">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 pb-2 border-b border-slate-200/60">
             <span class="text-gray-500 font-semibold">Expéditeur / Client</span>
-            <span class="font-extrabold text-gray-900 sm:text-right">{{ selectedTransaction.client }} <span class="text-gray-500 font-normal">({{ selectedTransaction.telephone }})</span></span>
+            <span class="font-extrabold text-gray-900 sm:text-right">{{ selectedTransaction.client }}</span>
           </div>
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 pb-2 border-b border-slate-200/60">
             <span class="text-gray-500 font-semibold">Trajet du voyage</span>

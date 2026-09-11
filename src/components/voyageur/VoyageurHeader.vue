@@ -3,7 +3,9 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { headerState } from '@/utils/headerState'
 import CountryFlag from '@/components/common/CountryFlag.vue'
-import { fetchUnreadMessagesCount } from '@/services/messageService'
+import NotificationModal from '@/components/common/NotificationModal.vue'
+import { fetchUnreadNotificationsCount } from '@/services/notificationService'
+import { currentCurrency, availableCurrencies, setCurrency } from '@/utils/currencyState'
 
 const props = defineProps({
   showBack: {
@@ -26,16 +28,17 @@ const props = defineProps({
 
 const router = useRouter()
 const route = useRoute()
-const unreadCount = ref(0)
+const unreadNotifCount = ref(0)
+const showNotifModal = ref(false)
 
 const loadUnreadCount = async () => {
   try {
-    const res = await fetchUnreadMessagesCount()
-    if (res && res.unread_count !== undefined) {
-      unreadCount.value = Number(res.unread_count) || 0
+    const res = await fetchUnreadNotificationsCount()
+    if (res && (res.unread_count !== undefined || res.data?.unread_count !== undefined)) {
+      unreadNotifCount.value = Number(res.unread_count ?? res.data?.unread_count ?? 0)
     }
   } catch (e) {
-    unreadCount.value = 0
+    unreadNotifCount.value = 0
   }
 }
 
@@ -59,7 +62,7 @@ const goToMessages = () => {
 <template>
   <header class="w-full bg-white border-b border-gray-200 sticky top-0 z-40 shadow-2xs">
     
-    <!-- Top Bar Header (Logo, Mode Voyageur Badge, Language FR & Notifications) -->
+    <!-- Top Bar Header (Logo, Mode Voyageur Badge, Currency & Language & Notifications) -->
     <div class="w-full py-2.5 px-4 sm:px-6 bg-white">
       <div class="max-w-4xl mx-auto flex items-center justify-between gap-3">
         <!-- Logo Rahma Delivery + Mode Badge -->
@@ -75,30 +78,51 @@ const goToMessages = () => {
 
         <!-- Right Action Badges -->
         <div class="flex items-center gap-2">
+          <!-- Currency Switcher Pill -->
+          <div class="flex items-center gap-1 bg-[#F3F4F6] border border-gray-200 px-2.5 py-1 rounded-full text-xs font-extrabold text-gray-700">
+            <span>💱</span>
+            <select
+              :value="currentCurrency"
+              @change="setCurrency($event.target.value)"
+              class="bg-transparent border-none text-xs font-extrabold text-[#053754] outline-none cursor-pointer p-0"
+            >
+              <option v-for="c in availableCurrencies" :key="c.code" :value="c.code">
+                {{ c.code }}
+              </option>
+            </select>
+          </div>
+
           <!-- Language Switcher Pill (FR) -->
-          <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#F3F4F6] border border-gray-200 text-xs font-extrabold text-gray-700">
+          <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#F3F4F6] border border-gray-200 text-xs font-extrabold text-gray-700">
             <span class="w-4 h-4 rounded-full overflow-hidden flex items-center justify-center text-[10px] shrink-0">🇫🇷</span>
             <span>FR</span>
           </div>
 
           <!-- Notification Bell -->
           <button
-            @click="goToMessages"
+            @click="showNotifModal = true"
+            type="button"
             class="w-9 h-9 rounded-full bg-[#F3F4F6] hover:bg-gray-200 flex items-center justify-center text-gray-600 relative transition-colors cursor-pointer"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
             </svg>
             <span
-              v-if="unreadCount > 0"
+              v-if="unreadNotifCount > 0"
               class="absolute -top-1 -right-1 bg-[#B50302] text-white text-[10px] font-black rounded-full min-w-4.5 h-4.5 px-1 flex items-center justify-center border-2 border-white"
             >
-              {{ unreadCount }}
+              {{ unreadNotifCount }}
             </span>
           </button>
         </div>
       </div>
     </div>
+
+    <NotificationModal
+      :is-open="showNotifModal"
+      @close="showNotifModal = false"
+      @refresh-count="loadUnreadCount"
+    />
 
     <!-- Sub-Header Row: Back Arrow + Dynamic Route/Title Bar -->
     <div v-if="showBack" class="w-full py-2.5 px-4 sm:px-6 border-t border-gray-100 bg-white sticky top-[53px] z-30">

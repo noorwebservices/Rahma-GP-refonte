@@ -1,12 +1,14 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 import { fetchReservation, accepterReservation, refuserReservation, annulerReservation, updateColisStatut } from '@/services/reservationService'
+import { postReservationPaiement } from '@/services/paiementService'
 import { getCountryFlag, formatVoyageDate } from '@/utils/flagHelper'
 import CountryFlag from '@/components/common/CountryFlag.vue'
 import { decodeId, encodeId } from '@/utils/idMasker'
 import { setHeaderRoute } from '@/utils/headerState'
+import { currentCurrency, formatPrice } from '@/utils/currencyState'
 
 const route = useRoute()
 const router = useRouter()
@@ -16,9 +18,22 @@ const errorMsg = ref('')
 const isUpdatingStatus = ref(false)
 const demande = ref(null)
 
+const formattedPrice = computed(() => {
+  if (!demande.value) return ''
+  return formatPrice(demande.value.rawPrice, demande.value.rawDevise)
+})
+
+const formattedEstimatedValue = computed(() => {
+  if (!demande.value || !demande.value.rawEstimatedValue) return 'Non renseignée'
+  return formatPrice(demande.value.rawEstimatedValue, demande.value.rawDevise)
+})
+
 const selectedColisStatut = ref('en_transit')
 const colisCommentaire = ref('')
 const isSubmittingColisStatut = ref(false)
+
+const selectedPaymentMode = ref('espece_depot')
+const isSubmittingPaiement = ref(false)
 
 const colisStatutOptions = [
   { value: 'colis_depose', label: '📍 Colis déposé au point relais' },
@@ -76,6 +91,7 @@ const loadDemande = async () => {
         parcelType: c.type || data.type_colis || 'Colis de marchandise',
         description: c.description || data.description || 'Aucune description',
         weight: (c.poids !== undefined && c.poids !== null) ? `${c.poids} Kg` : (data.poids ? `${data.poids} Kg` : 'Objet'),
+        rawEstimatedValue: c.valeur_estimee ? Number(c.valeur_estimee) : null,
         estimatedValue: c.valeur_estimee ? `${Number(c.valeur_estimee).toLocaleString()} ${v.devise || 'XOF'}` : 'Non renseignée',
         isFragile: Boolean(c.est_fragile),
         photo: formatPhotoUrl(c.photo),
@@ -85,6 +101,8 @@ const loadDemande = async () => {
         recipientAddress: c.destinataire_adresse || 'Non renseignée',
 
         paymentMode: data.mode_paiement_souhaite || data.mode_paiement || 'Au dépôt',
+        rawPrice: Number(data.montant_total || data.prix_total || 0),
+        rawDevise: v.devise || 'XOF',
         price: `${Number(data.montant_total || data.prix_total || 0).toLocaleString()} ${v.devise || 'XOF'}`,
         createdAt: data.created_at,
 
@@ -149,6 +167,34 @@ const handleUpdateColisStatut = async () => {
     })
   } finally {
     isSubmittingColisStatut.value = false
+  }
+}
+
+const handleRecordPaiementVoyageur = async () => {
+  if (!demande.value) return
+  isSubmittingPaiement.value = true
+  try {
+    await postReservationPaiement(demande.value.rawId, {
+      mode_paiement: selectedPaymentMode.value,
+      statut: 'reussi'
+    })
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: 'Paiement en espèces validé & crédité !',
+      showConfirmButton: false,
+      timer: 3000
+    })
+    await loadDemande()
+  } catch (err) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Erreur',
+      text: err?.message || err?.data?.message || 'Impossible de valider le paiement.'
+    })
+  } finally {
+    isSubmittingPaiement.value = false
   }
 }
 
@@ -364,7 +410,7 @@ const goBackToVoyage = () => {
               </div>
               <div>
                 <span class="text-gray-400 font-medium block">Valeur estimée du colis :</span>
-                <span class="font-bold text-gray-800 text-sm">{{ demande.estimatedValue }}</span>
+                <span class="font-bold text-gray-800 text-sm">{{ formattedEstimatedValue }}</span>
               </div>
               <div>
                 <span class="text-gray-400 font-medium block">Nature du colis :</span>
@@ -405,6 +451,43 @@ const goBackToVoyage = () => {
             <div class="font-extrabold text-gray-900 text-sm sm:text-base">{{ demande.recipientName }}</div>
             <div class="text-xs text-gray-600 font-medium pt-1 border-t border-amber-200/60">
               📍 {{ demande.recipientAddress }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Section Validation du Paiement en Espèces (Voyageur) -->
+        <div v-if="demande.statut === 'acceptee'" class="space-y-3 pt-4 border-t border-gray-100">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">💳</span>
+            <h4 class="text-xs font-extrabold text-[#053754] uppercase tracking-wider">
+              Validation du Paiement (Encaissement par le Voyageur)
+            </h4>
+          </div>
+
+          <div class="bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-4 sm:p-5 space-y-3">
+            <p class="text-xs text-emerald-900 font-medium">
+              Si le client a choisi le paiement en espèces (au dépôt ou à la livraison), validez la réception du montant pour créditer vos revenus.
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center gap-3">
+              <select
+                v-model="selectedPaymentMode"
+                class="w-full sm:w-auto px-3.5 py-2.5 bg-white border border-gray-300 rounded-xl text-xs font-bold outline-none focus:border-emerald-600"
+              >
+                <option value="espece_depot">💵 Espèce au dépôt</option>
+                <option value="livraison">📦 À la livraison</option>
+                <option value="wave">🌊 Wave (En ligne)</option>
+              </select>
+
+              <button
+                @click="handleRecordPaiementVoyageur"
+                :disabled="isSubmittingPaiement"
+                type="button"
+                class="w-full sm:w-auto bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs px-5 py-2.5 rounded-xl shadow-xs transition-all cursor-pointer flex items-center justify-center gap-2 uppercase tracking-wider disabled:opacity-50"
+              >
+                <span v-if="isSubmittingPaiement" class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                <span>Valider le Paiement Reçu</span>
+              </button>
             </div>
           </div>
         </div>
@@ -483,7 +566,7 @@ const goBackToVoyage = () => {
         <div class="border-t border-gray-100 pt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <span class="text-xs text-gray-400 font-medium block">Prix total du transport :</span>
-            <span class="font-black text-[#053754] text-xl sm:text-2xl">{{ demande.price }}</span>
+            <span class="font-black text-[#053754] text-xl sm:text-2xl">{{ formattedPrice }}</span>
           </div>
 
           <div v-if="demande.statut === 'en_attente'" class="flex items-center gap-3">

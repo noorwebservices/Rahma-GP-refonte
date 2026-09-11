@@ -35,6 +35,8 @@ const paysDestination = computed(() => voyage.value?.pays_destination || voyage.
 const dateDepart = computed(() => voyage.value?.date_depart || voyage.value?.date || '')
 const weightKg = computed(() => draft.value?.colis?.poids || 3.5)
 
+import { currentCurrency, formatPrice } from '@/utils/currencyState'
+
 const isElectronic = computed(() => isElectronicType(draft.value?.colis?.type))
 const unitPriceKg = computed(() => voyage.value?.prix_kg || 8500)
 const unitPriceObjet = computed(() => voyage.value?.prix_objet || 15000)
@@ -46,6 +48,10 @@ const totalPrice = computed(() => {
   }
   return Math.round(weightKg.value * unitPriceKg.value)
 })
+
+const formattedUnitPriceKg = computed(() => formatPrice(unitPriceKg.value, devise.value))
+const formattedUnitPriceObjet = computed(() => formatPrice(unitPriceObjet.value, devise.value))
+const formattedTotalPrice = computed(() => formatPrice(totalPrice.value, devise.value))
 
 const handleConfirmBooking = async () => {
   isSubmitting.value = true
@@ -164,7 +170,7 @@ const goToHome = () => {
 
       <div class="pt-2 flex items-center justify-between border-t border-sky-800/80 text-sm">
         <span class="text-sky-200 font-medium">Prix total du voyage</span>
-        <span class="font-black text-base sm:text-lg text-white">{{ totalPrice.toLocaleString() }} {{ devise }}</span>
+        <span class="font-black text-base sm:text-lg text-white">{{ formattedTotalPrice }}</span>
       </div>
     </div>
 

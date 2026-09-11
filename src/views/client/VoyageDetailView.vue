@@ -8,6 +8,7 @@ import CountryFlag from '@/components/common/CountryFlag.vue'
 import { decodeId } from '@/utils/idMasker'
 
 import { setHeaderRoute } from '@/utils/headerState'
+import { currentCurrency, formatPrice } from '@/utils/currencyState'
 
 const route = useRoute()
 const router = useRouter()
@@ -60,8 +61,11 @@ onMounted(async () => {
         dateArrivee: v.date_arrivee,
         poidsDispo: v.capacite_dispo !== undefined ? Number(v.capacite_dispo) : Number(v.capacite_totale || 0),
         poidsTotal: Number(v.capacite_totale) || 0,
-        prixKg: v.prix_kg ? `${v.prix_kg} ${v.devise || 'FCFA'}` : 'Non défini',
-        prixObjet: v.prix_objet ? `${v.prix_objet} ${v.devise || 'FCFA'}` : 'Non défini',
+        rawPrixKg: v.prix_kg,
+        rawPrixObjet: v.prix_objet,
+        devise: v.devise || 'XOF',
+        prixKg: computed(() => v.prix_kg ? formatPrice(v.prix_kg, v.devise || 'XOF') : 'Non défini'),
+        prixObjet: computed(() => v.prix_objet ? formatPrice(v.prix_objet, v.devise || 'XOF') : 'Non défini'),
         transporteur: v.voyageur ? `${v.voyageur.prenom || v.voyageur.user?.prenom || ''} ${v.voyageur.nom || v.voyageur.user?.nom || ''}`.trim() || 'Transporteur GP' : (v.transporteur_nom || 'Transporteur GP'),
         adresseDepotObj: v.adresse_depot || null,
         adresseDepotText: v.adresse_depot ? `${v.adresse_depot.adresse} (${v.adresse_depot.ville}, ${v.adresse_depot.pays})` : 'Adresse non spécifiée',

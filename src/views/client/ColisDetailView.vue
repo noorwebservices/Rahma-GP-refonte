@@ -4,10 +4,12 @@ import { useRoute, useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 import { fetchReservation, annulerReservation } from '@/services/reservationService'
 import { postReservationEvaluation, fetchVoyageurEvaluations } from '@/services/evaluationService'
+import { postReservationPaiement } from '@/services/paiementService'
 import { formatVoyageDate } from '@/utils/flagHelper'
 import CountryFlag from '@/components/common/CountryFlag.vue'
 import { decodeId, encodeId } from '@/utils/idMasker'
 import { setHeaderRoute } from '@/utils/headerState'
+import { currentCurrency, formatPrice } from '@/utils/currencyState'
 
 const route = useRoute()
 const router = useRouter()
@@ -17,6 +19,16 @@ const isLoading = ref(true)
 const errorMsg = ref('')
 const reservation = ref(null)
 const trackingSteps = ref([])
+
+const formattedMontantTotal = computed(() => {
+  if (!reservation.value) return '0 F CFA'
+  return formatPrice(reservation.value.rawMontantTotal, reservation.value.rawDevise)
+})
+
+const selectedPaymentMode = ref('wave')
+const customMontant = ref('')
+const paymentRef = ref('')
+const isSubmittingPayment = ref(false)
 
 const ratingNote = ref(0)
 const ratingComment = ref('')
@@ -93,6 +105,8 @@ const loadReservationData = async () => {
         dateDepart: v.date_depart || data.created_at,
         
         poids: c.poids ? `${c.poids} Kg` : (data.poids ? `${data.poids} Kg` : 'Forfait Objet'),
+        rawMontantTotal: Number(data.montant_total || data.prix_total || 0),
+        rawDevise: v.devise || 'XOF',
         montantTotal: `${data.montant_total || data.prix_total || 0} ${v.devise || 'XOF'}`,
         modePaiement: data.mode_paiement_souhaite || data.mode_paiement || 'Au dépôt',
         
@@ -203,6 +217,39 @@ const handleCancel = async () => {
       title: 'Erreur',
       text: err?.message || err?.data?.message || 'Impossible d\'annuler la réservation.'
     })
+  }
+}
+
+const handleRecordPayment = async () => {
+  if (!reservation.value) return
+  isSubmittingPayment.value = true
+  try {
+    const payload = {
+      mode_paiement: selectedPaymentMode.value,
+      montant: customMontant.value ? Number(customMontant.value) : undefined,
+      statut: 'reussi',
+      reference: paymentRef.value.trim() || undefined
+    }
+    await postReservationPaiement(reservation.value.id, payload)
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: 'Paiement enregistré avec succès !',
+      showConfirmButton: false,
+      timer: 3000
+    })
+    paymentRef.value = ''
+    customMontant.value = ''
+    await loadReservationData()
+  } catch (err) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Erreur',
+      text: err?.message || err?.data?.message || 'Impossible d\'enregistrer le paiement.'
+    })
+  } finally {
+    isSubmittingPayment.value = false
   }
 }
 
@@ -428,6 +475,32 @@ const allSteps = computed(() => {
             <span>DISCUTER</span>
           </button>
         </div>
+      </div>
+
+      <!-- Information de paiement pour le client -->
+      <div v-if="['acceptee', 'en_cours', 'livre', 'livree'].includes(reservation.statut)" class="bg-white rounded-2xl p-5 border border-gray-200 shadow-2xs space-y-3">
+        <div class="flex items-center gap-2 border-b border-gray-100 pb-2.5">
+          <span class="text-lg">💳</span>
+          <h3 class="text-sm font-extrabold text-[#053754]">Mode & Statut de paiement</h3>
+        </div>
+
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+          <div>
+            <span class="text-gray-500 font-medium block">Mode de paiement choisi :</span>
+            <span class="font-extrabold text-[#053754] text-sm uppercase tracking-wide">
+              {{ reservation.modePaiement.toLowerCase().includes('wave') ? '🌊 Wave (En ligne)' : (reservation.modePaiement.toLowerCase().includes('livraison') ? '📦 À la livraison (Espèces)' : '💵 Espèces au dépôt') }}
+            </span>
+          </div>
+
+          <div class="text-left sm:text-right">
+            <span class="text-gray-500 font-medium block">Montant à régler :</span>
+            <span class="font-black text-[#B50302] text-sm sm:text-base">{{ formattedMontantTotal }}</span>
+          </div>
+        </div>
+
+        <p v-if="!reservation.modePaiement.toLowerCase().includes('wave')" class="text-[11px] text-gray-500 italic bg-amber-50/60 p-3 rounded-xl border border-amber-200/50">
+          💡 Le paiement en espèces s'effectue directement auprès du transporteur GP lors de la remise ou du retrait du colis.
+        </p>
       </div>
 
       <!-- Poster une évaluation pour cette réservation -->

@@ -2,6 +2,8 @@
 import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
+import { fetchRevenus } from '@/services/revenuService'
+import { currentCurrency, formatPrice, convertAmount } from '@/utils/currencyState'
 
 const router = useRouter()
 const {
@@ -27,46 +29,81 @@ watch(modeActuel, (newMode) => {
 }, { immediate: true })
 const showVoyageurModal = ref(false)
 
-// Edit Profile Form State
-const editForm = reactive({
-  nom: '',
-  prenom: '',
-  email: '',
-  telephone: '',
-  adresse: ''
+const profileRevenusList = ref([])
+
+const loadProfileRevenus = async () => {
+  try {
+    const res = await fetchRevenus()
+    if (res) {
+      const dataObj = res.data?.data ? res : res
+      const rawItems = Array.isArray(dataObj.data) ? dataObj.data : (Array.isArray(res.data) ? res.data : [])
+      profileRevenusList.value = rawItems
+    }
+  } catch (err) {
+    profileRevenusList.value = []
+  }
+}
+
+const totalRevenusProfileConverted = computed(() => {
+  return profileRevenusList.value
+    .filter(item => item.statut === 'disponible' || item.statut === 'reussi' || !item.statut)
+    .reduce((sum, item) => {
+      const origDevise = item.reservation?.voyage?.devise || 'XOF'
+      return sum + convertAmount(item.montant || 0, origDevise, currentCurrency.value)
+    }, 0)
 })
 
-const editErrors = reactive({
-  nom: '',
-  prenom: '',
-  email: '',
-  telephone: ''
+const revenusDisponiblesProfileConverted = computed(() => {
+  return profileRevenusList.value
+    .filter(item => item.statut === 'disponible' || item.statut === 'reussi' || !item.statut)
+    .reduce((sum, item) => {
+      const origDevise = item.reservation?.voyage?.devise || 'XOF'
+      return sum + convertAmount(item.montant || 0, origDevise, currentCurrency.value)
+    }, 0)
 })
 
-// Voyageur Profile Form State
-const voyageurForm = reactive({
-  type_piece: 'cni',
-  numero_piece: '',
-  cni_recto: null,
-  cni_verso: null,
-  mode_client: false
+const revenusEnAttenteProfileConverted = computed(() => {
+  return profileRevenusList.value
+    .filter(item => item.statut === 'en_attente' || item.statut === 'non_paye' || (item.reservation?.statut === 'acceptee' && item.statut !== 'disponible' && item.statut !== 'reussi'))
+    .reduce((sum, item) => {
+      const origDevise = item.reservation?.voyage?.devise || 'XOF'
+      return sum + convertAmount(item.montant || 0, origDevise, currentCurrency.value)
+    }, 0)
 })
 
-const voyageurErrors = reactive({
-  type_piece: '',
-  numero_piece: '',
-  cni_recto: '',
-  cni_verso: ''
+const paidReservationsProfileCount = computed(() => {
+  return profileRevenusList.value.filter(item => item.statut === 'disponible' || item.statut === 'reussi' || !item.statut).length
 })
 
-const rectoFileName = ref('')
-const versoFileName = ref('')
+const recentTransactionsProfile = computed(() => {
+  return profileRevenusList.value.slice(0, 5).map(item => {
+    const resObj = item.reservation || {}
+    const clientObj = resObj.client?.user || resObj.client || {}
+    const voyageObj = resObj.voyage || {}
+
+    const clientName = `${clientObj.prenom || ''} ${clientObj.nom || ''}`.trim() || 'Client Rahma'
+    const routeText = (voyageObj.ville_depart && voyageObj.ville_destination)
+      ? `${voyageObj.ville_depart} ➔ ${voyageObj.ville_destination}`
+      : 'Trajet Colis'
+    const origDevise = voyageObj.devise || 'XOF'
+
+    return {
+      id: item.id,
+      code: resObj.numero || `#RS-${item.id.toString().slice(0, 8)}`,
+      client: clientName,
+      route: routeText,
+      montant: formatPrice(item.montant || 0, origDevise, currentCurrency.value),
+      isDisponible: item.statut === 'disponible' || item.statut === 'reussi' || !item.statut
+    }
+  })
+})
 
 onMounted(async () => {
   const currentUser = await fetchUser()
   if (currentUser) {
     initEditForm(currentUser)
   }
+  await loadProfileRevenus()
 })
 
 const initEditForm = (u) => {
@@ -468,19 +505,19 @@ const handleLogout = async () => {
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
           <div class="bg-[#053754] text-white rounded-3xl p-4 sm:p-5 shadow-md space-y-1 relative overflow-hidden">
             <span class="text-[11px] sm:text-xs font-bold text-sky-200 uppercase tracking-wider block">Total Revenus Générés</span>
-            <div class="text-xl sm:text-2xl font-black text-white">170 000 F CFA</div>
-            <p class="text-[10px] sm:text-[11px] text-sky-300">Sur 3 réservations transportées</p>
+            <div class="text-xl sm:text-2xl font-black text-white">{{ formatPrice(totalRevenusProfileConverted, currentCurrency) }}</div>
+            <p class="text-[10px] sm:text-[11px] text-sky-300">Sur {{ paidReservationsProfileCount }} {{ paidReservationsProfileCount > 1 ? 'réservations transportées' : 'réservation transportée' }}</p>
           </div>
 
           <div class="bg-white rounded-3xl p-4 sm:p-5 border border-emerald-200 shadow-2xs space-y-1">
             <span class="text-[11px] sm:text-xs font-bold text-emerald-600 uppercase tracking-wider block">Revenus Disponibles</span>
-            <div class="text-xl sm:text-2xl font-black text-emerald-800">136 000 F CFA</div>
+            <div class="text-xl sm:text-2xl font-black text-emerald-800">{{ formatPrice(revenusDisponiblesProfileConverted, currentCurrency) }}</div>
             <p class="text-[10px] sm:text-[11px] text-emerald-600 font-semibold">Paiements validés & reçus</p>
           </div>
 
           <div class="bg-white rounded-3xl p-4 sm:p-5 border border-amber-200 shadow-2xs space-y-1">
             <span class="text-[11px] sm:text-xs font-bold text-amber-600 uppercase tracking-wider block">Revenus en Attente</span>
-            <div class="text-xl sm:text-2xl font-black text-amber-800">34 000 F CFA</div>
+            <div class="text-xl sm:text-2xl font-black text-amber-800">{{ formatPrice(revenusEnAttenteProfileConverted, currentCurrency) }}</div>
             <p class="text-[10px] sm:text-[11px] text-amber-600 font-semibold">Colis en cours de livraison</p>
           </div>
         </div>
@@ -515,55 +552,32 @@ const handleLogout = async () => {
             </button>
           </div>
 
-          <div class="divide-y divide-gray-100 text-xs">
-            <div
-              @click="router.push('/voyageur/revenus')"
-              class="py-3 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50 -mx-1 px-2 rounded-xl transition-all"
-            >
-              <div class="min-w-0 space-y-0.5">
-                <div class="flex items-center gap-1.5 flex-wrap">
-                  <span class="font-extrabold text-[#053754] text-xs">{{ '#RS-7729' }}</span>
-                  <span class="text-xs text-gray-500 font-medium truncate">• Mariama Diallo</span>
-                </div>
-                <p class="text-[11px] text-gray-400 font-medium truncate">Dakar ➔ Paris</p>
-              </div>
-              <div class="text-right shrink-0">
-                <div class="font-black text-xs sm:text-sm text-gray-900">51 000 F CFA</div>
-                <span class="inline-block text-[9px] text-emerald-700 font-bold bg-emerald-100 px-2 py-0.5 rounded-full uppercase">✓ DISPONIBLE</span>
-              </div>
-            </div>
+          <div v-if="recentTransactionsProfile.length === 0" class="py-6 text-center text-xs text-gray-400">
+            Aucun revenu enregistré pour le moment.
+          </div>
 
+          <div v-else class="divide-y divide-gray-100 text-xs">
             <div
+              v-for="tx in recentTransactionsProfile"
+              :key="tx.id"
               @click="router.push('/voyageur/revenus')"
               class="py-3 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50 -mx-1 px-2 rounded-xl transition-all"
             >
               <div class="min-w-0 space-y-0.5">
                 <div class="flex items-center gap-1.5 flex-wrap">
-                  <span class="font-extrabold text-[#053754] text-xs">{{ '#RS-6640' }}</span>
-                  <span class="text-xs text-gray-500 font-medium truncate">• Abdoulaye Faye</span>
+                  <span class="font-extrabold text-[#053754] text-xs">{{ tx.code }}</span>
+                  <span class="text-xs text-gray-500 font-medium truncate">• {{ tx.client }}</span>
                 </div>
-                <p class="text-[11px] text-gray-400 font-medium truncate">Dakar ➔ Paris</p>
+                <p class="text-[11px] text-gray-400 font-medium truncate">{{ tx.route }}</p>
               </div>
               <div class="text-right shrink-0">
-                <div class="font-black text-xs sm:text-sm text-gray-900">85 000 F CFA</div>
-                <span class="inline-block text-[9px] text-emerald-700 font-bold bg-emerald-100 px-2 py-0.5 rounded-full uppercase">✓ DISPONIBLE</span>
-              </div>
-            </div>
-
-            <div
-              @click="router.push('/voyageur/revenus')"
-              class="py-3 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50 -mx-1 px-2 rounded-xl transition-all"
-            >
-              <div class="min-w-0 space-y-0.5">
-                <div class="flex items-center gap-1.5 flex-wrap">
-                  <span class="font-extrabold text-[#053754] text-xs">{{ '#RS-5510' }}</span>
-                  <span class="text-xs text-gray-500 font-medium truncate">• Aïssatou Ba</span>
-                </div>
-                <p class="text-[11px] text-gray-400 font-medium truncate">Dakar ➔ Paris</p>
-              </div>
-              <div class="text-right shrink-0">
-                <div class="font-black text-xs sm:text-sm text-gray-900">34 000 F CFA</div>
-                <span class="inline-block text-[9px] text-amber-700 font-bold bg-amber-100 px-2 py-0.5 rounded-full uppercase">⏳ EN ATTENTE</span>
+                <div class="font-black text-xs sm:text-sm text-gray-900">{{ tx.montant }}</div>
+                <span
+                  class="inline-block text-[9px] font-bold px-2 py-0.5 rounded-full uppercase"
+                  :class="tx.isDisponible ? 'text-emerald-700 bg-emerald-100' : 'text-amber-700 bg-amber-100'"
+                >
+                  {{ tx.isDisponible ? '✓ DISPONIBLE' : '⏳ EN ATTENTE' }}
+                </span>
               </div>
             </div>
           </div>

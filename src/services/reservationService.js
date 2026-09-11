@@ -62,12 +62,18 @@ export const updateColisStatut = async (colisId, payload) => {
   }
 }
 
+export const fetchReservationsClient = fetchReservations
+export const fetchReservationsVoyageur = fetchReservations
+
 export default {
   createReservation,
   fetchReservations,
+  fetchReservationsClient,
+  fetchReservationsVoyageur,
   fetchReservation,
   accepterReservation,
   refuserReservation,
   annulerReservation,
   updateColisStatut
 }
+

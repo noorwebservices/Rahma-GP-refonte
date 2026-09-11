@@ -78,6 +78,8 @@ onMounted(async () => {
   }
 })
 
+import { currentCurrency, formatPrice } from '@/utils/currencyState'
+
 const isElectronic = computed(() => isElectronicType(selectedType.value))
 const unitPriceKg = computed(() => voyageData.value?.prix_kg || 8500)
 const unitPriceObjet = computed(() => voyageData.value?.prix_objet || 15000)
@@ -89,6 +91,10 @@ const totalPrice = computed(() => {
   }
   return Math.round(weightKg.value * unitPriceKg.value)
 })
+
+const formattedUnitPriceKg = computed(() => formatPrice(unitPriceKg.value, devise.value))
+const formattedUnitPriceObjet = computed(() => formatPrice(unitPriceObjet.value, devise.value))
+const formattedTotalPrice = computed(() => formatPrice(totalPrice.value, devise.value))
 
 const handleFileChange = (e) => {
   const file = e.target.files[0]
@@ -282,10 +288,10 @@ const goToStep2 = () => {
 
         <div class="flex items-center justify-between text-xs pt-1">
           <span v-if="isElectronic" class="text-sky-800 font-extrabold bg-sky-50 border border-sky-200 px-3 py-1 rounded-full text-[11px]">
-            Tarif Objet = {{ unitPriceObjet.toLocaleString() }} {{ devise }}
+            Tarif Objet = {{ formattedUnitPriceObjet }}
           </span>
           <span v-else class="text-[#FF9F02] font-extrabold bg-amber-50 border border-amber-200 px-3 py-1 rounded-full text-[11px]">
-            1 Kg = {{ unitPriceKg.toLocaleString() }} {{ devise }}
+            1 Kg = {{ formattedUnitPriceKg }}
           </span>
           <span v-if="voyageData" class="text-gray-500 font-bold text-[11px]">
             Capacité disponible: {{ voyageData.capacite_dispo || voyageData.capacite_totale }} Kg
@@ -301,10 +307,10 @@ const goToStep2 = () => {
         <div class="text-xs text-gray-500 font-medium">Prix total estimé :</div>
         <div class="text-sm sm:text-base font-extrabold text-[#B50302]">
           <template v-if="isElectronic">
-            1 Objet Électronique = {{ totalPrice.toLocaleString() }} {{ devise }}
+            1 Objet Électronique = {{ formattedTotalPrice }}
           </template>
           <template v-else>
-            {{ weightKg }} Kg × {{ unitPriceKg.toLocaleString() }} = {{ totalPrice.toLocaleString() }} {{ devise }}
+            {{ weightKg }} Kg × {{ formattedUnitPriceKg }} = {{ formattedTotalPrice }}
           </template>
         </div>
       </div>

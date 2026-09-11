@@ -1,10 +1,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { fetchReservations } from '@/services/reservationService'
+import { fetchReservationsVoyageur } from '@/services/reservationService'
 import { getCountryFlag, formatVoyageDate } from '@/utils/flagHelper'
 import CountryFlag from '@/components/common/CountryFlag.vue'
 import { encodeId } from '@/utils/idMasker'
+import { currentCurrency, formatPrice } from '@/utils/currencyState'
 
 const router = useRouter()
 const activeTab = ref('pending') // 'pending' | 'accepted' | 'refused'
@@ -15,7 +16,7 @@ const rawReservations = ref([])
 const loadReservations = async () => {
   isLoading.value = true
   try {
-    const res = await fetchReservations()
+    const res = await fetchReservationsVoyageur()
     if (res && res.data) {
       const items = Array.isArray(res.data) ? res.data : (res.data.data || [])
       rawReservations.value = items
@@ -26,6 +27,8 @@ const loadReservations = async () => {
           const v = d.voyage || {}
 
           const clientName = `${u.prenom || ''} ${u.nom || d.expediteur_nom || ''}`.trim() || 'Client Rahma'
+          const rawMontant = Number(d.montant_total || d.prix_total || 0)
+          const rawDevise = v.devise || 'XOF'
 
           return {
             id: d.id,
@@ -40,7 +43,8 @@ const loadReservations = async () => {
             departureDate: formatVoyageDate(v.date_depart),
             parcelType: c.type || d.type_colis || 'Colis',
             weight: (c.poids !== undefined && c.poids !== null) ? `${c.poids} Kg` : (d.poids ? `${d.poids} Kg` : 'Forfait'),
-            price: `${Number(d.montant_total || d.prix_total || 0).toLocaleString()} ${v.devise || 'XOF'}`,
+            rawMontant,
+            rawDevise,
             status: d.statut || 'en_attente',
             raw: d
           }
@@ -82,7 +86,10 @@ const filteredDemandes = computed(() => {
     )
   }
 
-  return list
+  return list.map(r => ({
+    ...r,
+    price: formatPrice(r.rawMontant, r.rawDevise)
+  }))
 })
 
 const goToDetail = (id) => {

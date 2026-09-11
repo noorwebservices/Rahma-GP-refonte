@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { formatVoyageDate } from '@/utils/flagHelper'
 import CountryFlag from '@/components/common/CountryFlag.vue'
 import { encodeId } from '@/utils/idMasker'
+import { currentCurrency, formatPrice } from '@/utils/currencyState'
 
 const props = defineProps({
   voyage: {
@@ -43,8 +44,8 @@ const transporteurNom = computed(() => {
 
 const prixKg = computed(() => {
   const p = props.voyage.prix_kg ?? props.voyage.prix ?? 0
-  const dev = props.voyage.devise || 'FCFA'
-  return `${p} ${dev}/Kg`
+  const dev = props.voyage.devise || 'XOF'
+  return `${formatPrice(p, dev)}/Kg`
 })
 
 const pointCollecte = computed(() => {

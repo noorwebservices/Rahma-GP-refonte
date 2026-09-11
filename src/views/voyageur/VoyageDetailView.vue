@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 import { fetchVoyage } from '@/services/voyageService'
@@ -8,6 +8,7 @@ import { getCountryFlag, formatVoyageDate } from '@/utils/flagHelper'
 import CountryFlag from '@/components/common/CountryFlag.vue'
 import { decodeId, encodeId } from '@/utils/idMasker'
 import { setHeaderRoute, clearHeaderRoute } from '@/utils/headerState'
+import { currentCurrency, formatPrice, convertAmount } from '@/utils/currencyState'
 
 const route = useRoute()
 const router = useRouter()
@@ -18,6 +19,24 @@ const errorMsg = ref('')
 const voyage = ref(null)
 const reservations = ref([])
 const isUpdatingStatus = ref(false)
+
+const totalRevenuVolEstime = computed(() => {
+  if (!reservations.value || reservations.value.length === 0) return formatPrice(0, 'XOF')
+  const totalRaw = reservations.value.reduce((acc, r) => {
+    return acc + Number(r.raw?.montant_total || r.raw?.prix_total || 0)
+  }, 0)
+  return formatPrice(totalRaw, voyage.value?.devise || 'XOF')
+})
+
+const totalRevenuVolAccepte = computed(() => {
+  if (!reservations.value || reservations.value.length === 0) return formatPrice(0, 'XOF')
+  const totalRaw = reservations.value
+    .filter(r => r.statut === 'acceptee' || r.statut === 'paye' || r.statut === 'livre' || r.statut === 'livree')
+    .reduce((acc, r) => {
+      return acc + Number(r.raw?.montant_total || r.raw?.prix_total || 0)
+    }, 0)
+  return formatPrice(totalRaw, voyage.value?.devise || 'XOF')
+})
 
 const getStatusBadge = (statut) => {
   switch (statut) {
@@ -80,8 +99,10 @@ const loadVoyageData = async () => {
         arrivalDate: v.date_arrivee,
         capaciteTotale: Number(v.capacite_totale) || 0,
         capaciteDispo: v.capacite_dispo !== undefined ? Number(v.capacite_dispo) : Number(v.capacite_totale || 0),
-        prixKg: v.prix_kg ? `${v.prix_kg} ${v.devise || 'XOF'}` : 'Non défini',
-        prixObjet: v.prix_objet ? `${v.prix_objet} ${v.devise || 'XOF'}` : 'Non défini',
+        rawPrixKg: v.prix_kg,
+        rawPrixObjet: v.prix_objet,
+        prixKg: computed(() => v.prix_kg ? formatPrice(v.prix_kg, v.devise || 'XOF') : 'Non défini'),
+        prixObjet: computed(() => v.prix_objet ? formatPrice(v.prix_objet, v.devise || 'XOF') : 'Non défini'),
         devise: v.devise || 'XOF',
         description: v.description || '',
         statut: v.statut || 'publie',
@@ -118,7 +139,7 @@ const loadVoyageData = async () => {
             colisType: c.type || r.type_colis || 'Colis de marchandise',
             colisDescription: c.description || r.description || 'Aucune description',
             colisPoids: (c.poids !== undefined && c.poids !== null) ? `${c.poids} Kg` : (r.poids ? `${r.poids} Kg` : 'Forfait Objet'),
-            colisValeur: c.valeur_estimee ? `${c.valeur_estimee.toLocaleString()} ${v.devise || 'XOF'}` : 'Non renseignée',
+            colisValeur: computed(() => c.valeur_estimee ? formatPrice(c.valeur_estimee, v.devise || 'XOF') : 'Non renseignée'),
             colisEstFragile: Boolean(c.est_fragile),
             colisPhoto: c.photo || null,
 
@@ -126,7 +147,7 @@ const loadVoyageData = async () => {
             destinatairePhone: c.destinataire_numero || 'Non renseigné',
             destinataireAdresse: c.destinataire_adresse || 'Non renseignée',
 
-            montantTotal: `${(r.montant_total || r.prix_total || 0).toLocaleString()} ${v.devise || 'XOF'}`,
+            montantTotal: computed(() => formatPrice(r.montant_total || r.prix_total || 0, v.devise || 'XOF')),
             modePaiement: r.mode_paiement_souhaite || r.mode_paiement || 'Au dépôt',
             createdAt: r.created_at,
             raw: r
@@ -313,6 +334,22 @@ const goBack = () => {
           <div class="flex justify-between text-[11px] text-sky-300">
             <span>Reste disponible : <strong class="text-white">{{ voyage.capaciteDispo }} Kg</strong></span>
             <span>Tarif Kg : <strong class="text-white">{{ voyage.prixKg }}</strong> | Tarif Objet : <strong class="text-white">{{ voyage.prixObjet }}</strong></span>
+          </div>
+        </div>
+
+        <!-- Dynamic Revenue Metrics for this Voyage -->
+        <div class="pt-3 border-t border-sky-800/80 grid grid-cols-2 gap-4 text-xs">
+          <div>
+            <span class="text-emerald-300 font-bold block">Revenu Confirmé / Accepté</span>
+            <span class="text-lg sm:text-xl font-black text-emerald-400 block mt-0.5">
+              {{ totalRevenuVolAccepte }}
+            </span>
+          </div>
+          <div class="text-right">
+            <span class="text-amber-200 font-bold block">Revenu Total Potentiel</span>
+            <span class="text-lg sm:text-xl font-black text-amber-300 block mt-0.5">
+              {{ totalRevenuVolEstime }}
+            </span>
           </div>
         </div>
       </div>

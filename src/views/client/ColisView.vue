@@ -1,10 +1,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { fetchReservations } from '@/services/reservationService'
+import { fetchReservationsClient } from '@/services/reservationService'
 import { formatVoyageDate } from '@/utils/flagHelper'
 import CountryFlag from '@/components/common/CountryFlag.vue'
 import { encodeId } from '@/utils/idMasker'
+import { currentCurrency, formatPrice } from '@/utils/currencyState'
 
 const router = useRouter()
 const activeTab = ref('active') // 'active' | 'delivered'
@@ -17,10 +18,10 @@ const loadReservations = async () => {
   isLoading.value = true
   errorMsg.value = ''
   try {
-    const res = await fetchReservations()
+    const res = await fetchReservationsClient()
     if (res && res.data) {
-      const rawArr = Array.isArray(res.data) ? res.data : (res.data.data || [])
-      reservationsList.value = rawArr.map(r => {
+      const items = Array.isArray(res.data) ? res.data : (res.data.data || [])
+      reservationsList.value = items.map(r => {
         const v = r.voyage || {}
         const c = r.colis || {}
         const vUser = v.voyageur?.user || v.voyageur || {}
@@ -38,7 +39,8 @@ const loadReservations = async () => {
           countryTo: v.pays_destination || '',
           departureDate: v.date_depart || r.date_demande || r.created_at,
           weight: c.poids ? `${c.poids} Kg` : (r.poids ? `${r.poids} Kg` : 'Forfait Objet'),
-          price: `${r.montant_total || r.prix_total || 0} ${v.devise || 'XOF'}`,
+          rawMontant: Number(r.montant_total || r.prix_total || 0),
+          rawDevise: v.devise || 'XOF',
           destinataire: `${c.destinataire_prenom || ''} ${c.destinataire_nom || ''}`.trim() || 'Non renseigné'
         }
       })
@@ -61,7 +63,11 @@ const deliveredParcels = computed(() => {
 })
 
 const displayedParcels = computed(() => {
-  return activeTab.value === 'active' ? activeParcels.value : deliveredParcels.value
+  const list = activeTab.value === 'active' ? activeParcels.value : deliveredParcels.value
+  return list.map(item => ({
+    ...item,
+    price: formatPrice(item.rawMontant, item.rawDevise)
+  }))
 })
 
 const getStatusBadge = (statut) => {
