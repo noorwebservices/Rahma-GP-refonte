@@ -5,7 +5,7 @@ import Swal from 'sweetalert2'
 import { fetchReservation, annulerReservation } from '@/services/reservationService'
 import { postReservationEvaluation, fetchVoyageurEvaluations } from '@/services/evaluationService'
 import { postReservationPaiement } from '@/services/paiementService'
-import { formatVoyageDate } from '@/utils/flagHelper'
+import { formatVoyageDate, formatDateTime, getColisStatutLabel } from '@/utils/flagHelper'
 import CountryFlag from '@/components/common/CountryFlag.vue'
 import { decodeId, encodeId } from '@/utils/idMasker'
 import { setHeaderRoute } from '@/utils/headerState'
@@ -97,6 +97,7 @@ const loadReservationData = async () => {
         numero: data.numero || (c.numero_suivi ? `#${c.numero_suivi}` : `#RS-${data.id.slice(0, 8)}`),
         trackingCode: c.numero_suivi || data.code_tracking || 'TRK-EN-ATTENTE',
         statut: data.statut || 'en_attente',
+        suivis: Array.isArray(c.suivis) ? c.suivis : [],
         
         villeDepart: v.ville_depart || 'Départ',
         paysDepart: v.pays_depart || '',
@@ -312,12 +313,25 @@ const allSteps = computed(() => {
   if (!reservation.value) return []
 
   const currentStatut = reservation.value.statut || 'en_attente'
+  const suivis = reservation.value.suivis || []
+
+  if (suivis.length > 0) {
+    return suivis.map((s, idx) => ({
+      id: s.id || idx + 1,
+      title: `${idx + 1}. ${getColisStatutLabel(s.statut)}`,
+      subtitle: s.commentaire || 'Mise à jour du statut par le transporteur',
+      time: formatDateTime(s.date_changement || s.created_at),
+      isCompleted: true
+    }))
+  }
 
   const statusLevels = {
     'demande_envoyee': 1,
     'en_attente': 1,
     'acceptee': 2,
+    'colis_depose': 3,
     'depose': 3,
+    'colis_pris_en_charge': 4,
     'en_transit': 4,
     'en_cours': 4,
     'arrive': 5,
@@ -332,7 +346,7 @@ const allSteps = computed(() => {
       id: 1,
       title: '1. Demande effectuée',
       subtitle: 'Votre demande de réservation a été transmise au transporteur GP',
-      time: formatVoyageDate(reservation.value.dateDepart),
+      time: formatDateTime(reservation.value.dateDepart),
       isCompleted: currentLevel >= 1
     },
     {

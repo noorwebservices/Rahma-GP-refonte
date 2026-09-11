@@ -109,7 +109,7 @@ const handlePayment = () => {
           </span>
         </div>
 
-        <div class="flex items-center justify-between">
+        <div v-if="!isElectronic" class="flex items-center justify-between">
           <span class="text-gray-500 font-medium">Poids estimé :</span>
           <span class="font-extrabold text-principal-dark text-sm sm:text-base">{{ weightKg }} Kg</span>
         </div>

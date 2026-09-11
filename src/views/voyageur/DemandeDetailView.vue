@@ -1,10 +1,10 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 import { fetchReservation, accepterReservation, refuserReservation, annulerReservation, updateColisStatut } from '@/services/reservationService'
-import { postReservationPaiement } from '@/services/paiementService'
-import { getCountryFlag, formatVoyageDate } from '@/utils/flagHelper'
+import { postReservationPaiement, fetchPaiements } from '@/services/paiementService'
+import { getCountryFlag, formatVoyageDate, formatDateTime, getColisStatutLabel } from '@/utils/flagHelper'
 import CountryFlag from '@/components/common/CountryFlag.vue'
 import { decodeId, encodeId } from '@/utils/idMasker'
 import { setHeaderRoute } from '@/utils/headerState'
@@ -28,6 +28,8 @@ const formattedEstimatedValue = computed(() => {
   return formatPrice(demande.value.rawEstimatedValue, demande.value.rawDevise)
 })
 
+const isPaymentDone = computed(() => Boolean(demande.value?.isPaid))
+
 const selectedColisStatut = ref('en_transit')
 const colisCommentaire = ref('')
 const isSubmittingColisStatut = ref(false)
@@ -43,8 +45,59 @@ const colisStatutOptions = [
   { value: 'livre', label: '🎁 Livré au destinataire' }
 ]
 
+const availableColisStatutOptions = computed(() => {
+  if (!demande.value) return colisStatutOptions
+
+  const doneStatuts = new Set()
+
+  if (Array.isArray(demande.value.suivis)) {
+    demande.value.suivis.forEach(s => {
+      if (s && s.statut) {
+        doneStatuts.add(s.statut)
+      }
+    })
+  }
+
+  if (demande.value.colisStatut) {
+    doneStatuts.add(demande.value.colisStatut)
+  }
+
+  const statusLevels = {
+    'colis_depose': 1,
+    'colis_pris_en_charge': 2,
+    'en_transit': 3,
+    'arrive': 4,
+    'livre': 5,
+    'livree': 5
+  }
+
+  let maxLevelAchieved = 0
+  doneStatuts.forEach(st => {
+    if (statusLevels[st] && statusLevels[st] > maxLevelAchieved) {
+      maxLevelAchieved = statusLevels[st]
+    }
+  })
+
+  return colisStatutOptions.filter(opt => {
+    if (doneStatuts.has(opt.value)) return false
+    const level = statusLevels[opt.value]
+    if (level && level <= maxLevelAchieved) return false
+    return true
+  })
+})
+
+watch(availableColisStatutOptions, (opts) => {
+  if (opts && opts.length > 0) {
+    if (!opts.some(o => o.value === selectedColisStatut.value)) {
+      selectedColisStatut.value = opts[0].value
+    }
+  }
+}, { immediate: true })
+
+const defaultColisPhoto = 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&auto=format&fit=crop&q=80'
+
 const formatPhotoUrl = (url) => {
-  if (!url) return null
+  if (!url || typeof url !== 'string') return null
   if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
     return url
   }
@@ -53,6 +106,20 @@ const formatPhotoUrl = (url) => {
     return `http://localhost:8000/${cleanUrl}`
   }
   return `http://localhost:8000/storage/${cleanUrl}`
+}
+
+const handlePhotoError = (e) => {
+  if (e && e.target) {
+    e.target.src = defaultColisPhoto
+  }
+}
+
+const lightboxPhoto = ref(null)
+const openPhotoLightbox = (url) => {
+  lightboxPhoto.value = url || defaultColisPhoto
+}
+const closePhotoLightbox = () => {
+  lightboxPhoto.value = null
 }
 
 const loadDemande = async () => {
@@ -76,6 +143,59 @@ const loadDemande = async () => {
 
       const clientName = `${u.prenom || ''} ${u.nom || data.expediteur_nom || ''}`.trim() || 'Client Rahma'
 
+      const rawPhoto = c.photo || c.photo_url || data.photo || data.photo_colis || data.photo_url || null
+
+      const checkPaidStatus = (s) => {
+        if (s === undefined || s === null) return false
+        if (typeof s === 'boolean') return s
+        if (typeof s === 'number') return s === 1
+        const str = String(s).toLowerCase().trim()
+        return (
+          str === '1' ||
+          str === 'true' ||
+          str.includes('reuss') ||
+          str.includes('pay') ||
+          str.includes('valid') ||
+          str.includes('disponib') ||
+          str.includes('succ') ||
+          str.includes('complet')
+        )
+      }
+
+      let paiementsFromApi = []
+      try {
+        const paiementsRes = await fetchPaiements()
+        if (paiementsRes) {
+          const list = Array.isArray(paiementsRes.data) 
+            ? paiementsRes.data 
+            : (paiementsRes.data?.data ? paiementsRes.data.data : (Array.isArray(paiementsRes) ? paiementsRes : []))
+          paiementsFromApi = list.filter(p => p && (
+            String(p.reservation_id) === String(rawId) ||
+            String(p.reservation?.id) === String(rawId)
+          ))
+        }
+      } catch (e) {
+        // fallback
+      }
+
+      const rawPaiements = data.paiements || data.paiement || c.paiements || c.paiement || []
+      const paiements = Array.isArray(rawPaiements) ? rawPaiements : (rawPaiements ? [rawPaiements] : [])
+      const allPaiements = [...paiements, ...paiementsFromApi]
+
+      const hasPaidPayment = allPaiements.some(p => p && (checkPaidStatus(p.statut) || checkPaidStatus(p.status) || checkPaidStatus(p.state)))
+
+      const isPaid = Boolean(
+        checkPaidStatus(data.est_paye) ||
+        checkPaidStatus(data.is_paid) ||
+        checkPaidStatus(data.statut_paiement) ||
+        checkPaidStatus(data.statutPaiement) ||
+        checkPaidStatus(data.paiement_statut) ||
+        checkPaidStatus(c.est_paye) ||
+        checkPaidStatus(c.is_paid) ||
+        checkPaidStatus(c.statut_paiement) ||
+        hasPaidPayment
+      )
+
       demande.value = {
         id: data.id,
         rawId: rawId,
@@ -83,6 +203,7 @@ const loadDemande = async () => {
         code: data.numero || `RES-${data.id.slice(0, 8)}`,
         codeTracking: c.numero_suivi || data.code_tracking || 'TRK-EN-ATTENTE',
         statut: data.statut || 'en_attente',
+        isPaid,
 
         colisId: c.id || null,
         colisStatut: c.statut || 'demande_envoyee',
@@ -98,7 +219,7 @@ const loadDemande = async () => {
         rawEstimatedValue: c.valeur_estimee ? Number(c.valeur_estimee) : null,
         estimatedValue: c.valeur_estimee ? `${Number(c.valeur_estimee).toLocaleString()} ${v.devise || 'XOF'}` : 'Non renseignée',
         isFragile: Boolean(c.est_fragile),
-        photo: formatPhotoUrl(c.photo),
+        photo: formatPhotoUrl(rawPhoto),
 
         recipientName: `${c.destinataire_prenom || ''} ${c.destinataire_nom || ''}`.trim() || 'Non renseigné',
         recipientPhone: c.destinataire_numero || 'Non renseigné',
@@ -182,6 +303,9 @@ const handleRecordPaiementVoyageur = async () => {
       mode_paiement: selectedPaymentMode.value,
       statut: 'reussi'
     })
+    if (demande.value) {
+      demande.value.isPaid = true
+    }
     Swal.fire({
       toast: true,
       position: 'top-end',
@@ -192,10 +316,30 @@ const handleRecordPaiementVoyageur = async () => {
     })
     await loadDemande()
   } catch (err) {
+    const errorText = err?.message || err?.data?.message || err?.response?.data?.message || ''
+    if (
+      errorText.toLowerCase().includes('existe déjà') ||
+      errorText.toLowerCase().includes('déjà') ||
+      errorText.toLowerCase().includes('reussi') ||
+      errorText.toLowerCase().includes('paye')
+    ) {
+      if (demande.value) {
+        demande.value.isPaid = true
+      }
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'info',
+        title: 'Un paiement réussi a déjà été enregistré pour cette réservation.',
+        showConfirmButton: false,
+        timer: 3000
+      })
+      return
+    }
     Swal.fire({
       icon: 'error',
       title: 'Erreur',
-      text: err?.message || err?.data?.message || 'Impossible de valider le paiement.'
+      text: errorText || 'Impossible de valider le paiement.'
     })
   } finally {
     isSubmittingPaiement.value = false
@@ -439,8 +583,19 @@ const goBackToVoyage = () => {
 
               <div v-if="demande.photo" class="space-y-1">
                 <span class="text-gray-400 font-medium block">Photo du colis :</span>
-                <div class="w-full h-32 rounded-xl overflow-hidden border border-gray-300 bg-white">
-                  <img :src="demande.photo" alt="Photo du colis" class="w-full h-full object-cover" />
+                <div 
+                  class="w-full h-44 sm:h-52 rounded-2xl overflow-hidden border border-gray-200 bg-gray-50 relative group cursor-pointer shadow-2xs" 
+                  @click="openPhotoLightbox(demande.photo)"
+                >
+                  <img 
+                    :src="demande.photo" 
+                    @error="handlePhotoError" 
+                    alt="Photo du colis" 
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                  />
+                  <div class="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1.5 backdrop-blur-[1px]">
+                    <span>🔍 Agrandir l'image</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -460,37 +615,33 @@ const goBackToVoyage = () => {
         </div>
 
         <!-- Section Validation du Paiement en Espèces (Voyageur) -->
-        <div v-if="demande.statut === 'acceptee'" class="space-y-3 pt-4 border-t border-gray-100">
+        <div v-if="demande.statut === 'acceptee' && !isPaymentDone" class="space-y-3 pt-4 border-t border-gray-100">
           <div class="flex items-center gap-2">
             <span class="text-lg">💳</span>
-            <h4 class="text-xs font-extrabold text-[#053754] uppercase tracking-wider">
-              Validation du Paiement (Encaissement par le Voyageur)
-            </h4>
+            <h4 class="text-xs font-extrabold text-[#053754] uppercase tracking-wider">Encaissement du paiement en espèces</h4>
           </div>
 
-          <div class="bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-4 sm:p-5 space-y-3">
-            <p class="text-xs text-emerald-900 font-medium">
-              Si le client a choisi le paiement en espèces (au dépôt ou à la livraison), validez la réception du montant pour créditer vos revenus.
+          <div class="p-4 bg-sky-50/60 rounded-2xl border border-sky-100 space-y-3">
+            <p class="text-xs text-gray-600 font-medium leading-relaxed">
+              Sélectionnez le mode d'encaissement et confirmez la réception du paiement par le client :
             </p>
 
-            <div class="flex flex-col sm:flex-row items-center gap-3">
-              <select
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <select 
                 v-model="selectedPaymentMode"
-                class="w-full sm:w-auto px-3.5 py-2.5 bg-white border border-gray-300 rounded-xl text-xs font-bold outline-none focus:border-emerald-600"
+                class="flex-1 px-3.5 py-2.5 bg-white border border-sky-200 text-xs sm:text-sm font-semibold rounded-xl text-gray-800 outline-none focus:ring-2 focus:ring-[#074C72]/20"
               >
-                <option value="espece_depot">💵 Espèce au dépôt</option>
-                <option value="livraison">📦 À la livraison</option>
-                <option value="wave">🌊 Wave (En ligne)</option>
+                <option value="espece_depot">💵 Espèces lors du dépôt</option>
+                <option value="espece_retrait">💵 Espèces lors du retrait (À l'arrivée)</option>
               </select>
 
               <button
                 @click="handleRecordPaiementVoyageur"
                 :disabled="isSubmittingPaiement"
                 type="button"
-                class="w-full sm:w-auto bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs px-5 py-2.5 rounded-xl shadow-xs transition-all cursor-pointer flex items-center justify-center gap-2 uppercase tracking-wider disabled:opacity-50"
+                class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-5 py-3 rounded-xl shadow-md transition-all shrink-0 cursor-pointer active:scale-[0.99] disabled:opacity-50"
               >
-                <span v-if="isSubmittingPaiement" class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                <span>Valider le Paiement Reçu</span>
+                {{ isSubmittingPaiement ? 'VALIDATION...' : '✓ VALIDER LE PAIEMENT' }}
               </button>
             </div>
           </div>
@@ -510,13 +661,18 @@ const goBackToVoyage = () => {
               <div>
                 <label class="block text-xs font-bold text-[#074C72] mb-1">Nouveau statut du colis</label>
                 <select
+                  v-if="availableColisStatutOptions.length > 0"
                   v-model="selectedColisStatut"
                   class="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-xl text-xs font-bold outline-none focus:border-[#074C72] focus:ring-2 focus:ring-[#074C72]/20"
                 >
-                  <option v-for="opt in colisStatutOptions" :key="opt.value" :value="opt.value">
+                  <option v-for="opt in availableColisStatutOptions" :key="opt.value" :value="opt.value">
                     {{ opt.label }}
                   </option>
                 </select>
+                <div v-else class="px-3.5 py-2.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold flex items-center gap-1.5">
+                  <span>🎉</span>
+                  <span>Tous les statuts de suivi ont été appliqués</span>
+                </div>
               </div>
 
               <div>
@@ -533,7 +689,7 @@ const goBackToVoyage = () => {
             <div class="flex justify-end">
               <button
                 @click="handleUpdateColisStatut"
-                :disabled="isSubmittingColisStatut"
+                :disabled="isSubmittingColisStatut || availableColisStatutOptions.length === 0"
                 type="button"
                 class="w-full sm:w-auto bg-[#053754] hover:bg-[#074C72] text-white font-extrabold text-xs px-5 py-3 rounded-xl shadow-xs transition-all cursor-pointer flex items-center justify-center gap-2 uppercase tracking-wider disabled:opacity-50"
               >
@@ -554,11 +710,11 @@ const goBackToVoyage = () => {
                   class="bg-white p-3 rounded-xl border border-sky-100 flex items-center justify-between text-xs"
                 >
                   <div>
-                    <span class="font-extrabold text-[#053754] block">{{ s.statut }}</span>
+                    <span class="font-extrabold text-[#053754] block">{{ getColisStatutLabel(s.statut) }}</span>
                     <span v-if="s.commentaire" class="text-gray-600 text-[11px] block italic mt-0.5">{{ s.commentaire }}</span>
                   </div>
                   <span class="text-[10px] text-gray-400 font-medium shrink-0 ml-2">
-                    {{ formatVoyageDate(s.date_changement) }}
+                    {{ formatDateTime(s.date_changement || s.created_at) }}
                   </span>
                 </div>
               </div>
@@ -602,5 +758,29 @@ const goBackToVoyage = () => {
 
       </div>
     </template>
+
+    <!-- Photo Lightbox Modal -->
+    <Teleport to="body">
+      <div 
+        v-if="lightboxPhoto" 
+        class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+        @click="closePhotoLightbox"
+      >
+        <div class="relative max-w-3xl w-full max-h-[85vh] flex items-center justify-center" @click.stop>
+          <img 
+            :src="lightboxPhoto" 
+            @error="handlePhotoError" 
+            alt="Agrandissement photo du colis" 
+            class="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl" 
+          />
+          <button 
+            @click="closePhotoLightbox"
+            class="absolute -top-4 -right-4 bg-white text-gray-900 w-9 h-9 rounded-full font-black text-sm flex items-center justify-center shadow-lg hover:bg-gray-100 cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>

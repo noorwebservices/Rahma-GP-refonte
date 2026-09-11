@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   fetchNotifications,
@@ -7,7 +7,6 @@ import {
   markAllNotificationsAsRead
 } from '@/services/notificationService'
 import { formatVoyageDate } from '@/utils/flagHelper'
-import { encodeId } from '@/utils/idMasker'
 
 const props = defineProps({
   isOpen: {
@@ -29,13 +28,14 @@ const loadNotificationsList = async () => {
   try {
     const res = await fetchNotifications()
     if (res) {
-      const items = Array.isArray(res.data) ? res.data : (res.data?.data || (Array.isArray(res) ? res : []))
+      const rawData = res.data?.data || res.data?.notifications || res.data || res.notifications || res
+      const items = Array.isArray(rawData) ? rawData : (Array.isArray(res.data) ? res.data : [])
       notifications.value = items.map(n => ({
         id: n.id,
-        titre: n.titre || 'Notification',
-        contenu: n.contenu || '',
-        type: n.type || 'info',
-        lu: Boolean(n.lu),
+        titre: n.titre || n.title || n.data?.titre || n.data?.title || 'Notification',
+        contenu: n.contenu || n.message || n.body || n.data?.message || n.data?.contenu || '',
+        type: n.type || n.data?.type || 'info',
+        lu: Boolean(n.lu || n.read_at || n.is_read),
         date: formatVoyageDate(n.date_envoi || n.created_at)
       }))
     }
@@ -46,11 +46,12 @@ const loadNotificationsList = async () => {
   }
 }
 
-onMounted(() => {
-  if (props.isOpen) {
+// Watch isOpen prop to load notifications every time modal is opened
+watch(() => props.isOpen, (newVal) => {
+  if (newVal) {
     loadNotificationsList()
   }
-})
+}, { immediate: true })
 
 const handleMarkOneAsRead = async (notif) => {
   if (!notif.lu) {
@@ -116,12 +117,13 @@ const close = () => {
         <!-- Loading State -->
         <div v-if="isLoading" class="py-8 text-center space-y-2">
           <div class="w-7 h-7 border-3 border-[#053754] border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p class="text-xs text-gray-500 font-bold">Chargement...</p>
+          <p class="text-xs text-gray-500 font-bold">Chargement des notifications...</p>
         </div>
 
         <!-- Error State -->
-        <div v-else-if="errorMsg" class="bg-red-50 p-4 rounded-2xl text-center text-xs text-red-700 font-bold">
-          {{ errorMsg }}
+        <div v-else-if="errorMsg" class="bg-red-50 p-4 rounded-2xl text-center text-xs text-red-700 font-bold space-y-2">
+          <p>{{ errorMsg }}</p>
+          <button @click="loadNotificationsList" class="px-3 py-1 bg-red-600 text-white rounded-lg text-[11px]">Réessayer</button>
         </div>
 
         <!-- Notifications List -->

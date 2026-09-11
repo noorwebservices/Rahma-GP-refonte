@@ -6,6 +6,7 @@ import BookingProgressBar from '@/components/client/BookingProgressBar.vue'
 import CountryFlag from '@/components/common/CountryFlag.vue'
 import { createReservation } from '@/services/reservationService'
 import { formatVoyageDate, isElectronicType } from '@/utils/flagHelper'
+import { decodeId, encodeId } from '@/utils/idMasker'
 
 const route = useRoute()
 const router = useRouter()
@@ -13,6 +14,7 @@ const router = useRouter()
 const selectedPayment = ref('wave')
 const showSuccessModal = ref(false)
 const isSubmitting = ref(false)
+const createdReservationId = ref(null)
 
 const draft = ref(null)
 
@@ -56,7 +58,10 @@ const formattedTotalPrice = computed(() => formatPrice(totalPrice.value, devise.
 const handleConfirmBooking = async () => {
   isSubmitting.value = true
 
-  const activeVoyageId = draft.value?.voyage_id || sessionStorage.getItem('rahma_active_voyage_id') || route.query.voyage_id || '01a08d03-a84c-70a7-945c-053fe2e67b57'
+  const rawVoyageId = draft.value?.voyage_id || sessionStorage.getItem('rahma_active_voyage_id') || route.query.voyage_id || '01a08d03-a84c-70a7-945c-053fe2e67b57'
+  const activeVoyageId = decodeId(rawVoyageId) || rawVoyageId
+
+  const photoValue = draft.value?.colis?.photo || null
 
   const payload = {
     voyage_id: activeVoyageId,
@@ -71,12 +76,18 @@ const handleConfirmBooking = async () => {
       destinataire_prenom: draft.value?.colis?.destinataire_prenom || '',
       destinataire_numero: draft.value?.colis?.destinataire_numero || '',
       destinataire_adresse: draft.value?.colis?.destinataire_adresse || '',
-      photo: draft.value?.colis?.photo || 'https://example.com/photos/colis1.jpg'
+      photo: photoValue
     }
   }
 
   try {
-    await createReservation(payload)
+    const res = await createReservation(payload)
+    const reservationObj = res?.data?.data || res?.data?.reservation || res?.data || res?.reservation || res
+    const newId = reservationObj?.id || reservationObj?.reservation_id
+    if (newId) {
+      createdReservationId.value = newId
+    }
+
     showSuccessModal.value = true
     sessionStorage.removeItem('rahma_booking_draft')
     sessionStorage.removeItem('rahma_active_voyage_id')
@@ -93,7 +104,12 @@ const handleConfirmBooking = async () => {
 }
 
 const goToChat = () => {
-  router.push('/client/messages/1')
+  if (createdReservationId.value) {
+    const masked = encodeId(createdReservationId.value)
+    router.push(`/client/messages/${masked}`)
+  } else {
+    router.push('/client/messages')
+  }
 }
 
 const goToHome = () => {

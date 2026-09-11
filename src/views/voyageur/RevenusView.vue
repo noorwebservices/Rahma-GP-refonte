@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { fetchRevenus } from '@/services/revenuService'
+import { fetchReservations } from '@/services/reservationService'
 import { formatVoyageDate } from '@/utils/flagHelper'
 import { currentCurrency, availableCurrencies, setCurrency, formatPrice, convertAmount } from '@/utils/currencyState'
 
@@ -8,6 +9,7 @@ const isLoading = ref(true)
 const errorMsg = ref('')
 
 const rawRevenusList = ref([])
+const rawReservationsList = ref([])
 const selectedTransaction = ref(null)
 const showDetailModal = ref(false)
 
@@ -15,11 +17,22 @@ const loadRevenusData = async () => {
   isLoading.value = true
   errorMsg.value = ''
   try {
-    const res = await fetchRevenus()
-    if (res) {
+    const [resRevenus, resReservations] = await Promise.allSettled([
+      fetchRevenus(),
+      fetchReservations()
+    ])
+
+    if (resRevenus.status === 'fulfilled' && resRevenus.value) {
+      const res = resRevenus.value
       const dataObj = res.data?.data ? res : res
       const rawItems = Array.isArray(dataObj.data) ? dataObj.data : (Array.isArray(res.data) ? res.data : [])
       rawRevenusList.value = rawItems
+    }
+
+    if (resReservations.status === 'fulfilled' && resReservations.value) {
+      const res = resReservations.value
+      const rawRes = Array.isArray(res.data?.data) ? res.data.data : (Array.isArray(res.data) ? res.data : [])
+      rawReservationsList.value = rawRes
     }
   } catch (err) {
     errorMsg.value = err?.message || 'Erreur lors du chargement de vos revenus.'
@@ -32,7 +45,7 @@ onMounted(loadRevenusData)
 
 const totalRevenusConverted = computed(() => {
   return rawRevenusList.value
-    .filter(item => item.statut === 'disponible' || item.statut === 'reussi' || !item.statut)
+    .filter(item => item.statut === 'disponible' || item.statut === 'reussi' || item.statut === 'retire' || !item.statut)
     .reduce((sum, item) => {
       const origDevise = item.reservation?.voyage?.devise || 'XOF'
       return sum + convertAmount(item.montant || 0, origDevise, currentCurrency.value)
@@ -43,7 +56,7 @@ const totalWaveConverted = computed(() => {
   return rawRevenusList.value
     .filter(item => {
       const pMode = (item.reservation?.mode_paiement_souhaite || item.reservation?.mode_paiement || '').toLowerCase()
-      return pMode.includes('wave') && (item.statut === 'disponible' || item.statut === 'reussi' || !item.statut)
+      return pMode.includes('wave') && (item.statut === 'disponible' || item.statut === 'reussi' || item.statut === 'retire' || !item.statut)
     })
     .reduce((sum, item) => {
       const origDevise = item.reservation?.voyage?.devise || 'XOF'
@@ -55,7 +68,7 @@ const totalEspecesConverted = computed(() => {
   return rawRevenusList.value
     .filter(item => {
       const pMode = (item.reservation?.mode_paiement_souhaite || item.reservation?.mode_paiement || '').toLowerCase()
-      return !pMode.includes('wave') && (item.statut === 'disponible' || item.statut === 'reussi' || !item.statut)
+      return !pMode.includes('wave') && (item.statut === 'disponible' || item.statut === 'reussi' || item.statut === 'retire' || !item.statut)
     })
     .reduce((sum, item) => {
       const origDevise = item.reservation?.voyage?.devise || 'XOF'
@@ -64,12 +77,28 @@ const totalEspecesConverted = computed(() => {
 })
 
 const totalEnAttentePaiementConverted = computed(() => {
-  return rawRevenusList.value
-    .filter(item => item.statut === 'en_attente' || item.statut === 'non_paye' || (item.reservation?.statut === 'acceptee' && item.statut !== 'disponible' && item.statut !== 'reussi'))
+  const sumPendingRevenus = rawRevenusList.value
+    .filter(item => item.statut === 'en_attente' || item.statut === 'non_paye')
     .reduce((sum, item) => {
       const origDevise = item.reservation?.voyage?.devise || 'XOF'
       return sum + convertAmount(item.montant || 0, origDevise, currentCurrency.value)
     }, 0)
+
+  const paidReservationIds = new Set(
+    rawRevenusList.value
+      .filter(item => item.statut === 'disponible' || item.statut === 'reussi' || item.statut === 'retire')
+      .map(item => item.reservation_id || item.reservation?.id)
+      .filter(Boolean)
+  )
+
+  const sumAcceptedReservations = rawReservationsList.value
+    .filter(r => (r.statut === 'acceptee' || r.statut === 'reservation_acceptee') && !paidReservationIds.has(r.id))
+    .reduce((sum, r) => {
+      const origDevise = r.voyage?.devise || 'XOF'
+      return sum + convertAmount(r.montant_total || r.prix_total || 0, origDevise, currentCurrency.value)
+    }, 0)
+
+  return sumPendingRevenus + sumAcceptedReservations
 })
 
 const formattedRevenusList = computed(() => {

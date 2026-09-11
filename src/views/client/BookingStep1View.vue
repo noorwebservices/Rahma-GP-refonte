@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import Swal from 'sweetalert2'
 import BookingProgressBar from '@/components/client/BookingProgressBar.vue'
 import { fetchVoyage } from '@/services/voyageService'
 import { getCategoryIcon, isElectronicType } from '@/utils/flagHelper'
@@ -21,6 +22,24 @@ const fileName = ref('')
 const previewImage = ref(null)
 const photoUrl = ref('')
 
+const maxWeight = computed(() => {
+  if (voyageData.value?.capacite_dispo !== undefined && voyageData.value?.capacite_dispo !== null) {
+    const c = Number(voyageData.value.capacite_dispo)
+    return c > 0 ? c : 25
+  }
+  if (voyageData.value?.capacite !== undefined && voyageData.value?.capacite !== null) {
+    const c = Number(voyageData.value.capacite)
+    return c > 0 ? c : 25
+  }
+  return 25
+})
+
+watch(maxWeight, (newMax) => {
+  if (weightKg.value > newMax) {
+    weightKg.value = newMax
+  }
+}, { immediate: true })
+
 const defaultTypes = [
   { id: 'Vêtements', label: 'Vêtements', icon: '👗' },
   { id: 'Documents', label: 'Documents', icon: '📄' },
@@ -31,6 +50,8 @@ const defaultTypes = [
 ]
 
 const packageTypes = ref(defaultTypes)
+
+import { setHeaderRoute } from '@/utils/headerState'
 
 onMounted(async () => {
   // Load existing draft if present
@@ -59,6 +80,15 @@ onMounted(async () => {
       const res = await fetchVoyage(voyageId.value)
       if (res && res.data) {
         voyageData.value = res.data
+        if (weightKg.value > maxWeight.value) {
+          weightKg.value = maxWeight.value
+        }
+        setHeaderRoute({
+          routeFrom: res.data.ville_depart,
+          countryFrom: res.data.pays_depart,
+          routeTo: res.data.ville_destination,
+          countryTo: res.data.pays_destination
+        })
         if (Array.isArray(res.data.objets_autorises) && res.data.objets_autorises.length > 0) {
           packageTypes.value = res.data.objets_autorises.map(item => ({
             id: item,
@@ -110,6 +140,26 @@ const handleFileChange = (e) => {
 }
 
 const goToStep2 = () => {
+  if (!description.value.trim()) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Champ obligatoire',
+      text: 'Veuillez saisir une description précise du contenu de votre colis.',
+      confirmButtonColor: '#B50302'
+    })
+    return
+  }
+
+  if (!isElectronic.value && Number(weightKg.value) > maxWeight.value) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Capacité insuffisante',
+      text: `Le poids sélectionné (${weightKg.value} Kg) dépasse la capacité disponible du voyage (${maxWeight.value} Kg).`,
+      confirmButtonColor: '#B50302'
+    })
+    return
+  }
+
   const existingDraft = JSON.parse(sessionStorage.getItem('rahma_booking_draft') || '{}')
   const updatedDraft = {
     ...existingDraft,
@@ -118,11 +168,11 @@ const goToStep2 = () => {
     colis: {
       ...(existingDraft.colis || {}),
       type: selectedType.value,
-      description: description.value,
+      description: description.value.trim(),
       valeur_estimee: Number(estimatedValue.value) || 0,
       poids: Number(weightKg.value) || 1,
       est_fragile: Boolean(estFragile.value),
-      photo: photoUrl.value || 'https://example.com/photos/colis1.jpg'
+      photo: photoUrl.value || null
     }
   }
   sessionStorage.setItem('rahma_booking_draft', JSON.stringify(updatedDraft))
@@ -264,8 +314,8 @@ const goToStep2 = () => {
         </div>
       </div>
 
-      <!-- Poids estimé(Kg) Slider -->
-      <div class="bg-gray-50 rounded-2xl p-5 border border-gray-200 space-y-3">
+      <!-- Poids estimé(Kg) Slider (Standard items only) -->
+      <div v-if="!isElectronic" class="bg-gray-50 rounded-2xl p-5 border border-gray-200 space-y-3">
         <div class="flex items-center justify-between">
           <div>
             <div class="text-sm font-bold text-[#074C72]">Poids estimé (Kg)</div>
@@ -281,22 +331,35 @@ const goToStep2 = () => {
           v-model.number="weightKg"
           type="range"
           min="0.5"
-          max="25"
+          :max="maxWeight"
           step="0.5"
           class="w-full accent-[#B50302] cursor-pointer"
         />
 
         <div class="flex items-center justify-between text-xs pt-1">
-          <span v-if="isElectronic" class="text-sky-800 font-extrabold bg-sky-50 border border-sky-200 px-3 py-1 rounded-full text-[11px]">
-            Tarif Objet = {{ formattedUnitPriceObjet }}
-          </span>
-          <span v-else class="text-[#FF9F02] font-extrabold bg-amber-50 border border-amber-200 px-3 py-1 rounded-full text-[11px]">
+          <span class="text-[#FF9F02] font-extrabold bg-amber-50 border border-amber-200 px-3 py-1 rounded-full text-[11px]">
             1 Kg = {{ formattedUnitPriceKg }}
           </span>
           <span v-if="voyageData" class="text-gray-500 font-bold text-[11px]">
             Capacité disponible: {{ voyageData.capacite_dispo || voyageData.capacite_totale }} Kg
           </span>
         </div>
+      </div>
+
+      <!-- Electronic Object Tariff Banner (Electronic items) -->
+      <div v-else class="bg-sky-50/70 border border-sky-200 rounded-2xl p-5 space-y-2 shadow-2xs">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2 text-sm font-bold text-[#074C72]">
+            <span class="text-lg">📱</span>
+            <span>Appareil Électronique (Tarif Fixe par Objet)</span>
+          </div>
+          <span class="text-xs font-black text-[#B50302] bg-white px-3 py-1 rounded-full border border-red-200 shadow-2xs">
+            {{ formattedUnitPriceObjet }} / objet
+          </span>
+        </div>
+        <p class="text-xs text-gray-600 font-medium leading-relaxed">
+          Ce type de colis est facturé sous forme de forfait fixe par appareil/objet. Le calcul de poids au kilo n'est pas applicable.
+        </p>
       </div>
 
     </div>

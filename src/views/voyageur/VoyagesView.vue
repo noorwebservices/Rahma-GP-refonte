@@ -309,8 +309,18 @@ const openCreateModal = () => {
   showWizardModal.value = true
 }
 
-// Open Wizard in EDIT Mode with prefilled data
+// Open Wizard in EDIT Mode with prefilled data (brouillon only)
 const openEditModal = (voyage) => {
+  if (voyage.statut !== 'brouillon') {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Modification non autorisée',
+      text: 'Seuls les voyages en statut brouillon peuvent être modifiés.',
+      confirmButtonColor: '#B50302'
+    })
+    return
+  }
+
   isEditing.value = true
   editingVoyageId.value = voyage.id
   wizardStep.value = 1
@@ -767,7 +777,7 @@ const goToDemandes = () => router.push('/voyageur/demandes')
         <!-- Action Row: Éditer opens the multi-step Wizard Modal in edit mode! -->
         <div class="pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
           <button
-            v-if="voyage.statut !== 'publie'"
+            v-if="voyage.statut === 'brouillon'"
             @click="openEditModal(voyage)"
             type="button"
             class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs transition-colors cursor-pointer flex items-center gap-1.5"

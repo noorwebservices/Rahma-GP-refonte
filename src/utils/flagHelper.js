@@ -7,6 +7,112 @@ import { flag as getEmojiFlag } from 'country-emoji'
 const frData = frLocale.default || frLocale
 countries.registerLocale(frData)
 
+// Well-known major cities map to guarantee correct ISO resolution (e.g., Paris -> FR, Dakar -> SN)
+const knownCityIsoMap = new Map([
+  // France
+  ['paris', 'FR'],
+  ['lyon', 'FR'],
+  ['marseille', 'FR'],
+  ['toulouse', 'FR'],
+  ['bordeaux', 'FR'],
+  ['nice', 'FR'],
+  ['nantes', 'FR'],
+  ['strasbourg', 'FR'],
+  ['montpellier', 'FR'],
+  ['lille', 'FR'],
+  ['rennes', 'FR'],
+  ['reims', 'FR'],
+  ['le havre', 'FR'],
+  ['saint-étienne', 'FR'],
+  ['toulon', 'FR'],
+  ['grenoble', 'FR'],
+  ['dijon', 'FR'],
+
+  // Sénégal
+  ['dakar', 'SN'],
+  ['thiès', 'SN'],
+  ['thies', 'SN'],
+  ['saint-louis', 'SN'],
+  ['ziguinchor', 'SN'],
+  ['touba', 'SN'],
+  ['mbour', 'SN'],
+  ['kaolack', 'SN'],
+  ['rufisque', 'SN'],
+  ['kolda', 'SN'],
+  ['tamba', 'SN'],
+  ['tambacounda', 'SN'],
+  ['diourbel', 'SN'],
+  ['louga', 'SN'],
+  ['fatick', 'SN'],
+
+  // Côte d'Ivoire
+  ['abidjan', 'CI'],
+  ['yamoussoukro', 'CI'],
+  ['bouaké', 'CI'],
+  ['bouake', 'CI'],
+
+  // Mali
+  ['bamako', 'ML'],
+  ['sikasso', 'ML'],
+  ['mopti', 'ML'],
+
+  // Guinée
+  ['conakry', 'GN'],
+
+  // Cameroun
+  ['douala', 'CM'],
+  ['yaoundé', 'CM'],
+  ['yaounde', 'CM'],
+
+  // Maroc
+  ['casablanca', 'MA'],
+  ['rabat', 'MA'],
+  ['marrakech', 'MA'],
+  ['tanger', 'MA'],
+  ['fes', 'MA'],
+  ['fès', 'MA'],
+
+  // Royaume-Uni
+  ['londres', 'GB'],
+  ['london', 'GB'],
+
+  // États-Unis
+  ['new york', 'US'],
+  ['washington', 'US'],
+
+  // Canada
+  ['montréal', 'CA'],
+  ['montreal', 'CA'],
+  ['toronto', 'CA'],
+
+  // Belgique
+  ['bruxelles', 'BE'],
+  ['brussels', 'BE'],
+
+  // Suisse
+  ['genève', 'CH'],
+  ['geneve', 'CH'],
+  ['geneva', 'CH'],
+  ['zurich', 'CH'],
+  ['zürich', 'CH'],
+
+  // Italie
+  ['milan', 'IT'],
+  ['milano', 'IT'],
+  ['rome', 'IT'],
+  ['roma', 'IT'],
+
+  // Espagne
+  ['madrid', 'ES'],
+  ['barcelone', 'ES'],
+  ['barcelona', 'ES'],
+
+  // Portugal
+  ['lisbonne', 'PT'],
+  ['lisbon', 'PT'],
+  ['porto', 'PT']
+])
+
 // Lazy-loaded Map of cities from country-state-city library
 let cityToIsoMap = null
 
@@ -45,7 +151,12 @@ export const getCountryIso = (city = '', country = '') => {
     if (isoCode) return isoCode.toUpperCase()
   }
 
-  // 2. Resolve city via country-state-city library
+  // 2. Known major cities map override (fixes Paris -> FR, Dakar -> SN, etc.)
+  if (cleanCity && knownCityIsoMap.has(cleanCity)) {
+    return knownCityIsoMap.get(cleanCity)
+  }
+
+  // 3. Resolve city via country-state-city library
   if (cleanCity) {
     const map = getCityToIsoMap()
     if (map.has(cleanCity)) {
@@ -102,12 +213,54 @@ export const formatVoyageDate = (dateStr) => {
     const daysFr = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi']
     return `${daysFr[d.getDay()]} à ${timeStr}`
   } else {
-    const monthsFr = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'sept.', 'oct.', 'nov.', 'déc.']
+    const monthsFr = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.']
     const dayNum = String(d.getDate()).padStart(2, '0')
     const monthStr = monthsFr[d.getMonth()]
     const yearStr = d.getFullYear()
-    return `${dayNum}-${monthStr}-${yearStr} ${timeStr}`
+    return `${dayNum} ${monthStr} ${yearStr} à ${timeStr}`
   }
+}
+
+/**
+ * Explicit Date and Time Formatter (e.g. 11 sept. 2026 à 19:45)
+ */
+export const formatDateTime = (dateStr) => {
+  if (!dateStr) return 'Non spécifié'
+  const d = new Date(dateStr)
+  if (isNaN(d.getTime())) return dateStr
+
+  const hours = String(d.getHours()).padStart(2, '0')
+  const minutes = String(d.getMinutes()).padStart(2, '0')
+  const timeStr = `${hours}:${minutes}`
+
+  const monthsFr = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.']
+  const dayNum = String(d.getDate()).padStart(2, '0')
+  const monthStr = monthsFr[d.getMonth()]
+  const yearStr = d.getFullYear()
+
+  return `${dayNum} ${monthStr} ${yearStr} à ${timeStr}`
+}
+
+/**
+ * Returns formatted French label with emoji for parcel tracking status
+ */
+export const getColisStatutLabel = (statut) => {
+  if (!statut) return 'Statut inconnu'
+  const map = {
+    'demande_envoyee': '📩 Demande envoyée',
+    'en_attente': '⏳ En attente de confirmation',
+    'acceptee': '✅ Demande acceptée',
+    'colis_depose': '📍 Colis déposé au point relais',
+    'colis_pris_en_charge': '🧳 Colis pris en charge par le GP',
+    'en_transit': '✈️ En transit / En vol',
+    'en_cours': '✈️ En cours d\'acheminement',
+    'arrive': '🛬 Arrivé au point de destination',
+    'livre': '🎁 Livré au destinataire',
+    'livree': '🎁 Livré au destinataire',
+    'annulee': '❌ Demande annulée',
+    'refusee': '❌ Demande refusée'
+  }
+  return map[statut] || statut
 }
 
 /**
@@ -137,3 +290,4 @@ export const isElectronicType = (name = '') => {
   const lower = name.toLowerCase()
   return lower.includes('électronique') || lower.includes('electronique') || lower.includes('téléphone') || lower.includes('telephone') || lower.includes('high-tech') || lower.includes('hightech') || lower.includes('ordinateur') || lower.includes('tablette')
 }
+

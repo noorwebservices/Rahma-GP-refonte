@@ -3,7 +3,11 @@ import { decodeId } from '@/utils/idMasker'
 
 export const createReservation = async (payload) => {
   try {
-    return await api.post('/reservations', payload)
+    const formattedPayload = { ...payload }
+    if (formattedPayload.voyage_id) {
+      formattedPayload.voyage_id = decodeId(formattedPayload.voyage_id) || formattedPayload.voyage_id
+    }
+    return await api.post('/reservations', formattedPayload)
   } catch (error) {
     throw error
   }
