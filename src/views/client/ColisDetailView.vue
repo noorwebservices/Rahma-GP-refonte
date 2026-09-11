@@ -3,9 +3,10 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 import { fetchReservation, annulerReservation } from '@/services/reservationService'
+import { postReservationEvaluation, fetchVoyageurEvaluations } from '@/services/evaluationService'
 import { formatVoyageDate } from '@/utils/flagHelper'
 import CountryFlag from '@/components/common/CountryFlag.vue'
-import { decodeId } from '@/utils/idMasker'
+import { decodeId, encodeId } from '@/utils/idMasker'
 import { setHeaderRoute } from '@/utils/headerState'
 
 const route = useRoute()
@@ -16,6 +17,47 @@ const isLoading = ref(true)
 const errorMsg = ref('')
 const reservation = ref(null)
 const trackingSteps = ref([])
+
+const ratingNote = ref(0)
+const ratingComment = ref('')
+const isSubmittingRating = ref(false)
+const hasSubmittedRating = ref(false)
+
+const currentReviewPage = ref(1)
+const reviewsPerPage = 2
+
+const voyageurReviews = ref({
+  moyenneNotes: 0,
+  totalEvaluations: 0,
+  data: []
+})
+
+const totalReviewPages = computed(() => {
+  const list = voyageurReviews.value.data || []
+  return Math.ceil(list.length / reviewsPerPage) || 1
+})
+
+const paginatedVoyageurReviews = computed(() => {
+  const list = voyageurReviews.value.data || []
+  const start = (currentReviewPage.value - 1) * reviewsPerPage
+  return list.slice(start, start + reviewsPerPage)
+})
+
+const loadVoyageurReviews = async (vId) => {
+  if (!vId) return
+  try {
+    const res = await fetchVoyageurEvaluations(vId)
+    if (res) {
+      voyageurReviews.value = {
+        moyenneNotes: res.moyenne_notes !== undefined ? Number(res.moyenne_notes) : 0,
+        totalEvaluations: res.total_evaluations !== undefined ? Number(res.total_evaluations) : 0,
+        data: Array.isArray(res.data) ? res.data : []
+      }
+    }
+  } catch (e) {
+    console.error('Erreur chargement avis voyageur:', e)
+  }
+}
 
 const loadReservationData = async () => {
   if (!reservationId) {
@@ -35,9 +77,11 @@ const loadReservationData = async () => {
       const c = data.colis || {}
       const vUser = v.voyageur?.user || v.voyageur || {}
       const transporteurName = `${vUser.prenom || ''} ${vUser.nom || ''}`.trim() || 'Voyageur GP'
+      const vId = v.voyageur_id || v.voyageur?.id || null
 
       reservation.value = {
         id: data.id,
+        voyageurId: vId,
         numero: data.numero || (c.numero_suivi ? `#${c.numero_suivi}` : `#RS-${data.id.slice(0, 8)}`),
         trackingCode: c.numero_suivi || data.code_tracking || 'TRK-EN-ATTENTE',
         statut: data.statut || 'en_attente',
@@ -67,6 +111,10 @@ const loadReservationData = async () => {
         
         adresseDepot: v.adresse_depot || null,
         adresseRetrait: v.adresse_recuperation || null
+      }
+
+      if (vId) {
+        await loadVoyageurReviews(vId)
       }
 
       setHeaderRoute({
@@ -159,7 +207,54 @@ const handleCancel = async () => {
 }
 
 const goToChat = () => {
-  router.push('/client/messages/1')
+  if (reservation.value && reservation.value.id) {
+    const masked = encodeId(reservation.value.id)
+    router.push(`/client/messages/${masked}`)
+  } else {
+    router.push('/client/messages')
+  }
+}
+
+const submitRating = async () => {
+  if (!reservation.value) return
+  if (Number(ratingNote.value) <= 0) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Note requise',
+      text: 'Veuillez sélectionner au moins 1 étoile pour votre évaluation.',
+      confirmButtonColor: '#053754'
+    })
+    return
+  }
+
+  isSubmittingRating.value = true
+  try {
+    await postReservationEvaluation(reservation.value.id, {
+      note: Number(ratingNote.value),
+      commentaire: ratingComment.value.trim() || undefined
+    })
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: 'Évaluation enregistrée avec succès !',
+      showConfirmButton: false,
+      timer: 3000
+    })
+    hasSubmittedRating.value = true
+    ratingComment.value = ''
+    if (reservation.value.voyageurId) {
+      await loadVoyageurReviews(reservation.value.voyageurId)
+    }
+  } catch (err) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Erreur',
+      text: err?.message || err?.data?.message || 'Impossible d\'enregistrer l\'évaluation.'
+    })
+  } finally {
+    isSubmittingRating.value = false
+  }
 }
 
 const openMap = (location) => {
@@ -294,7 +389,6 @@ const allSteps = computed(() => {
         <!-- Recipient Bottom Row -->
         <div class="border-t border-sky-800/80 pt-3 flex items-center justify-between text-xs sm:text-sm font-semibold">
           <span class="text-sky-200">Destinataire : <strong class="text-white font-extrabold">{{ reservation.destinataireNom }}</strong></span>
-          <span class="text-sky-100 font-mono font-bold">{{ reservation.destinatairePhone }}</span>
         </div>
       </div>
 
@@ -313,10 +407,10 @@ const allSteps = computed(() => {
               <h3 class="text-sm font-extrabold text-[#053754]">{{ reservation.transporteurNom }}</h3>
               <div class="flex items-center gap-2 text-xs">
                 <span class="flex items-center gap-1 font-bold text-amber-500">
-                  ⭐ 4.9
+                  ⭐ {{ voyageurReviews.moyenneNotes }}
                 </span>
-                <span class="text-gray-400 font-mono font-medium">
-                  {{ reservation.transporteurPhone }}
+                <span class="text-gray-400 font-medium text-[11px]">
+                  ({{ voyageurReviews.totalEvaluations }} {{ voyageurReviews.totalEvaluations > 1 ? 'avis' : 'avis' }})
                 </span>
               </div>
             </div>
@@ -331,7 +425,102 @@ const allSteps = computed(() => {
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
-            DISCUTEZ
+            <span>DISCUTER</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Poster une évaluation pour cette réservation -->
+      <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-2xs space-y-4">
+        <div class="flex items-center gap-2 border-b border-gray-100 pb-3">
+          <span class="text-lg">⭐</span>
+          <h3 class="text-sm font-extrabold text-[#053754]">Évaluer ce transporteur GP</h3>
+        </div>
+
+        <div v-if="hasSubmittedRating" class="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-xl text-xs font-bold text-center space-y-1">
+          <span class="text-base">🎉</span>
+          <p>Merci ! Votre évaluation a été enregistrée avec succès.</p>
+        </div>
+
+        <form v-else @submit.prevent="submitRating" class="space-y-3">
+          <div>
+            <label class="block text-xs font-bold text-gray-600 mb-1.5">Votre note :</label>
+            <div class="flex items-center gap-1">
+              <button
+                v-for="star in 5"
+                :key="star"
+                type="button"
+                @click="ratingNote = star"
+                class="text-2xl transition-transform cursor-pointer hover:scale-110"
+              >
+                <span :class="star <= ratingNote ? 'text-amber-400' : 'text-gray-300'">★</span>
+              </button>
+              <span class="text-xs font-bold text-amber-600 ml-2">({{ ratingNote }} / 5)</span>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-600 mb-1">Votre commentaire :</label>
+            <textarea
+              v-model="ratingComment"
+              rows="3"
+              placeholder="ex: Voyageur très ponctuel et professionnel, le colis est arrivé intact !"
+              class="w-full bg-[#FAF7F2] border border-gray-200 rounded-xl p-3 text-xs font-medium text-gray-800 outline-none focus:border-[#074C72] focus:bg-white"
+            ></textarea>
+          </div>
+
+          <button
+            type="submit"
+            :disabled="isSubmittingRating"
+            class="w-full bg-[#053754] hover:bg-[#074C72] text-white font-extrabold text-xs py-3 rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 uppercase tracking-wider disabled:opacity-50"
+          >
+            <span v-if="isSubmittingRating" class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            <span>ENREGISTRER L'ÉVALUATION</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Consulter les évaluations existantes du voyageur -->
+      <div v-if="voyageurReviews.data && voyageurReviews.data.length > 0" class="bg-white rounded-2xl p-5 border border-gray-200 shadow-2xs space-y-3">
+        <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+          <h3 class="text-sm font-extrabold text-[#053754] flex items-center gap-2">
+            <span>Avis des clients sur {{ reservation.transporteurNom }}</span>
+            <span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-0.5 rounded-full font-bold">⭐ {{ voyageurReviews.moyenneNotes }}</span>
+          </h3>
+          <span class="text-xs text-gray-400 font-medium">({{ voyageurReviews.totalEvaluations }} avis)</span>
+        </div>
+
+        <div class="space-y-3">
+          <div
+            v-for="rev in paginatedVoyageurReviews"
+            :key="rev.id"
+            class="bg-gray-50 p-3.5 rounded-xl border border-gray-100 space-y-1.5 text-xs"
+          >
+            <div class="flex items-center justify-between">
+              <span class="font-extrabold text-[#053754]">{{ rev.evaluateur ? `${rev.evaluateur.prenom || ''} ${rev.evaluateur.nom || ''}` : 'Client Rahma' }}</span>
+              <span class="text-amber-500 font-bold">{{ rev.note > 0 ? '⭐'.repeat(rev.note) : 'Non noté' }}</span>
+            </div>
+            <p v-if="rev.commentaire" class="text-gray-600 italic">"{{ rev.commentaire }}"</p>
+            <span class="text-[10px] text-gray-400 block text-right">{{ formatVoyageDate(rev.created_at) }}</span>
+          </div>
+        </div>
+
+        <!-- Pagination Controls (2 per page) -->
+        <div v-if="totalReviewPages > 1" class="flex items-center justify-between pt-3 border-t border-gray-100 text-xs">
+          <button
+            @click="currentReviewPage = Math.max(1, currentReviewPage - 1)"
+            :disabled="currentReviewPage === 1"
+            class="px-3 py-1 bg-white border border-gray-200 rounded-lg text-gray-700 font-bold disabled:opacity-40 cursor-pointer shadow-2xs"
+          >
+            ← Précédent
+          </button>
+          <span class="text-gray-500 font-semibold">Page {{ currentReviewPage }} / {{ totalReviewPages }}</span>
+          <button
+            @click="currentReviewPage = Math.min(totalReviewPages, currentReviewPage + 1)"
+            :disabled="currentReviewPage === totalReviewPages"
+            class="px-3 py-1 bg-white border border-gray-200 rounded-lg text-gray-700 font-bold disabled:opacity-40 cursor-pointer shadow-2xs"
+          >
+            Suivant →
           </button>
         </div>
       </div>

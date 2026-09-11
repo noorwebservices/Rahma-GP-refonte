@@ -1,8 +1,9 @@
 <script setup>
-import { computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { headerState } from '@/utils/headerState'
 import CountryFlag from '@/components/common/CountryFlag.vue'
+import { fetchUnreadMessagesCount } from '@/services/messageService'
 
 const props = defineProps({
   showBack: {
@@ -25,6 +26,20 @@ const props = defineProps({
 
 const router = useRouter()
 const route = useRoute()
+const unreadCount = ref(0)
+
+const loadUnreadCount = async () => {
+  try {
+    const res = await fetchUnreadMessagesCount()
+    if (res && res.unread_count !== undefined) {
+      unreadCount.value = Number(res.unread_count) || 0
+    }
+  } catch (e) {
+    unreadCount.value = 0
+  }
+}
+
+onMounted(loadUnreadCount)
 
 const headerTitle = computed(() => props.title || headerState.title || route.meta?.headerTitle || '')
 const headerSubtitle = computed(() => headerState.subtitle || route.meta?.headerSubtitle || '')
@@ -34,6 +49,10 @@ const displayTo = computed(() => headerState.routeTo || props.routeTo || 'Paris'
 
 const goBack = () => {
   router.back()
+}
+
+const goToMessages = () => {
+  router.push('/voyageur/messages')
 }
 </script>
 
@@ -63,11 +82,19 @@ const goBack = () => {
           </div>
 
           <!-- Notification Bell -->
-          <button class="w-9 h-9 rounded-full bg-[#F3F4F6] hover:bg-gray-200 flex items-center justify-center text-gray-600 relative transition-colors cursor-pointer">
+          <button
+            @click="goToMessages"
+            class="w-9 h-9 rounded-full bg-[#F3F4F6] hover:bg-gray-200 flex items-center justify-center text-gray-600 relative transition-colors cursor-pointer"
+          >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
             </svg>
-            <span class="absolute top-1 right-1 w-2 h-2 bg-[#B50302] rounded-full"></span>
+            <span
+              v-if="unreadCount > 0"
+              class="absolute -top-1 -right-1 bg-[#B50302] text-white text-[10px] font-black rounded-full min-w-4.5 h-4.5 px-1 flex items-center justify-center border-2 border-white"
+            >
+              {{ unreadCount }}
+            </span>
           </button>
         </div>
       </div>

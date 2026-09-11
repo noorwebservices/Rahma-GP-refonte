@@ -129,7 +129,6 @@ const handlePayment = () => {
         <span class="text-xs font-bold text-gray-500 block">Informations du Destinataire :</span>
         <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-1 shadow-2xs">
           <div class="font-extrabold text-[#053754] text-sm sm:text-base">{{ destinataireNom }}</div>
-          <div class="text-xs font-mono font-semibold text-gray-600">{{ destinatairePhone }}</div>
           <div class="text-xs text-gray-600 font-medium">{{ destinataireAdresse }}</div>
         </div>
       </div>

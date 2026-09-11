@@ -476,9 +476,7 @@ const goBack = () => {
                   <h4 class="text-sm font-extrabold text-gray-900 group-hover:text-[#074C72] transition-colors flex items-center gap-2">
                     <span>{{ res.clientNom }}</span>
                   </h4>
-                  <p class="text-xs text-gray-400 font-mono flex items-center gap-1">
-                    <span>📞</span> {{ res.clientPhone }}
-                  </p>
+                  <span class="text-[10px] text-gray-400 font-medium">Client Rahma GP</span>
                 </div>
               </div>
 

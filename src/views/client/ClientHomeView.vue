@@ -31,7 +31,7 @@ onMounted(async () => {
         poids_total: Number(v.capacite_totale) || 0,
         point_collecte: v.adresse_depot ? `${v.adresse_depot.adresse} (${v.adresse_depot.ville})` : 'Point Relais Rahma',
         transporteur_nom: v.voyageur ? `${v.voyageur.prenom || v.voyageur.user?.prenom || ''} ${v.voyageur.nom || v.voyageur.user?.nom || ''}`.trim() || 'Transporteur GP' : 'Transporteur GP',
-        note: '4.9',
+        note: v.moyenne_notes || v.voyageur?.moyenne_notes || v.voyageur?.note_moyenne || (v.note && v.note !== '4.9' ? v.note : '0'),
         prix: `${v.prix_kg}`,
         devise: v.devise || 'FCFA',
         voyageur: v.voyageur

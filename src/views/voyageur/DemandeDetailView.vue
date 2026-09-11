@@ -335,12 +335,7 @@ const goBackToVoyage = () => {
             </div>
             <div>
               <h3 class="text-base font-extrabold text-gray-900 leading-tight">{{ demande.clientName }}</h3>
-              <p class="text-xs text-gray-500 font-mono flex items-center gap-1 mt-0.5">
-                <span>📞</span> {{ demande.clientPhone }}
-              </p>
-              <p v-if="demande.clientEmail !== 'Non renseigné'" class="text-[11px] text-gray-400">
-                ✉️ {{ demande.clientEmail }}
-              </p>
+              <span class="text-[10px] text-sky-700 font-extrabold bg-sky-50 px-2 py-0.5 rounded-full border border-sky-100 mt-1 inline-block">Client Rahma GP</span>
             </div>
           </div>
 
@@ -408,7 +403,6 @@ const goBackToVoyage = () => {
 
           <div class="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-4 space-y-1.5 shadow-2xs">
             <div class="font-extrabold text-gray-900 text-sm sm:text-base">{{ demande.recipientName }}</div>
-            <div class="text-xs font-mono font-bold text-amber-900">📞 {{ demande.recipientPhone }}</div>
             <div class="text-xs text-gray-600 font-medium pt-1 border-t border-amber-200/60">
               📍 {{ demande.recipientAddress }}
             </div>

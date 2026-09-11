@@ -1,7 +1,8 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { fetchVoyage } from '@/services/voyageService'
+import { fetchVoyageurEvaluations } from '@/services/evaluationService'
 import { formatVoyageDate } from '@/utils/flagHelper'
 import CountryFlag from '@/components/common/CountryFlag.vue'
 import { decodeId } from '@/utils/idMasker'
@@ -15,6 +16,22 @@ const voyageId = decodeId(route.params.id)
 const isLoading = ref(true)
 const errorMsg = ref('')
 const voyage = ref(null)
+
+const voyageurEvaluations = ref([])
+const voyageurMoyenne = ref(0)
+const voyageurTotalCount = ref(0)
+
+const currentEvalPage = ref(1)
+const evalsPerPage = 2
+
+const totalEvalPages = computed(() => {
+  return Math.ceil(voyageurEvaluations.value.length / evalsPerPage) || 1
+})
+
+const paginatedVoyageurEvaluations = computed(() => {
+  const start = (currentEvalPage.value - 1) * evalsPerPage
+  return voyageurEvaluations.value.slice(start, start + evalsPerPage)
+})
 
 onMounted(async () => {
   if (!voyageId) {
@@ -30,8 +47,11 @@ onMounted(async () => {
     const res = await fetchVoyage(voyageId)
     if (res && res.data) {
       const v = res.data
+      const vId = v.voyageur_id || v.voyageur?.id
+      
       voyage.value = {
         id: v.id,
+        voyageurId: vId,
         depart: v.ville_depart || 'Départ',
         paysDepart: v.pays_depart || '',
         destination: v.ville_destination || 'Destination',
@@ -59,6 +79,19 @@ onMounted(async () => {
         routeTo: voyage.value.destination,
         countryTo: voyage.value.paysDest
       })
+
+      if (vId) {
+        try {
+          const evalRes = await fetchVoyageurEvaluations(vId)
+          if (evalRes) {
+            voyageurMoyenne.value = evalRes.moyenne_notes || evalRes.data?.moyenne_notes || 4.9
+            voyageurTotalCount.value = evalRes.total_evaluations || evalRes.data?.total_evaluations || 0
+            voyageurEvaluations.value = evalRes.data?.data || evalRes.data || (Array.isArray(evalRes) ? evalRes : [])
+          }
+        } catch (e) {
+          // fallback defaults
+        }
+      }
     } else {
       errorMsg.value = 'Voyage non trouvé.'
     }
@@ -284,8 +317,8 @@ const startBooking = () => {
           <p v-else class="text-xs text-gray-400 italic">Aucune interdiction spécifique.</p>
         </div>
 
-        <!-- À propos du transporteur Card avec le vrai nom du transporteur -->
-        <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-2xs space-y-3">
+        <!-- À propos du transporteur Card avec le vrai nom du transporteur et avis -->
+        <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-2xs space-y-4">
           <div class="flex items-center gap-2 text-[#074C72] font-extrabold text-sm">
             <svg class="w-5 h-5 text-[#074C72]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -301,12 +334,43 @@ const startBooking = () => {
               <div>
                 <div class="font-bold text-[#074C72] text-sm">{{ voyage.transporteur }}</div>
                 <div class="text-xs text-[#FF9F02] font-extrabold flex items-center gap-1">
-                  <span>★</span> <span>4.9</span>
+                  <span>★</span> <span>{{ voyageurMoyenne }}</span>
+                  <span class="text-gray-400 font-normal">({{ voyageurTotalCount }} avis)</span>
                 </div>
               </div>
             </div>
 
-            <span class="text-xs text-gray-400 font-bold">Vérifié ✓</span>
+            <span class="text-xs text-emerald-600 font-bold bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100">Vérifié ✓</span>
+          </div>
+
+          <!-- Reviews list preview with 2-item pagination -->
+          <div v-if="voyageurEvaluations.length > 0" class="pt-3 border-t border-gray-100 space-y-2.5">
+            <span class="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider block">Derniers avis clients</span>
+            <div v-for="evalItem in paginatedVoyageurEvaluations" :key="evalItem.id" class="bg-gray-50 p-2.5 rounded-xl border border-gray-100 space-y-1">
+              <div class="flex items-center justify-between text-[11px]">
+                <span class="font-bold text-gray-800">{{ evalItem.evaluateur ? `${evalItem.evaluateur.prenom} ${evalItem.evaluateur.nom}` : 'Client' }}</span>
+                <span class="text-amber-500 font-bold">★ {{ evalItem.note }}</span>
+              </div>
+              <p class="text-[11px] text-gray-600 italic line-clamp-2">"{{ evalItem.commentaire }}"</p>
+            </div>
+
+            <div v-if="totalEvalPages > 1" class="flex items-center justify-between pt-1 text-[11px]">
+              <button
+                @click="currentEvalPage = Math.max(1, currentEvalPage - 1)"
+                :disabled="currentEvalPage === 1"
+                class="px-2 py-0.5 bg-gray-100 border border-gray-200 rounded text-gray-700 font-bold disabled:opacity-40 cursor-pointer"
+              >
+                ‹ Précédent
+              </button>
+              <span class="text-gray-400 font-semibold">{{ currentEvalPage }} / {{ totalEvalPages }}</span>
+              <button
+                @click="currentEvalPage = Math.min(totalEvalPages, currentEvalPage + 1)"
+                :disabled="currentEvalPage === totalEvalPages"
+                class="px-2 py-0.5 bg-gray-100 border border-gray-200 rounded text-gray-700 font-bold disabled:opacity-40 cursor-pointer"
+              >
+                Suivant ›
+              </button>
+            </div>
           </div>
         </div>
 

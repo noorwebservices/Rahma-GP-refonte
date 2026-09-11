@@ -54,6 +54,20 @@ const pointCollecte = computed(() => {
   return props.voyage.point_collecte || ''
 })
 
+const voyageurNote = computed(() => {
+  const v = props.voyage
+  const n = v.moyenne_notes ?? v.voyageur?.moyenne_notes ?? v.voyageur?.note_moyenne ?? v.note
+  if (n !== undefined && n !== null && n !== '' && n !== '4.9') {
+    return Number(n) > 0 ? Number(n).toFixed(1) : '0.0'
+  }
+  return '0.0'
+})
+
+const totalEvaluationsCount = computed(() => {
+  const v = props.voyage
+  return v.total_evaluations ?? v.voyageur?.total_evaluations ?? 0
+})
+
 const goToDetail = () => {
   const masked = encodeId(props.voyage.id || 1)
   router.push(`/client/voyage/${masked}`)
@@ -142,7 +156,8 @@ const goToDetail = () => {
           </div>
           <div class="text-xs text-amber-500 font-extrabold flex items-center gap-1">
             <span>★</span>
-            <span>{{ voyage.note || '4.9' }}</span>
+            <span>{{ voyageurNote }}</span>
+            <span v-if="totalEvaluationsCount > 0" class="text-[10px] text-gray-400 font-normal">({{ totalEvaluationsCount }})</span>
           </div>
         </div>
       </div>

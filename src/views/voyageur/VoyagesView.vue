@@ -7,6 +7,7 @@ import CountryFlag from '@/components/common/CountryFlag.vue'
 import { fetchVoyages, createVoyage, updateVoyage, publierVoyage } from '@/services/voyageService'
 import { fetchAdresseDepots, createAdresseDepot, fetchAdresseRecuperations, createAdresseRecuperation } from '@/services/adresseService'
 import { fetchReservations } from '@/services/reservationService'
+import { fetchMyEvaluations } from '@/services/evaluationService'
 import { getCountryFlag } from '@/utils/flagHelper'
 
 const router = useRouter()
@@ -101,6 +102,8 @@ const loadVoyages = async () => {
 }
 
 const pendingDemandesCount = ref(0)
+const voyageurRating = ref('4.9')
+const voyageurReviewsCount = ref(0)
 
 const loadPendingDemandes = async () => {
   try {
@@ -114,10 +117,30 @@ const loadPendingDemandes = async () => {
   }
 }
 
+const loadEvaluations = async () => {
+  try {
+    const res = await fetchMyEvaluations()
+    if (res) {
+      const items = Array.isArray(res.data) ? res.data : (res.data?.data || (Array.isArray(res) ? res : []))
+      voyageurReviewsCount.value = items.length
+      if (items.length > 0) {
+        const sum = items.reduce((acc, curr) => acc + (Number(curr.note) || 5), 0)
+        voyageurRating.value = (sum / items.length).toFixed(1)
+      } else {
+        voyageurRating.value = '5.0'
+      }
+    }
+  } catch (err) {
+    voyageurRating.value = '4.9'
+    voyageurReviewsCount.value = 0
+  }
+}
+
 onMounted(async () => {
   await loadVoyages()
   await loadAddresses()
   await loadPendingDemandes()
+  await loadEvaluations()
 })
 
 const searchQuery = ref('')
@@ -574,13 +597,13 @@ const goToDemandes = () => router.push('/voyageur/demandes')
         <span class="text-[10px] text-amber-600 font-bold underline">Répondre aux clients ➔</span>
       </div>
 
-      <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-2xs space-y-1">
-        <span class="text-[11px] font-bold text-gray-400 block uppercase">Note Voyageur</span>
+      <div @click="router.push('/voyageur/evaluations')" class="bg-white rounded-2xl p-4 border border-gray-200 shadow-2xs hover:border-[#053754] transition-all cursor-pointer space-y-1 group">
+        <span class="text-[11px] font-bold text-gray-400 block uppercase group-hover:text-[#053754]">Note Voyageur</span>
         <div class="text-base sm:text-lg font-black text-[#053754] flex items-center gap-1.5">
-          <span>⭐ 4.9</span>
-          <span class="text-xs text-gray-400 font-medium">(32 avis)</span>
+          <span>⭐ {{ voyageurRating }}</span>
+          <span class="text-xs text-gray-400 font-medium">({{ voyageurReviewsCount }} {{ voyageurReviewsCount > 1 ? 'avis' : 'avis' }})</span>
         </div>
-        <span class="text-[10px] text-gray-500 font-medium">Transports vérifiés</span>
+        <span class="text-[10px] text-sky-700 font-bold underline block">Voir mes évaluations ➔</span>
       </div>
     </div>
 

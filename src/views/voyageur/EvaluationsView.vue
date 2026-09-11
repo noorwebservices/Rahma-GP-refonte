@@ -1,32 +1,58 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { fetchMyEvaluations } from '@/services/evaluationService'
+import { formatVoyageDate } from '@/utils/flagHelper'
 
-const evaluations = ref([
-  {
-    id: 1,
-    clientName: 'Mariama Diallo',
-    avatar: 'MD',
-    date: '24 Août 2026',
-    note: 5,
-    commentaire: 'Transporteur très ponctuel et réactif ! Mon colis est arrivé en parfait état à Paris Gare du Nord. Je recommande vivement.'
-  },
-  {
-    id: 2,
-    clientName: 'Ousmane Sow',
-    avatar: 'OS',
-    date: '12 Août 2026',
-    note: 5,
-    commentaire: 'Excellente communication sur WhatsApp et la plateforme. Dépôt facile aux Parcelles Assainies.'
-  },
-  {
-    id: 3,
-    clientName: 'Fatou Ndiaye',
-    avatar: 'FN',
-    date: '02 Juillet 2026',
-    note: 4,
-    commentaire: 'Très satisfaite du service GP, remis dans les temps.'
+const isLoading = ref(true)
+const errorMsg = ref('')
+const rawEvaluations = ref([])
+
+const currentPage = ref(1)
+const itemsPerPage = 20
+
+const loadEvaluations = async () => {
+  isLoading.value = true
+  errorMsg.value = ''
+  try {
+    const res = await fetchMyEvaluations()
+    if (res) {
+      const items = Array.isArray(res.data) ? res.data : (res.data?.data || (Array.isArray(res) ? res : []))
+      rawEvaluations.value = items.map(e => {
+        const author = e.evaluateur || {}
+        const name = `${author.prenom || ''} ${author.nom || ''}`.trim() || 'Client Rahma'
+        return {
+          id: e.id,
+          clientName: name,
+          avatar: name.slice(0, 2).toUpperCase(),
+          date: formatVoyageDate(e.created_at),
+          note: Number(e.note) || 0,
+          commentaire: e.commentaire || 'Aucun commentaire rédigé.'
+        }
+      })
+    }
+  } catch (err) {
+    errorMsg.value = err?.message || 'Erreur lors du chargement de vos évaluations.'
+  } finally {
+    isLoading.value = false
   }
-])
+}
+
+onMounted(loadEvaluations)
+
+const totalReviews = computed(() => rawEvaluations.value.length)
+
+const averageRating = computed(() => {
+  if (totalReviews.value === 0) return '0.0'
+  const sum = rawEvaluations.value.reduce((acc, curr) => acc + curr.note, 0)
+  return (sum / totalReviews.value).toFixed(1)
+})
+
+const totalPages = computed(() => Math.ceil(rawEvaluations.value.length / itemsPerPage) || 1)
+
+const paginatedEvaluations = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage
+  return rawEvaluations.value.slice(start, start + itemsPerPage)
+})
 </script>
 
 <template>
@@ -34,71 +60,113 @@ const evaluations = ref([
     <!-- Header Title -->
     <div class="space-y-1">
       <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark">Avis & Évaluations</h1>
-      <p class="text-xs sm:text-sm text-gray-500">Découvrez ce que les clients pensent de vos services de transport GP</p>
+      <p class="text-xs sm:text-sm text-gray-500">Consultez les notes et avis déposés par vos clients</p>
     </div>
 
-    <!-- Rating Summary Banner Card -->
-    <div class="bg-[#053754] text-white rounded-3xl p-6 shadow-md flex flex-col sm:flex-row items-center justify-between gap-6">
-      <div class="text-center sm:text-left space-y-1">
-        <span class="text-xs text-sky-200 uppercase font-extrabold tracking-wider">Note globale Voyageur</span>
-        <div class="flex items-center justify-center sm:justify-start gap-3">
-          <span class="text-4xl sm:text-5xl font-black text-amber-400">4.9</span>
-          <div class="space-y-0.5">
-            <div class="text-amber-400 text-lg">⭐⭐⭐⭐⭐</div>
-            <p class="text-xs text-sky-200 font-semibold">Basé sur 32 avis vérifiés</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 text-xs space-y-1.5 w-full sm:max-w-xs">
-        <div class="flex items-center justify-between text-sky-100">
-          <span>5 étoiles</span>
-          <div class="w-32 bg-white/20 h-2 rounded-full overflow-hidden">
-            <div class="bg-amber-400 h-full w-[90%]"></div>
-          </div>
-          <span>90%</span>
-        </div>
-        <div class="flex items-center justify-between text-sky-100">
-          <span>4 étoiles</span>
-          <div class="w-32 bg-white/20 h-2 rounded-full overflow-hidden">
-            <div class="bg-amber-400 h-full w-[10%]"></div>
-          </div>
-          <span>10%</span>
-        </div>
-      </div>
+    <!-- Loading State -->
+    <div v-if="isLoading" class="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm space-y-4">
+      <div class="w-10 h-10 border-4 border-[#053754] border-t-transparent rounded-full animate-spin mx-auto"></div>
+      <p class="text-sm font-bold text-gray-600">Chargement de vos avis...</p>
     </div>
 
-    <!-- Reviews List -->
-    <div class="space-y-4">
-      <h3 class="text-base font-extrabold text-[#053754]">Derniers avis clients</h3>
+    <!-- Error State -->
+    <div v-else-if="errorMsg" class="bg-red-50 border border-red-200 rounded-3xl p-8 text-center space-y-3">
+      <p class="text-sm font-bold text-red-800">{{ errorMsg }}</p>
+      <button @click="loadEvaluations" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-xl cursor-pointer">Réessayer</button>
+    </div>
 
-      <div class="space-y-3">
-        <div
-          v-for="evalItem in evaluations"
-          :key="evalItem.id"
-          class="bg-white rounded-2xl p-5 border border-gray-200 shadow-2xs space-y-3"
-        >
+    <template v-else>
+      <!-- Rating Summary Banner Card -->
+      <div class="bg-[#053754] text-white rounded-3xl p-6 shadow-md flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div class="text-center sm:text-left space-y-1">
+          <span class="text-xs text-sky-200 uppercase font-extrabold tracking-wider">Note globale Voyageur</span>
+          <div class="flex items-center justify-center sm:justify-start gap-3">
+            <span class="text-4xl sm:text-5xl font-black text-amber-400">{{ averageRating }}</span>
+            <div class="space-y-0.5">
+              <div class="text-amber-400 text-lg">
+                {{ totalReviews > 0 ? '⭐'.repeat(Math.max(1, Math.round(Number(averageRating)))) : '⭐ (Aucune note)' }}
+              </div>
+              <p class="text-xs text-sky-200 font-semibold">Basé sur {{ totalReviews }} avis vérifiés</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 text-xs space-y-1.5 w-full sm:max-w-xs text-sky-100">
           <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full bg-[#B50302] text-white font-extrabold text-xs flex items-center justify-center">
-                {{ evalItem.avatar }}
-              </div>
-              <div>
-                <h4 class="text-sm font-extrabold text-gray-900">{{ evalItem.clientName }}</h4>
-                <p class="text-[11px] text-gray-400 font-medium">{{ evalItem.date }}</p>
-              </div>
-            </div>
+            <span>Notes reçues</span>
+            <span class="font-extrabold text-amber-300 text-sm">{{ totalReviews }} évaluations</span>
+          </div>
+          <div class="flex items-center justify-between text-[11px] text-sky-200">
+            <span>Moyenne générale</span>
+            <span class="font-bold text-white">{{ averageRating }} / 5</span>
+          </div>
+        </div>
+      </div>
 
-            <div class="text-amber-500 font-bold text-sm">
-              {{ '⭐'.repeat(evalItem.note) }}
+      <!-- Reviews Grid List (2 items per row on md: screens) -->
+      <div class="space-y-4">
+        <h3 class="text-base font-extrabold text-[#053754] flex items-center justify-between">
+          <span>Avis des clients ({{ totalReviews }})</span>
+        </h3>
+
+        <div v-if="rawEvaluations.length > 0" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div
+              v-for="evalItem in paginatedEvaluations"
+              :key="evalItem.id"
+              class="bg-white rounded-2xl p-5 border border-gray-200 shadow-2xs space-y-3 flex flex-col justify-between"
+            >
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-[#B50302] text-white font-extrabold text-xs flex items-center justify-center">
+                    {{ evalItem.avatar }}
+                  </div>
+                  <div>
+                    <h4 class="text-sm font-extrabold text-gray-900">{{ evalItem.clientName }}</h4>
+                    <p class="text-[11px] text-gray-400 font-medium">{{ evalItem.date }}</p>
+                  </div>
+                </div>
+
+                <div class="text-amber-500 font-bold text-sm">
+                  {{ evalItem.note > 0 ? '⭐'.repeat(evalItem.note) : 'Non noté' }}
+                </div>
+              </div>
+
+              <p class="text-xs sm:text-sm text-gray-600 leading-relaxed italic bg-gray-50 p-3 rounded-xl border border-gray-100 flex-1">
+                "{{ evalItem.commentaire }}"
+              </p>
             </div>
           </div>
 
-          <p class="text-xs sm:text-sm text-gray-600 leading-relaxed italic">
-            "{{ evalItem.commentaire }}"
-          </p>
+          <!-- Pagination Bar (20 per page) -->
+          <div v-if="totalPages > 1" class="flex items-center justify-between pt-4 border-t border-gray-100">
+            <button
+              @click="currentPage = Math.max(1, currentPage - 1)"
+              :disabled="currentPage === 1"
+              class="px-4 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-40 cursor-pointer shadow-2xs"
+            >
+              ← Précédent
+            </button>
+            <span class="text-xs font-bold text-gray-600">Page {{ currentPage }} sur {{ totalPages }}</span>
+            <button
+              @click="currentPage = Math.min(totalPages, currentPage + 1)"
+              :disabled="currentPage === totalPages"
+              class="px-4 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-40 cursor-pointer shadow-2xs"
+            >
+              Suivant →
+            </button>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div v-else class="bg-white rounded-3xl p-10 text-center border border-gray-200 space-y-2">
+          <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-xl mx-auto font-bold">
+            ⭐
+          </div>
+          <p class="text-sm font-bold text-gray-700">Aucune évaluation enregistrée pour le moment.</p>
+          <p class="text-xs text-gray-400">Les avis déposés par vos clients apparaîtront ici.</p>
         </div>
       </div>
-    </div>
+    </template>
   </div>
 </template>
