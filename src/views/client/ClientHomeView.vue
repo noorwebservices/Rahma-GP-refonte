@@ -111,6 +111,7 @@ const resetSearch = () => {
           <CitySelect
             id="depart"
             label="DÉPART"
+            placeholder="Choisir la ville de départ"
             v-model="departCity"
             @change="handleSearch"
           />
@@ -119,6 +120,7 @@ const resetSearch = () => {
           <CitySelect
             id="destination"
             label="DESTINATION"
+            placeholder="Choisir la ville de destination"
             v-model="destinationCity"
             @change="handleSearch"
           />

@@ -42,11 +42,13 @@ const touched = reactive({
 const isFormValid = computed(() => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   const cleanPhone = form.telephone.replace(/\s+/g, '')
+  const emailVal = form.email.trim()
+  const isEmailValid = !emailVal || emailRegex.test(emailVal)
   
   return (
     form.nom.trim().length >= 2 &&
     form.prenom.trim().length >= 3 &&
-    emailRegex.test(form.email.trim()) &&
+    isEmailValid &&
     cleanPhone.length >= 8 &&
     !!form.password &&
     form.password.length >= 6 &&
@@ -81,9 +83,7 @@ const validateField = (field) => {
 
   if (field === 'email') {
     const val = form.email.trim()
-    if (!val) {
-      errors.email = "L'adresse email est requise"
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+    if (val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
       errors.email = 'Adresse email invalide'
     } else {
       errors.email = ''
@@ -140,11 +140,14 @@ const handleSubmit = async () => {
   const payload = {
     nom: form.nom,
     prenom: form.prenom,
-    email: form.email,
     telephone: form.telephone.replace(/\s+/g, ''),
     adresse: form.adresse,
     password: form.password,
     password_confirmation: form.password_confirmation
+  }
+
+  if (form.email && form.email.trim()) {
+    payload.email = form.email.trim()
   }
 
   try {
@@ -214,7 +217,7 @@ const handleSubmit = async () => {
 
       <!-- Email -->
       <div class="space-y-1">
-        <label for="email" class="block text-xs font-semibold text-gray-700">Adresse email</label>
+        <label for="email" class="block text-xs font-semibold text-gray-700">Adresse email <span class="text-gray-400 font-normal">(Optionnel)</span></label>
         <input
           id="email"
           v-model="form.email"

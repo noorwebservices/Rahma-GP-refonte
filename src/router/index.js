@@ -10,7 +10,12 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/client',
+      name: 'portail',
+      component: HomeView,
+    },
+    {
+      path: '/portail',
+      redirect: '/',
     },
     {
       path: '/auth',
@@ -52,49 +57,57 @@ const router = createRouter({
         {
           path: 'booking/step-1',
           name: 'booking-step-1',
-          component: () => import('../views/client/BookingStep1View.vue')
+          component: () => import('../views/client/BookingStep1View.vue'),
+          meta: { requiresAuth: true }
         },
         {
           path: 'booking/step-2',
           name: 'booking-step-2',
-          component: () => import('../views/client/BookingStep2View.vue')
+          component: () => import('../views/client/BookingStep2View.vue'),
+          meta: { requiresAuth: true }
         },
         {
           path: 'booking/step-3',
           name: 'booking-step-3',
-          component: () => import('../views/client/BookingStep3View.vue')
+          component: () => import('../views/client/BookingStep3View.vue'),
+          meta: { requiresAuth: true }
         },
         {
           path: 'booking/step-4',
           name: 'booking-step-4',
-          component: () => import('../views/client/BookingStep4View.vue')
+          component: () => import('../views/client/BookingStep4View.vue'),
+          meta: { requiresAuth: true }
         },
         {
           path: 'messages',
           name: 'client-messages',
-          component: () => import('../views/client/MessagesView.vue')
+          component: () => import('../views/client/MessagesView.vue'),
+          meta: { requiresAuth: true }
         },
         {
           path: 'messages/:id',
           name: 'client-message-detail',
-          component: () => import('../views/client/MessageDetailView.vue')
+          component: () => import('../views/client/MessageDetailView.vue'),
+          meta: { requiresAuth: true }
         },
         {
           path: 'colis',
           name: 'client-colis',
-          component: () => import('../views/client/ColisView.vue')
+          component: () => import('../views/client/ColisView.vue'),
+          meta: { requiresAuth: true }
         },
         {
           path: 'colis/:id',
           name: 'client-colis-detail',
           component: () => import('../views/client/ColisDetailView.vue'),
-          meta: { headerTitle: 'Suivi de livraison', headerSubtitle: '#RS-7729' }
+          meta: { requiresAuth: true, headerTitle: 'Suivi de livraison', headerSubtitle: '#RS-7729' }
         }
       ]
     },
     {
       path: '/voyageur',
       component: () => import('../views/voyageur/VoyageurLayout.vue'),
+      meta: { requiresAuth: true },
       children: [
         {
           path: '',
@@ -180,7 +193,9 @@ import { clearHeaderRoute } from '@/utils/headerState'
 router.beforeEach((to, from) => {
   clearHeaderRoute()
   const token = localStorage.getItem('rahma_token') || localStorage.getItem('token')
-  if (to.meta.requiresAuth && !token) {
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+
+  if (requiresAuth && !token) {
     return { name: 'login' }
   }
 })

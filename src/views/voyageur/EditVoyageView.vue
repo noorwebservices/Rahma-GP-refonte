@@ -180,12 +180,12 @@ const handlePublishVoyage = async () => {
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="space-y-1.5">
           <label class="block text-xs font-bold text-gray-700">Ville de Départ</label>
-          <CitySelect v-model="form.ville_depart" />
+          <CitySelect v-model="form.ville_depart" placeholder="Choisir la ville de départ" />
         </div>
 
         <div class="space-y-1.5">
           <label class="block text-xs font-bold text-gray-700">Ville de Destination</label>
-          <CitySelect v-model="form.ville_destination" />
+          <CitySelect v-model="form.ville_destination" placeholder="Choisir la ville de destination" />
         </div>
       </div>
 
@@ -201,14 +201,23 @@ const handlePublishVoyage = async () => {
         </div>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="space-y-1.5">
           <label class="block text-xs font-bold text-gray-700">Capacité Bagages (Kg)</label>
           <input v-model.number="form.capacite_totale" type="number" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-4 py-2.5 text-xs text-gray-800 outline-none" />
         </div>
 
         <div class="space-y-1.5">
-          <label class="block text-xs font-bold text-gray-700">Prix au Kg (F CFA)</label>
+          <label class="block text-xs font-bold text-gray-700">Devise du tarif</label>
+          <select v-model="form.devise" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold text-gray-800 outline-none">
+            <option value="XOF">FCFA (XOF)</option>
+            <option value="EUR">Euro (€)</option>
+            <option value="USD">Dollar US ($)</option>
+          </select>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block text-xs font-bold text-gray-700">Prix au Kg ({{ form.devise }})</label>
           <input v-model.number="form.prix_kg" type="number" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-4 py-2.5 text-xs text-gray-800 outline-none" />
         </div>
       </div>

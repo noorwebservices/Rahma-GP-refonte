@@ -88,12 +88,22 @@ onMounted(async () => {
         try {
           const evalRes = await fetchVoyageurEvaluations(vId)
           if (evalRes) {
-            voyageurMoyenne.value = evalRes.moyenne_notes || evalRes.data?.moyenne_notes || 4.9
-            voyageurTotalCount.value = evalRes.total_evaluations || evalRes.data?.total_evaluations || 0
-            voyageurEvaluations.value = evalRes.data?.data || evalRes.data || (Array.isArray(evalRes) ? evalRes : [])
+            const evList = evalRes.data?.data || evalRes.data || (Array.isArray(evalRes) ? evalRes : [])
+            voyageurEvaluations.value = evList
+            voyageurTotalCount.value = evalRes.total_evaluations || evalRes.data?.total_evaluations || evList.length || 0
+            if (evalRes.moyenne_notes || evalRes.data?.moyenne_notes) {
+              voyageurMoyenne.value = Number(evalRes.moyenne_notes || evalRes.data?.moyenne_notes).toFixed(1)
+            } else if (evList.length > 0) {
+              const sum = evList.reduce((acc, curr) => acc + (Number(curr.note) || 0), 0)
+              voyageurMoyenne.value = (sum / evList.length).toFixed(1)
+            } else {
+              voyageurMoyenne.value = null
+            }
           }
         } catch (e) {
-          // fallback defaults
+          voyageurMoyenne.value = null
+          voyageurTotalCount.value = 0
+          voyageurEvaluations.value = []
         }
       }
     } else {
@@ -107,6 +117,24 @@ onMounted(async () => {
 })
 
 const startBooking = () => {
+  const token = localStorage.getItem('rahma_token') || localStorage.getItem('token')
+  if (!token) {
+    Swal.fire({
+      icon: 'info',
+      title: 'Connexion requise',
+      text: 'Veuillez vous connecter pour réserver ce voyage.',
+      confirmButtonText: 'Se connecter',
+      confirmButtonColor: '#053754',
+      showCancelButton: true,
+      cancelButtonText: 'Annuler'
+    }).then((res) => {
+      if (res.isConfirmed) {
+        router.push({ name: 'login' })
+      }
+    })
+    return
+  }
+
   if (voyage.value) {
     sessionStorage.setItem('rahma_active_voyage_id', voyage.value.id)
     router.push('/client/booking/step-1')

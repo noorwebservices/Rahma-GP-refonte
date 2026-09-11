@@ -5,11 +5,15 @@ import { City, Country } from 'country-state-city'
 const props = defineProps({
   modelValue: {
     type: String,
-    default: 'Dakar'
+    default: ''
   },
   label: {
     type: String,
     default: ''
+  },
+  placeholder: {
+    type: String,
+    default: 'Choisir la ville'
   },
   id: {
     type: String,
@@ -76,15 +80,15 @@ onUnmounted(() => {
 })
 
 const selectedCityObj = computed(() => {
-  if (!props.modelValue) return priorityCities[0]
-  const q = props.modelValue.toLowerCase()
+  if (!props.modelValue || !props.modelValue.trim()) return null
+  const q = props.modelValue.toLowerCase().trim()
   const matchedP = priorityCities.find(c => c.city.toLowerCase() === q)
   if (matchedP) return matchedP
 
   const matchedA = allCitiesData.value.find(c => c.city.toLowerCase() === q)
   if (matchedA) return matchedA
 
-  return { city: props.modelValue, country: '', flag: '🌍' }
+  return { city: props.modelValue, country: '', flag: '📍' }
 })
 
 const filteredCities = computed(() => {
@@ -123,14 +127,21 @@ const handleClickOutside = (e) => {
     <button
       type="button"
       @click="isOpen = !isOpen"
-      class="w-full bg-[#EAEFF4] hover:bg-gray-200/80 border border-gray-200 rounded-xl px-3.5 py-3 flex items-center justify-between text-xs sm:text-sm font-bold text-[#074C72] transition-colors cursor-pointer outline-none shadow-2xs"
+      class="w-full bg-[#EAEFF4] hover:bg-gray-200/80 border border-gray-200 rounded-xl px-3.5 py-3 flex items-center justify-between text-xs sm:text-sm font-bold transition-colors cursor-pointer outline-none shadow-2xs"
     >
       <div class="flex items-center gap-2.5 truncate">
-        <span class="text-base leading-none">{{ selectedCityObj.flag }}</span>
-        <span class="truncate font-extrabold text-[#074C72]">{{ selectedCityObj.city }}</span>
-        <span v-if="selectedCityObj.country" class="text-[11px] font-normal text-gray-500 truncate">
-          ({{ selectedCityObj.country }})
-        </span>
+        <span class="text-base leading-none">{{ selectedCityObj ? selectedCityObj.flag : '📍' }}</span>
+        <template v-if="selectedCityObj">
+          <span class="truncate font-extrabold text-[#074C72]">{{ selectedCityObj.city }}</span>
+          <span v-if="selectedCityObj.country" class="text-[11px] font-normal text-gray-500 truncate">
+            ({{ selectedCityObj.country }})
+          </span>
+        </template>
+        <template v-else>
+          <span class="truncate font-semibold text-gray-400">
+            {{ placeholder || 'Choisir la ville' }}
+          </span>
+        </template>
       </div>
 
       <svg
@@ -177,6 +188,18 @@ const handleClickOutside = (e) => {
 
         <!-- Scrollable Cities List -->
         <div class="max-h-60 overflow-y-auto divide-y divide-gray-50 no-scrollbar">
+          <!-- Reset / Choisir la ville option -->
+          <button
+            type="button"
+            @click="selectCity({ city: '', country: '', flag: '📍' })"
+            class="w-full px-4 py-2 flex items-center justify-between text-left hover:bg-[#074C72]/5 transition-colors cursor-pointer text-gray-400 italic bg-gray-50/50"
+          >
+            <div class="flex items-center gap-2.5 truncate">
+              <span class="text-base leading-none">📍</span>
+              <span class="text-xs sm:text-sm font-semibold">{{ placeholder || 'Choisir la ville' }}</span>
+            </div>
+          </button>
+
           <button
             v-for="item in filteredCities"
             :key="item.city + '-' + item.iso"
@@ -184,7 +207,7 @@ const handleClickOutside = (e) => {
             @click="selectCity(item)"
             :class="[
               'w-full px-4 py-2.5 flex items-center justify-between text-left hover:bg-[#074C72]/5 transition-colors cursor-pointer',
-              modelValue.toLowerCase() === item.city.toLowerCase() ? 'bg-[#074C72]/10 font-bold text-[#074C72]' : 'text-gray-700'
+              modelValue && modelValue.toLowerCase() === item.city.toLowerCase() ? 'bg-[#074C72]/10 font-bold text-[#074C72]' : 'text-gray-700'
             ]"
           >
             <div class="flex items-center gap-2.5 truncate">

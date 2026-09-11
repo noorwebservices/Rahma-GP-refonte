@@ -29,6 +29,84 @@ watch(modeActuel, (newMode) => {
 }, { immediate: true })
 const showVoyageurModal = ref(false)
 
+// Edit Profile Form State
+const editForm = reactive({
+  nom: '',
+  prenom: '',
+  email: '',
+  telephone: '',
+  adresse: ''
+})
+
+const editErrors = reactive({
+  nom: '',
+  prenom: '',
+  email: '',
+  telephone: ''
+})
+
+// Voyageur Profile Form State
+const voyageurForm = reactive({
+  type_piece: 'cni',
+  numero_piece: '',
+  cni_recto: null,
+  cni_verso: null,
+  mode_client: false
+})
+
+const voyageurErrors = reactive({
+  type_piece: '',
+  numero_piece: '',
+  cni_recto: '',
+  cni_verso: ''
+})
+
+const rectoFileName = ref('')
+const versoFileName = ref('')
+
+const formatImageUrl = (url) => {
+  if (!url) return null
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+    return url
+  }
+  const cleanUrl = url.replace(/^\//, '')
+  if (cleanUrl.startsWith('storage/')) {
+    return `http://localhost:8000/${cleanUrl}`
+  }
+  return `http://localhost:8000/storage/${cleanUrl}`
+}
+
+const rectoUrl = computed(() => {
+  if (!user.value?.voyageur) return null
+  const v = user.value.voyageur
+  return v.cni_recto || v.piece_recto || v.photo_recto || null
+})
+
+const versoUrl = computed(() => {
+  if (!user.value?.voyageur) return null
+  const v = user.value.voyageur
+  return v.cni_verso || v.piece_verso || v.photo_verso || null
+})
+
+const imagePreviewModal = reactive({
+  isOpen: false,
+  url: '',
+  title: ''
+})
+
+const openImagePreview = (url, title) => {
+  if (!url) return
+  imagePreviewModal.url = formatImageUrl(url)
+  imagePreviewModal.title = title
+  imagePreviewModal.isOpen = true
+}
+
+const closeImagePreview = () => {
+  imagePreviewModal.isOpen = false
+  imagePreviewModal.url = ''
+  imagePreviewModal.title = ''
+}
+
 const profileRevenusList = ref([])
 
 const loadProfileRevenus = async () => {
@@ -146,7 +224,7 @@ const validateEditForm = () => {
 
   if (!editForm.nom.trim()) { editErrors.nom = 'Le nom est requis'; valid = false }
   if (!editForm.prenom.trim()) { editErrors.prenom = 'Le prénom est requis'; valid = false }
-  if (!editForm.email) { editErrors.email = "L'email est requis"; valid = false }
+  if (editForm.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editForm.email.trim())) { editErrors.email = "Adresse email invalide"; valid = false }
   if (!editForm.telephone) { editErrors.telephone = 'Le téléphone est requis'; valid = false }
 
   return valid
@@ -463,20 +541,120 @@ const handleLogout = async () => {
             </div>
           </div>
 
-          <!-- Documents previews -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="border border-gray-200 rounded-2xl p-4 text-center bg-gray-50">
-              <p class="text-xs font-semibold text-gray-600 mb-2">Pièce CNI Recto</p>
-              <div class="h-28 bg-gray-200 rounded-xl flex items-center justify-center text-xs text-gray-500 font-medium overflow-hidden">
-                <span v-if="user.voyageur.cni_recto" class="text-principal-dark truncate px-2 font-mono text-[11px]">{{ user.voyageur.cni_recto }}</span>
-                <span v-else>Non disponible</span>
+          <!-- Documents previews section -->
+          <div class="space-y-3 pt-2">
+            <h4 class="text-xs sm:text-sm font-bold text-principal-dark flex items-center gap-2">
+              <svg class="w-4 h-4 text-principal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span>Pièces d'identité téléversées</span>
+            </h4>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Recto Card -->
+              <div class="border border-gray-200 rounded-2xl p-4 bg-gray-50 flex flex-col justify-between space-y-3 hover:border-principal/30 transition-all shadow-xs">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-gray-700 uppercase tracking-wide flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-principal"></span>
+                    Recto ({{ user.voyageur.type_piece?.toUpperCase() || 'CNI' }})
+                  </span>
+                  <span v-if="rectoUrl" class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-100">Fourni</span>
+                  <span v-else class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-100">Non fourni</span>
+                </div>
+
+                <div class="relative h-44 sm:h-52 bg-gray-100 rounded-xl overflow-hidden group flex items-center justify-center border border-gray-200">
+                  <template v-if="rectoUrl">
+                    <img 
+                      :src="formatImageUrl(rectoUrl)" 
+                      alt="CNI Recto"
+                      class="w-full h-full object-contain p-1.5 transition-transform duration-300 group-hover:scale-105"
+                      @error="(e) => e.target.style.display = 'none'"
+                    />
+                    <div 
+                      @click="openImagePreview(rectoUrl, `Pièce d'identité - Recto (${user.voyageur.numero_piece})`)"
+                      class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white cursor-pointer gap-1.5"
+                    >
+                      <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/>
+                      </svg>
+                      <span class="text-xs font-bold">Cliquer pour agrandir</span>
+                    </div>
+                  </template>
+                  <template v-else>
+                    <div class="text-center p-4 space-y-1">
+                      <svg class="w-10 h-10 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0" />
+                      </svg>
+                      <p class="text-xs font-medium text-gray-400">Aucune image disponible</p>
+                    </div>
+                  </template>
+                </div>
+
+                <div v-if="rectoUrl" class="flex justify-end pt-1">
+                  <button 
+                    type="button"
+                    @click="openImagePreview(rectoUrl, `Pièce d'identité - Recto (${user.voyageur.numero_piece})`)"
+                    class="text-xs font-bold text-principal hover:text-principal-dark flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>Agrandir l'image</span>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                    </svg>
+                  </button>
+                </div>
               </div>
-            </div>
-            <div class="border border-gray-200 rounded-2xl p-4 text-center bg-gray-50">
-              <p class="text-xs font-semibold text-gray-600 mb-2">Pièce CNI Verso</p>
-              <div class="h-28 bg-gray-200 rounded-xl flex items-center justify-center text-xs text-gray-500 font-medium overflow-hidden">
-                <span v-if="user.voyageur.cni_verso" class="text-principal-dark truncate px-2 font-mono text-[11px]">{{ user.voyageur.cni_verso }}</span>
-                <span v-else>Non disponible</span>
+
+              <!-- Verso Card -->
+              <div class="border border-gray-200 rounded-2xl p-4 bg-gray-50 flex flex-col justify-between space-y-3 hover:border-principal/30 transition-all shadow-xs">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-gray-700 uppercase tracking-wide flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-principal"></span>
+                    Verso ({{ user.voyageur.type_piece?.toUpperCase() || 'CNI' }})
+                  </span>
+                  <span v-if="versoUrl" class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-100">Fourni</span>
+                  <span v-else class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-100">Non fourni</span>
+                </div>
+
+                <div class="relative h-44 sm:h-52 bg-gray-100 rounded-xl overflow-hidden group flex items-center justify-center border border-gray-200">
+                  <template v-if="versoUrl">
+                    <img 
+                      :src="formatImageUrl(versoUrl)" 
+                      alt="CNI Verso"
+                      class="w-full h-full object-contain p-1.5 transition-transform duration-300 group-hover:scale-105"
+                      @error="(e) => e.target.style.display = 'none'"
+                    />
+                    <div 
+                      @click="openImagePreview(versoUrl, `Pièce d'identité - Verso (${user.voyageur.numero_piece})`)"
+                      class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white cursor-pointer gap-1.5"
+                    >
+                      <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/>
+                      </svg>
+                      <span class="text-xs font-bold">Cliquer pour agrandir</span>
+                    </div>
+                  </template>
+                  <template v-else>
+                    <div class="text-center p-4 space-y-1">
+                      <svg class="w-10 h-10 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0" />
+                      </svg>
+                      <p class="text-xs font-medium text-gray-400">Aucune image disponible</p>
+                    </div>
+                  </template>
+                </div>
+
+                <div v-if="versoUrl" class="flex justify-end pt-1">
+                  <button 
+                    type="button"
+                    @click="openImagePreview(versoUrl, `Pièce d'identité - Verso (${user.voyageur.numero_piece})`)"
+                    class="text-xs font-bold text-principal hover:text-principal-dark flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>Agrandir l'image</span>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -723,6 +901,54 @@ const handleLogout = async () => {
         </form>
       </div>
     </div>
+
+    <!-- Lightbox Image Preview Modal -->
+    <div 
+      v-if="imagePreviewModal.isOpen" 
+      @click.self="closeImagePreview"
+      class="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200"
+    >
+      <div class="relative max-w-4xl w-full bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+        <!-- Header -->
+        <div class="px-6 py-4 bg-principal text-white flex items-center justify-between border-b border-white/10">
+          <h3 class="text-sm font-bold truncate pr-4">{{ imagePreviewModal.title }}</h3>
+          <button 
+            @click="closeImagePreview"
+            class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Image Body -->
+        <div class="p-4 bg-slate-900 flex-1 overflow-auto flex items-center justify-center min-h-[300px]">
+          <img 
+            :src="imagePreviewModal.url" 
+            :alt="imagePreviewModal.title"
+            class="max-w-full max-h-[72vh] object-contain rounded-xl shadow-lg border border-white/10"
+          />
+        </div>
+
+        <!-- Footer -->
+        <div class="px-6 py-3 bg-gray-50 flex items-center justify-between text-xs text-gray-500 border-t border-gray-100">
+          <span class="font-medium text-gray-600">Prévisualisation Document</span>
+          <a 
+            :href="imagePreviewModal.url" 
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-principal font-bold hover:underline flex items-center gap-1"
+          >
+            <span>Ouvrir l'image dans un nouvel onglet</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
     <!-- Dynamic Bottom Navigation Bar based on current mode -->
     <VoyageurBottomNav v-if="modeActuel === 'voyageur'" />
     <ClientBottomNav v-else />

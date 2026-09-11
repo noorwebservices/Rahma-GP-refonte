@@ -36,29 +36,19 @@ const minDateDepart = computed(() => {
 const form = reactive({
   adresse_depot_id: '',
   adresse_recuperation_id: '',
-  pays_depart: 'Sénégal',
-  ville_depart: 'Dakar',
-  pays_destination: 'France',
-  ville_destination: 'Paris',
+  pays_depart: '',
+  ville_depart: '',
+  pays_destination: '',
+  ville_destination: '',
   date_depart: '',
   date_arrivee: '',
-  capacite_totale: 25,
-  prix_kg: 8500,
-  prix_objet: 15000,
+  capacite_totale: null,
+  prix_kg: null,
+  prix_objet: null,
   devise: 'XOF',
-  description: 'Voyage régulier Dakar - Paris. Bagages sécurisés et scellés.',
-  objets_autorises: [
-    'Vêtements & tissus',
-    'Électronique & téléphones',
-    'Documents & papiers',
-    'Cosmétiques & soins'
-  ],
-  objets_interdits: [
-    'Aliments périssables',
-    'Liquides non scellés > 100ml',
-    'Substances inflammables',
-    'Objets tranchants'
-  ],
+  description: '',
+  objets_autorises: [],
+  objets_interdits: [],
   statut: 'brouillon'
 })
 
@@ -392,7 +382,7 @@ const handleSaveVoyage = async (targetStatut) => {
             <label class="block text-xs font-bold text-gray-700">Ville de Départ</label>
             <CitySelect
               v-model="form.ville_depart"
-              placeholder="Rechercher une ville de départ..."
+              placeholder="Choisir la ville de départ"
             />
           </div>
 
@@ -401,7 +391,7 @@ const handleSaveVoyage = async (targetStatut) => {
             <label class="block text-xs font-bold text-gray-700">Ville de Destination</label>
             <CitySelect
               v-model="form.ville_destination"
-              placeholder="Rechercher une ville de destination..."
+              placeholder="Choisir la ville de destination"
             />
           </div>
         </div>
@@ -447,19 +437,33 @@ const handleSaveVoyage = async (targetStatut) => {
         <h3 class="text-base font-extrabold text-[#053754] border-b border-gray-100 pb-2">3. Capacité bagages & Tarification</h3>
 
         <div class="space-y-4">
-          <div class="space-y-1.5">
-            <label class="block text-xs font-bold text-gray-700">Capacité totale disponible (en Kg)</label>
-            <input
-              v-model.number="form.capacite_totale"
-              type="number"
-              placeholder="ex: 25"
-              class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 outline-none focus:bg-white focus:ring-2 focus:ring-[#074C72]/20"
-            />
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold text-gray-700">Capacité totale disponible (en Kg) *</label>
+              <input
+                v-model.number="form.capacite_totale"
+                type="number"
+                placeholder="ex: 25"
+                class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 outline-none focus:bg-white focus:ring-2 focus:ring-[#074C72]/20"
+              />
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold text-gray-700">Devise du tarif *</label>
+              <select
+                v-model="form.devise"
+                class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 font-bold outline-none focus:bg-white focus:ring-2 focus:ring-[#074C72]/20"
+              >
+                <option value="XOF">FCFA (XOF) - Franc CFA</option>
+                <option value="EUR">EUR (€) - Euro</option>
+                <option value="USD">USD ($) - Dollar US</option>
+              </select>
+            </div>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="space-y-1.5">
-              <label class="block text-xs font-bold text-gray-700">Prix au Kg ({{ form.devise }})</label>
+              <label class="block text-xs font-bold text-gray-700">Prix au Kg ({{ form.devise }}) *</label>
               <input
                 v-model.number="form.prix_kg"
                 type="number"
@@ -469,7 +473,7 @@ const handleSaveVoyage = async (targetStatut) => {
             </div>
 
             <div class="space-y-1.5">
-              <label class="block text-xs font-bold text-gray-700">Prix par objet spécifique (Optionnel)</label>
+              <label class="block text-xs font-bold text-gray-700">Prix par objet spécifique ({{ form.devise }})</label>
               <input
                 v-model.number="form.prix_objet"
                 type="number"

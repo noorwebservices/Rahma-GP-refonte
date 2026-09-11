@@ -48,7 +48,11 @@ const formatPhotoUrl = (url) => {
   if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
     return url
   }
-  return `http://localhost:8000/${url.replace(/^\//, '')}`
+  const cleanUrl = url.replace(/^\//, '')
+  if (cleanUrl.startsWith('storage/')) {
+    return `http://localhost:8000/${cleanUrl}`
+  }
+  return `http://localhost:8000/storage/${cleanUrl}`
 }
 
 const loadDemande = async () => {

@@ -106,7 +106,7 @@ const loadVoyages = async () => {
 }
 
 const pendingDemandesCount = ref(0)
-const voyageurRating = ref('4.9')
+const voyageurRating = ref(null)
 const voyageurReviewsCount = ref(0)
 const rawRevenusList = ref([])
 
@@ -159,14 +159,14 @@ const loadEvaluations = async () => {
       const items = Array.isArray(res.data) ? res.data : (res.data?.data || (Array.isArray(res) ? res : []))
       voyageurReviewsCount.value = items.length
       if (items.length > 0) {
-        const sum = items.reduce((acc, curr) => acc + (Number(curr.note) || 5), 0)
+        const sum = items.reduce((acc, curr) => acc + (Number(curr.note) || 0), 0)
         voyageurRating.value = (sum / items.length).toFixed(1)
       } else {
-        voyageurRating.value = '5.0'
+        voyageurRating.value = null
       }
     }
   } catch (err) {
-    voyageurRating.value = '4.9'
+    voyageurRating.value = null
     voyageurReviewsCount.value = 0
   }
 }
@@ -235,19 +235,19 @@ const wizardStep = ref(1)
 const form = reactive({
   adresse_depot_id: '',
   adresse_recuperation_id: '',
-  pays_depart: 'Sénégal',
-  ville_depart: 'Dakar',
-  pays_destination: 'France',
-  ville_destination: 'Paris',
+  pays_depart: '',
+  ville_depart: '',
+  pays_destination: '',
+  ville_destination: '',
   date_depart: '',
   date_arrivee: '',
-  capacite_totale: 25,
-  prix_kg: 8500,
-  prix_objet: 15000,
+  capacite_totale: null,
+  prix_kg: null,
+  prix_objet: null,
   devise: 'XOF',
   description: '',
-  objets_autorises: ['Vêtements & tissus', 'Électronique & téléphones', 'Documents & papiers'],
-  objets_interdits: ['Aliments périssables', 'Liquides non scellés > 100ml', 'Substances inflammables'],
+  objets_autorises: [],
+  objets_interdits: [],
   statut: 'brouillon'
 })
 
@@ -257,22 +257,24 @@ const adressesRecuperation = ref([])
 const loadAddresses = async () => {
   try {
     const resDepot = await fetchAdresseDepots()
-    if (resDepot && resDepot.data) adressesDepot.value = resDepot.data
+    if (resDepot && resDepot.data) {
+      adressesDepot.value = Array.isArray(resDepot.data) ? resDepot.data : (resDepot.data.data || [])
+    } else {
+      adressesDepot.value = []
+    }
   } catch (err) {
-    adressesDepot.value = [
-      { id: '01a0828c-8880-7190-be0a-5e3294225ecd', adresse: '15 Rue de Rivoli, Agence Relais Rahma', ville: 'Paris', pays: 'France' },
-      { id: '01a0828c-8880-7190-be0a-5e3294225ece', adresse: 'Point Relais Rahma - Parcelles Assainies', ville: 'Dakar', pays: 'Sénégal' }
-    ]
+    adressesDepot.value = []
   }
 
   try {
     const resRecup = await fetchAdresseRecuperations()
-    if (resRecup && resRecup.data) adressesRecuperation.value = resRecup.data
+    if (resRecup && resRecup.data) {
+      adressesRecuperation.value = Array.isArray(resRecup.data) ? resRecup.data : (resRecup.data.data || [])
+    } else {
+      adressesRecuperation.value = []
+    }
   } catch (err) {
-    adressesRecuperation.value = [
-      { id: '01a0828c-888a-724f-a324-ce1f1cdf2a6b', adresse: 'Agence Rahma Paris 10ème (Gare du Nord)', ville: 'Paris', pays: 'France' },
-      { id: '01a0828c-888a-724f-a324-ce1f1cdf2a6c', adresse: 'Aéroport Blaise Diagne (Zone Arrivée)', ville: 'Dakar', pays: 'Sénégal' }
-    ]
+    adressesRecuperation.value = []
   }
 
   if (adressesDepot.value.length > 0 && !form.adresse_depot_id) {
@@ -290,19 +292,19 @@ const openCreateModal = () => {
   wizardStep.value = 1
   form.adresse_depot_id = adressesDepot.value[0]?.id || ''
   form.adresse_recuperation_id = adressesRecuperation.value[0]?.id || ''
-  form.pays_depart = 'Sénégal'
-  form.ville_depart = 'Dakar'
-  form.pays_destination = 'France'
-  form.ville_destination = 'Paris'
+  form.pays_depart = ''
+  form.ville_depart = ''
+  form.pays_destination = ''
+  form.ville_destination = ''
   form.date_depart = ''
   form.date_arrivee = ''
-  form.capacite_totale = 25
-  form.prix_kg = 8500
-  form.prix_objet = 15000
+  form.capacite_totale = null
+  form.prix_kg = null
+  form.prix_objet = null
   form.devise = 'XOF'
-  form.description = 'Voyage régulier. Bagages sécurisés.'
-  form.objets_autorises = ['Vêtements & tissus', 'Électronique & téléphones', 'Documents & papiers']
-  form.objets_interdits = ['Aliments périssables', 'Liquides non scellés > 100ml', 'Substances inflammables']
+  form.description = ''
+  form.objets_autorises = []
+  form.objets_interdits = []
   form.statut = 'brouillon'
   showWizardModal.value = true
 }
@@ -639,7 +641,11 @@ const goToDemandes = () => router.push('/voyageur/demandes')
       <div @click="router.push('/voyageur/evaluations')" class="bg-white rounded-2xl p-4 border border-gray-200 shadow-2xs hover:border-[#053754] transition-all cursor-pointer space-y-1 group">
         <span class="text-[11px] font-bold text-gray-400 block uppercase group-hover:text-[#053754]">Note Voyageur</span>
         <div class="text-base sm:text-lg font-black text-[#053754] flex items-center gap-1.5">
-          <span>⭐ {{ voyageurRating }}</span>
+          <span v-if="voyageurRating !== null" class="flex items-center gap-1">
+            <span class="text-amber-500">⭐</span>
+            <span>{{ voyageurRating }} / 5</span>
+          </span>
+          <span v-else class="text-xs sm:text-sm font-bold text-gray-400">Aucun avis</span>
           <span class="text-xs text-gray-400 font-medium">({{ voyageurReviewsCount }} {{ voyageurReviewsCount > 1 ? 'avis' : 'avis' }})</span>
         </div>
         <span class="text-[10px] text-sky-700 font-bold underline block">Voir mes évaluations ➔</span>
@@ -842,11 +848,11 @@ const goToDemandes = () => router.push('/voyageur/demandes')
           <div class="space-y-3">
             <div>
               <label class="block text-xs font-bold text-gray-700 mb-1">Ville de Départ</label>
-              <CitySelect v-model="form.ville_depart" @change="onVoyageDepartCitySelect" />
+              <CitySelect v-model="form.ville_depart" placeholder="Choisir la ville de départ" @change="onVoyageDepartCitySelect" />
             </div>
             <div>
               <label class="block text-xs font-bold text-gray-700 mb-1">Ville de Destination</label>
-              <CitySelect v-model="form.ville_destination" @change="onVoyageDestinationCitySelect" />
+              <CitySelect v-model="form.ville_destination" placeholder="Choisir la ville de destination" @change="onVoyageDestinationCitySelect" />
             </div>
           </div>
         </div>
@@ -870,17 +876,27 @@ const goToDemandes = () => router.push('/voyageur/demandes')
         <div v-else-if="wizardStep === 3" class="space-y-4">
           <h4 class="text-sm font-extrabold text-[#053754]">3. Capacité et Tarification</h4>
           <div class="space-y-3">
-            <div>
-              <label class="block text-xs font-bold text-gray-700 mb-1">Capacité disponible (Kg)</label>
-              <input v-model.number="form.capacite_totale" type="number" placeholder="ex: 25" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 outline-none" />
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1">Capacité disponible (Kg) *</label>
+                <input v-model.number="form.capacite_totale" type="number" placeholder="ex: 25" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 outline-none" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1">Devise du tarif *</label>
+                <select v-model="form.devise" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-gray-800 outline-none">
+                  <option value="XOF">FCFA (XOF) - Franc CFA</option>
+                  <option value="EUR">EUR (€) - Euro</option>
+                  <option value="USD">USD ($) - Dollar US</option>
+                </select>
+              </div>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label class="block text-xs font-bold text-gray-700 mb-1">Prix au Kg ({{ form.devise }})</label>
+                <label class="block text-xs font-bold text-gray-700 mb-1">Prix au Kg ({{ form.devise }}) *</label>
                 <input v-model.number="form.prix_kg" type="number" placeholder="ex: 8500" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 outline-none" />
               </div>
               <div>
-                <label class="block text-xs font-bold text-gray-700 mb-1">Prix par objet spécifique</label>
+                <label class="block text-xs font-bold text-gray-700 mb-1">Prix par objet ({{ form.devise }})</label>
                 <input v-model.number="form.prix_objet" type="number" placeholder="ex: 15000" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 outline-none" />
               </div>
             </div>

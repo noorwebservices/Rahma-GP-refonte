@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue'
 import authService from '@/services/auth/authService'
+import { translateErrorMessage } from '@/utils/errorMessageHelper'
 
 const storedToken = localStorage.getItem('rahma_token') || localStorage.getItem('token') || ''
 const storedUser = localStorage.getItem('rahma_user') ? JSON.parse(localStorage.getItem('rahma_user')) : null
@@ -43,7 +44,12 @@ export function useAuth() {
     error.value = null
     successMessage.value = null
     try {
-      const res = await authService.login(credentials)
+      const payload = {
+        ...credentials,
+        password: credentials.password || credentials.mot_de_passe,
+        mot_de_passe: credentials.password || credentials.mot_de_passe
+      }
+      const res = await authService.login(payload)
       if (res.access_token && res.user) {
         setAuthData(res.access_token, res.user)
         successMessage.value = res.message || 'Connexion réussie'
@@ -52,7 +58,7 @@ export function useAuth() {
         throw new Error(res.message || 'Échec de la connexion')
       }
     } catch (err) {
-      error.value = err.message || err.error || 'Erreur lors de la connexion'
+      error.value = translateErrorMessage(err)
       throw err
     } finally {
       isLoading.value = false
@@ -64,7 +70,14 @@ export function useAuth() {
     error.value = null
     successMessage.value = null
     try {
-      const res = await authService.register(userData)
+      const payload = {
+        ...userData,
+        password: userData.password,
+        password_confirmation: userData.password_confirmation,
+        mot_de_passe: userData.password,
+        mot_de_passe_confirmation: userData.password_confirmation
+      }
+      const res = await authService.register(payload)
       if (res.access_token && res.user) {
         setAuthData(res.access_token, res.user)
         successMessage.value = res.message || 'Inscription réussie'
@@ -73,7 +86,7 @@ export function useAuth() {
         throw new Error(res.message || "Échec de l'inscription")
       }
     } catch (err) {
-      error.value = err.message || err.error || "Erreur lors de l'inscription"
+      error.value = translateErrorMessage(err)
       throw err
     } finally {
       isLoading.value = false
@@ -109,7 +122,7 @@ export function useAuth() {
       successMessage.value = res.message || 'Profil mis à jour'
       return res
     } catch (err) {
-      error.value = err.message || 'Erreur de mise à jour du profil'
+      error.value = translateErrorMessage(err)
       throw err
     } finally {
       isLoading.value = false
@@ -128,7 +141,7 @@ export function useAuth() {
       successMessage.value = res.message || 'Profil Voyageur créé avec succès'
       return res
     } catch (err) {
-      error.value = err.message || 'Erreur lors de la création du profil Voyageur'
+      error.value = translateErrorMessage(err)
       throw err
     } finally {
       isLoading.value = false
@@ -148,7 +161,7 @@ export function useAuth() {
       successMessage.value = res.message || 'Mode basculé avec succès'
       return res
     } catch (err) {
-      error.value = err.message || 'Erreur lors du changement de mode'
+      error.value = translateErrorMessage(err)
       throw err
     } finally {
       isLoading.value = false

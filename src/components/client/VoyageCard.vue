@@ -58,8 +58,9 @@ const pointCollecte = computed(() => {
 const voyageurNote = computed(() => {
   const v = props.voyage
   const n = v.moyenne_notes ?? v.voyageur?.moyenne_notes ?? v.voyageur?.note_moyenne ?? v.note
-  if (n !== undefined && n !== null && n !== '' && n !== '4.9') {
-    return Number(n) > 0 ? Number(n).toFixed(1) : '0.0'
+  if (n !== undefined && n !== null && n !== '') {
+    const val = Number(n)
+    return !isNaN(val) && val > 0 ? val.toFixed(1) : '0.0'
   }
   return '0.0'
 })
