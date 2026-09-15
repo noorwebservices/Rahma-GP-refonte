@@ -1,7 +1,7 @@
 <script setup>
-import image1Coupe from '@/assets/images/image-1-coupé.png'
-import image2Coupe from '@/assets/images/image-2-coupé.png'
-import image3Coupe from '@/assets/images/image-3-coupé.png'
+import image1Coupe from '@/assets/images/image-1-coupé.png'
+import image2Coupe from '@/assets/images/image-2-coupé.png'
+import image3Coupe from '@/assets/images/image-3-coupé.png'
 import bannerAPropos from '@/assets/images/banner-a-propos.png'
 import bateauTrain from '@/assets/images/bateau-train.png'
 import packageImg from '@/assets/images/package.png'

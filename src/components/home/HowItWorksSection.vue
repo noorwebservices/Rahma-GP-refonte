@@ -1,5 +1,5 @@
 <script setup>
-import bannerCommentCaMarche from '@/assets/images/banner-comment-ça-marche.png'
+import bannerCommentCaMarche from '@/assets/images/banner-comment-ça-marche.png'
 
 const steps = [
   {
