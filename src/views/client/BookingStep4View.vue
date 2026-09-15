@@ -5,6 +5,7 @@ import Swal from 'sweetalert2'
 import BookingProgressBar from '@/components/client/BookingProgressBar.vue'
 import CountryFlag from '@/components/common/CountryFlag.vue'
 import { createReservation } from '@/services/reservationService'
+import { initiateWavePayment } from '@/services/paiementService'
 import { formatVoyageDate, isElectronicType } from '@/utils/flagHelper'
 import { decodeId, encodeId } from '@/utils/idMasker'
 
@@ -88,9 +89,23 @@ const handleConfirmBooking = async () => {
       createdReservationId.value = newId
     }
 
-    showSuccessModal.value = true
     sessionStorage.removeItem('rahma_booking_draft')
     sessionStorage.removeItem('rahma_active_voyage_id')
+
+    if (selectedPayment.value === 'wave' && newId) {
+      try {
+        const waveRes = await initiateWavePayment(newId)
+        const launchUrl = waveRes?.data?.wave_launch_url || waveRes?.wave_launch_url
+        if (launchUrl) {
+          window.location.href = launchUrl
+          return
+        }
+      } catch (waveErr) {
+        console.error('Échec ouverture Wave, bascule vers confirmation manuelle:', waveErr)
+      }
+    }
+
+    showSuccessModal.value = true
   } catch (err) {
     Swal.fire({
       icon: 'error',

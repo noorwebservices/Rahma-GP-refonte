@@ -40,8 +40,36 @@ export const fetchPaiementDetail = async (paiementId) => {
   }
 }
 
+/**
+ * Initialiser un paiement automatique via l'API Wave Checkout
+ * POST /api/reservations/{reservation_id}/pay-wave
+ */
+export const initiateWavePayment = async (reservationId) => {
+  try {
+    const rawId = decodeId(reservationId)
+    return await api.post(`/reservations/${rawId}/pay-wave`)
+  } catch (error) {
+    throw error
+  }
+}
+
+/**
+ * Vérifier l'état d'un paiement Wave en temps réel
+ * GET /api/reservations/{reservation_id}/wave-status
+ */
+export const checkWavePaymentStatus = async (reservationId) => {
+  try {
+    const rawId = decodeId(reservationId)
+    return await api.get(`/reservations/${rawId}/wave-status`)
+  } catch (error) {
+    throw error
+  }
+}
+
 export default {
   postReservationPaiement,
   fetchPaiements,
-  fetchPaiementDetail
+  fetchPaiementDetail,
+  initiateWavePayment,
+  checkWavePaymentStatus
 }
