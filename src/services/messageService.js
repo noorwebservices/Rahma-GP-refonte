@@ -13,6 +13,9 @@ export const fetchReservationMessages = async (reservationId, options = {}) => {
     if (options.markRead === false) {
       params.mark_read = 'false'
     }
+    if (options.afterId !== undefined && options.afterId !== null && options.afterId !== '') {
+      params.after_id = options.afterId
+    }
     return await api.get(`/reservations/${rawId}/messages`, { params })
   } catch (error) {
     throw error

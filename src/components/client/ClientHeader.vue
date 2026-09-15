@@ -6,6 +6,7 @@ import CountryFlag from '@/components/common/CountryFlag.vue'
 import NotificationModal from '@/components/common/NotificationModal.vue'
 import { fetchUnreadNotificationsCount } from '@/services/notificationService'
 import { currentCurrency, availableCurrencies, setCurrency } from '@/utils/currencyState'
+import { useAuth } from '@/composables/useAuth'
 
 const props = defineProps({
   showBack: {
@@ -28,10 +29,12 @@ const props = defineProps({
 
 const router = useRouter()
 const route = useRoute()
+const { isAuthenticated } = useAuth()
 const unreadNotifCount = ref(0)
 const showNotifModal = ref(false)
 
 const loadUnreadCount = async () => {
+  if (!isAuthenticated.value) return
   try {
     const res = await fetchUnreadNotificationsCount()
     if (res && (res.unread_count !== undefined || res.data?.unread_count !== undefined)) {
@@ -62,7 +65,7 @@ const goToMessages = () => {
 <template>
   <header class="w-full bg-white border-b border-gray-200 sticky top-0 z-40 shadow-2xs">
     
-    <!-- Top Bar Header (Logo, Language & Currency Switcher, Notification Bell) -->
+    <!-- Top Bar Header (Logo, Language & Currency Switcher, Auth / Notification Bell) -->
     <div class="w-full py-2.5 px-4 sm:px-6 bg-white">
       <div class="max-w-4xl mx-auto flex items-center justify-between gap-3">
         <!-- Logo Rahma Delivery -->
@@ -92,8 +95,9 @@ const goToMessages = () => {
             <span>FR</span>
           </div>
 
-          <!-- Notification Bell -->
+          <!-- Notification Bell (If Authenticated) -->
           <button
+            v-if="isAuthenticated"
             @click="showNotifModal = true"
             type="button"
             class="w-9 h-9 rounded-full bg-[#F3F4F6] hover:bg-gray-200 flex items-center justify-center text-gray-600 relative transition-colors cursor-pointer"
@@ -108,6 +112,18 @@ const goToMessages = () => {
               {{ unreadNotifCount }}
             </span>
           </button>
+
+          <!-- Login Button (If Unauthenticated Visitor) -->
+          <router-link
+            v-else
+            to="/auth/login"
+            class="bg-[#053754] hover:bg-[#074C72] text-white text-xs font-extrabold px-3.5 py-1.5 rounded-full transition-colors flex items-center gap-1 shadow-2xs cursor-pointer"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+            </svg>
+            <span>Connexion</span>
+          </router-link>
         </div>
       </div>
     </div>

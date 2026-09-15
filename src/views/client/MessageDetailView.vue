@@ -22,6 +22,7 @@ const showAttachmentInput = ref(false)
 const isSending = ref(false)
 const chatContainer = ref(null)
 
+let lastMessageId = null
 let pollTimer = null
 
 const getCurrentUserId = () => {
@@ -82,6 +83,9 @@ const loadMessages = async (silent = false) => {
       const list = Array.isArray(res.data) ? res.data : (res.data.data || [])
       messages.value = list.map(m => {
         const isMine = currentUserId ? (m.expediteur_id === currentUserId || m.expediteur?.id === currentUserId) : true
+        if (m.id && (lastMessageId === null || m.id > lastMessageId)) {
+          lastMessageId = m.id
+        }
         return {
           id: m.id,
           senderId: m.expediteur_id,
@@ -102,17 +106,57 @@ const loadMessages = async (silent = false) => {
   }
 }
 
+const pollNewMessages = async () => {
+  try {
+    const res = await fetchReservationMessages(maskedId, { markRead: true })
+    if (res && res.data) {
+      const list = Array.isArray(res.data) ? res.data : (res.data.data || [])
+      let hasNew = false
+      list.forEach(m => {
+        const isMine = currentUserId ? (m.expediteur_id === currentUserId || m.expediteur?.id === currentUserId) : true
+        const existing = messages.value.find(msg => String(msg.id) === String(m.id))
+        if (existing) {
+          existing.isRead = Boolean(m.est_lu)
+        } else {
+          messages.value.push({
+            id: m.id,
+            senderId: m.expediteur_id,
+            senderName: `${m.expediteur?.prenom || ''} ${m.expediteur?.nom || ''}`.trim() || 'Utilisateur',
+            isMine,
+            text: m.contenu || '',
+            attachment: m.piece_jointe || null,
+            time: formatVoyageDate(m.date_heure_envoi || m.created_at),
+            isRead: Boolean(m.est_lu)
+          })
+          hasNew = true
+        }
+      })
+      if (hasNew) scrollToBottom()
+    }
+  } catch (e) {
+    // Silent fail during poll
+  }
+}
+
+const handleVisibilityChange = () => {
+  if (!document.hidden) {
+    pollNewMessages()
+  }
+}
+
 onMounted(async () => {
   await loadReservationData()
   await loadMessages(false)
-  // Poll new messages every 4 seconds
-  pollTimer = setInterval(() => {
-    loadMessages(true)
-  }, 4000)
+  // Fast 2-second real-time polling
+  pollTimer = setInterval(pollNewMessages, 2000)
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+  window.addEventListener('focus', pollNewMessages)
 })
 
 onUnmounted(() => {
   if (pollTimer) clearInterval(pollTimer)
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
+  window.removeEventListener('focus', pollNewMessages)
 })
 
 import { containsPhoneOrEmail, stripPhoneAndEmail } from '@/utils/securityFilter'
@@ -128,21 +172,55 @@ const handleSendMessage = async () => {
     newMessage.value = stripPhoneAndEmail(newMessage.value)
   }
 
-  if (!newMessage.value.trim() && !pieceJointe.value.trim()) return
+  const textToSend = newMessage.value.trim()
+  const attachmentToSend = pieceJointe.value.trim()
+
+  if (!textToSend && !attachmentToSend) return
+
+  // Optimistic UI update: display message immediately with temp ID
+  const tempId = `temp-${Date.now()}`
+  const tempMsgObj = {
+    id: tempId,
+    senderId: currentUserId,
+    senderName: 'Moi',
+    isMine: true,
+    text: textToSend,
+    attachment: attachmentToSend || null,
+    time: formatVoyageDate(new Date().toISOString()),
+    isRead: false,
+    isPending: true
+  }
+
+  messages.value.push(tempMsgObj)
+  newMessage.value = ''
+  pieceJointe.value = ''
+  showAttachmentInput.value = false
+  scrollToBottom()
 
   isSending.value = true
   try {
     const payload = {
-      contenu: newMessage.value.trim(),
-      piece_jointe: pieceJointe.value.trim() || undefined
+      contenu: textToSend,
+      piece_jointe: attachmentToSend || undefined
     }
 
-    await sendReservationMessage(maskedId, payload)
-    newMessage.value = ''
-    pieceJointe.value = ''
-    showAttachmentInput.value = false
-    await loadMessages(true)
+    const res = await sendReservationMessage(maskedId, payload)
+    const returnedMsg = res?.data?.data || res?.data
+    if (returnedMsg && returnedMsg.id) {
+      const idx = messages.value.findIndex(m => m.id === tempId)
+      if (idx !== -1) {
+        messages.value[idx].id = returnedMsg.id
+        messages.value[idx].isPending = false
+        if (returnedMsg.id > (lastMessageId || 0)) {
+          lastMessageId = returnedMsg.id
+        }
+      }
+    } else {
+      await pollNewMessages()
+    }
   } catch (err) {
+    // Remove temp message on error
+    messages.value = messages.value.filter(m => m.id !== tempId)
     Swal.fire({
       icon: 'error',
       title: 'Erreur',

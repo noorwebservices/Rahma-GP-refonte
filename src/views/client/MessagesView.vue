@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { fetchReservations } from '@/services/reservationService'
 import { fetchReservationMessages } from '@/services/messageService'
@@ -13,6 +13,7 @@ const isLoading = ref(true)
 const errorMsg = ref('')
 
 const conversations = ref([])
+let pollTimer = null
 
 const getCurrentUserId = () => {
   try {
@@ -24,8 +25,8 @@ const getCurrentUserId = () => {
 }
 const currentUserId = getCurrentUserId()
 
-const loadConversations = async () => {
-  isLoading.value = true
+const loadConversations = async (silent = false) => {
+  if (!silent) isLoading.value = true
   errorMsg.value = ''
   try {
     const res = await fetchReservations()
@@ -78,13 +79,22 @@ const loadConversations = async () => {
       conversations.value = await Promise.all(convPromises)
     }
   } catch (err) {
-    errorMsg.value = err?.message || 'Erreur lors du chargement de vos conversations.'
+    if (!silent) errorMsg.value = err?.message || 'Erreur lors du chargement de vos conversations.'
   } finally {
-    isLoading.value = false
+    if (!silent) isLoading.value = false
   }
 }
 
-onMounted(loadConversations)
+onMounted(() => {
+  loadConversations(false)
+  pollTimer = setInterval(() => {
+    loadConversations(true)
+  }, 4000)
+})
+
+onUnmounted(() => {
+  if (pollTimer) clearInterval(pollTimer)
+})
 
 const filteredConversations = computed(() => {
   if (!searchQuery.value.trim()) return conversations.value

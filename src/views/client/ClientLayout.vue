@@ -3,8 +3,10 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import ClientHeader from '@/components/client/ClientHeader.vue'
 import ClientBottomNav from '@/components/client/ClientBottomNav.vue'
+import { useAuth } from '@/composables/useAuth'
 
 const route = useRoute()
+const { isAuthenticated } = useAuth()
 
 // Check if page needs back button in top header
 const showBack = computed(() => {
@@ -22,7 +24,7 @@ const showBack = computed(() => {
       <router-view />
     </main>
 
-    <!-- Bottom 4-Tab Navigation Bar -->
-    <ClientBottomNav />
+    <!-- Bottom 4-Tab Navigation Bar (Hidden for unauthenticated visitors) -->
+    <ClientBottomNav v-if="isAuthenticated" />
   </div>
 </template>
