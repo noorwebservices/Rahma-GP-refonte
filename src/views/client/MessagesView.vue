@@ -1,12 +1,15 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import Swal from 'sweetalert2'
 import { fetchReservations } from '@/services/reservationService'
 import { fetchReservationMessages } from '@/services/messageService'
+import { checkWavePaymentStatus } from '@/services/paiementService'
 import { getCountryFlag, formatVoyageDate } from '@/utils/flagHelper'
 import CountryFlag from '@/components/common/CountryFlag.vue'
 import { encodeId } from '@/utils/idMasker'
 
+const route = useRoute()
 const router = useRouter()
 const searchQuery = ref('')
 const isLoading = ref(true)
@@ -85,7 +88,28 @@ const loadConversations = async (silent = false) => {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  if (route.query.success === 'wave') {
+    const resId = route.query.reservation
+    if (resId) {
+      try {
+        await checkWavePaymentStatus(resId)
+      } catch (err) {
+        console.warn('Vérification statut Wave:', err)
+      }
+    }
+    Swal.fire({
+      icon: 'success',
+      title: 'Paiement Wave Confirmé !',
+      text: 'Votre paiement a été validé avec succès. Vous pouvez maintenant échanger directement avec le transporteur.',
+      confirmButtonColor: '#074C72'
+    }).then(() => {
+      if (resId) {
+        router.push(`/client/messages/${encodeId(resId)}`)
+      }
+    })
+  }
+
   loadConversations(false)
   pollTimer = setInterval(() => {
     loadConversations(true)
