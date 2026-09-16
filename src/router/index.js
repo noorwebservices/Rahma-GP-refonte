@@ -21,16 +21,19 @@ const router = createRouter({
       path: '/auth',
       component: AuthLayout,
       redirect: '/auth/login',
+      meta: { guestOnly: true },
       children: [
         {
           path: 'login',
           name: 'login',
           component: LoginView,
+          meta: { guestOnly: true }
         },
         {
           path: 'register',
           name: 'register',
           component: RegisterView,
+          meta: { guestOnly: true }
         },
       ],
     },
@@ -107,7 +110,7 @@ const router = createRouter({
     {
       path: '/voyageur',
       component: () => import('../views/voyageur/VoyageurLayout.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, requiresVoyageur: true },
       children: [
         {
           path: '',
@@ -174,7 +177,7 @@ const router = createRouter({
     {
       path: '/admin',
       component: () => import('../views/admin/AdminLayout.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, requiresAdmin: true },
       children: [
         {
           path: '',
@@ -229,16 +232,58 @@ const router = createRouter({
   },
 })
 
-// Navigation Guard for Protected Routes
+// Navigation Guard for Protected Routes & Role Authorization
 import { clearHeaderRoute } from '@/utils/headerState'
 
 router.beforeEach((to, from) => {
   clearHeaderRoute()
-  const token = localStorage.getItem('rahma_token') || localStorage.getItem('token')
-  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
 
-  if (requiresAuth && !token) {
-    return { name: 'login' }
+  const token = localStorage.getItem('rahma_token') || localStorage.getItem('token')
+  let user = null
+  try {
+    const userStr = localStorage.getItem('rahma_user')
+    if (userStr) user = JSON.parse(userStr)
+  } catch (err) {
+    console.error('Error reading stored user from localStorage:', err)
+  }
+
+  const isAuthenticated = !!token && !!user
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+  const guestOnly = to.matched.some(record => record.meta.guestOnly)
+  const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin)
+  const requiresVoyageur = to.matched.some(record => record.meta.requiresVoyageur)
+
+  // Roles helpers
+  const isAdmin = user && Array.isArray(user.roles)
+    ? user.roles.some(r => typeof r === 'string' ? r === 'admin' : r.name === 'admin')
+    : false
+
+  const isVoyageur = user && (
+    (Array.isArray(user.roles) && user.roles.some(r => typeof r === 'string' ? r === 'voyageur' : r.name === 'voyageur')) ||
+    !!user.voyageur
+  )
+
+  // 1. Unauthenticated users trying to access protected routes
+  if (requiresAuth && !isAuthenticated) {
+    return { name: 'login', query: { redirect: to.fullPath } }
+  }
+
+  // 2. Authenticated users trying to access guest-only routes (login/register)
+  if (guestOnly && isAuthenticated) {
+    if (isAdmin) return { name: 'admin-dashboard' }
+    if (isVoyageur && user?.mode_actuel === 'voyageur') return { name: 'voyageur-dashboard' }
+    return { name: 'client-home' }
+  }
+
+  // 3. Non-admin users trying to access admin routes
+  if (requiresAdmin && !isAdmin) {
+    if (isVoyageur && user?.mode_actuel === 'voyageur') return { name: 'voyageur-dashboard' }
+    return { name: 'client-home' }
+  }
+
+  // 4. Non-voyageur users trying to access voyageur routes
+  if (requiresVoyageur && !isVoyageur) {
+    return { name: 'profile', query: { registerVoyageur: 'true' } }
   }
 })
 
