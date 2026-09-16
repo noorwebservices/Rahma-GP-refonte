@@ -7,6 +7,9 @@ import { fetchReservationMessages, sendReservationMessage } from '@/services/mes
 import { formatVoyageDate } from '@/utils/flagHelper'
 import CountryFlag from '@/components/common/CountryFlag.vue'
 import { decodeId, encodeId } from '@/utils/idMasker'
+import ReportUserModal from '@/components/ReportUserModal.vue'
+
+const showReportModal = ref(false)
 
 const route = useRoute()
 const router = useRouter()
@@ -52,10 +55,12 @@ const loadReservationData = async () => {
       const v = data.voyage || {}
       const c = data.colis || {}
       const vUser = v.voyageur?.user || v.voyageur || {}
+      const vUserId = vUser.id || v.voyageur?.user_id || v.voyageur?.user?.id || null
       const transporteurName = `${vUser.prenom || ''} ${vUser.nom || ''}`.trim() || 'Transporteur GP'
 
       reservation.value = {
         id: data.id,
+        voyageurUserId: vUserId,
         code: data.numero || (c.numero_suivi ? `#${c.numero_suivi}` : `#RS-${data.id.slice(0, 8)}`),
         trackingCode: c.numero_suivi || data.code_tracking || 'TRK-EN-ATTENTE',
         statut: data.statut || 'en_attente',
@@ -283,16 +288,27 @@ const goToTracking = () => {
             </div>
           </div>
 
-          <!-- Right: Suivi Button -->
-          <button
-            @click="goToTracking"
-            class="bg-[#D8ECF8] hover:bg-sky-200 text-[#074C72] font-extrabold text-xs px-3.5 py-1.5 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
-            Suivi Colis
-          </button>
+          <!-- Right: Suivi & Signaler Buttons -->
+          <div class="flex items-center gap-2">
+            <button
+              @click="showReportModal = true"
+              title="Signaler ce compte"
+              class="bg-red-50 hover:bg-red-100 text-red-600 font-extrabold text-xs px-2.5 py-1.5 rounded-xl transition-colors cursor-pointer flex items-center gap-1 border border-red-100 shadow-2xs"
+            >
+              <span>🚩</span>
+              <span class="hidden sm:inline">Signaler</span>
+            </button>
+
+            <button
+              @click="goToTracking"
+              class="bg-[#D8ECF8] hover:bg-sky-200 text-[#074C72] font-extrabold text-xs px-3.5 py-1.5 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+              Suivi Colis
+            </button>
+          </div>
         </div>
 
         <!-- Parcel Code & Route Pill -->
@@ -412,6 +428,13 @@ const goToTracking = () => {
         </form>
       </div>
     </template>
+
+    <!-- Modal de Signalement -->
+    <ReportUserModal 
+      :show="showReportModal" 
+      :target-user="reservation?.voyageurUserId ? { id: reservation.voyageurUserId, prenom: reservation.transporteurNom, nom: '' } : null"
+      @close="showReportModal = false"
+    />
 
   </div>
 </template>

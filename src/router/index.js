@@ -172,6 +172,48 @@ const router = createRouter({
       ]
     },
     {
+      path: '/admin',
+      component: () => import('../views/admin/AdminLayout.vue'),
+      meta: { requiresAuth: true },
+      children: [
+        {
+          path: '',
+          name: 'admin-dashboard',
+          component: () => import('../views/admin/AdminDashboardView.vue')
+        },
+        {
+          path: 'users',
+          name: 'admin-users',
+          component: () => import('../views/admin/AdminUsersView.vue')
+        },
+        {
+          path: 'users/:id',
+          name: 'admin-user-detail',
+          component: () => import('../views/admin/AdminUserDetailView.vue')
+        },
+        {
+          path: 'signalements',
+          name: 'admin-signalements',
+          component: () => import('../views/admin/AdminSignalementsView.vue')
+        },
+        {
+          path: 'partenariats',
+          name: 'admin-partenariats',
+          component: () => import('../views/admin/AdminPartenariatsView.vue')
+        },
+        {
+          path: 'voyages',
+          name: 'admin-voyages',
+          component: () => import('../views/admin/AdminVoyagesView.vue')
+        },
+        {
+          path: 'profile',
+          name: 'admin-profile',
+          component: () => import('../views/admin/AdminProfileView.vue')
+        }
+      ]
+    },
+    {
       path: '/:pathMatch(.*)*',
       redirect: '/client',
     },

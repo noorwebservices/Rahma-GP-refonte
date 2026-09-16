@@ -109,8 +109,13 @@ const handleSubmit = async () => {
 
   try {
     const res = await login(payload)
-    const mode = res?.user?.mode_actuel || (res?.user?.voyageur && !res?.user?.voyageur?.mode_client ? 'voyageur' : 'client')
-    if (mode === 'voyageur') {
+    const roles = res?.user?.roles || []
+    const isAdmin = (Array.isArray(roles) && roles.includes('admin')) || res?.user?.mode_actuel === 'admin'
+    const mode = res?.user?.mode_actuel
+
+    if (isAdmin) {
+      router.push('/admin')
+    } else if (mode === 'voyageur') {
       router.push('/voyageur')
     } else {
       router.push('/client')

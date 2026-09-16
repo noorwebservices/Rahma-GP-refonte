@@ -9,6 +9,9 @@ import { decodeId } from '@/utils/idMasker'
 
 import { setHeaderRoute } from '@/utils/headerState'
 import { currentCurrency, formatPrice } from '@/utils/currencyState'
+import ReportUserModal from '@/components/ReportUserModal.vue'
+
+const showReportModal = ref(false)
 
 const route = useRoute()
 const router = useRouter()
@@ -49,10 +52,12 @@ onMounted(async () => {
     if (res && res.data) {
       const v = res.data
       const vId = v.voyageur_id || v.voyageur?.id
+      const vUserId = v.voyageur?.user_id || v.voyageur?.user?.id || (v.user ? v.user.id : null)
       
       voyage.value = {
         id: v.id,
         voyageurId: vId,
+        voyageurUserId: vUserId,
         depart: v.ville_depart || 'Départ',
         paysDepart: v.pays_depart || '',
         destination: v.ville_destination || 'Destination',
@@ -375,6 +380,18 @@ const startBooking = () => {
             <span class="text-xs text-emerald-600 font-bold bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100">Vérifié ✓</span>
           </div>
 
+          <!-- Signaler ce compte button -->
+          <div class="pt-2 border-t border-gray-100 flex justify-end">
+            <button 
+              @click="showReportModal = true" 
+              type="button"
+              class="inline-flex items-center gap-1.5 text-xs text-red-600 hover:text-red-700 font-bold bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-xl border border-red-100 transition cursor-pointer"
+            >
+              <span>🚩</span>
+              <span>Signaler ce compte</span>
+            </button>
+          </div>
+
           <!-- Reviews list preview with 2-item pagination -->
           <div v-if="voyageurEvaluations.length > 0" class="pt-3 border-t border-gray-100 space-y-2.5">
             <span class="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider block">Derniers avis clients</span>
@@ -419,6 +436,13 @@ const startBooking = () => {
       </div>
 
     </div>
+
+    <!-- Modal de Signalement -->
+    <ReportUserModal 
+      :show="showReportModal" 
+      :target-user="voyage?.voyageurUserId ? { id: voyage.voyageurUserId, prenom: voyage.transporteur, nom: '' } : null"
+      @close="showReportModal = false"
+    />
 
   </div>
 </template>

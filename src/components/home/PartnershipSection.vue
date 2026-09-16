@@ -1,19 +1,17 @@
 <script setup>
 import { ref } from 'vue'
 import bannerContact from '@/assets/images/banner-contact.jpeg'
-
-// 🔗 Votre URL Web App Google Apps Script
-const GOOGLE_SCRIPT_URL = ref('https://script.google.com/macros/s/AKfycbwP6apm1hJQ-8uPXjpSkMspDInpaH-YiLiAsAu8ZfkWe0zyeyFvnhuu9H9bGMNia9-x/exec')
+import { partenariatService } from '@/services/partenariatService'
 
 const form = ref({
-  profileType: 'Entreprise Pro / Transporteur', // Type de déclarant
-  subject: 'Devenir Partenaire VIP', // Objet de la demande
+  profileType: 'Entreprise Pro / Transporteur',
+  subject: 'Devenir Partenaire VIP',
   companyName: '',
   managerName: '',
   email: '',
   phone: '',
-  address: '', // Adresse / Ville
-  travelFrequency: '', // Nombre de voyages (Optionnel)
+  address: '',
+  travelFrequency: '',
   comments: ''
 })
 
@@ -30,61 +28,16 @@ const handleSubmit = async () => {
   errorMessage.value = ''
   isSubmitting.value = true
 
-  const currentDate = new Date().toLocaleString('fr-FR')
-
-  const payload = {
-    date: currentDate,
-    profileType: form.value.profileType,
-    subject: form.value.subject,
-    companyName: form.value.companyName,
-    managerName: form.value.managerName,
-    email: form.value.email,
-    phone: form.value.phone,
-    address: form.value.address,
-    travelFrequency: form.value.travelFrequency,
-    comments: form.value.comments
-  }
-
-  // 1. Enregistrement de secours dans le navigateur (LocalStorage)
   try {
-    const existingLeads = JSON.parse(localStorage.getItem('rahma_vip_leads') || '[]')
-    existingLeads.push(payload)
-    localStorage.setItem('rahma_vip_leads', JSON.stringify(existingLeads))
-  } catch (e) {
-    console.warn('Backup local storage error:', e)
-  }
+    await partenariatService.envoyerDemande({
+      nom_complet: form.value.managerName,
+      email: form.value.email,
+      telephone: form.value.phone,
+      entreprise: form.value.companyName,
+      type_partenariat: form.value.profileType === 'Entreprise Pro / Transporteur' ? 'transporteur' : 'autre',
+      message: `[${form.value.subject}] ${form.value.comments || 'Demande enregistrée depuis le portail.'} - Adresse: ${form.value.address || 'N/A'} - Fréquence: ${form.value.travelFrequency || 'N/A'}`
+    })
 
-  // 2. Envoi vers Google Sheets via URLSearchParams (Compatible Google Apps Script no-cors)
-  if (GOOGLE_SCRIPT_URL.value) {
-    try {
-      const formData = new URLSearchParams()
-      formData.append('date', currentDate)
-      formData.append('profileType', form.value.profileType)
-      formData.append('subject', form.value.subject)
-      formData.append('companyName', form.value.companyName)
-      formData.append('managerName', form.value.managerName)
-      formData.append('email', form.value.email)
-      formData.append('phone', form.value.phone)
-      formData.append('address', form.value.address || '')
-      formData.append('travelFrequency', form.value.travelFrequency || '')
-      formData.append('comments', form.value.comments || '')
-
-      await fetch(GOOGLE_SCRIPT_URL.value, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: formData.toString()
-      })
-    } catch (err) {
-      console.error('Erreur envoi Google Sheet:', err)
-    }
-  }
-
-  // 3. Affichage du retour de succès
-  setTimeout(() => {
-    isSubmitting.value = false
     showSuccess.value = true
     form.value = {
       profileType: 'Entreprise Pro / Transporteur',
@@ -101,7 +54,12 @@ const handleSubmit = async () => {
     setTimeout(() => {
       showSuccess.value = false
     }, 6000)
-  }, 600)
+  } catch (err) {
+    console.error('Erreur soumission partenariat API:', err)
+    errorMessage.value = err.message || 'Une erreur est survenue lors de l\'envoi de votre demande.'
+  } finally {
+    isSubmitting.value = false
+  }
 }
 </script>
 
