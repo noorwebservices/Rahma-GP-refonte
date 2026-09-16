@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { headerState } from '@/utils/headerState'
 import CountryFlag from '@/components/common/CountryFlag.vue'
@@ -30,19 +30,34 @@ const router = useRouter()
 const route = useRoute()
 const unreadNotifCount = ref(0)
 const showNotifModal = ref(false)
+let notifTimer = null
 
 const loadUnreadCount = async () => {
+  const token = localStorage.getItem('rahma_token')
+  if (!token) {
+    unreadNotifCount.value = 0
+    return
+  }
   try {
     const res = await fetchUnreadNotificationsCount()
     if (res && (res.unread_count !== undefined || res.data?.unread_count !== undefined)) {
       unreadNotifCount.value = Number(res.unread_count ?? res.data?.unread_count ?? 0)
     }
   } catch (e) {
-    unreadNotifCount.value = 0
+    // silent
   }
 }
 
-onMounted(loadUnreadCount)
+onMounted(() => {
+  loadUnreadCount()
+  notifTimer = setInterval(loadUnreadCount, 15000)
+})
+
+onUnmounted(() => {
+  if (notifTimer) clearInterval(notifTimer)
+})
+
+watch(() => route.path, loadUnreadCount)
 
 const headerTitle = computed(() => props.title || headerState.title || route.meta?.headerTitle || '')
 const headerSubtitle = computed(() => headerState.subtitle || route.meta?.headerSubtitle || '')

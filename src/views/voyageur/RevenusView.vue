@@ -43,9 +43,11 @@ const loadRevenusData = async () => {
 
 onMounted(loadRevenusData)
 
+const isValidPaidStatut = (st) => ['disponible', 'reussi', 'retire', 'paye'].includes(st) || !st
+
 const totalRevenusConverted = computed(() => {
   return rawRevenusList.value
-    .filter(item => item.statut === 'disponible' || item.statut === 'reussi' || item.statut === 'retire' || !item.statut)
+    .filter(item => isValidPaidStatut(item.statut))
     .reduce((sum, item) => {
       const origDevise = item.reservation?.voyage?.devise || 'XOF'
       return sum + convertAmount(item.montant || 0, origDevise, currentCurrency.value)
@@ -55,8 +57,9 @@ const totalRevenusConverted = computed(() => {
 const totalWaveConverted = computed(() => {
   return rawRevenusList.value
     .filter(item => {
-      const pMode = (item.reservation?.mode_paiement_souhaite || item.reservation?.mode_paiement || '').toLowerCase()
-      return pMode.includes('wave') && (item.statut === 'disponible' || item.statut === 'reussi' || item.statut === 'retire' || !item.statut)
+      const pMode = (item.reservation?.paiement?.mode_paiement || item.reservation?.mode_paiement_souhaite || item.reservation?.mode_paiement || '').toLowerCase()
+      const isWave = pMode.includes('wave') || item.statut === 'paye'
+      return isWave && isValidPaidStatut(item.statut)
     })
     .reduce((sum, item) => {
       const origDevise = item.reservation?.voyage?.devise || 'XOF'
@@ -67,8 +70,9 @@ const totalWaveConverted = computed(() => {
 const totalEspecesConverted = computed(() => {
   return rawRevenusList.value
     .filter(item => {
-      const pMode = (item.reservation?.mode_paiement_souhaite || item.reservation?.mode_paiement || '').toLowerCase()
-      return !pMode.includes('wave') && (item.statut === 'disponible' || item.statut === 'reussi' || item.statut === 'retire' || !item.statut)
+      const pMode = (item.reservation?.paiement?.mode_paiement || item.reservation?.mode_paiement_souhaite || item.reservation?.mode_paiement || '').toLowerCase()
+      const isWave = pMode.includes('wave') || item.statut === 'paye'
+      return !isWave && isValidPaidStatut(item.statut)
     })
     .reduce((sum, item) => {
       const origDevise = item.reservation?.voyage?.devise || 'XOF'
@@ -84,15 +88,19 @@ const totalEnAttentePaiementConverted = computed(() => {
       return sum + convertAmount(item.montant || 0, origDevise, currentCurrency.value)
     }, 0)
 
-  const paidReservationIds = new Set(
-    rawRevenusList.value
-      .filter(item => item.statut === 'disponible' || item.statut === 'reussi' || item.statut === 'retire')
+  const paidReservationIds = new Set([
+    ...rawRevenusList.value
+      .filter(item => isValidPaidStatut(item.statut))
       .map(item => item.reservation_id || item.reservation?.id)
+      .filter(Boolean),
+    ...rawReservationsList.value
+      .filter(r => r.paiement?.statut === 'reussi' || r.statut === 'payee')
+      .map(r => r.id)
       .filter(Boolean)
-  )
+  ])
 
   const sumAcceptedReservations = rawReservationsList.value
-    .filter(r => (r.statut === 'acceptee' || r.statut === 'reservation_acceptee') && !paidReservationIds.has(r.id))
+    .filter(r => (r.statut === 'acceptee' || r.statut === 'reservation_acceptee') && !paidReservationIds.has(r.id) && r.paiement?.statut !== 'reussi')
     .reduce((sum, r) => {
       const origDevise = r.voyage?.devise || 'XOF'
       return sum + convertAmount(r.montant_total || r.prix_total || 0, origDevise, currentCurrency.value)
@@ -113,8 +121,8 @@ const formattedRevenusList = computed(() => {
       : 'Trajet Colis'
 
     const origDevise = voyageObj.devise || 'XOF'
-    const pModeRaw = resObj.mode_paiement_souhaite || resObj.mode_paiement || 'Paiement'
-    const isWave = pModeRaw.toLowerCase().includes('wave')
+    const pModeRaw = resObj.paiement?.mode_paiement || resObj.mode_paiement_souhaite || resObj.mode_paiement || ''
+    const isWave = pModeRaw.toLowerCase().includes('wave') || item.statut === 'paye'
 
     return {
       id: item.id,

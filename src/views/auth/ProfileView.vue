@@ -35,14 +35,22 @@ const editForm = reactive({
   prenom: '',
   email: '',
   telephone: '',
-  adresse: ''
+  adresse: '',
+  mot_de_passe_actuel: '',
+  password: '',
+  password_confirmation: ''
 })
+
+const showCurrentPassword = ref(false)
+const showNewPassword = ref(false)
+const showConfirmPassword = ref(false)
 
 const editErrors = reactive({
   nom: '',
   prenom: '',
   email: '',
-  telephone: ''
+  telephone: '',
+  password: ''
 })
 
 // Voyageur Profile Form State
@@ -122,9 +130,11 @@ const loadProfileRevenus = async () => {
   }
 }
 
+const isValidPaidStatut = (st) => ['disponible', 'reussi', 'retire', 'paye'].includes(st) || !st
+
 const totalRevenusProfileConverted = computed(() => {
   return profileRevenusList.value
-    .filter(item => item.statut === 'disponible' || item.statut === 'reussi' || !item.statut)
+    .filter(item => isValidPaidStatut(item.statut))
     .reduce((sum, item) => {
       const origDevise = item.reservation?.voyage?.devise || 'XOF'
       return sum + convertAmount(item.montant || 0, origDevise, currentCurrency.value)
@@ -133,7 +143,7 @@ const totalRevenusProfileConverted = computed(() => {
 
 const revenusDisponiblesProfileConverted = computed(() => {
   return profileRevenusList.value
-    .filter(item => item.statut === 'disponible' || item.statut === 'reussi' || !item.statut)
+    .filter(item => isValidPaidStatut(item.statut))
     .reduce((sum, item) => {
       const origDevise = item.reservation?.voyage?.devise || 'XOF'
       return sum + convertAmount(item.montant || 0, origDevise, currentCurrency.value)
@@ -142,7 +152,7 @@ const revenusDisponiblesProfileConverted = computed(() => {
 
 const revenusEnAttenteProfileConverted = computed(() => {
   return profileRevenusList.value
-    .filter(item => item.statut === 'en_attente' || item.statut === 'non_paye' || (item.reservation?.statut === 'acceptee' && item.statut !== 'disponible' && item.statut !== 'reussi'))
+    .filter(item => item.statut === 'en_attente' || item.statut === 'non_paye')
     .reduce((sum, item) => {
       const origDevise = item.reservation?.voyage?.devise || 'XOF'
       return sum + convertAmount(item.montant || 0, origDevise, currentCurrency.value)
@@ -150,7 +160,7 @@ const revenusEnAttenteProfileConverted = computed(() => {
 })
 
 const paidReservationsProfileCount = computed(() => {
-  return profileRevenusList.value.filter(item => item.statut === 'disponible' || item.statut === 'reussi' || !item.statut).length
+  return profileRevenusList.value.filter(item => isValidPaidStatut(item.statut)).length
 })
 
 const recentTransactionsProfile = computed(() => {
@@ -221,11 +231,28 @@ const validateEditForm = () => {
   editErrors.prenom = ''
   editErrors.email = ''
   editErrors.telephone = ''
+  editErrors.password = ''
 
   if (!editForm.nom.trim()) { editErrors.nom = 'Le nom est requis'; valid = false }
   if (!editForm.prenom.trim()) { editErrors.prenom = 'Le prénom est requis'; valid = false }
   if (editForm.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editForm.email.trim())) { editErrors.email = "Adresse email invalide"; valid = false }
   if (!editForm.telephone) { editErrors.telephone = 'Le téléphone est requis'; valid = false }
+
+  if (editForm.password || editForm.mot_de_passe_actuel || editForm.password_confirmation) {
+    if (!editForm.mot_de_passe_actuel) {
+      editErrors.password = 'Veuillez saisir votre mot de passe actuel.'
+      valid = false
+    } else if (!editForm.password) {
+      editErrors.password = 'Veuillez saisir le nouveau mot de passe.'
+      valid = false
+    } else if (editForm.password.length < 6) {
+      editErrors.password = 'Le nouveau mot de passe doit contenir au moins 6 caractères.'
+      valid = false
+    } else if (editForm.password !== editForm.password_confirmation) {
+      editErrors.password = 'Les nouveaux mots de passe ne correspondent pas.'
+      valid = false
+    }
+  }
 
   return valid
 }
@@ -233,7 +260,25 @@ const validateEditForm = () => {
 const handleUpdateProfile = async () => {
   if (!validateEditForm()) return
   try {
-    await updateProfile({ ...editForm })
+    const payload = {
+      nom: editForm.nom,
+      prenom: editForm.prenom,
+      email: editForm.email,
+      telephone: editForm.telephone,
+      adresse: editForm.adresse,
+      ...(editForm.password ? {
+        mot_de_passe_actuel: editForm.mot_de_passe_actuel,
+        current_password: editForm.mot_de_passe_actuel,
+        mot_de_passe: editForm.password,
+        password: editForm.password,
+        mot_de_passe_confirmation: editForm.password_confirmation,
+        password_confirmation: editForm.password_confirmation
+      } : {})
+    }
+    await updateProfile(payload)
+    editForm.mot_de_passe_actuel = ''
+    editForm.password = ''
+    editForm.password_confirmation = ''
     activeTab.value = 'info'
   } catch (err) {
     // Error state
@@ -700,20 +745,6 @@ const handleLogout = async () => {
           </div>
         </div>
 
-        <!-- Payout Method Configured Card -->
-        <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-2xl bg-sky-50 text-principal flex items-center justify-center font-bold text-lg">
-              💳
-            </div>
-            <div>
-              <h4 class="text-xs sm:text-sm font-bold text-gray-900">Mode de versement principal</h4>
-              <p class="text-[11px] sm:text-xs text-gray-500">Wave Mobile Money (+221 77 *** ** 10)</p>
-            </div>
-          </div>
-          <span class="bg-green-100 text-green-800 text-[10px] sm:text-xs font-extrabold px-3 py-1 rounded-full uppercase">Actif</span>
-        </div>
-
         <!-- Recent Transactions Preview -->
         <div class="bg-white p-5 sm:p-6 rounded-3xl shadow-sm border border-gray-100 space-y-4">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -768,27 +799,45 @@ const handleLogout = async () => {
         <form @submit.prevent="handleUpdateProfile" class="space-y-4" novalidate>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-semibold text-gray-700 mb-1">Prénom</label>
-              <input v-model="editForm.prenom" type="text" class="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-gray-300 rounded-xl focus:border-principal outline-none" />
-              <p v-if="editErrors.prenom" class="text-[11px] text-red-600 mt-1 font-medium">{{ editErrors.prenom }}</p>
+              <label class="block text-xs font-semibold text-gray-700 mb-1">
+                Prénom <span class="text-gray-400 font-normal">(non modifiable)</span>
+              </label>
+              <input 
+                v-model="editForm.prenom" 
+                type="text" 
+                disabled 
+                class="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-gray-200 bg-gray-100 text-gray-500 rounded-xl outline-none cursor-not-allowed font-medium" 
+              />
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-700 mb-1">Nom</label>
-              <input v-model="editForm.nom" type="text" class="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-gray-300 rounded-xl focus:border-principal outline-none" />
-              <p v-if="editErrors.nom" class="text-[11px] text-red-600 mt-1 font-medium">{{ editErrors.nom }}</p>
+              <label class="block text-xs font-semibold text-gray-700 mb-1">
+                Nom <span class="text-gray-400 font-normal">(non modifiable)</span>
+              </label>
+              <input 
+                v-model="editForm.nom" 
+                type="text" 
+                disabled 
+                class="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-gray-200 bg-gray-100 text-gray-500 rounded-xl outline-none cursor-not-allowed font-medium" 
+              />
             </div>
           </div>
 
           <div>
             <label class="block text-xs font-semibold text-gray-700 mb-1">
-              Adresse email <span class="text-gray-400 font-normal">(non modifiable)</span>
+              Adresse email <span v-if="user?.email" class="text-gray-400 font-normal">(non modifiable)</span>
             </label>
             <input
               v-model="editForm.email"
               type="email"
-              disabled
-              class="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-gray-200 bg-gray-100 text-gray-500 rounded-xl outline-none cursor-not-allowed font-medium"
+              :disabled="!!user?.email"
+              :class="[
+                'w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl outline-none transition-all font-medium',
+                user?.email 
+                  ? 'border border-gray-200 bg-gray-100 text-gray-500 cursor-not-allowed' 
+                  : 'border border-gray-300 focus:border-principal text-gray-900 bg-white'
+              ]"
             />
+            <p v-if="editErrors.email" class="text-[11px] text-red-600 mt-1 font-medium">{{ editErrors.email }}</p>
           </div>
 
           <div>
@@ -806,6 +855,91 @@ const handleLogout = async () => {
           <div>
             <label class="block text-xs font-semibold text-gray-700 mb-1">Adresse physique</label>
             <input v-model="editForm.adresse" type="text" class="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-gray-300 rounded-xl focus:border-principal outline-none" />
+          </div>
+
+          <div class="border-t border-gray-100 pt-4 space-y-4">
+            <h4 class="font-extrabold text-sm text-principal-dark">Changer le mot de passe (optionnel)</h4>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <!-- Mot de passe actuel -->
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Mot de passe actuel</label>
+                <div class="relative">
+                  <input
+                    v-model="editForm.mot_de_passe_actuel"
+                    :type="showCurrentPassword ? 'text' : 'password'"
+                    placeholder="••••••••"
+                    class="w-full px-3.5 py-2.5 pr-10 text-xs sm:text-sm border border-gray-300 rounded-xl focus:border-principal outline-none"
+                  />
+                  <button
+                    type="button"
+                    @click="showCurrentPassword = !showCurrentPassword"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1 cursor-pointer"
+                  >
+                    <svg v-if="!showCurrentPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a10.016 10.016 0 014.122-.963c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l18 18" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Nouveau mot de passe -->
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Nouveau mot de passe</label>
+                <div class="relative">
+                  <input
+                    v-model="editForm.password"
+                    :type="showNewPassword ? 'text' : 'password'"
+                    placeholder="••••••••"
+                    class="w-full px-3.5 py-2.5 pr-10 text-xs sm:text-sm border border-gray-300 rounded-xl focus:border-principal outline-none"
+                  />
+                  <button
+                    type="button"
+                    @click="showNewPassword = !showNewPassword"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1 cursor-pointer"
+                  >
+                    <svg v-if="!showNewPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a10.016 10.016 0 014.122-.963c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l18 18" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Confirmer le mot de passe -->
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Confirmer mot de passe</label>
+                <div class="relative">
+                  <input
+                    v-model="editForm.password_confirmation"
+                    :type="showConfirmPassword ? 'text' : 'password'"
+                    placeholder="••••••••"
+                    class="w-full px-3.5 py-2.5 pr-10 text-xs sm:text-sm border border-gray-300 rounded-xl focus:border-principal outline-none"
+                  />
+                  <button
+                    type="button"
+                    @click="showConfirmPassword = !showConfirmPassword"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1 cursor-pointer"
+                  >
+                    <svg v-if="!showConfirmPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a10.016 10.016 0 014.122-.963c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l18 18" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <p v-if="editErrors.password" class="text-[11px] text-red-600 font-medium">{{ editErrors.password }}</p>
           </div>
 
           <div class="pt-2 flex justify-end gap-3">

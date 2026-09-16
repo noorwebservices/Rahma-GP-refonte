@@ -1,12 +1,12 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { headerState } from '@/utils/headerState'
 import CountryFlag from '@/components/common/CountryFlag.vue'
+import { useAuth } from '@/composables/useAuth'
 import NotificationModal from '@/components/common/NotificationModal.vue'
 import { fetchUnreadNotificationsCount } from '@/services/notificationService'
 import { currentCurrency, availableCurrencies, setCurrency } from '@/utils/currencyState'
-import { useAuth } from '@/composables/useAuth'
 
 const props = defineProps({
   showBack: {
@@ -32,20 +32,37 @@ const route = useRoute()
 const { isAuthenticated } = useAuth()
 const unreadNotifCount = ref(0)
 const showNotifModal = ref(false)
+let notifTimer = null
 
 const loadUnreadCount = async () => {
-  if (!isAuthenticated.value) return
+  const token = localStorage.getItem('rahma_token')
+  if (!token) {
+    unreadNotifCount.value = 0
+    return
+  }
   try {
     const res = await fetchUnreadNotificationsCount()
     if (res && (res.unread_count !== undefined || res.data?.unread_count !== undefined)) {
       unreadNotifCount.value = Number(res.unread_count ?? res.data?.unread_count ?? 0)
     }
   } catch (e) {
-    unreadNotifCount.value = 0
+    // silent
   }
 }
 
-onMounted(loadUnreadCount)
+onMounted(() => {
+  loadUnreadCount()
+  notifTimer = setInterval(loadUnreadCount, 15000)
+})
+
+onUnmounted(() => {
+  if (notifTimer) clearInterval(notifTimer)
+})
+
+watch(() => route.path, loadUnreadCount)
+watch(isAuthenticated, (val) => {
+  if (val) loadUnreadCount()
+})
 
 const headerTitle = computed(() => props.title || headerState.title || route.meta?.headerTitle || '')
 const headerSubtitle = computed(() => headerState.subtitle || route.meta?.headerSubtitle || '')

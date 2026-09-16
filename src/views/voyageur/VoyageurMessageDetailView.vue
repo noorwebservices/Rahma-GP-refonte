@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 import { fetchReservation, updateColisStatut } from '@/services/reservationService'
@@ -38,6 +38,64 @@ const colisStatutOptions = [
   { value: 'livre', label: '🎁 Livré au destinataire' }
 ]
 
+const isVoyageClosedOrCompleted = computed(() => {
+  if (!reservation.value) return false
+  const vStatut = (reservation.value.voyageStatut || '').toLowerCase()
+  const isClosedStatut = ['complet', 'ferme', 'cloture', 'termine'].includes(vStatut)
+  const isPastDepart = reservation.value.departureDate ? new Date(reservation.value.departureDate) <= new Date() : false
+  return isClosedStatut || isPastDepart
+})
+
+const availableColisStatutOptions = computed(() => {
+  if (!reservation.value) return colisStatutOptions
+
+  const doneStatuts = new Set()
+  if (Array.isArray(reservation.value.suivis)) {
+    reservation.value.suivis.forEach(s => {
+      if (s && s.statut) {
+        doneStatuts.add(s.statut)
+      }
+    })
+  }
+
+  if (reservation.value.colisStatut) {
+    doneStatuts.add(reservation.value.colisStatut)
+  }
+
+  const statusLevels = {
+    'colis_depose': 1,
+    'colis_pris_en_charge': 2,
+    'en_transit': 3,
+    'arrive': 4,
+    'livre': 5,
+    'livree': 5
+  }
+
+  let maxLevelAchieved = 0
+  doneStatuts.forEach(st => {
+    if (statusLevels[st] && statusLevels[st] > maxLevelAchieved) {
+      maxLevelAchieved = statusLevels[st]
+    }
+  })
+
+  return colisStatutOptions.filter(opt => {
+    const level = statusLevels[opt.value]
+    if (level !== maxLevelAchieved + 1) return false
+    if (!isVoyageClosedOrCompleted.value && ['en_transit', 'arrive', 'livre', 'livree'].includes(opt.value)) {
+      return false
+    }
+    return true
+  })
+})
+
+watch(availableColisStatutOptions, (opts) => {
+  if (opts && opts.length > 0) {
+    if (!opts.some(o => o.value === selectedColisStatut.value)) {
+      selectedColisStatut.value = opts[0].value
+    }
+  }
+}, { immediate: true })
+
 const getCurrentUserId = () => {
   try {
     const u = JSON.parse(localStorage.getItem('rahma_user') || '{}')
@@ -74,6 +132,9 @@ const loadReservationData = async () => {
         trackingCode: c.numero_suivi || data.code_tracking || 'TRK-EN-ATTENTE',
         statut: data.statut || 'en_attente',
         colisStatut: c.statut || 'demande_envoyee',
+        suivis: Array.isArray(c.suivis) ? c.suivis : [],
+        voyageStatut: v.statut || 'publie',
+        departureDate: v.date_depart,
         
         villeDepart: v.ville_depart || 'Départ',
         paysDepart: v.pays_depart || '',
@@ -462,13 +523,22 @@ const goBack = () => {
             <div>
               <label class="block text-xs font-bold text-[#074C72] mb-1">Nouveau statut du colis</label>
               <select
+                v-if="availableColisStatutOptions.length > 0"
                 v-model="selectedColisStatut"
                 class="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-xl text-xs font-bold outline-none focus:border-[#074C72]"
               >
-                <option v-for="opt in colisStatutOptions" :key="opt.value" :value="opt.value">
+                <option v-for="opt in availableColisStatutOptions" :key="opt.value" :value="opt.value">
                   {{ opt.label }}
                 </option>
               </select>
+              <div v-else class="px-3.5 py-2.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold flex items-center gap-1.5">
+                <span>🎉</span>
+                <span>Tous les statuts de suivi ont été appliqués</span>
+              </div>
+              <div v-if="!isVoyageClosedOrCompleted" class="mt-2 p-2.5 bg-amber-50 text-amber-900 border border-amber-200 rounded-xl text-[11px] font-medium flex items-start gap-1.5">
+                <span class="shrink-0 mt-0.5">⏳</span>
+                <span>Voyage en cours : les statuts <strong>Transit</strong>, <strong>Arrivé</strong> et <strong>Livré</strong> seront débloqués quand le voyage sera complet/fermé ou sa date de départ passée.</span>
+              </div>
             </div>
 
             <div>

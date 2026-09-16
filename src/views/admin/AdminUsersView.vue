@@ -1,5 +1,32 @@
 <template>
   <div class="space-y-6">
+
+    <!-- 2 Summary Cards: Clients & Voyageurs -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <!-- Card Clients -->
+      <div class="bg-white border border-sky-200/70 rounded-3xl p-5 shadow-2xs flex items-center justify-between">
+        <div>
+          <span class="text-xs font-extrabold text-[#074C72] uppercase tracking-wider block">Total Clients (Uniquement)</span>
+          <h3 class="text-2xl sm:text-3xl font-black text-[#053754] mt-1">{{ totalClientsCount }}</h3>
+          <p class="text-[11px] font-medium text-gray-400">Comptes avec le rôle Client seulement</p>
+        </div>
+        <div class="w-12 h-12 rounded-2xl bg-sky-50 text-[#074C72] flex items-center justify-center font-bold text-xl shrink-0 border border-sky-100">
+          👤
+        </div>
+      </div>
+
+      <!-- Card Voyageurs -->
+      <div class="bg-white border border-emerald-200/70 rounded-3xl p-5 shadow-2xs flex items-center justify-between">
+        <div>
+          <span class="text-xs font-extrabold text-emerald-800 uppercase tracking-wider block">Total Voyageurs (GP)</span>
+          <h3 class="text-2xl sm:text-3xl font-black text-emerald-950 mt-1">{{ totalVoyageursCount }}</h3>
+          <p class="text-[11px] font-medium text-gray-400">Comptes avec le rôle Voyageur</p>
+        </div>
+        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-xl shrink-0 border border-emerald-100">
+          ✈️
+        </div>
+      </div>
+    </div>
     
     <!-- Header with 2 Tabs (Clients / Voyageurs) & Filters -->
     <div class="bg-white border border-gray-200 rounded-3xl p-5 shadow-2xs space-y-4">
@@ -207,12 +234,29 @@ const loading = ref(true)
 const currentPage = ref(1)
 const perPage = 5
 
+const totalClientsCount = ref(0)
+const totalVoyageursCount = ref(0)
+
 const filters = reactive({
   search: '',
   statut: ''
 })
 
+const fetchStats = async () => {
+  try {
+    const res = await adminService.getDashboardStats()
+    const d = res?.data?.data || res?.data || res
+    if (d && d.users) {
+      totalClientsCount.value = d.users.clients || 0
+      totalVoyageursCount.value = d.users.voyageurs || 0
+    }
+  } catch (e) {
+    console.error('Erreur fetch stats users:', e)
+  }
+}
+
 onMounted(() => {
+  fetchStats()
   fetchUsers()
 })
 

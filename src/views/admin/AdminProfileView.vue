@@ -99,25 +99,83 @@
         <div class="border-t border-gray-100 pt-4 space-y-4">
           <h4 class="font-extrabold text-sm text-[#053754]">Changer le mot de passe (optionnel)</h4>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <!-- Mot de passe actuel -->
             <div class="space-y-1">
-              <label class="block text-xs font-extrabold text-[#074C72]">Nouveau mot de passe</label>
-              <input 
-                v-model="form.password"
-                type="password"
-                placeholder="••••••••"
-                class="w-full bg-[#FAF7F2] border border-gray-200 rounded-2xl px-4 py-3 text-xs text-gray-800 focus:outline-none focus:border-[#074C72]"
-              />
+              <label class="block text-xs font-extrabold text-[#074C72]">Mot de passe actuel</label>
+              <div class="relative">
+                <input 
+                  v-model="form.mot_de_passe_actuel"
+                  :type="showCurrentPassword ? 'text' : 'password'"
+                  placeholder="••••••••"
+                  class="w-full bg-[#FAF7F2] border border-gray-200 rounded-2xl pl-4 pr-10 py-3 text-xs text-gray-800 focus:outline-none focus:border-[#074C72]"
+                />
+                <button 
+                  type="button"
+                  @click="showCurrentPassword = !showCurrentPassword"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1 cursor-pointer"
+                >
+                  <svg v-if="!showCurrentPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a10.016 10.016 0 014.122-.963c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l18 18" />
+                  </svg>
+                </button>
+              </div>
             </div>
 
+            <!-- Nouveau mot de passe -->
+            <div class="space-y-1">
+              <label class="block text-xs font-extrabold text-[#074C72]">Nouveau mot de passe</label>
+              <div class="relative">
+                <input 
+                  v-model="form.password"
+                  :type="showNewPassword ? 'text' : 'password'"
+                  placeholder="••••••••"
+                  class="w-full bg-[#FAF7F2] border border-gray-200 rounded-2xl pl-4 pr-10 py-3 text-xs text-gray-800 focus:outline-none focus:border-[#074C72]"
+                />
+                <button 
+                  type="button"
+                  @click="showNewPassword = !showNewPassword"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1 cursor-pointer"
+                >
+                  <svg v-if="!showNewPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a10.016 10.016 0 014.122-.963c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l18 18" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Confirmer le mot de passe -->
             <div class="space-y-1">
               <label class="block text-xs font-extrabold text-[#074C72]">Confirmer le mot de passe</label>
-              <input 
-                v-model="form.password_confirmation"
-                type="password"
-                placeholder="••••••••"
-                class="w-full bg-[#FAF7F2] border border-gray-200 rounded-2xl px-4 py-3 text-xs text-gray-800 focus:outline-none focus:border-[#074C72]"
-              />
+              <div class="relative">
+                <input 
+                  v-model="form.password_confirmation"
+                  :type="showConfirmPassword ? 'text' : 'password'"
+                  placeholder="••••••••"
+                  class="w-full bg-[#FAF7F2] border border-gray-200 rounded-2xl pl-4 pr-10 py-3 text-xs text-gray-800 focus:outline-none focus:border-[#074C72]"
+                />
+                <button 
+                  type="button"
+                  @click="showConfirmPassword = !showConfirmPassword"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1 cursor-pointer"
+                >
+                  <svg v-if="!showConfirmPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a10.016 10.016 0 014.122-.963c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l18 18" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -153,9 +211,14 @@ const form = reactive({
   email: '',
   telephone: '',
   adresse: '',
+  mot_de_passe_actuel: '',
   password: '',
   password_confirmation: ''
 })
+
+const showCurrentPassword = ref(false)
+const showNewPassword = ref(false)
+const showConfirmPassword = ref(false)
 
 const loading = ref(false)
 const successMsg = ref('')
@@ -172,9 +235,23 @@ onMounted(() => {
 })
 
 const handleSaveProfile = async () => {
-  if (form.password && form.password !== form.password_confirmation) {
-    errorMsg.value = 'Les mots de passe ne correspondent pas.'
-    return
+  if (form.password || form.mot_de_passe_actuel || form.password_confirmation) {
+    if (!form.mot_de_passe_actuel) {
+      errorMsg.value = 'Veuillez saisir votre mot de passe actuel pour effectuer le changement.'
+      return
+    }
+    if (!form.password) {
+      errorMsg.value = 'Veuillez saisir votre nouveau mot de passe.'
+      return
+    }
+    if (form.password.length < 6) {
+      errorMsg.value = 'Le nouveau mot de passe doit contenir au moins 6 caractères.'
+      return
+    }
+    if (form.password !== form.password_confirmation) {
+      errorMsg.value = 'Les nouveaux mots de passe ne correspondent pas.'
+      return
+    }
   }
 
   loading.value = true
@@ -188,11 +265,19 @@ const handleSaveProfile = async () => {
       email: form.email,
       telephone: form.telephone,
       adresse: form.adresse,
-      ...(form.password ? { password: form.password, password_confirmation: form.password_confirmation } : {})
+      ...(form.password ? {
+        mot_de_passe_actuel: form.mot_de_passe_actuel,
+        current_password: form.mot_de_passe_actuel,
+        mot_de_passe: form.password,
+        password: form.password,
+        mot_de_passe_confirmation: form.password_confirmation,
+        password_confirmation: form.password_confirmation
+      } : {})
     }
 
     await updateProfile(payload)
     successMsg.value = 'Votre profil administrateur a été mis à jour avec succès.'
+    form.mot_de_passe_actuel = ''
     form.password = ''
     form.password_confirmation = ''
   } catch (err) {

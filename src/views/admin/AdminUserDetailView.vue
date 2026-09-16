@@ -97,12 +97,12 @@
 
       <!-- Section Profil Voyageur / KYC Verification (If Voyageur) -->
       <div v-if="user.voyageur" class="bg-white border border-gray-200 rounded-3xl p-6 shadow-2xs space-y-5">
-        <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-3">
           <h3 class="font-extrabold text-base text-[#053754] flex items-center gap-2">
             <span>Profil & Vérification Voyageur</span>
           </h3>
 
-          <span class="px-3 py-1 rounded-full text-xs font-extrabold border capitalize" :class="getVoyageurStatutBadge(user.voyageur.statut)">
+          <span class="px-3 py-1 rounded-full text-xs font-extrabold border capitalize self-start sm:self-auto" :class="getVoyageurStatutBadge(user.voyageur.statut)">
             Statut : {{ user.voyageur.statut === 'verifie' ? 'Vérifié' : (user.voyageur.statut === 'refuse' ? 'Refusé' : 'En Attente') }}
           </span>
         </div>
@@ -171,29 +171,29 @@
         </div>
 
         <!-- Verification Action Buttons -->
-        <div class="flex items-center gap-3 pt-3 border-t border-gray-100">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 pt-3 border-t border-gray-100">
           <template v-if="user.voyageur.statut === 'verifie'">
-            <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 font-extrabold text-xs">
+            <div class="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 font-extrabold text-xs w-full sm:w-auto text-center">
               <span>✓ Compte Voyageur actuellement vérifié et actif</span>
             </div>
             <button 
               @click="toggleBlock"
-              class="px-5 py-2.5 bg-[#B50302] hover:bg-[#870202] text-white rounded-xl text-xs font-extrabold shadow-md transition-all cursor-pointer ml-auto"
+              class="px-5 py-2.5 bg-[#B50302] hover:bg-[#870202] text-white rounded-xl text-xs font-extrabold shadow-md transition-all cursor-pointer w-full sm:w-auto sm:ml-auto text-center"
             >
               🔒 Bloquer l'utilisateur
             </button>
           </template>
 
           <template v-else>
-            <button @click="verifyVoyageur('verifie')" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-extrabold shadow-md transition-all cursor-pointer">
+            <button @click="verifyVoyageur('verifie')" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-extrabold shadow-md transition-all cursor-pointer w-full sm:w-auto text-center">
               ✓ Valider le compte Voyageur
             </button>
-            <button @click="verifyVoyageur('refuse')" class="px-5 py-2.5 bg-red-100 text-[#B50302] hover:bg-red-200 border border-red-200 rounded-xl text-xs font-extrabold transition-all cursor-pointer">
+            <button @click="verifyVoyageur('refuse')" class="px-5 py-2.5 bg-red-100 text-[#B50302] hover:bg-red-200 border border-red-200 rounded-xl text-xs font-extrabold transition-all cursor-pointer w-full sm:w-auto text-center">
               ✕ Refuser le compte Voyageur
             </button>
             <button 
               @click="toggleBlock"
-              class="px-5 py-2.5 bg-[#B50302] hover:bg-[#870202] text-white rounded-xl text-xs font-extrabold shadow-md transition-all cursor-pointer ml-auto"
+              class="px-5 py-2.5 bg-[#B50302] hover:bg-[#870202] text-white rounded-xl text-xs font-extrabold shadow-md transition-all cursor-pointer w-full sm:w-auto sm:ml-auto text-center"
             >
               🔒 Bloquer l'utilisateur
             </button>
@@ -203,12 +203,12 @@
 
       <!-- Section Avis & Évaluations Reçus -->
       <div class="bg-white border border-gray-200 rounded-3xl p-6 shadow-2xs space-y-4">
-        <div class="flex items-center justify-between border-b border-gray-100 pb-3">
-          <h3 class="font-extrabold text-base text-[#053754] flex items-center gap-2">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-3">
+          <h3 class="font-extrabold text-base text-[#053754] flex items-center gap-2 flex-wrap">
             <span>⭐ Avis & Évaluations Reçus par {{ user.prenom }}</span>
             <span class="text-gray-400 text-xs font-semibold">({{ user.evaluations_recues ? user.evaluations_recues.length : 0 }})</span>
           </h3>
-          <span class="text-xs font-black text-amber-500 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">
+          <span class="text-xs font-black text-amber-500 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full self-start sm:self-auto">
             Note Moyenne : ★ {{ Number(user.note_moyenne ?? 5.0).toFixed(1) }} / 5
           </span>
         </div>

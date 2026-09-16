@@ -45,6 +45,14 @@ const colisStatutOptions = [
   { value: 'livre', label: '🎁 Livré au destinataire' }
 ]
 
+const isVoyageClosedOrCompleted = computed(() => {
+  if (!demande.value) return false
+  const vStatut = (demande.value.voyageStatut || '').toLowerCase()
+  const isClosedStatut = ['complet', 'ferme', 'cloture', 'termine'].includes(vStatut)
+  const isPastDepart = demande.value.departureDate ? new Date(demande.value.departureDate) <= new Date() : false
+  return isClosedStatut || isPastDepart
+})
+
 const availableColisStatutOptions = computed(() => {
   if (!demande.value) return colisStatutOptions
 
@@ -79,9 +87,11 @@ const availableColisStatutOptions = computed(() => {
   })
 
   return colisStatutOptions.filter(opt => {
-    if (doneStatuts.has(opt.value)) return false
     const level = statusLevels[opt.value]
-    if (level && level <= maxLevelAchieved) return false
+    if (level !== maxLevelAchieved + 1) return false
+    if (!isVoyageClosedOrCompleted.value && ['en_transit', 'arrive', 'livre', 'livree'].includes(opt.value)) {
+      return false
+    }
     return true
   })
 })
@@ -238,6 +248,7 @@ const loadDemande = async () => {
         countryTo: v.pays_destination || '',
         flagTo: getCountryFlag(v.ville_destination, v.pays_destination),
         departureDate: v.date_depart,
+        voyageStatut: v.statut || 'publie',
         voyageId: v.id
       }
 
@@ -672,6 +683,10 @@ const goBackToVoyage = () => {
                 <div v-else class="px-3.5 py-2.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold flex items-center gap-1.5">
                   <span>🎉</span>
                   <span>Tous les statuts de suivi ont été appliqués</span>
+                </div>
+                <div v-if="!isVoyageClosedOrCompleted" class="mt-2 p-2.5 bg-amber-50 text-amber-900 border border-amber-200 rounded-xl text-[11px] font-medium flex items-start gap-1.5">
+                  <span class="shrink-0 mt-0.5">⏳</span>
+                  <span>Voyage en cours : les statuts <strong>Transit</strong>, <strong>Arrivé</strong> et <strong>Livré</strong> seront débloqués quand le voyage sera complet/fermé ou sa date de départ passée.</span>
                 </div>
               </div>
 
