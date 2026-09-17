@@ -1,12 +1,14 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from '@/composables/useI18n'
 import { fetchReservationsVoyageur } from '@/services/reservationService'
 import { getCountryFlag, formatVoyageDate } from '@/utils/flagHelper'
 import CountryFlag from '@/components/common/CountryFlag.vue'
 import { encodeId } from '@/utils/idMasker'
 import { currentCurrency, formatPrice } from '@/utils/currencyState'
 
+const { t } = useI18n()
 const router = useRouter()
 const activeTab = ref('pending') // 'pending' | 'accepted' | 'refused'
 
@@ -102,8 +104,8 @@ const goToDetail = (id) => {
   <div class="space-y-5 pb-16">
     <!-- Header Title & Subtitle -->
     <div class="space-y-1">
-      <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark dark:text-sky-300">Demandes de réservation</h1>
-      <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400">Gérez les demandes reçues de la part des clients</p>
+      <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark dark:text-sky-300">{{ t('voyageur.demandes.title') }}</h1>
+      <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400">{{ t('voyageur.demandes.subTitle') }}</p>
     </div>
 
     <!-- Search & Filter Controls Row -->
@@ -113,7 +115,7 @@ const goToDetail = (id) => {
         <input
           v-model="searchQuery"
           type="text"
-          placeholder="Rechercher par code, client, ville, colis..."
+          :placeholder="t('voyageur.messages.searchPlaceholder', 'Rechercher par code, client, ville, colis...')"
           class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl text-xs font-medium text-slate-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 outline-none focus:border-[#074C72] dark:focus:border-sky-500 focus:ring-2 focus:ring-[#074C72]/20 shadow-2xs"
         />
         <span class="absolute left-3.5 top-2.5 text-gray-400 dark:text-slate-500 text-sm">🔍</span>
@@ -126,7 +128,7 @@ const goToDetail = (id) => {
           class="flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center gap-1.5"
           :class="activeTab === 'pending' ? 'bg-white dark:bg-slate-800 text-[#053754] dark:text-sky-300 shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'"
         >
-          <span>En attente</span>
+          <span>{{ t('voyageur.demandes.tabs.pending') }}</span>
           <span class="w-5 h-5 rounded-full bg-amber-500 text-white text-[10px] flex items-center justify-center font-black">{{ pendingCount }}</span>
         </button>
 
@@ -135,7 +137,7 @@ const goToDetail = (id) => {
           class="flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center gap-1.5"
           :class="activeTab === 'accepted' ? 'bg-white dark:bg-slate-800 text-[#053754] dark:text-sky-300 shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'"
         >
-          <span>Acceptées</span>
+          <span>{{ t('voyageur.demandes.tabs.accepted') }}</span>
           <span class="w-5 h-5 rounded-full bg-emerald-600 text-white text-[10px] flex items-center justify-center font-bold">{{ acceptedCount }}</span>
         </button>
 
@@ -144,7 +146,7 @@ const goToDetail = (id) => {
           class="flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center gap-1.5"
           :class="activeTab === 'refused' ? 'bg-white dark:bg-slate-800 text-[#053754] dark:text-sky-300 shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'"
         >
-          <span>Refusées</span>
+          <span>{{ t('voyageur.demandes.tabs.rejected') }}</span>
           <span class="w-5 h-5 rounded-full bg-gray-400 text-white text-[10px] flex items-center justify-center font-bold">{{ refusedCount }}</span>
         </button>
       </div>
@@ -153,7 +155,7 @@ const goToDetail = (id) => {
     <!-- Loading State -->
     <div v-if="isLoading" class="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center border border-gray-100 dark:border-slate-800 shadow-sm space-y-4">
       <div class="w-10 h-10 border-4 border-[#053754] dark:border-sky-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
-      <p class="text-sm font-bold text-gray-600 dark:text-slate-300">Chargement des demandes de réservation...</p>
+      <p class="text-sm font-bold text-gray-600 dark:text-slate-300">{{ t('voyageur.voyageDetail.loading', 'Chargement des demandes de réservation...') }}</p>
     </div>
 
     <!-- Demandes Cards Grid -->
@@ -182,7 +184,7 @@ const goToDetail = (id) => {
                 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 border-gray-300 dark:border-slate-700': demande.status === 'annulee' || demande.status === 'annule'
               }"
             >
-              {{ demande.status === 'en_attente' ? '⏳ En attente' : demande.status === 'acceptee' ? '✓ Acceptée' : demande.status === 'refusee' ? '✕ Refusée' : '🚫 Annulée' }}
+              {{ demande.status === 'en_attente' ? t('voyageur.status.pending', '⏳ En attente') : demande.status === 'acceptee' ? t('voyageur.status.accepted', '✓ Acceptée') : demande.status === 'refusee' ? t('voyageur.status.refused', '✕ Refusée') : t('voyageur.status.cancelled', '🚫 Annulée') }}
             </span>
           </div>
 
@@ -190,7 +192,7 @@ const goToDetail = (id) => {
           <div class="flex justify-start">
             <span class="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold px-3 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 flex items-center gap-1.5">
               <span>👤</span>
-              <span>Client: {{ demande.clientName }}</span>
+              <span>{{ t('voyageur.demandes.clientLabel') }} {{ demande.clientName }}</span>
             </span>
           </div>
         </div>
@@ -228,11 +230,11 @@ const goToDetail = (id) => {
         <!-- Details Grid -->
         <div class="border-t border-gray-100 dark:border-slate-800 pt-3 grid grid-cols-2 gap-2 text-xs">
           <div>
-            <span class="text-gray-400 dark:text-slate-400 block font-medium text-[11px]">Départ</span>
+            <span class="text-gray-400 dark:text-slate-400 block font-medium text-[11px]">{{ t('voyageur.createVoyage.departureDate', 'Départ') }}</span>
             <span class="font-extrabold text-gray-800 dark:text-slate-200 text-xs">{{ demande.departureDate }}</span>
           </div>
           <div class="text-right">
-            <span class="text-gray-400 dark:text-slate-400 block font-medium text-[11px]">Type & Poids</span>
+            <span class="text-gray-400 dark:text-slate-400 block font-medium text-[11px]">{{ t('voyageur.demandes.parcelType', 'Colis') }}</span>
             <span class="font-extrabold text-gray-800 dark:text-slate-200 text-xs truncate block">{{ demande.parcelType }} ({{ demande.weight }})</span>
           </div>
         </div>
@@ -247,7 +249,7 @@ const goToDetail = (id) => {
             title="Voir les détails"
             class="bg-[#053754] dark:bg-sky-600 hover:bg-[#074C72] dark:hover:bg-sky-500 text-white px-3 py-2 rounded-xl text-xs font-extrabold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer active:scale-95"
           >
-            <span>Détails</span>
+            <span>{{ t('voyageur.voyageDetail.detailsBtn', 'Détails') }}</span>
             <span>➔</span>
           </button>
         </div>
@@ -259,8 +261,8 @@ const goToDetail = (id) => {
       <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-400 flex items-center justify-center text-xl mx-auto font-bold">
         📥
       </div>
-      <p class="text-sm font-bold text-gray-700 dark:text-slate-200">Aucune demande dans cette catégorie.</p>
-      <p class="text-xs text-gray-400 dark:text-slate-400">Les nouvelles demandes apparaîtront ici.</p>
+      <p class="text-sm font-bold text-gray-700 dark:text-slate-200">{{ t('voyageur.demandes.noDemandesTitle') }}</p>
+      <p class="text-xs text-gray-400 dark:text-slate-400">{{ t('voyageur.demandes.noDemandesSub') }}</p>
     </div>
   </div>
 </template>

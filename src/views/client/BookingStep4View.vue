@@ -8,6 +8,9 @@ import { createReservation } from '@/services/reservationService'
 import { initiateWavePayment } from '@/services/paiementService'
 import { formatVoyageDate, isElectronicType } from '@/utils/flagHelper'
 import { decodeId, encodeId } from '@/utils/idMasker'
+import { useI18n } from '@/composables/useI18n'
+
+const { t } = useI18n()
 
 const route = useRoute()
 const router = useRouter()
@@ -138,8 +141,8 @@ const goToHome = () => {
     <BookingProgressBar
       :step="4"
       :totalSteps="4"
-      title="Paiement et Confirmation"
-      subtitle="Finalisez votre demande de réservation"
+      :title="t('booking.step4.title')"
+      :subtitle="t('booking.step4.successSub')"
     />
 
     <!-- Trip Summary Card (Dark Blue Container) -->
@@ -150,7 +153,7 @@ const goToHome = () => {
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
-          Voyageur GP Vérifié
+          {{ t('booking.step4.verifiedCarrierBadge') }}
         </span>
       </div>
 
@@ -190,17 +193,17 @@ const goToHome = () => {
 
       <div class="border-t border-sky-800/80 pt-4 grid grid-cols-2 gap-4 text-xs">
         <div>
-          <span class="text-sky-300 block font-medium">Départ</span>
+          <span class="text-sky-300 block font-medium">{{ t('booking.step4.departure') }}</span>
           <span class="font-extrabold text-sm sm:text-base text-white">{{ formatVoyageDate(dateDepart) }}</span>
         </div>
         <div class="text-right">
-          <span class="text-sky-300 block font-medium">Poids du colis</span>
+          <span class="text-sky-300 block font-medium">{{ t('booking.step4.parcelWeight') }}</span>
           <span class="font-extrabold text-sm sm:text-base text-white">{{ weightKg }} Kg</span>
         </div>
       </div>
 
       <div class="pt-2 flex items-center justify-between border-t border-sky-800/80 text-sm">
-        <span class="text-sky-200 font-medium">Prix total du voyage</span>
+        <span class="text-sky-200 font-medium">{{ t('booking.step4.totalTripPrice') }}</span>
         <span class="font-black text-base sm:text-lg text-white">{{ formattedTotalPrice }}</span>
       </div>
     </div>
@@ -208,8 +211,8 @@ const goToHome = () => {
     <!-- Mode de paiement Section -->
     <div class="space-y-4">
       <div>
-        <h2 class="text-base sm:text-lg font-bold text-principal-dark dark:text-sky-300">Choisissez votre mode de paiement</h2>
-        <p class="text-xs text-gray-500 dark:text-slate-400">Sélectionnez la méthode qui vous convient pour régler les frais de livraison.</p>
+        <h2 class="text-base sm:text-lg font-bold text-principal-dark dark:text-sky-300">{{ t('booking.step4.choosePaymentTitle') }}</h2>
+        <p class="text-xs text-gray-500 dark:text-slate-400">{{ t('booking.step4.choosePaymentSub') }}</p>
       </div>
 
       <div class="space-y-3">
@@ -226,7 +229,7 @@ const goToHome = () => {
 
           <div class="flex-1 space-y-1.5">
             <div class="flex items-center justify-between">
-              <h3 class="text-sm font-extrabold text-gray-900 dark:text-slate-100">Wave</h3>
+              <h3 class="text-sm font-extrabold text-gray-900 dark:text-slate-100">{{ t('booking.step4.waveTitle') }}</h3>
               <!-- Radio dot -->
               <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center"
                 :class="selectedPayment === 'wave' ? 'border-[#B50302] dark:border-rose-500' : 'border-gray-300 dark:border-slate-600'">
@@ -234,11 +237,11 @@ const goToHome = () => {
               </div>
             </div>
             <p class="text-xs text-gray-500 dark:text-slate-400 leading-relaxed">
-              Vous réglez les frais tout de suite pour valider et lancer votre envoi.
+              {{ t('booking.step4.waveText') }}
             </p>
             <div>
               <span class="inline-block bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 text-[11px] font-bold px-3 py-1 rounded-lg border border-sky-100 dark:border-sky-800">
-                Paiement immédiat via Wave
+                {{ t('booking.step4.waveBadge') }}
               </span>
             </div>
           </div>
@@ -257,7 +260,7 @@ const goToHome = () => {
 
           <div class="flex-1 space-y-1.5">
             <div class="flex items-center justify-between">
-              <h3 class="text-sm font-extrabold text-gray-900 dark:text-slate-100">Paiement par espèces au dépôt</h3>
+              <h3 class="text-sm font-extrabold text-gray-900 dark:text-slate-100">{{ t('booking.step4.cashTitle') }}</h3>
               <!-- Radio dot -->
               <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center"
                 :class="selectedPayment === 'espece_depot' ? 'border-[#B50302] dark:border-rose-500' : 'border-gray-300 dark:border-slate-600'">
@@ -265,11 +268,11 @@ const goToHome = () => {
               </div>
             </div>
             <p class="text-xs text-gray-500 dark:text-slate-400 leading-relaxed">
-              Réglez directement en espèces auprès du transporteur lors de la remise du colis au point de dépôt.
+              {{ t('booking.step4.cashText') }}
             </p>
             <div>
               <span class="inline-block bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 text-[11px] font-bold px-3 py-1 rounded-lg border border-gray-200 dark:border-slate-700">
-                Paiement par espèces au dépôt
+                {{ t('booking.step4.cashBadge') }}
               </span>
             </div>
           </div>
@@ -288,7 +291,7 @@ const goToHome = () => {
 
           <div class="flex-1 space-y-1.5">
             <div class="flex items-center justify-between">
-              <h3 class="text-sm font-extrabold text-[#B50302] dark:text-rose-400">Paiement à la livraison</h3>
+              <h3 class="text-sm font-extrabold text-[#B50302] dark:text-rose-400">{{ t('booking.step4.deliveryPaymentTitle') }}</h3>
               <!-- Radio dot -->
               <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center"
                 :class="selectedPayment === 'livraison' ? 'border-[#B50302] dark:border-rose-500' : 'border-gray-300 dark:border-slate-600'">
@@ -296,11 +299,11 @@ const goToHome = () => {
               </div>
             </div>
             <p class="text-xs text-gray-500 dark:text-slate-400 leading-relaxed">
-              C'est le destinataire qui règle les frais au moment où il reçoit le colis. Rien à payer de votre côté.
+              {{ t('booking.step4.deliveryPaymentText') }}
             </p>
             <div>
               <span class="inline-block bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 text-[11px] font-bold px-3 py-1 rounded-lg border border-sky-100 dark:border-sky-800">
-                Payé par le destinataire
+                {{ t('booking.step4.deliveryPaymentBadge') }}
               </span>
             </div>
           </div>
@@ -317,7 +320,7 @@ const goToHome = () => {
       class="w-full bg-[#B50302] hover:bg-[#8B0000] text-white font-extrabold text-sm py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99] uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
     >
       <span v-if="isSubmitting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-      <span>{{ isSubmitting ? 'ENREGISTREMENT DE LA RÉSERVATION...' : 'CONFIRMER VOTRE RÉSERVATION' }}</span>
+      <span>{{ isSubmitting ? t('booking.step4.submittingText') : t('booking.step4.confirmBookingBtn') }}</span>
     </button>
 
     <!-- Confirmation Modal ("Réservation en attente") -->
@@ -332,9 +335,9 @@ const goToHome = () => {
 
           <!-- Modal Title & Message -->
           <div class="space-y-2">
-            <h3 class="text-xl font-bold text-[#053754] dark:text-sky-300">Réservation effectuée avec succès</h3>
+            <h3 class="text-xl font-bold text-[#053754] dark:text-sky-300">{{ t('booking.step4.successTitle') }}</h3>
             <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400 leading-relaxed">
-              Veuillez attendre que le transporteur accepte votre demande de réservation.
+              {{ t('booking.step4.successSub') }}
             </p>
           </div>
 
@@ -344,7 +347,7 @@ const goToHome = () => {
             type="button"
             class="w-full bg-[#B50302] hover:bg-[#8B0000] text-white font-extrabold text-xs sm:text-sm py-4 rounded-xl shadow-md transition-all uppercase tracking-wider cursor-pointer active:scale-[0.99]"
           >
-            DISCUTEZ AVEC LE TRANSPORTEUR
+            {{ t('booking.step4.chatWithCarrierBtn') }}
           </button>
 
           <!-- Secondary Link: Retour à l'accueil -->
@@ -354,7 +357,7 @@ const goToHome = () => {
               type="button"
               class="text-sm font-semibold text-gray-600 dark:text-slate-400 hover:text-[#053754] dark:hover:text-sky-300 underline underline-offset-4 cursor-pointer transition-colors"
             >
-              Retour à l'accueil
+              {{ t('booking.step4.backToHome') }}
             </button>
           </div>
 

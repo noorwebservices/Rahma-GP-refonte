@@ -10,6 +10,9 @@ import { decodeId } from '@/utils/idMasker'
 import { setHeaderRoute } from '@/utils/headerState'
 import { currentCurrency, formatPrice } from '@/utils/currencyState'
 import ReportUserModal from '@/components/ReportUserModal.vue'
+import { useI18n } from '@/composables/useI18n'
+
+const { t } = useI18n()
 
 const showReportModal = ref(false)
 
@@ -152,13 +155,13 @@ const startBooking = () => {
     <!-- Loading State -->
     <div v-if="isLoading" class="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center border border-gray-100 dark:border-slate-800 shadow-sm space-y-4">
       <div class="w-10 h-10 border-4 border-[#053754] dark:border-sky-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
-      <p class="text-sm font-bold text-gray-600 dark:text-slate-300">Chargement du voyage...</p>
+      <p class="text-sm font-bold text-gray-600 dark:text-slate-300">{{ t('voyageDetail.loading') }}</p>
     </div>
 
     <!-- Error State -->
     <div v-else-if="errorMsg" class="bg-red-50 dark:bg-red-950/80 border border-red-200 dark:border-red-900 rounded-3xl p-8 text-center space-y-3">
       <p class="text-sm font-bold text-red-800 dark:text-red-300">{{ errorMsg }}</p>
-      <button @click="router.push('/client')" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-xl">Retour à l'accueil</button>
+      <button @click="router.push('/client')" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-xl">{{ t('common.back') }}</button>
     </div>
 
     <!-- Top Return Bar -->
@@ -169,7 +172,7 @@ const startBooking = () => {
         class="inline-flex items-center gap-2 text-xs font-bold text-gray-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 px-3.5 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors shadow-2xs cursor-pointer"
       >
         <span>←</span>
-        <span>Retour aux trajets</span>
+        <span>{{ t('voyageDetail.backToTrips') }}</span>
       </button>
     </div>
 
@@ -217,11 +220,11 @@ const startBooking = () => {
           <!-- Dates Row -->
           <div class="grid grid-cols-2 gap-4 pt-4 border-t border-white/15 text-xs">
             <div>
-              <div class="text-gray-300 font-medium">Départ</div>
+              <div class="text-gray-300 font-medium">{{ t('voyageDetail.departure') }}</div>
               <div class="font-bold text-white text-xs sm:text-sm mt-0.5">{{ formatVoyageDate(voyage.dateDepart) }}</div>
             </div>
             <div class="text-right">
-              <div class="text-gray-300 font-medium">Arrivée Estimée</div>
+              <div class="text-gray-300 font-medium">{{ t('voyageDetail.arrivalEstimated') }}</div>
               <div class="font-bold text-white text-xs sm:text-sm mt-0.5">{{ formatVoyageDate(voyage.dateArrivee) }}</div>
             </div>
           </div>
@@ -230,7 +233,7 @@ const startBooking = () => {
         <!-- Capacité disponible Card -->
         <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-2">
           <div class="flex items-center justify-between font-bold text-sm">
-            <span class="text-[#074C72] dark:text-sky-300">Capacité disponible</span>
+            <span class="text-[#074C72] dark:text-sky-300">{{ t('voyageDetail.capacityTitle') }}</span>
             <span class="text-[#074C72] dark:text-sky-300 font-black text-base">{{ voyage.poidsDispo }}kg</span>
           </div>
           <div class="w-full h-2.5 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
@@ -240,32 +243,32 @@ const startBooking = () => {
             ></div>
           </div>
           <div class="text-right text-[11px] text-gray-400 dark:text-slate-400 font-medium">
-            {{ voyage.poidsTotal - voyage.poidsDispo }} kg déjà réservés sur {{ voyage.poidsTotal }} kg
+            {{ voyage.poidsTotal - voyage.poidsDispo }} {{ t('common.kg') }} {{ t('voyageDetail.capacityReserved') }} {{ voyage.poidsTotal }} {{ t('common.kg') }}
           </div>
         </div>
 
         <!-- Tarif Card displaying BOTH Tariffs -->
         <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-3">
-          <div class="text-xs font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider">Tarification appliquée</div>
+          <div class="text-xs font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider">{{ t('voyageDetail.pricingTitle') }}</div>
           
           <div class="grid grid-cols-2 gap-3">
             <div class="bg-slate-50 dark:bg-slate-800/80 p-3 rounded-xl border border-slate-100 dark:border-slate-700 space-y-1">
-              <span class="text-xs text-gray-400 dark:text-slate-400 font-bold block">Tarif / Kg</span>
+              <span class="text-xs text-gray-400 dark:text-slate-400 font-bold block">{{ t('voyageDetail.perKg') }}</span>
               <span class="text-base sm:text-lg font-black text-[#B50302] dark:text-red-400 block">{{ voyage.prixKg }}</span>
-              <span class="text-[10px] text-gray-400 dark:text-slate-400 block font-medium">par kilogramme</span>
+              <span class="text-[10px] text-gray-400 dark:text-slate-400 block font-medium">{{ t('voyageDetail.perKgSub') }}</span>
             </div>
 
             <div class="bg-slate-50 dark:bg-slate-800/80 p-3 rounded-xl border border-slate-100 dark:border-slate-700 space-y-1">
-              <span class="text-xs text-gray-400 dark:text-slate-400 font-bold block">Tarif / Objet</span>
+              <span class="text-xs text-gray-400 dark:text-slate-400 font-bold block">{{ t('voyageDetail.perObject') }}</span>
               <span class="text-base sm:text-lg font-black text-[#053754] dark:text-sky-300 block">{{ voyage.prixObjet }}</span>
-              <span class="text-[10px] text-gray-400 dark:text-slate-400 block font-medium">forfait par objet</span>
+              <span class="text-[10px] text-gray-400 dark:text-slate-400 block font-medium">{{ t('voyageDetail.perObjectSub') }}</span>
             </div>
           </div>
         </div>
 
         <!-- Où déposer mon colis ? Card avec lien Google Maps -->
         <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-3">
-          <div class="text-xs font-bold text-gray-400 dark:text-slate-400">Où déposer mon colis ? (Lieu de Départ)</div>
+          <div class="text-xs font-bold text-gray-400 dark:text-slate-400">{{ t('voyageDetail.dropoffLocation') }}</div>
           <div class="flex items-start gap-3">
             <div class="w-8 h-8 rounded-full bg-red-50 dark:bg-red-950/80 text-[#B50302] dark:text-red-300 flex items-center justify-center shrink-0 font-bold">
               📍
@@ -273,7 +276,7 @@ const startBooking = () => {
             <div class="space-y-1 flex-1">
               <div class="text-sm font-bold text-[#074C72] dark:text-sky-300">{{ voyage.adresseDepotText }}</div>
               <div class="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-2">
-                <span>Horaires :</span>
+                <span>{{ t('voyageDetail.openingHours') }}</span>
                 <span class="font-bold text-[#074C72] dark:text-sky-300">{{ voyage.horaireDepot }}</span>
               </div>
               <a
@@ -282,7 +285,7 @@ const startBooking = () => {
                 rel="noopener noreferrer"
                 class="inline-flex items-center gap-1.5 text-xs text-[#B50302] dark:text-red-400 hover:underline font-bold pt-1.5 cursor-pointer"
               >
-                <span>🗺️ Voir l'adresse sur Google Maps</span>
+                <span>🗺️ {{ t('voyageDetail.viewMap') }}</span>
                 <span>➔</span>
               </a>
             </div>
@@ -291,7 +294,7 @@ const startBooking = () => {
 
         <!-- Point de retrait à l'arrivée Card avec lien Google Maps -->
         <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-3">
-          <div class="text-xs font-bold text-gray-400 dark:text-slate-400">Point de retrait à l'arrivée (Destination)</div>
+          <div class="text-xs font-bold text-gray-400 dark:text-slate-400">{{ t('voyageDetail.pickupLocation') }}</div>
           <div class="flex items-start gap-3">
             <div class="w-8 h-8 rounded-full bg-red-50 dark:bg-red-950/80 text-[#B50302] dark:text-red-300 flex items-center justify-center shrink-0 font-bold">
               📍
@@ -299,7 +302,7 @@ const startBooking = () => {
             <div class="space-y-1 flex-1">
               <div class="text-sm font-bold text-[#074C72] dark:text-sky-300">{{ voyage.adresseRetraitText }}</div>
               <div class="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-2">
-                <span>Horaires :</span>
+                <span>{{ t('voyageDetail.openingHours') }}</span>
                 <span class="font-bold text-[#074C72] dark:text-sky-300">{{ voyage.horaireRetrait }}</span>
               </div>
               <a
@@ -308,7 +311,7 @@ const startBooking = () => {
                 rel="noopener noreferrer"
                 class="inline-flex items-center gap-1.5 text-xs text-[#B50302] dark:text-red-400 hover:underline font-bold pt-1.5 cursor-pointer"
               >
-                <span>🗺️ Voir l'adresse sur Google Maps</span>
+                <span>🗺️ {{ t('voyageDetail.viewMap') }}</span>
                 <span>➔</span>
               </a>
             </div>
@@ -326,7 +329,7 @@ const startBooking = () => {
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span>Colis acceptés :</span>
+            <span>{{ t('voyageDetail.acceptedParcels') }}</span>
           </div>
           <ul v-if="voyage.categoriesAutorisees.length > 0" class="space-y-2 text-xs font-semibold text-gray-600 dark:text-slate-300 pl-1">
             <li v-for="item in voyage.categoriesAutorisees" :key="item" class="flex items-center gap-2">
@@ -334,7 +337,7 @@ const startBooking = () => {
               <span>{{ item }}</span>
             </li>
           </ul>
-          <p v-else class="text-xs text-gray-400 dark:text-slate-400 italic">Aucune catégorie spécifiée.</p>
+          <p v-else class="text-xs text-gray-400 dark:text-slate-400 italic">{{ t('voyageDetail.noCategorySpecified') }}</p>
         </div>
 
         <!-- Objets interdits Card (Red Border) -->
@@ -343,7 +346,7 @@ const startBooking = () => {
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
-            <span>Objets interdits</span>
+            <span>{{ t('voyageDetail.forbiddenItems') }}</span>
           </div>
           <ul v-if="voyage.categoriesRefusees.length > 0" class="space-y-2 text-xs font-semibold text-gray-600 dark:text-slate-300 pl-1">
             <li v-for="item in voyage.categoriesRefusees" :key="item" class="flex items-center gap-2">
@@ -351,7 +354,7 @@ const startBooking = () => {
               <span>{{ item }}</span>
             </li>
           </ul>
-          <p v-else class="text-xs text-gray-400 dark:text-slate-400 italic">Aucune interdiction spécifique.</p>
+          <p v-else class="text-xs text-gray-400 dark:text-slate-400 italic">{{ t('voyageDetail.noForbiddenItems') }}</p>
         </div>
 
         <!-- À propos du transporteur Card avec le vrai nom du transporteur et avis -->
@@ -360,7 +363,7 @@ const startBooking = () => {
             <svg class="w-5 h-5 text-[#074C72] dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
-            <span>À propos du transporteur</span>
+            <span>{{ t('voyageDetail.aboutCarrier') }}</span>
           </div>
 
           <div class="flex items-center justify-between pt-1">
@@ -372,12 +375,12 @@ const startBooking = () => {
                 <div class="font-bold text-[#074C72] dark:text-sky-300 text-sm">{{ voyage.transporteur }}</div>
                 <div class="text-xs text-[#FF9F02] font-extrabold flex items-center gap-1">
                   <span>★</span> <span>{{ voyageurMoyenne }}</span>
-                  <span class="text-gray-400 dark:text-slate-400 font-normal">({{ voyageurTotalCount }} avis)</span>
+                  <span class="text-gray-400 dark:text-slate-400 font-normal">({{ voyageurTotalCount }} {{ t('voyageDetail.reviewsCount') }})</span>
                 </div>
               </div>
             </div>
 
-            <span class="text-xs text-emerald-600 dark:text-emerald-300 font-bold bg-emerald-50 dark:bg-emerald-950/80 px-2.5 py-1 rounded-full border border-emerald-100 dark:border-emerald-800">Vérifié ✓</span>
+            <span class="text-xs text-emerald-600 dark:text-emerald-300 font-bold bg-emerald-50 dark:bg-emerald-950/80 px-2.5 py-1 rounded-full border border-emerald-100 dark:border-emerald-800">{{ t('voyageDetail.verified') }}</span>
           </div>
 
           <!-- Signaler ce compte button -->
@@ -388,13 +391,13 @@ const startBooking = () => {
               class="inline-flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-bold bg-red-50 dark:bg-red-950/80 hover:bg-red-100 dark:hover:bg-red-900 px-3 py-1.5 rounded-xl border border-red-100 dark:border-red-900 transition cursor-pointer"
             >
               <span>🚩</span>
-              <span>Signaler ce compte</span>
+              <span>{{ t('voyageDetail.reportAccount') }}</span>
             </button>
           </div>
 
           <!-- Reviews list preview with 2-item pagination -->
           <div v-if="voyageurEvaluations.length > 0" class="pt-3 border-t border-gray-100 dark:border-slate-800 space-y-2.5">
-            <span class="text-[11px] font-extrabold text-gray-400 dark:text-slate-400 uppercase tracking-wider block">Derniers avis clients</span>
+            <span class="text-[11px] font-extrabold text-gray-400 dark:text-slate-400 uppercase tracking-wider block">{{ t('voyageDetail.latestReviews') }}</span>
             <div v-for="evalItem in paginatedVoyageurEvaluations" :key="evalItem.id" class="bg-gray-50 dark:bg-slate-800/80 p-2.5 rounded-xl border border-gray-100 dark:border-slate-700 space-y-1">
               <div class="flex items-center justify-between text-[11px]">
                 <span class="font-bold text-gray-800 dark:text-slate-100">{{ evalItem.evaluateur ? `${evalItem.evaluateur.prenom} ${evalItem.evaluateur.nom}` : 'Client' }}</span>
@@ -409,7 +412,7 @@ const startBooking = () => {
                 :disabled="currentEvalPage === 1"
                 class="px-2 py-0.5 bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded text-gray-700 dark:text-slate-200 font-bold disabled:opacity-40 cursor-pointer"
               >
-                ‹ Précédent
+                ‹ {{ t('common.back') }}
               </button>
               <span class="text-gray-400 dark:text-slate-400 font-semibold">{{ currentEvalPage }} / {{ totalEvalPages }}</span>
               <button
@@ -417,7 +420,7 @@ const startBooking = () => {
                 :disabled="currentEvalPage === totalEvalPages"
                 class="px-2 py-0.5 bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded text-gray-700 dark:text-slate-200 font-bold disabled:opacity-40 cursor-pointer"
               >
-                Suivant ›
+                {{ t('common.next') }} ›
               </button>
             </div>
           </div>
@@ -429,7 +432,7 @@ const startBooking = () => {
           type="button"
           class="w-full bg-[#B50302] dark:bg-red-700 hover:bg-[#870202] dark:hover:bg-red-600 text-white font-extrabold text-sm py-4 rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
         >
-          <span>RÉSERVER POUR CE VOYAGE</span>
+          <span>{{ t('voyageDetail.bookBtn') }}</span>
           <span class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs">➔</span>
         </button>
 

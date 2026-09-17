@@ -3,6 +3,9 @@ import { ref, computed, onMounted } from 'vue'
 import VoyageCard from '@/components/client/VoyageCard.vue'
 import CitySelect from '@/components/client/CitySelect.vue'
 import { fetchVoyages } from '@/services/voyageService'
+import { useI18n } from '@/composables/useI18n'
+
+const { t } = useI18n()
 
 const departCity = ref('')
 const destinationCity = ref('')
@@ -97,10 +100,10 @@ const resetSearch = () => {
 
         <div class="relative z-10 space-y-2">
           <span class="inline-block bg-white/15 backdrop-blur-md px-3.5 py-1 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#FF9F02] dark:text-amber-300 border border-white/10">
-            Transport international de colis
+            {{ t('clientHome.heroSub') }}
           </span>
           <h1 class="text-xl sm:text-2xl font-serif font-bold text-white leading-tight">
-            Où souhaitez-vous envoyer votre colis ?
+            {{ t('clientHome.heroTitle') }}
           </h1>
         </div>
 
@@ -110,8 +113,8 @@ const resetSearch = () => {
           <!-- Ville Départ avec Recherche -->
           <CitySelect
             id="depart"
-            label="DÉPART"
-            placeholder="Choisir la ville de départ"
+            :label="t('common.from').toUpperCase()"
+            :placeholder="t('clientHome.searchDeparture')"
             v-model="departCity"
             @change="handleSearch"
           />
@@ -119,8 +122,8 @@ const resetSearch = () => {
           <!-- Ville Destination avec Recherche -->
           <CitySelect
             id="destination"
-            label="DESTINATION"
-            placeholder="Choisir la ville de destination"
+            :label="t('common.to').toUpperCase()"
+            :placeholder="t('clientHome.searchArrival')"
             v-model="destinationCity"
             @change="handleSearch"
           />
@@ -134,7 +137,7 @@ const resetSearch = () => {
             <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            <span>Rechercher les trajets disponible</span>
+            <span>{{ t('clientHome.searchBtn') }}</span>
           </button>
         </div>
       </div>
@@ -154,7 +157,7 @@ const resetSearch = () => {
                   : 'bg-white dark:bg-slate-800 text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700'
               ]"
             >
-              Tous les voyages ({{ filteredVoyages.length }})
+              {{ t('clientHome.allTrips') }} ({{ filteredVoyages.length }})
             </button>
 
             <button
@@ -166,7 +169,7 @@ const resetSearch = () => {
                   : 'bg-white dark:bg-slate-800 text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700'
               ]"
             >
-              📅 Voyages de la semaine
+              {{ t('clientHome.weekTrips') }}
             </button>
           </div>
 
@@ -175,7 +178,7 @@ const resetSearch = () => {
             @click="resetSearch"
             class="text-xs text-[#B50302] dark:text-red-400 font-bold underline hover:text-[#870202] dark:hover:text-red-300 shrink-0"
           >
-            Réinitialiser
+            {{ t('clientHome.reset') }}
           </button>
         </div>
 
@@ -192,15 +195,15 @@ const resetSearch = () => {
             <div class="w-12 h-12 rounded-full bg-red-50 dark:bg-red-950/80 text-[#B50302] dark:text-red-300 flex items-center justify-center mx-auto text-xl font-bold">
               🔍
             </div>
-            <h3 class="text-base font-bold text-[#074C72] dark:text-sky-300">Aucun trajet disponible</h3>
+            <h3 class="text-base font-bold text-[#074C72] dark:text-sky-300">{{ t('clientHome.noTripsFound') }}</h3>
             <p class="text-xs text-gray-500 dark:text-slate-400 max-w-sm mx-auto">
-              Aucun voyage ne correspond à la recherche <span class="font-bold text-gray-700 dark:text-slate-200">{{ departCity }} ➔ {{ destinationCity }}</span>.
+              {{ t('clientHome.noTripsSub') }}
             </p>
             <button
               @click="resetSearch"
               class="px-5 py-2.5 rounded-xl bg-[#074C72] dark:bg-sky-600 text-white text-xs font-bold shadow-md hover:bg-[#053754] dark:hover:bg-sky-500 transition-all cursor-pointer"
             >
-              Voir tous les trajets disponibles
+              {{ t('clientHome.viewAllTrips') }}
             </button>
           </div>
         </div>

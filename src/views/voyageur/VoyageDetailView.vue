@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from '@/composables/useI18n'
 import Swal from 'sweetalert2'
 import { fetchVoyage } from '@/services/voyageService'
 import { accepterReservation, refuserReservation, annulerReservation } from '@/services/reservationService'
@@ -10,6 +11,7 @@ import { decodeId, encodeId } from '@/utils/idMasker'
 import { setHeaderRoute, clearHeaderRoute } from '@/utils/headerState'
 import { currentCurrency, formatPrice, convertAmount } from '@/utils/currencyState'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const voyageId = decodeId(route.params.id)
@@ -41,17 +43,17 @@ const totalRevenuVolAccepte = computed(() => {
 const getStatusBadge = (statut) => {
   switch (statut) {
     case 'publie':
-      return { text: 'Publié & Ouvert', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' }
+      return { text: t('voyageur.status.publie', 'Publié & Ouvert'), cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' }
     case 'brouillon':
-      return { text: 'Brouillon', cls: 'bg-gray-100 text-gray-700 border-gray-300' }
+      return { text: t('voyageur.status.brouillon', 'Brouillon'), cls: 'bg-gray-100 text-gray-700 border-gray-300' }
     case 'complet':
-      return { text: 'Vol Complet', cls: 'bg-purple-50 text-purple-700 border-purple-200' }
+      return { text: t('voyageur.status.complet', 'Vol Complet'), cls: 'bg-purple-50 text-purple-700 border-purple-200' }
     case 'en_cours':
-      return { text: 'En Cours de Vol', cls: 'bg-blue-50 text-blue-700 border-blue-200' }
+      return { text: t('voyageur.status.en_cours', 'En Cours de Vol'), cls: 'bg-blue-50 text-blue-700 border-blue-200' }
     case 'termine':
-      return { text: 'Voyage Terminé', cls: 'bg-slate-100 text-slate-700 border-slate-300' }
+      return { text: t('voyageur.status.termine', 'Voyage Terminé'), cls: 'bg-slate-100 text-slate-700 border-slate-300' }
     case 'annule':
-      return { text: 'Annulé', cls: 'bg-red-50 text-red-700 border-red-200' }
+      return { text: t('voyageur.status.annule', 'Annulé'), cls: 'bg-red-50 text-red-700 border-red-200' }
     default:
       return { text: statut || 'Statut inconnu', cls: 'bg-gray-50 text-gray-600 border-gray-200' }
   }
@@ -60,14 +62,14 @@ const getStatusBadge = (statut) => {
 const getReservationStatusBadge = (statut) => {
   switch (statut) {
     case 'en_attente':
-      return { text: '⏳ En Attente', cls: 'bg-amber-50 text-amber-800 border-amber-300' }
+      return { text: t('voyageur.status.pending', '⏳ En Attente'), cls: 'bg-amber-50 text-amber-800 border-amber-300' }
     case 'acceptee':
-      return { text: '✓ Acceptée', cls: 'bg-emerald-50 text-emerald-800 border-emerald-300' }
+      return { text: t('voyageur.status.accepted', '✓ Acceptée'), cls: 'bg-emerald-50 text-emerald-800 border-emerald-300' }
     case 'refusee':
-      return { text: '✕ Refusée', cls: 'bg-red-50 text-red-800 border-red-300' }
+      return { text: t('voyageur.status.refused', '✕ Refusée'), cls: 'bg-red-50 text-red-800 border-red-300' }
     case 'annulee':
     case 'annule':
-      return { text: '🚫 Annulée', cls: 'bg-gray-100 text-gray-700 border-gray-300' }
+      return { text: t('voyageur.status.cancelled', '🚫 Annulée'), cls: 'bg-gray-100 text-gray-700 border-gray-300' }
     default:
       return { text: statut || 'Inconnu', cls: 'bg-slate-100 text-slate-700 border-slate-200' }
   }
@@ -236,7 +238,7 @@ const goBack = () => {
         class="inline-flex items-center gap-1.5 text-xs font-bold text-gray-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 px-3 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors shadow-2xs cursor-pointer shrink"
       >
         <span>←</span>
-        <span>Retour aux voyages</span>
+        <span>{{ t('voyageur.voyageDetail.backBtn') }}</span>
       </button>
 
       <span
@@ -251,13 +253,13 @@ const goBack = () => {
     <!-- Loading State -->
     <div v-if="isLoading" class="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center border border-gray-100 dark:border-slate-800 shadow-sm space-y-4">
       <div class="w-10 h-10 border-4 border-[#053754] dark:border-sky-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
-      <p class="text-sm font-bold text-gray-600 dark:text-slate-300">Chargement des détails complets du voyage...</p>
+      <p class="text-sm font-bold text-gray-600 dark:text-slate-300">{{ t('voyageur.voyageDetail.loading') }}</p>
     </div>
 
     <!-- Error State -->
     <div v-else-if="errorMsg" class="bg-red-50 dark:bg-rose-950/40 border border-red-200 dark:border-rose-900 rounded-3xl p-8 text-center space-y-3">
       <p class="text-sm font-bold text-red-800 dark:text-rose-300">{{ errorMsg }}</p>
-      <button @click="goBack" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-xl cursor-pointer">Retour</button>
+      <button @click="goBack" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-xl cursor-pointer">{{ t('voyageur.voyageDetail.backBtn') }}</button>
     </div>
 
     <!-- Main Content when loaded -->
@@ -265,10 +267,10 @@ const goBack = () => {
       <!-- Title Header -->
       <div>
         <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark dark:text-sky-300">
-          Détails du voyage {{ voyage.routeFrom }} ➔ {{ voyage.routeTo }}
+          {{ t('voyageur.voyageDetail.title') }} {{ voyage.routeFrom }} ➔ {{ voyage.routeTo }}
         </h1>
         <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400">
-          Toutes les caractéristiques, adresses et les réservations associées à ce vol
+          {{ t('voyageur.voyageDetail.subTitle') }}
         </p>
       </div>
 
@@ -306,13 +308,13 @@ const goBack = () => {
         <!-- Dates Row -->
         <div class="grid grid-cols-2 gap-4 pt-4 border-t border-sky-800/80 text-xs">
           <div>
-            <span class="text-sky-200 font-medium block">Date de Départ</span>
+            <span class="text-sky-200 font-medium block">{{ t('voyageur.voyageDetail.departureDate') }}</span>
             <span class="font-extrabold text-white text-xs sm:text-sm mt-0.5 block">
               {{ formatVoyageDate(voyage.departureDate) }}
             </span>
           </div>
           <div class="text-right">
-            <span class="text-sky-200 font-medium block">Date d'Arrivée Estimée</span>
+            <span class="text-sky-200 font-medium block">{{ t('voyageur.voyageDetail.arrivalDate') }}</span>
             <span class="font-extrabold text-white text-xs sm:text-sm mt-0.5 block">
               {{ formatVoyageDate(voyage.arrivalDate) }}
             </span>
@@ -322,7 +324,7 @@ const goBack = () => {
         <!-- Capacity Progress Bar -->
         <div class="space-y-2 pt-2 border-t border-sky-800/80">
           <div class="flex items-center justify-between text-xs font-extrabold">
-            <span class="text-sky-200">Capacité Utilisée</span>
+            <span class="text-sky-200">{{ t('voyageur.voyageDetail.capacityUsed') }}</span>
             <span class="text-white">{{ voyage.capaciteTotale - voyage.capaciteDispo }} Kg / {{ voyage.capaciteTotale }} Kg</span>
           </div>
           <div class="w-full h-3 bg-sky-950/80 rounded-full overflow-hidden border border-sky-700/50">
@@ -332,21 +334,21 @@ const goBack = () => {
             ></div>
           </div>
           <div class="flex justify-between text-[11px] text-sky-300">
-            <span>Reste disponible : <strong class="text-white">{{ voyage.capaciteDispo }} Kg</strong></span>
-            <span>Tarif Kg : <strong class="text-white">{{ voyage.prixKg }}</strong> | Tarif Objet : <strong class="text-white">{{ voyage.prixObjet }}</strong></span>
+            <span>{{ t('voyageur.voyageDetail.remCapacity') }} <strong class="text-white">{{ voyage.capaciteDispo }} Kg</strong></span>
+            <span>{{ t('voyageur.voyageDetail.rateKg') }} <strong class="text-white">{{ voyage.prixKg }}</strong> | {{ t('voyageur.voyageDetail.rateObjet') }} <strong class="text-white">{{ voyage.prixObjet }}</strong></span>
           </div>
         </div>
 
         <!-- Dynamic Revenue Metrics for this Voyage -->
         <div class="pt-3 border-t border-sky-800/80 grid grid-cols-2 gap-4 text-xs">
           <div>
-            <span class="text-emerald-300 font-bold block">Revenu Confirmé / Accepté</span>
+            <span class="text-emerald-300 font-bold block">{{ t('voyageur.voyageDetail.confirmedRev') }}</span>
             <span class="text-lg sm:text-xl font-black text-emerald-400 block mt-0.5">
               {{ totalRevenuVolAccepte }}
             </span>
           </div>
           <div class="text-right">
-            <span class="text-amber-200 font-bold block">Revenu Total Potentiel</span>
+            <span class="text-amber-200 font-bold block">{{ t('voyageur.voyageDetail.totalRev') }}</span>
             <span class="text-lg sm:text-xl font-black text-amber-300 block mt-0.5">
               {{ totalRevenuVolEstime }}
             </span>
@@ -362,14 +364,14 @@ const goBack = () => {
           
           <!-- Tarifs Card -->
           <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-3">
-            <h3 class="text-xs font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider">Tarification appliquée</h3>
+            <h3 class="text-xs font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider">{{ t('voyageur.voyageDetail.pricingApplied') }}</h3>
             <div class="grid grid-cols-2 gap-4">
               <div class="bg-slate-50 dark:bg-slate-800/80 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-1">
-                <span class="text-xs text-gray-500 dark:text-slate-400 block font-medium">Prix par Kg</span>
+                <span class="text-xs text-gray-500 dark:text-slate-400 block font-medium">{{ t('voyageur.voyageDetail.pricePerKg') }}</span>
                 <span class="text-lg font-black text-[#B50302] dark:text-rose-400 block">{{ voyage.prixKg }}</span>
               </div>
               <div class="bg-slate-50 dark:bg-slate-800/80 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-1">
-                <span class="text-xs text-gray-500 dark:text-slate-400 block font-medium">Prix par Objet (Forfait)</span>
+                <span class="text-xs text-gray-500 dark:text-slate-400 block font-medium">{{ t('voyageur.voyageDetail.pricePerItem') }}</span>
                 <span class="text-lg font-black text-[#053754] dark:text-sky-300 block">{{ voyage.prixObjet }}</span>
               </div>
             </div>
@@ -379,7 +381,7 @@ const goBack = () => {
           <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-3">
             <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-2">
               <h3 class="text-xs font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <span>📍</span> Adresse de Dépôt du colis (Départ)
+                <span>📍</span> {{ t('voyageur.voyageDetail.depositAddr') }}
               </h3>
             </div>
             
@@ -390,23 +392,23 @@ const goBack = () => {
               </div>
               
               <div v-if="voyage.adresseDepot.horaire_ouverture" class="bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-800/60 p-3 rounded-2xl text-xs space-y-0.5">
-                <span class="text-amber-800 dark:text-amber-300 font-bold block">🕒 Horaires d'ouverture :</span>
+                <span class="text-amber-800 dark:text-amber-300 font-bold block">🕒 {{ t('voyageur.voyageDetail.openingHours') }}</span>
                 <span class="text-amber-900 dark:text-amber-200 font-medium block">{{ voyage.adresseDepot.horaire_ouverture }}</span>
               </div>
 
               <div v-if="voyage.adresseDepot.instructions" class="bg-blue-50/60 dark:bg-sky-950/40 border border-blue-200/60 dark:border-sky-800/60 p-3 rounded-2xl text-xs space-y-0.5">
-                <span class="text-blue-800 dark:text-sky-300 font-bold block">💡 Instructions de dépôt :</span>
+                <span class="text-blue-800 dark:text-sky-300 font-bold block">💡 {{ t('voyageur.voyageDetail.instructions') }}</span>
                 <span class="text-blue-900 dark:text-sky-200 font-medium block">{{ voyage.adresseDepot.instructions }}</span>
               </div>
             </template>
-            <p v-else class="text-xs text-gray-400 dark:text-slate-500 italic">Aucune adresse de dépôt spécifique attribuée.</p>
+            <p v-else class="text-xs text-gray-400 dark:text-slate-500 italic">{{ t('voyageur.voyageDetail.noDepositAddr') }}</p>
           </div>
 
           <!-- Adresse de Récupération Card -->
           <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-3">
             <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-2">
               <h3 class="text-xs font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <span>📍</span> Adresse de Retrait du colis (Destination)
+                <span>📍</span> {{ t('voyageur.voyageDetail.pickupAddr') }}
               </h3>
             </div>
 
@@ -417,21 +419,21 @@ const goBack = () => {
               </div>
 
               <div v-if="voyage.adresseRetrait.horaire_ouverture" class="bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-800/60 p-3 rounded-2xl text-xs space-y-0.5">
-                <span class="text-amber-800 dark:text-amber-300 font-bold block">🕒 Horaires de retrait :</span>
+                <span class="text-amber-800 dark:text-amber-300 font-bold block">🕒 {{ t('voyageur.voyageDetail.pickupHours') }}</span>
                 <span class="text-amber-900 dark:text-amber-200 font-medium block">{{ voyage.adresseRetrait.horaire_ouverture }}</span>
               </div>
 
               <div v-if="voyage.adresseRetrait.instructions" class="bg-blue-50/60 dark:bg-sky-950/40 border border-blue-200/60 dark:border-sky-800/60 p-3 rounded-2xl text-xs space-y-0.5">
-                <span class="text-blue-800 dark:text-sky-300 font-bold block">💡 Instructions de retrait :</span>
+                <span class="text-blue-800 dark:text-sky-300 font-bold block">💡 {{ t('voyageur.voyageDetail.pickupInstructions') }}</span>
                 <span class="text-blue-900 dark:text-sky-200 font-medium block">{{ voyage.adresseRetrait.instructions }}</span>
               </div>
             </template>
-            <p v-else class="text-xs text-gray-400 dark:text-slate-500 italic">Aucune adresse de retrait spécifique attribuée.</p>
+            <p v-else class="text-xs text-gray-400 dark:text-slate-500 italic">{{ t('voyageur.voyageDetail.noPickupAddr') }}</p>
           </div>
 
           <!-- Description / Notes -->
           <div v-if="voyage.description" class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-2">
-            <h3 class="text-xs font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider">Note ou description du transporteur</h3>
+            <h3 class="text-xs font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider">{{ t('voyageur.voyageDetail.carrierNote') }}</h3>
             <p class="text-xs text-gray-700 dark:text-slate-300 leading-relaxed font-medium bg-gray-50 dark:bg-slate-800/80 p-3.5 rounded-2xl border border-gray-100 dark:border-slate-700">
               {{ voyage.description }}
             </p>
@@ -445,7 +447,7 @@ const goBack = () => {
           <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-emerald-300 dark:border-emerald-800 shadow-2xs space-y-3">
             <div class="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-extrabold text-sm border-b border-emerald-100 dark:border-emerald-900/60 pb-2">
               <span class="text-base">✅</span>
-              <span>Catégories d'objets autorisées :</span>
+              <span>{{ t('voyageur.voyageDetail.allowedCategories') }}</span>
             </div>
             
             <div v-if="voyage.categoriesAutorisees.length > 0" class="flex flex-wrap gap-2 pt-1">
@@ -458,14 +460,14 @@ const goBack = () => {
                 <span>{{ cat }}</span>
               </span>
             </div>
-            <p v-else class="text-xs text-gray-400 dark:text-slate-500 italic">Aucune catégorie spécifiée.</p>
+            <p v-else class="text-xs text-gray-400 dark:text-slate-500 italic">{{ t('voyageur.voyageDetail.noCategory') }}</p>
           </div>
 
           <!-- Objets interdits Card -->
           <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-red-300 dark:border-rose-900 shadow-2xs space-y-3">
             <div class="flex items-center gap-2 text-red-800 dark:text-rose-300 font-extrabold text-sm border-b border-red-100 dark:border-rose-950 pb-2">
               <span class="text-base">🚫</span>
-              <span>Catégories d'objets interdites :</span>
+              <span>{{ t('voyageur.voyageDetail.forbiddenCategories') }}</span>
             </div>
 
             <div v-if="voyage.categoriesRefusees.length > 0" class="flex flex-wrap gap-2 pt-1">
@@ -478,7 +480,7 @@ const goBack = () => {
                 <span>{{ cat }}</span>
               </span>
             </div>
-            <p v-else class="text-xs text-gray-400 dark:text-slate-500 italic">Aucune interdiction spécifique.</p>
+            <p v-else class="text-xs text-gray-400 dark:text-slate-500 italic">{{ t('voyageur.voyageDetail.noRestriction') }}</p>
           </div>
         </div>
 
@@ -488,11 +490,11 @@ const goBack = () => {
       <div class="space-y-4 pt-4 border-t border-gray-200 dark:border-slate-800">
         <div class="flex items-center justify-between">
           <h2 class="text-base sm:text-lg font-bold text-principal-dark dark:text-sky-300 flex items-center gap-2">
-            <span>Demandes & Réservations associées</span>
+            <span>{{ t('voyageur.voyageDetail.reservationsTitle') }}</span>
             <span class="bg-sky-100 dark:bg-sky-950 text-[#074C72] dark:text-sky-300 text-xs px-2.5 py-0.5 rounded-full font-black">{{ reservations.length }}</span>
           </h2>
           <span class="text-xs text-gray-500 dark:text-slate-400 font-medium hidden sm:inline">
-            Cliquez sur une carte pour voir les détails complets de la demande
+            {{ t('voyageur.voyageDetail.clickSub') }}
           </span>
         </div>
 
@@ -513,7 +515,7 @@ const goBack = () => {
                   <h4 class="text-sm font-extrabold text-gray-900 dark:text-slate-100 group-hover:text-[#074C72] dark:group-hover:text-sky-300 transition-colors flex items-center gap-2">
                     <span>{{ res.clientNom }}</span>
                   </h4>
-                  <span class="text-[10px] text-gray-400 dark:text-slate-400 font-medium">Client Rahma GP</span>
+                  <span class="text-[10px] text-gray-400 dark:text-slate-400 font-medium">{{ t('voyageur.voyageDetail.clientLabel') }}</span>
                 </div>
               </div>
 
@@ -528,30 +530,30 @@ const goBack = () => {
             <!-- Main Info Box -->
             <div class="bg-slate-50 dark:bg-slate-800/80 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-2.5">
               <div class="flex items-center justify-between text-xs">
-                <span class="text-gray-400 dark:text-slate-400 font-medium">N° Réservation :</span>
+                <span class="text-gray-400 dark:text-slate-400 font-medium">{{ t('voyageur.voyageDetail.resNo') }}</span>
                 <span class="font-extrabold text-[#053754] dark:text-sky-300 font-mono bg-white dark:bg-slate-900 px-2 py-0.5 rounded-md border border-gray-200 dark:border-slate-700">{{ res.numero }}</span>
               </div>
 
               <div class="grid grid-cols-2 gap-2 text-xs">
                 <div>
-                  <span class="text-gray-400 dark:text-slate-400 font-medium block">Contenu :</span>
+                  <span class="text-gray-400 dark:text-slate-400 font-medium block">{{ t('voyageur.voyageDetail.contentType') }}</span>
                   <span class="font-extrabold text-gray-900 dark:text-slate-100 block truncate">{{ res.colisType }}</span>
                 </div>
                 <div class="text-right">
-                  <span class="text-gray-400 dark:text-slate-400 font-medium block">Poids :</span>
+                  <span class="text-gray-400 dark:text-slate-400 font-medium block">{{ t('voyageur.voyageDetail.weight') }}</span>
                   <span class="font-extrabold text-[#B50302] dark:text-rose-400 block">{{ res.colisPoids }}</span>
                 </div>
               </div>
 
               <div v-if="res.colisEstFragile" class="bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-[11px] font-bold px-2.5 py-1 rounded-lg border border-amber-200/80 dark:border-amber-800 flex items-center gap-1.5">
-                <span>⚠️</span> Colis fragile à manipuler avec précaution
+                <span>⚠️</span> {{ t('voyageur.voyageDetail.fragile') }}
               </div>
             </div>
 
             <!-- Footer Action & Price Row -->
             <div class="border-t border-gray-100 dark:border-slate-800 pt-3 flex items-center justify-between gap-3">
               <div>
-                <span class="text-[10px] text-gray-400 dark:text-slate-400 font-bold uppercase block">Montant Total</span>
+                <span class="text-[10px] text-gray-400 dark:text-slate-400 font-bold uppercase block">{{ t('voyageur.voyageDetail.totalAmount') }}</span>
                 <span class="font-black text-[#053754] dark:text-sky-300 text-base sm:text-lg">{{ res.montantTotal }}</span>
               </div>
 
@@ -563,7 +565,7 @@ const goBack = () => {
                   type="button"
                   class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-3.5 py-2 rounded-xl transition-colors cursor-pointer shadow-2xs"
                 >
-                  Accepter
+                  {{ t('voyageur.voyageDetail.acceptBtn') }}
                 </button>
 
                 <button
@@ -573,7 +575,7 @@ const goBack = () => {
                   type="button"
                   class="bg-red-50 dark:bg-rose-950/50 hover:bg-red-100 dark:hover:bg-rose-900/60 text-[#B50302] dark:text-rose-300 border border-red-200 dark:border-rose-900 font-extrabold text-xs px-3 py-2 rounded-xl transition-colors cursor-pointer"
                 >
-                  Refuser
+                  {{ t('voyageur.voyageDetail.refuseBtn') }}
                 </button>
 
                 <button
@@ -581,7 +583,7 @@ const goBack = () => {
                   type="button"
                   class="bg-[#053754] dark:bg-sky-600 hover:bg-[#074C72] dark:hover:bg-sky-500 text-white font-extrabold text-xs px-3.5 py-2 rounded-xl transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
                 >
-                  <span>Détails</span>
+                  <span>{{ t('voyageur.voyageDetail.detailsBtn') }}</span>
                   <span>➔</span>
                 </button>
               </div>
@@ -594,8 +596,8 @@ const goBack = () => {
           <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 flex items-center justify-center text-xl mx-auto font-bold">
             📦
           </div>
-          <p class="text-sm font-bold text-gray-700 dark:text-slate-200">Aucune réservation sur ce vol pour le moment.</p>
-          <p class="text-xs text-gray-400 dark:text-slate-400">Les réservations envoyées par les clients s'afficheront ici automatiquement.</p>
+          <p class="text-sm font-bold text-gray-700 dark:text-slate-200">{{ t('voyageur.voyageDetail.noReservationsTitle') }}</p>
+          <p class="text-xs text-gray-400 dark:text-slate-400">{{ t('voyageur.voyageDetail.noReservationsSub') }}</p>
         </div>
       </div>
     </template>

@@ -6,6 +6,9 @@ import { formatVoyageDate } from '@/utils/flagHelper'
 import CountryFlag from '@/components/common/CountryFlag.vue'
 import { encodeId } from '@/utils/idMasker'
 import { currentCurrency, formatPrice } from '@/utils/currencyState'
+import { useI18n } from '@/composables/useI18n'
+
+const { t } = useI18n()
 
 const router = useRouter()
 const activeTab = ref('active') // 'active' | 'delivered'
@@ -73,17 +76,17 @@ const displayedParcels = computed(() => {
 const getStatusBadge = (statut) => {
   switch (statut) {
     case 'en_attente':
-      return { text: 'En Attente', cls: 'bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-800' }
+      return { text: t('status.pending'), cls: 'bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-800' }
     case 'acceptee':
-      return { text: 'Acceptée', cls: 'bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800' }
+      return { text: t('status.accepted'), cls: 'bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800' }
     case 'refusee':
-      return { text: 'Refusée', cls: 'bg-red-50 dark:bg-red-950/80 text-red-700 dark:text-red-300 border-red-300 dark:border-red-900' }
+      return { text: t('status.rejected'), cls: 'bg-red-50 dark:bg-red-950/80 text-red-700 dark:text-red-300 border-red-300 dark:border-red-900' }
     case 'annulee':
     case 'annule':
-      return { text: 'Annulée', cls: 'bg-red-50 dark:bg-red-950/80 text-red-800 dark:text-red-300 border-red-300 dark:border-red-900' }
+      return { text: t('status.cancelled'), cls: 'bg-red-50 dark:bg-red-950/80 text-red-800 dark:text-red-300 border-red-300 dark:border-red-900' }
     case 'livree':
     case 'livre':
-      return { text: 'Livré', cls: 'bg-blue-50 dark:bg-sky-950/80 text-blue-700 dark:text-sky-300 border-blue-300 dark:border-sky-800' }
+      return { text: t('status.delivered'), cls: 'bg-blue-50 dark:bg-sky-950/80 text-blue-700 dark:text-sky-300 border-blue-300 dark:border-sky-800' }
     default:
       return { text: statut || 'Inconnu', cls: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700' }
   }
@@ -99,8 +102,8 @@ const goToTrackParcel = (id) => {
   <div class="space-y-5 pb-16">
     <!-- Header Title & Subtitle -->
     <div class="space-y-1">
-      <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark dark:text-sky-300">Mes colis</h1>
-      <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400">Gérez et suivez vos colis en temps réel</p>
+      <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark dark:text-sky-300">{{ t('parcels.title') }}</h1>
+      <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400">{{ t('parcels.subTitle') }}</p>
     </div>
 
     <!-- Filter Tabs (En cours / Livrés) -->
@@ -110,7 +113,7 @@ const goToTrackParcel = (id) => {
         class="flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center gap-1.5"
         :class="activeTab === 'active' ? 'bg-white dark:bg-slate-900 text-[#053754] dark:text-sky-300 shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'"
       >
-        <span>En cours</span>
+        <span>{{ t('parcels.tabs.pending') }}</span>
         <span class="w-5 h-5 rounded-full bg-[#053754] dark:bg-sky-600 text-white text-[10px] flex items-center justify-center font-black">
           {{ activeParcels.length }}
         </span>
@@ -121,7 +124,7 @@ const goToTrackParcel = (id) => {
         class="flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center gap-1.5"
         :class="activeTab === 'delivered' ? 'bg-white dark:bg-slate-900 text-[#053754] dark:text-sky-300 shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'"
       >
-        <span>Historique / Livrés</span>
+        <span>{{ t('parcels.tabs.delivered') }}</span>
         <span class="w-5 h-5 rounded-full bg-gray-300 dark:bg-slate-700 text-gray-700 dark:text-slate-300 text-[10px] flex items-center justify-center font-bold">
           {{ deliveredParcels.length }}
         </span>
@@ -131,13 +134,13 @@ const goToTrackParcel = (id) => {
     <!-- Loading State -->
     <div v-if="isLoading" class="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center border border-gray-100 dark:border-slate-800 shadow-sm space-y-4">
       <div class="w-10 h-10 border-4 border-[#053754] dark:border-sky-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
-      <p class="text-sm font-bold text-gray-600 dark:text-slate-300">Chargement de vos réservations...</p>
+      <p class="text-sm font-bold text-gray-600 dark:text-slate-300">{{ t('parcelDetail.loading') }}</p>
     </div>
 
     <!-- Error State -->
     <div v-else-if="errorMsg" class="bg-red-50 dark:bg-red-950/80 border border-red-200 dark:border-red-900 rounded-3xl p-8 text-center space-y-3">
       <p class="text-sm font-bold text-red-800 dark:text-red-300">{{ errorMsg }}</p>
-      <button @click="loadReservations" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-xl cursor-pointer">Réessayer</button>
+      <button @click="loadReservations" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-xl cursor-pointer">{{ t('common.retry') }}</button>
     </div>
 
     <!-- Parcels Cards List (2 per line on desktop) -->
@@ -211,11 +214,11 @@ const goToTrackParcel = (id) => {
         <!-- Details Info Grid -->
         <div class="border-t border-gray-100 dark:border-slate-800 pt-3 grid grid-cols-2 gap-2 text-xs">
           <div>
-            <span class="text-gray-400 dark:text-slate-400 block font-medium">Départ prévu</span>
+            <span class="text-gray-400 dark:text-slate-400 block font-medium">{{ t('parcels.expectedDeparture') }}</span>
             <span class="font-extrabold text-gray-800 dark:text-slate-100 text-xs sm:text-sm">{{ formatVoyageDate(parcel.departureDate) }}</span>
           </div>
           <div class="text-right">
-            <span class="text-gray-400 dark:text-slate-400 block font-medium">Poids du colis</span>
+            <span class="text-gray-400 dark:text-slate-400 block font-medium">{{ t('parcels.weight') }}</span>
             <span class="font-extrabold text-gray-800 dark:text-slate-100 text-xs sm:text-sm">{{ parcel.weight }}</span>
           </div>
         </div>
@@ -230,7 +233,7 @@ const goToTrackParcel = (id) => {
             type="button"
             class="bg-[#B50302] dark:bg-red-700 hover:bg-[#8B0000] dark:hover:bg-red-600 text-white font-extrabold px-6 py-2.5 rounded-xl text-xs uppercase shadow-xs transition-colors cursor-pointer tracking-wider"
           >
-            SUIVRE
+            {{ t('parcels.trackParcel') }}
           </button>
         </div>
 
@@ -242,8 +245,8 @@ const goToTrackParcel = (id) => {
       <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center text-xl mx-auto font-bold">
         📦
       </div>
-      <p class="text-sm font-bold text-gray-700 dark:text-slate-200">Aucun colis dans cette catégorie.</p>
-      <p class="text-xs text-gray-400 dark:text-slate-400">Vos réservations actives ou livrées apparaîtront ici.</p>
+      <p class="text-sm font-bold text-gray-700 dark:text-slate-200">{{ t('parcels.emptyTitle') }}</p>
+      <p class="text-xs text-gray-400 dark:text-slate-400">{{ t('parcels.emptyDesc') }}</p>
     </div>
   </div>
 </template>

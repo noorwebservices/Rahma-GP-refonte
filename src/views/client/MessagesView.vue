@@ -8,6 +8,9 @@ import { checkWavePaymentStatus } from '@/services/paiementService'
 import { getCountryFlag, formatVoyageDate } from '@/utils/flagHelper'
 import CountryFlag from '@/components/common/CountryFlag.vue'
 import { encodeId } from '@/utils/idMasker'
+import { useI18n } from '@/composables/useI18n'
+
+const { t } = useI18n()
 
 const route = useRoute()
 const router = useRouter()
@@ -141,8 +144,8 @@ const openChat = (maskedId) => {
   <div class="space-y-5 pb-16">
     <!-- Header Title & Subtitle -->
     <div class="space-y-1">
-      <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark dark:text-sky-300">Messagerie Client</h1>
-      <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400">Échangez directement avec vos transporteurs GP pour vos réservations</p>
+      <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark dark:text-sky-300">{{ t('messages.title') }}</h1>
+      <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400">{{ t('messages.subTitle') }}</p>
     </div>
 
     <!-- Search Input -->
@@ -155,7 +158,7 @@ const openChat = (maskedId) => {
       <input
         v-model="searchQuery"
         type="text"
-        placeholder="Rechercher un transporteur, un trajet ou un n° de colis..."
+        :placeholder="t('messages.searchPlaceholder')"
         class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl pl-10 pr-4 py-3 text-xs sm:text-sm placeholder-gray-400 dark:placeholder-slate-500 text-gray-800 dark:text-slate-100 outline-none focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-[#074C72]/20 focus:border-[#074C72] dark:focus:border-sky-400 transition-all font-medium"
       />
     </div>

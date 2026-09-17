@@ -8,6 +8,9 @@ import { formatVoyageDate } from '@/utils/flagHelper'
 import CountryFlag from '@/components/common/CountryFlag.vue'
 import { decodeId, encodeId } from '@/utils/idMasker'
 import ReportUserModal from '@/components/ReportUserModal.vue'
+import { useI18n } from '@/composables/useI18n'
+
+const { t } = useI18n()
 
 const showReportModal = ref(false)
 
@@ -256,7 +259,7 @@ const goToTracking = () => {
     <div v-if="isLoading" class="flex-1 flex items-center justify-center p-8">
       <div class="text-center space-y-3">
         <div class="w-10 h-10 border-4 border-[#053754] dark:border-sky-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
-        <p class="text-xs font-bold text-gray-600 dark:text-slate-300">Chargement de la discussion...</p>
+        <p class="text-xs font-bold text-gray-600 dark:text-slate-300">{{ t('messages.loadingChat', 'Chargement de la discussion...') }}</p>
       </div>
     </div>
 
@@ -283,7 +286,7 @@ const goToTracking = () => {
               <h2 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">{{ reservation?.transporteurNom || 'Transporteur GP' }}</h2>
               <p class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                <span>En ligne</span>
+                <span>{{ t('messages.online') }}</span>
               </p>
             </div>
           </div>
@@ -292,11 +295,11 @@ const goToTracking = () => {
           <div class="flex items-center gap-2">
             <button
               @click="showReportModal = true"
-              title="Signaler ce compte"
+              :title="t('voyageDetail.reportAccount', 'Signaler ce compte')"
               class="bg-red-50 dark:bg-red-950/80 hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-300 font-extrabold text-xs px-2.5 py-1.5 rounded-xl transition-colors cursor-pointer flex items-center gap-1 border border-red-100 dark:border-red-900 shadow-2xs"
             >
               <span>🚩</span>
-              <span class="hidden sm:inline">Signaler</span>
+              <span class="hidden sm:inline">{{ t('voyageDetail.reportAccount') }}</span>
             </button>
 
             <button
@@ -306,7 +309,7 @@ const goToTracking = () => {
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
-              Suivi Colis
+              {{ t('parcels.trackParcel') }}
             </button>
           </div>
         </div>
@@ -327,9 +330,9 @@ const goToTracking = () => {
 
       <!-- Status Banner -->
       <div v-if="reservation" class="bg-sky-50/80 dark:bg-slate-900 border-b border-sky-100 dark:border-slate-800 px-4 py-1.5 text-center text-xs font-bold text-[#053754] dark:text-sky-300 shrink-0 flex items-center justify-center gap-1.5">
-        <span>Statut réservation :</span>
+        <span>{{ t('common.status') }} :</span>
         <span class="uppercase tracking-wider text-[11px] font-extrabold" :class="reservation.statut === 'acceptee' ? 'text-emerald-700 dark:text-emerald-300' : 'text-amber-700 dark:text-amber-300'">
-          {{ reservation.statut === 'acceptee' ? '✓ Acceptée' : reservation.statut === 'en_attente' ? '⏳ En attente' : reservation.statut }}
+          {{ reservation.statut === 'acceptee' ? '✓ ' + t('status.accepted') : reservation.statut === 'en_attente' ? '⏳ ' + t('status.pending') : reservation.statut }}
         </span>
       </div>
 
@@ -376,14 +379,13 @@ const goToTracking = () => {
 
         <!-- Empty Messages Placeholder -->
         <div v-if="messages.length === 0" class="text-center py-12 text-gray-400 dark:text-slate-400 text-xs space-y-1">
-          <p class="font-bold">Aucun message pour l'instant.</p>
-          <p>Envoyez un message ci-dessous pour démarrer la discussion.</p>
+          <p class="font-bold">{{ t('messages.noMessagesYet') }}</p>
         </div>
       </div>
 
       <!-- Attachment URL Input Bar (Collapsible) -->
       <div v-if="showAttachmentInput" class="bg-amber-50 dark:bg-amber-950/80 border-t border-amber-200 dark:border-amber-900 px-4 py-2 flex items-center gap-2 shrink-0">
-        <span class="text-xs text-amber-900 dark:text-amber-300 font-bold shrink-0">📷 Lien photo / pièce jointe :</span>
+        <span class="text-xs text-amber-900 dark:text-amber-300 font-bold shrink-0">{{ t('voyageur.messages.attachmentLabel', '📷 Lien photo :') }}</span>
         <input
           v-model="pieceJointe"
           type="url"
@@ -411,7 +413,7 @@ const goToTracking = () => {
             v-model="newMessage"
             @input="handleMessageInput"
             type="text"
-            placeholder="Écrire un message au transporteur..."
+            :placeholder="t('messages.typePlaceholder')"
             class="flex-1 bg-[#EAEFF4] dark:bg-slate-800 border-none rounded-xl px-4 py-2.5 text-xs sm:text-sm text-gray-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 outline-none focus:ring-2 focus:ring-[#074C72]/20 dark:focus:ring-sky-400/20 font-medium"
           />
 

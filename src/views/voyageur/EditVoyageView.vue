@@ -6,9 +6,11 @@ import CitySelect from '@/components/client/CitySelect.vue'
 import { fetchVoyage, updateVoyage, publierVoyage } from '@/services/voyageService'
 import { fetchAdresseDepots, fetchAdresseRecuperations } from '@/services/adresseService'
 import { decodeId } from '@/utils/idMasker'
+import { useI18n } from '@/composables/useI18n'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const isLoading = ref(false)
 
 const voyageId = decodeId(route.params.id)
@@ -93,7 +95,7 @@ const validate = () => {
     return false
   }
   if (new Date(form.date_arrivee) <= new Date(form.date_depart)) {
-    showToast('warning', 'La date d\'arrivée doit être strictement supérieure à la date de départ.')
+    showToast('warning', 'La date d\'arrivée doit être strictly supérieure à la date de départ.')
     return false
   }
   if (!form.capacite_totale || form.capacite_totale <= 0) {
@@ -133,7 +135,7 @@ const saveChanges = async () => {
     if (voyageId && voyageId !== 'voy-1' && voyageId !== 'voy-2') {
       await updateVoyage(voyageId, payload)
     }
-    showToast('success', 'Modifications enregistrées en brouillon !')
+    showToast('success', t('voyageur.createVoyage.successUpdated'))
     router.push('/voyageur')
   } catch (err) {
     showToast('error', err?.message || 'Erreur lors de la mise à jour.')
@@ -150,7 +152,7 @@ const handlePublishVoyage = async () => {
     if (voyageId && voyageId !== 'voy-1' && voyageId !== 'voy-2') {
       await publierVoyage(voyageId)
     }
-    showToast('success', 'Voyage publié avec succès !')
+    showToast('success', t('voyageur.createVoyage.successCreated'))
     router.push('/voyageur')
   } catch (err) {
     showToast('error', err?.message || 'Erreur lors de la publication du voyage.')
@@ -164,51 +166,51 @@ const handlePublishVoyage = async () => {
   <div class="space-y-6 pb-20 font-sans">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div>
-        <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark dark:text-sky-300">Modifier le voyage</h1>
-        <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400">Mettez à jour les caractéristiques de votre trajet</p>
+        <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark dark:text-sky-300">{{ t('voyageur.voyages.editBtn') }}</h1>
+        <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400">{{ t('voyageur.createVoyage.subTitle') }}</p>
       </div>
 
       <span
         class="self-start sm:self-auto text-xs font-bold px-3 py-1 rounded-full uppercase border"
         :class="form.statut === 'publie' ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800' : 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800'"
       >
-        {{ form.statut === 'publie' ? '✓ Publié' : '⏳ Brouillon' }}
+        {{ form.statut === 'publie' ? '✓ ' + t('status.accepted') : '⏳ ' + t('status.draft') }}
       </span>
     </div>
 
     <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-gray-200 dark:border-slate-800 shadow-sm space-y-5">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="space-y-1.5">
-          <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Ville de Départ</label>
-          <CitySelect v-model="form.ville_depart" placeholder="Choisir la ville de départ" />
+          <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">{{ t('voyageur.createVoyage.departureCity') }}</label>
+          <CitySelect v-model="form.ville_depart" :placeholder="t('clientHome.searchDeparture')" />
         </div>
 
         <div class="space-y-1.5">
-          <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Ville de Destination</label>
-          <CitySelect v-model="form.ville_destination" placeholder="Choisir la ville de destination" />
+          <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">{{ t('voyageur.createVoyage.destinationCity') }}</label>
+          <CitySelect v-model="form.ville_destination" :placeholder="t('clientHome.searchArrival')" />
         </div>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="space-y-1.5">
-          <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Date et heure de départ</label>
+          <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">{{ t('voyageur.createVoyage.departureDate') }}</label>
           <input v-model="form.date_depart" type="datetime-local" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none" />
         </div>
 
         <div class="space-y-1.5">
-          <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Date et heure d'arrivée</label>
+          <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">{{ t('voyageur.createVoyage.arrivalDate') }}</label>
           <input v-model="form.date_arrivee" type="datetime-local" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none" />
         </div>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="space-y-1.5">
-          <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Capacité Bagages (Kg)</label>
+          <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">{{ t('voyageur.createVoyage.totalCapacityKg') }}</label>
           <input v-model.number="form.capacite_totale" type="number" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none" />
         </div>
 
         <div class="space-y-1.5">
-          <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Devise du tarif</label>
+          <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">{{ t('voyageur.createVoyage.currency') }}</label>
           <select v-model="form.devise" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs font-bold text-gray-800 dark:text-slate-100 outline-none">
             <option value="XOF" class="dark:bg-slate-800 text-slate-100">FCFA (XOF)</option>
             <option value="EUR" class="dark:bg-slate-800 text-slate-100">Euro (€)</option>
@@ -217,23 +219,23 @@ const handlePublishVoyage = async () => {
         </div>
 
         <div class="space-y-1.5">
-          <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Prix au Kg ({{ form.devise }})</label>
+          <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">{{ t('voyageur.createVoyage.pricePerKg') }} ({{ form.devise }})</label>
           <input v-model.number="form.prix_kg" type="number" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none" />
         </div>
       </div>
 
       <div class="space-y-1.5">
-        <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Description</label>
+        <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">{{ t('voyageur.createVoyage.conditions') }}</label>
         <textarea v-model="form.description" rows="3" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none"></textarea>
       </div>
 
       <div class="border-t border-gray-100 dark:border-slate-800 pt-4 flex items-center justify-between gap-3 flex-wrap">
         <button @click="saveChanges" :disabled="isLoading" type="button" class="px-5 py-3 rounded-xl bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 font-bold text-xs cursor-pointer">
-          Enregistrer en brouillon
+          {{ t('status.draft') }}
         </button>
 
         <button @click="handlePublishVoyage" :disabled="isLoading" type="button" class="bg-[#B50302] hover:bg-[#8B0000] text-white font-extrabold text-xs px-6 py-3 rounded-xl shadow-md cursor-pointer uppercase">
-          PUBLIER LE VOYAGE
+          {{ t('voyageur.createVoyage.submitBtn') }}
         </button>
       </div>
     </div>

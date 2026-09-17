@@ -103,7 +103,7 @@ const router = createRouter({
           path: 'colis/:id',
           name: 'client-colis-detail',
           component: () => import('../views/client/ColisDetailView.vue'),
-          meta: { requiresAuth: true, headerTitle: 'Suivi de livraison', headerSubtitle: '#RS-7729' }
+          meta: { requiresAuth: true, headerTitle: 'Suivi de livraison', headerTitleKey: 'headers.deliveryTracking', headerSubtitle: '#RS-7729' }
         }
       ]
     },
@@ -125,7 +125,7 @@ const router = createRouter({
           path: 'voyages/nouveau',
           name: 'voyageur-create-voyage',
           component: () => import('../views/voyageur/CreateVoyageView.vue'),
-          meta: { showBack: true, headerTitle: 'Publier un voyage' }
+          meta: { showBack: true, headerTitle: 'Publier un voyage', headerTitleKey: 'headers.publishTrip' }
         },
         {
           path: 'voyages/:id',
@@ -137,7 +137,7 @@ const router = createRouter({
           path: 'voyages/:id/edit',
           name: 'voyageur-edit-voyage',
           component: () => import('../views/voyageur/EditVoyageView.vue'),
-          meta: { showBack: true, headerTitle: 'Modifier le voyage' }
+          meta: { showBack: true, headerTitle: 'Modifier le voyage', headerTitleKey: 'headers.editTrip' }
         },
         {
           path: 'demandes',
@@ -148,7 +148,7 @@ const router = createRouter({
           path: 'demandes/:id',
           name: 'voyageur-demande-detail',
           component: () => import('../views/voyageur/DemandeDetailView.vue'),
-          meta: { showBack: true, headerTitle: 'Détails de la demande' }
+          meta: { showBack: true, headerTitle: 'Détails de la demande', headerTitleKey: 'headers.requestDetails' }
         },
         {
           path: 'messages',
@@ -164,13 +164,13 @@ const router = createRouter({
           path: 'revenus',
           name: 'voyageur-revenus',
           component: () => import('../views/voyageur/RevenusView.vue'),
-          meta: { showBack: true, headerTitle: 'Mes Revenus GP' }
+          meta: { showBack: true, headerTitle: 'Mes Revenus GP', headerTitleKey: 'headers.myRevenues' }
         },
         {
           path: 'evaluations',
           name: 'voyageur-evaluations',
           component: () => import('../views/voyageur/EvaluationsView.vue'),
-          meta: { showBack: true, headerTitle: 'Avis & Évaluations' }
+          meta: { showBack: true, headerTitle: 'Avis & Évaluations', headerTitleKey: 'headers.reviews' }
         }
       ]
     },

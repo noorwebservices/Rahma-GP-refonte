@@ -1,5 +1,8 @@
 <script setup>
 import { computed } from 'vue'
+import { useI18n } from '@/composables/useI18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   step: {
@@ -23,19 +26,25 @@ const props = defineProps({
 
 const percentage = computed(() => (props.step / props.totalSteps) * 100)
 
-const stepTitles = [
-  'Détails du colis',
-  'Destinataire',
-  'Récapitulatif',
-  'Paiement'
-]
+const stepTitles = computed(() => [
+  t('booking.step1.title'),
+  t('booking.step2.title'),
+  t('booking.step3.title'),
+  t('booking.step4.title')
+])
+
+const progressText = computed(() => {
+  return t('booking.stepProgress')
+    .replace('{step}', props.step)
+    .replace('{total}', props.totalSteps)
+})
 </script>
 
 <template>
   <div class="w-full space-y-2 mb-6">
     <!-- Header Row -->
     <div class="flex items-center justify-between text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-      <span>Étape {{ step }} sur {{ totalSteps }}</span>
+      <span>{{ progressText }}</span>
       <span class="text-gray-400 dark:text-slate-400 capitalize font-normal">{{ subtitle || stepTitles[step - 1] }}</span>
     </div>
 

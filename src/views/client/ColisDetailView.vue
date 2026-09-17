@@ -10,9 +10,11 @@ import CountryFlag from '@/components/common/CountryFlag.vue'
 import { decodeId, encodeId } from '@/utils/idMasker'
 import { setHeaderRoute } from '@/utils/headerState'
 import { currentCurrency, formatPrice } from '@/utils/currencyState'
+import { useI18n } from '@/composables/useI18n'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const reservationId = decodeId(route.params.id)
 
 const isLoading = ref(true)
@@ -189,14 +191,14 @@ onMounted(loadReservationData)
 
 const handleCancel = async () => {
   const result = await Swal.fire({
-    title: 'Annuler la réservation ?',
-    text: 'Voulez-vous vraiment annuler votre réservation ?',
+    title: t('parcelDetail.cancelModalTitle'),
+    text: t('parcelDetail.cancelModalText'),
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#B50302',
     cancelButtonColor: '#6B7280',
-    confirmButtonText: 'Oui, annuler',
-    cancelButtonText: 'Non, conserver'
+    confirmButtonText: t('parcelDetail.cancelModalYes'),
+    cancelButtonText: t('parcelDetail.cancelModalNo')
   })
 
   if (!result.isConfirmed) return
@@ -207,7 +209,7 @@ const handleCancel = async () => {
       toast: true,
       position: 'top-end',
       icon: 'success',
-      title: 'Réservation annulée.',
+      title: t('demandes.status.cancelled'),
       showConfirmButton: false,
       timer: 3000
     })
@@ -215,7 +217,7 @@ const handleCancel = async () => {
   } catch (err) {
     Swal.fire({
       icon: 'error',
-      title: 'Erreur',
+      title: t('common.error') || 'Erreur',
       text: err?.message || err?.data?.message || 'Impossible d\'annuler la réservation.'
     })
   }
@@ -319,7 +321,7 @@ const allSteps = computed(() => {
     return suivis.map((s, idx) => ({
       id: s.id || idx + 1,
       title: `${idx + 1}. ${getColisStatutLabel(s.statut)}`,
-      subtitle: s.commentaire || 'Mise à jour du statut par le transporteur',
+      subtitle: s.commentaire || t('parcelDetail.step1Sub'),
       time: formatDateTime(s.date_changement || s.created_at),
       isCompleted: true
     }))
@@ -344,44 +346,44 @@ const allSteps = computed(() => {
   return [
     {
       id: 1,
-      title: '1. Demande effectuée',
-      subtitle: 'Votre demande de réservation a été transmise au transporteur GP',
+      title: t('parcelDetail.step1Title'),
+      subtitle: t('parcelDetail.step1Sub'),
       time: formatDateTime(reservation.value.dateDepart),
       isCompleted: currentLevel >= 1
     },
     {
       id: 2,
-      title: '2. Confirmation par le transporteur',
-      subtitle: currentLevel >= 2 ? 'Réservation acceptée et validée par le transporteur' : 'En attente de confirmation du transporteur',
-      time: currentLevel >= 2 ? 'Validé' : 'À venir',
+      title: t('parcelDetail.step2Title'),
+      subtitle: currentLevel >= 2 ? t('parcelDetail.step2SubDone') : t('parcelDetail.step2SubPending'),
+      time: currentLevel >= 2 ? t('parcelDetail.step2TimeDone') : t('parcelDetail.step2TimeUpcoming'),
       isCompleted: currentLevel >= 2
     },
     {
       id: 3,
-      title: '3. Dépôt du colis au point relais',
-      subtitle: currentLevel >= 3 ? 'Colis réceptionné au point de dépôt' : 'Remise du colis à l\'adresse de dépôt',
-      time: currentLevel >= 3 ? 'Réceptionné' : 'À venir',
+      title: t('parcelDetail.step3Title'),
+      subtitle: currentLevel >= 3 ? t('parcelDetail.step3SubDone') : t('parcelDetail.step3SubPending'),
+      time: currentLevel >= 3 ? t('parcelDetail.step3TimeDone') : t('parcelDetail.step2TimeUpcoming'),
       isCompleted: currentLevel >= 3
     },
     {
       id: 4,
-      title: '4. Transport & Vol en cours',
-      subtitle: currentLevel >= 4 ? 'Colis en cours d\'acheminement aérien' : 'Vol et acheminement vers la destination',
-      time: currentLevel >= 4 ? 'En transit' : 'À venir',
+      title: t('parcelDetail.step4Title'),
+      subtitle: currentLevel >= 4 ? t('parcelDetail.step4SubDone') : t('parcelDetail.step4SubPending'),
+      time: currentLevel >= 4 ? t('status.in_transit') : t('parcelDetail.step2TimeUpcoming'),
       isCompleted: currentLevel >= 4
     },
     {
       id: 5,
-      title: '5. Arrivée au point de retrait',
-      subtitle: currentLevel >= 5 ? `Disponible au guichet à ${reservation.value.villeDestination}` : `Point de retrait à ${reservation.value.villeDestination}`,
-      time: currentLevel >= 5 ? 'Prêt pour retrait' : 'À venir',
+      title: t('parcelDetail.step5Title'),
+      subtitle: currentLevel >= 5 ? `${t('parcelDetail.step5SubDone')} ${reservation.value.villeDestination}` : `${t('parcelDetail.step5SubPending')} ${reservation.value.villeDestination}`,
+      time: currentLevel >= 5 ? t('parcelDetail.step5TimeDone') : t('parcelDetail.step2TimeUpcoming'),
       isCompleted: currentLevel >= 5
     },
     {
       id: 6,
-      title: '6. Livré au destinataire',
-      subtitle: currentLevel >= 6 ? `Remis en mains propres à ${reservation.value.destinataireNom}` : `Remise finale à ${reservation.value.destinataireNom}`,
-      time: currentLevel >= 6 ? 'Livré' : 'À venir',
+      title: t('parcelDetail.step6Title'),
+      subtitle: currentLevel >= 6 ? `${t('parcelDetail.step6SubDone')} ${reservation.value.destinataireNom}` : `${t('parcelDetail.step6SubPending')} ${reservation.value.destinataireNom}`,
+      time: currentLevel >= 6 ? t('status.delivered') : t('parcelDetail.step2TimeUpcoming'),
       isCompleted: currentLevel >= 6
     }
   ]
@@ -393,13 +395,13 @@ const allSteps = computed(() => {
     <!-- Loading State -->
     <div v-if="isLoading" class="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center border border-gray-100 dark:border-slate-800 shadow-sm space-y-4">
       <div class="w-10 h-10 border-4 border-[#053754] dark:border-sky-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
-      <p class="text-sm font-bold text-gray-600 dark:text-slate-300">Chargement du suivi de colis...</p>
+      <p class="text-sm font-bold text-gray-600 dark:text-slate-300">{{ t('parcelDetail.loading') }}</p>
     </div>
 
     <!-- Error State -->
     <div v-else-if="errorMsg" class="bg-red-50 dark:bg-red-950/80 border border-red-200 dark:border-red-900 rounded-3xl p-8 text-center space-y-3">
       <p class="text-sm font-bold text-red-800 dark:text-red-300">{{ errorMsg }}</p>
-      <button @click="router.push('/client/colis')" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-xl cursor-pointer">Retour aux colis</button>
+      <button @click="router.push('/client/colis')" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-xl cursor-pointer">{{ t('parcelDetail.backToParcels') }}</button>
     </div>
 
     <template v-else-if="reservation">
@@ -409,7 +411,7 @@ const allSteps = computed(() => {
         <div class="flex items-center justify-between">
           <span class="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-3.5 py-1 rounded-full text-xs font-extrabold text-sky-100 border border-white/10">
             <span>📦</span>
-            <span>Colis : {{ reservation.poids }}</span>
+            <span>{{ t('parcelDetail.parcelBadge') }} {{ reservation.poids }}</span>
           </span>
 
           <span class="text-xs font-mono font-bold bg-white/10 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
@@ -449,13 +451,13 @@ const allSteps = computed(() => {
 
         <!-- Recipient Bottom Row -->
         <div class="border-t border-sky-800/80 pt-3 flex items-center justify-between text-xs sm:text-sm font-semibold">
-          <span class="text-sky-200">Destinataire : <strong class="text-white font-extrabold">{{ reservation.destinataireNom }}</strong></span>
+          <span class="text-sky-200">{{ t('parcelDetail.recipientLabel') }} <strong class="text-white font-extrabold">{{ reservation.destinataireNom }}</strong></span>
         </div>
       </div>
 
       <!-- Transporteur Card -->
       <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-2">
-        <span class="text-xs text-gray-400 dark:text-slate-400 font-medium block">Transporteur GP</span>
+        <span class="text-xs text-gray-400 dark:text-slate-400 font-medium block">{{ t('parcelDetail.carrierLabel') }}</span>
         
         <div class="flex items-center justify-between gap-3">
           <!-- Transporter Info -->
@@ -471,7 +473,7 @@ const allSteps = computed(() => {
                   ⭐ {{ voyageurReviews.moyenneNotes }}
                 </span>
                 <span class="text-gray-400 dark:text-slate-400 font-medium text-[11px]">
-                  ({{ voyageurReviews.totalEvaluations }} {{ voyageurReviews.totalEvaluations > 1 ? 'avis' : 'avis' }})
+                  ({{ voyageurReviews.totalEvaluations }} {{ t('parcelDetail.reviewsCount') }})
                 </span>
               </div>
             </div>
@@ -486,7 +488,7 @@ const allSteps = computed(() => {
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
-            <span>DISCUTER</span>
+            <span>{{ t('parcelDetail.chatBtn') }}</span>
           </button>
         </div>
       </div>
@@ -495,25 +497,25 @@ const allSteps = computed(() => {
       <div v-if="['acceptee', 'en_cours', 'livre', 'livree'].includes(reservation.statut)" class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-3">
         <div class="flex items-center gap-2 border-b border-gray-100 dark:border-slate-800 pb-2.5">
           <span class="text-lg">💳</span>
-          <h3 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">Mode & Statut de paiement</h3>
+          <h3 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">{{ t('parcelDetail.paymentSectionTitle') }}</h3>
         </div>
 
         <div class="bg-slate-50 dark:bg-slate-800/80 p-4 rounded-xl border border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
           <div>
-            <span class="text-gray-500 dark:text-slate-400 font-medium block">Mode de paiement choisi :</span>
+            <span class="text-gray-500 dark:text-slate-400 font-medium block">{{ t('parcelDetail.chosenPaymentMode') }}</span>
             <span class="font-extrabold text-[#053754] dark:text-sky-300 text-sm uppercase tracking-wide">
-              {{ reservation.modePaiement.toLowerCase().includes('wave') ? '🌊 Wave (En ligne)' : (reservation.modePaiement.toLowerCase().includes('livraison') ? '📦 À la livraison (Espèces)' : '💵 Espèces au dépôt') }}
+              {{ reservation.modePaiement.toLowerCase().includes('wave') ? t('parcelDetail.waveOnline') : (reservation.modePaiement.toLowerCase().includes('livraison') ? t('parcelDetail.cashOnDelivery') : t('parcelDetail.cashAtDeposit')) }}
             </span>
           </div>
 
           <div class="text-left sm:text-right">
-            <span class="text-gray-500 dark:text-slate-400 font-medium block">Montant à régler :</span>
+            <span class="text-gray-500 dark:text-slate-400 font-medium block">{{ t('parcelDetail.amountToPay') }}</span>
             <span class="font-black text-[#B50302] dark:text-red-400 text-sm sm:text-base">{{ formattedMontantTotal }}</span>
           </div>
         </div>
 
         <p v-if="!reservation.modePaiement.toLowerCase().includes('wave')" class="text-[11px] text-gray-500 dark:text-amber-300 italic bg-amber-50/60 dark:bg-amber-950/80 p-3 rounded-xl border border-amber-200/50 dark:border-amber-800">
-          💡 Le paiement en espèces s'effectue directement auprès du transporteur GP lors de la remise ou du retrait du colis.
+          {{ t('parcelDetail.cashNotice') }}
         </p>
       </div>
 
@@ -521,17 +523,17 @@ const allSteps = computed(() => {
       <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-4">
         <div class="flex items-center gap-2 border-b border-gray-100 dark:border-slate-800 pb-3">
           <span class="text-lg">⭐</span>
-          <h3 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">Évaluer ce transporteur GP</h3>
+          <h3 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">{{ t('parcelDetail.rateCarrierTitle') }}</h3>
         </div>
 
         <div v-if="hasSubmittedRating" class="bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 p-4 rounded-xl text-xs font-bold text-center space-y-1">
           <span class="text-base">🎉</span>
-          <p>Merci ! Votre évaluation a été enregistrée avec succès.</p>
+          <p>{{ t('parcelDetail.ratingSuccess') }}</p>
         </div>
 
         <form v-else @submit.prevent="submitRating" class="space-y-3">
           <div>
-            <label class="block text-xs font-bold text-gray-600 dark:text-slate-300 mb-1.5">Votre note :</label>
+            <label class="block text-xs font-bold text-gray-600 dark:text-slate-300 mb-1.5">{{ t('parcelDetail.yourRating') }}</label>
             <div class="flex items-center gap-1">
               <button
                 v-for="star in 5"
@@ -547,11 +549,11 @@ const allSteps = computed(() => {
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-gray-600 dark:text-slate-300 mb-1">Votre commentaire :</label>
+            <label class="block text-xs font-bold text-gray-600 dark:text-slate-300 mb-1">{{ t('parcelDetail.yourComment') }}</label>
             <textarea
               v-model="ratingComment"
               rows="3"
-              placeholder="ex: Voyageur très ponctuel et professionnel, le colis est arrivé intact !"
+              :placeholder="t('parcelDetail.commentPlaceholder')"
               class="w-full bg-[#FAF7F2] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-3 text-xs font-medium text-gray-800 dark:text-slate-100 outline-none focus:border-[#074C72] dark:focus:border-sky-400 placeholder-gray-400 dark:placeholder-slate-500"
             ></textarea>
           </div>
@@ -562,7 +564,7 @@ const allSteps = computed(() => {
             class="w-full bg-[#053754] dark:bg-sky-600 hover:bg-[#074C72] dark:hover:bg-sky-500 text-white font-extrabold text-xs py-3 rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 uppercase tracking-wider disabled:opacity-50"
           >
             <span v-if="isSubmittingRating" class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-            <span>ENREGISTRER L'ÉVALUATION</span>
+            <span>{{ t('parcelDetail.saveRatingBtn') }}</span>
           </button>
         </form>
       </div>
@@ -571,10 +573,10 @@ const allSteps = computed(() => {
       <div v-if="voyageurReviews.data && voyageurReviews.data.length > 0" class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-3">
         <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3">
           <h3 class="text-sm font-extrabold text-[#053754] dark:text-sky-300 flex items-center gap-2">
-            <span>Avis des clients sur {{ reservation.transporteurNom }}</span>
+            <span>{{ t('parcelDetail.clientReviewsTitle') }} {{ reservation.transporteurNom }}</span>
             <span class="bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 text-xs px-2.5 py-0.5 rounded-full font-bold">⭐ {{ voyageurReviews.moyenneNotes }}</span>
           </h3>
-          <span class="text-xs text-gray-400 dark:text-slate-400 font-medium">({{ voyageurReviews.totalEvaluations }} avis)</span>
+          <span class="text-xs text-gray-400 dark:text-slate-400 font-medium">({{ voyageurReviews.totalEvaluations }} {{ t('parcelDetail.reviewsCount') }})</span>
         </div>
 
         <div class="space-y-3">
@@ -585,7 +587,7 @@ const allSteps = computed(() => {
           >
             <div class="flex items-center justify-between">
               <span class="font-extrabold text-[#053754] dark:text-sky-300">{{ rev.evaluateur ? `${rev.evaluateur.prenom || ''} ${rev.evaluateur.nom || ''}` : 'Client Rahma' }}</span>
-              <span class="text-amber-500 font-bold">{{ rev.note > 0 ? '⭐'.repeat(rev.note) : 'Non noté' }}</span>
+              <span class="text-amber-500 font-bold">{{ rev.note > 0 ? '⭐'.repeat(rev.note) : t('parcelDetail.noReviewGiven') }}</span>
             </div>
             <p v-if="rev.commentaire" class="text-gray-600 dark:text-slate-300 italic">"{{ rev.commentaire }}"</p>
             <span class="text-[10px] text-gray-400 dark:text-slate-400 block text-right">{{ formatVoyageDate(rev.created_at) }}</span>
@@ -599,15 +601,15 @@ const allSteps = computed(() => {
             :disabled="currentReviewPage === 1"
             class="px-3 py-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-gray-700 dark:text-slate-200 font-bold disabled:opacity-40 cursor-pointer shadow-2xs"
           >
-            ← Précédent
+            {{ t('parcelDetail.prevBtn') }}
           </button>
-          <span class="text-gray-500 dark:text-slate-400 font-semibold">Page {{ currentReviewPage }} / {{ totalReviewPages }}</span>
+          <span class="text-gray-500 dark:text-slate-400 font-semibold">{{ t('parcelDetail.pageOf') }} {{ currentReviewPage }} / {{ totalReviewPages }}</span>
           <button
             @click="currentReviewPage = Math.min(totalReviewPages, currentReviewPage + 1)"
             :disabled="currentReviewPage === totalReviewPages"
             class="px-3 py-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-gray-700 dark:text-slate-200 font-bold disabled:opacity-40 cursor-pointer shadow-2xs"
           >
-            Suivant →
+            {{ t('parcelDetail.nextBtn') }}
           </button>
         </div>
       </div>
@@ -618,7 +620,7 @@ const allSteps = computed(() => {
           <svg class="w-5 h-5 text-[#053754] dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <h3 class="text-sm sm:text-base font-extrabold text-[#053754] dark:text-sky-300">Historique et progression de la livraison</h3>
+          <h3 class="text-sm sm:text-base font-extrabold text-[#053754] dark:text-sky-300">{{ t('parcelDetail.historyTitle') }}</h3>
         </div>
 
         <!-- Stepper Vertical Timeline (All steps displayed with blur on future steps) -->
@@ -671,14 +673,14 @@ const allSteps = computed(() => {
 
       <!-- Point de Dépôt Card ("Où déposer mon colis ?") -->
       <div v-if="reservation.adresseDepot" class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-3">
-        <span class="text-xs text-gray-400 dark:text-slate-400 font-medium block">Où déposer mon colis ?</span>
+        <span class="text-xs text-gray-400 dark:text-slate-400 font-medium block">{{ t('parcelDetail.dropoffTitle') }}</span>
 
         <div class="flex items-start gap-2.5">
           <span class="text-red-600 dark:text-red-400 text-lg">📍</span>
           <div class="space-y-0.5">
             <h4 class="text-xs sm:text-sm font-extrabold text-[#053754] dark:text-sky-300">{{ reservation.adresseDepot.adresse }} ({{ reservation.adresseDepot.ville }}, {{ reservation.adresseDepot.pays }})</h4>
             <p v-if="reservation.adresseDepot.horaire_ouverture" class="text-xs text-gray-500 dark:text-slate-400">
-              Horaires : <span class="font-extrabold text-[#053754] dark:text-sky-300">{{ reservation.adresseDepot.horaire_ouverture }}</span>
+              {{ t('parcelDetail.openingHours') }} <span class="font-extrabold text-[#053754] dark:text-sky-300">{{ reservation.adresseDepot.horaire_ouverture }}</span>
             </p>
           </div>
         </div>
@@ -691,20 +693,20 @@ const allSteps = computed(() => {
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5-4V4l5 4m0 0l6-4 6 4v12l-6-4m-6 4V8m6 12V8" />
           </svg>
-          <span>Voir l'itinéraire</span>
+          <span>{{ t('parcelDetail.viewDirections') }}</span>
         </button>
       </div>
 
       <!-- Point de Retrait Card ("Où retirer le colis à destination ?") -->
       <div v-if="reservation.adresseRetrait" class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-3">
-        <span class="text-xs text-gray-400 dark:text-slate-400 font-medium block">Où retirer le colis à destination ?</span>
+        <span class="text-xs text-gray-400 dark:text-slate-400 font-medium block">{{ t('parcelDetail.pickupTitle') }}</span>
 
         <div class="flex items-start gap-2.5">
           <span class="text-red-600 dark:text-red-400 text-lg">📍</span>
           <div class="space-y-0.5">
             <h4 class="text-xs sm:text-sm font-extrabold text-[#053754] dark:text-sky-300">{{ reservation.adresseRetrait.adresse }} ({{ reservation.adresseRetrait.ville }}, {{ reservation.adresseRetrait.pays }})</h4>
             <p v-if="reservation.adresseRetrait.horaire_ouverture" class="text-xs text-gray-500 dark:text-slate-400">
-              Horaires : <span class="font-extrabold text-[#053754] dark:text-sky-300">{{ reservation.adresseRetrait.horaire_ouverture }}</span>
+              {{ t('parcelDetail.openingHours') }} <span class="font-extrabold text-[#053754] dark:text-sky-300">{{ reservation.adresseRetrait.horaire_ouverture }}</span>
             </p>
           </div>
         </div>
@@ -717,7 +719,7 @@ const allSteps = computed(() => {
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5-4V4l5 4m0 0l6-4 6 4v12l-6-4m-6 4V8m6 12V8" />
           </svg>
-          <span>Voir l'itinéraire</span>
+          <span>{{ t('parcelDetail.viewDirections') }}</span>
         </button>
       </div>
 
@@ -728,7 +730,7 @@ const allSteps = computed(() => {
           type="button"
           class="w-full bg-white dark:bg-slate-900 border border-red-200 dark:border-red-900 hover:bg-red-50 dark:hover:bg-red-950/80 text-[#B50302] dark:text-red-400 font-extrabold text-xs sm:text-sm py-3.5 rounded-xl transition-colors cursor-pointer shadow-xs"
         >
-          🚫 Annuler cette réservation
+          {{ t('parcelDetail.cancelBookingBtn') }}
         </button>
       </div>
     </template>

@@ -1,9 +1,11 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from '@/composables/useI18n'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 
 const activeTab = computed(() => {
   const path = route.path
@@ -13,32 +15,32 @@ const activeTab = computed(() => {
   return 'voyages'
 })
 
-const tabs = [
+const tabs = computed(() => [
   {
     id: 'voyages',
-    label: 'Voyages',
+    label: t('voyageurNav.voyages'),
     path: '/voyageur',
     icon: 'M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L14 19v-5.5l8 2.5z'
   },
   {
     id: 'demandes',
-    label: 'Demandes',
+    label: t('voyageurNav.demandes'),
     path: '/voyageur/demandes',
     icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01'
   },
   {
     id: 'messages',
-    label: 'Messages',
+    label: t('voyageurNav.messages'),
     path: '/voyageur/messages',
     icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z'
   },
   {
     id: 'profil',
-    label: 'Profil',
+    label: t('voyageurNav.profil'),
     path: '/profile',
     icon: 'M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z'
   }
-]
+])
 
 const navigateTo = (path) => {
   router.push(path)

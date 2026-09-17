@@ -11,7 +11,9 @@ import { fetchMyEvaluations } from '@/services/evaluationService'
 import { fetchRevenus } from '@/services/revenuService'
 import { currentCurrency, formatPrice, convertAmount } from '@/utils/currencyState'
 import { getCountryFlag } from '@/utils/flagHelper'
+import { useI18n } from '@/composables/useI18n'
 
+const { t } = useI18n()
 const router = useRouter()
 
 // Toast helper
@@ -61,15 +63,15 @@ const formatVoyageDate = (dateStr) => {
 
 // Filter Status State (Enum: tous, publie, brouillon, complet, en_cours, termine, annule)
 const activeStatutFilter = ref('tous')
-const statusOptions = [
-  { value: 'tous', label: 'Tous' },
-  { value: 'publie', label: 'Publiés' },
-  { value: 'brouillon', label: 'Brouillons' },
+const statusOptions = computed(() => [
+  { value: 'tous', label: t('parcels.tabs.all') },
+  { value: 'publie', label: t('voyageur.voyages.tabs.active') },
+  { value: 'brouillon', label: t('status.draft') },
   { value: 'complet', label: 'Complets' },
-  { value: 'en_cours', label: 'En cours' },
-  { value: 'termine', label: 'Terminés' },
-  { value: 'annule', label: 'Annulés' }
-]
+  { value: 'en_cours', label: t('status.in_transit') },
+  { value: 'termine', label: t('voyageur.voyages.tabs.past') },
+  { value: 'annule', label: t('status.cancelled') }
+])
 
 // Voyages List Data State
 const voyages = ref([])
@@ -619,8 +621,8 @@ const goToDemandes = () => router.push('/voyageur/demandes')
     <!-- Header Title & Action -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark dark:text-sky-300">Mes voyages GP</h1>
-        <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400">Publiez vos trajets et gérez vos capacités de bagages</p>
+        <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark dark:text-sky-300">{{ t('voyageur.voyages.title') }}</h1>
+        <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400">{{ t('voyageur.voyages.subTitle') }}</p>
       </div>
 
       <button
@@ -628,37 +630,37 @@ const goToDemandes = () => router.push('/voyageur/demandes')
         type="button"
         class="bg-[#B50302] hover:bg-[#8B0000] text-white font-extrabold text-xs sm:text-sm py-3 px-5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider shrink-0 active:scale-[0.99]"
       >
-        <span>➕ PUBLIER UN VOYAGE</span>
+        <span>{{ t('voyageur.voyages.publishBtn') }}</span>
       </button>
     </div>
 
     <!-- Quick Stats Cards Banner -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
       <div @click="goToRevenus" class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-gray-200 dark:border-slate-800 shadow-2xs hover:border-[#074C72] dark:hover:border-sky-400 transition-all cursor-pointer space-y-1">
-        <span class="text-[11px] font-bold text-gray-400 dark:text-slate-400 block uppercase">Revenus générés</span>
+        <span class="text-[11px] font-bold text-gray-400 dark:text-slate-400 block uppercase">{{ t('voyageur.revenus.totalRevenue') }}</span>
         <div class="text-base sm:text-lg font-black text-[#053754] dark:text-sky-300">{{ formattedTotalRevenus }}</div>
-        <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-0.5">↗ {{ paidReservationsCount }} {{ paidReservationsCount > 1 ? 'réservations payées' : 'réservation payée' }}</span>
+        <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-0.5">↗ {{ paidReservationsCount }} {{ t('voyageur.revenus.deliveredParcelsCount') }}</span>
       </div>
 
       <div @click="goToDemandes" class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-amber-200 dark:border-amber-800/80 bg-amber-50/40 dark:bg-amber-950/20 shadow-2xs hover:border-amber-400 transition-all cursor-pointer space-y-1">
-        <span class="text-[11px] font-bold text-amber-700 dark:text-amber-300 block uppercase">Demandes en attente</span>
+        <span class="text-[11px] font-bold text-amber-700 dark:text-amber-300 block uppercase">{{ t('voyageur.demandes.tabs.pending') }}</span>
         <div class="text-base sm:text-lg font-black text-amber-900 dark:text-amber-200 font-serif">
-          {{ pendingDemandesCount }} {{ pendingDemandesCount > 1 ? 'demandes' : 'demande' }}
+          {{ pendingDemandesCount }}
         </div>
-        <span class="text-[10px] text-amber-600 dark:text-amber-400 font-bold underline">Répondre aux clients ➔</span>
+        <span class="text-[10px] text-amber-600 dark:text-amber-400 font-bold underline">{{ t('voyageur.demandes.title') }} ➔</span>
       </div>
 
       <div @click="router.push('/voyageur/evaluations')" class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-gray-200 dark:border-slate-800 shadow-2xs hover:border-[#053754] dark:hover:border-sky-400 transition-all cursor-pointer space-y-1 group">
-        <span class="text-[11px] font-bold text-gray-400 dark:text-slate-400 block uppercase group-hover:text-[#053754] dark:group-hover:text-sky-300">Note Voyageur</span>
+        <span class="text-[11px] font-bold text-gray-400 dark:text-slate-400 block uppercase group-hover:text-[#053754] dark:group-hover:text-sky-300">{{ t('voyageur.evaluations.averageRating') }}</span>
         <div class="text-base sm:text-lg font-black text-[#053754] dark:text-sky-300 flex items-center gap-1.5">
           <span v-if="voyageurRating !== null" class="flex items-center gap-1">
             <span class="text-amber-500">⭐</span>
             <span>{{ voyageurRating }} / 5</span>
           </span>
-          <span v-else class="text-xs sm:text-sm font-bold text-gray-400 dark:text-slate-500">Aucun avis</span>
-          <span class="text-xs text-gray-400 dark:text-slate-400 font-medium">({{ voyageurReviewsCount }} {{ voyageurReviewsCount > 1 ? 'avis' : 'avis' }})</span>
+          <span v-else class="text-xs sm:text-sm font-bold text-gray-400 dark:text-slate-500">{{ t('voyageur.evaluations.noReviewsTitle') }}</span>
+          <span class="text-xs text-gray-400 dark:text-slate-400 font-medium">({{ voyageurReviewsCount }} {{ t('voyageDetail.reviewsCount') }})</span>
         </div>
-        <span class="text-[10px] text-sky-700 dark:text-sky-400 font-bold underline block">Voir mes évaluations ➔</span>
+        <span class="text-[10px] text-sky-700 dark:text-sky-400 font-bold underline block">{{ t('voyageDetail.latestReviews') }} ➔</span>
       </div>
     </div>
 
@@ -668,14 +670,14 @@ const goToDemandes = () => router.push('/voyageur/demandes')
         <input
           v-model="searchQuery"
           type="text"
-          placeholder="Rechercher un voyage par ville, pays..."
+          :placeholder="t('messages.searchPlaceholder')"
           class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-xs font-medium text-gray-800 dark:text-slate-100 outline-none focus:border-[#074C72] dark:focus:border-sky-400 focus:ring-2 focus:ring-[#074C72]/20 placeholder-gray-400 dark:placeholder-slate-500"
         />
         <span class="absolute left-3.5 top-2.5 text-gray-400 dark:text-slate-500 text-sm">🔍</span>
       </div>
 
       <div class="space-y-1.5">
-        <label class="block text-[10px] font-extrabold uppercase tracking-wider text-gray-400 dark:text-slate-400">Filtrer par statut de voyage :</label>
+        <label class="block text-[10px] font-extrabold uppercase tracking-wider text-gray-400 dark:text-slate-400">{{ t('common.filter') }} :</label>
         <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
           <button
             v-for="opt in statusOptions"
@@ -727,18 +729,18 @@ const goToDemandes = () => router.push('/voyageur/demandes')
                 'bg-red-50 dark:bg-rose-950/60 text-red-800 dark:text-rose-300 border-red-200 dark:border-rose-800': voyage.statut === 'annule'
               }"
             >
-              {{ voyage.statut }}
+              {{ voyage.statut === 'publie' ? t('status.accepted') : (voyage.statut === 'brouillon' ? t('status.draft') : (voyage.statut === 'en_cours' ? t('status.in_transit') : (voyage.statut === 'termine' ? t('status.delivered') : (voyage.statut === 'annule' ? t('status.cancelled') : voyage.statut)))) }}
             </span>
           </div>
 
           <!-- Departure & Arrival Dates with Smart Date Formatter -->
           <div class="bg-slate-50 dark:bg-slate-800/80 p-3 rounded-2xl border border-slate-100 dark:border-slate-700 flex items-center justify-between text-xs">
             <div>
-              <span class="text-gray-400 dark:text-slate-400 block text-[10px] uppercase font-bold">Départ</span>
+              <span class="text-gray-400 dark:text-slate-400 block text-[10px] uppercase font-bold">{{ t('voyageur.voyages.departureDate') }}</span>
               <span class="font-bold text-gray-900 dark:text-slate-100">{{ formatVoyageDate(voyage.departureDate) }}</span>
             </div>
             <div class="text-right">
-              <span class="text-gray-400 dark:text-slate-400 block text-[10px] uppercase font-bold">Tarif au Kg</span>
+              <span class="text-gray-400 dark:text-slate-400 block text-[10px] uppercase font-bold">{{ t('voyageur.voyages.priceKg') }}</span>
               <span class="font-extrabold text-[#B50302] dark:text-rose-400 text-sm">{{ voyage.prixKg }}</span>
             </div>
           </div>
@@ -748,7 +750,7 @@ const goToDemandes = () => router.push('/voyageur/demandes')
             <div class="flex justify-between text-[11px] font-bold">
               <span class="text-gray-700 dark:text-slate-300 flex items-center gap-1">
                 <span>⚖️</span>
-                <span>Capacité disponible :</span>
+                <span>{{ t('voyageDetail.capacityTitle') }} :</span>
               </span>
               <span :class="[voyage.capaciteDispo === 0 ? 'text-red-600 dark:text-rose-400 font-black' : 'text-[#053754] dark:text-sky-300 font-extrabold']">
                 {{ voyage.capaciteDispo }} Kg / {{ voyage.capaciteTotale }} Kg
@@ -768,8 +770,8 @@ const goToDemandes = () => router.push('/voyageur/demandes')
               ></div>
             </div>
             <div class="flex justify-between text-[10px] text-gray-400 dark:text-slate-400 font-medium">
-              <span>{{ Math.max(0, voyage.capaciteTotale - voyage.capaciteDispo) }} Kg réservés</span>
-              <span>{{ voyage.capaciteTotale > 0 ? Math.round(((voyage.capaciteTotale - voyage.capaciteDispo) / voyage.capaciteTotale) * 100) : 0 }}% réservé</span>
+              <span>{{ Math.max(0, voyage.capaciteTotale - voyage.capaciteDispo) }} Kg {{ t('voyageDetail.capacityReserved') }}</span>
+              <span>{{ voyage.capaciteTotale > 0 ? Math.round(((voyage.capaciteTotale - voyage.capaciteDispo) / voyage.capaciteTotale) * 100) : 0 }}%</span>
             </div>
           </div>
         </div>
@@ -782,7 +784,7 @@ const goToDemandes = () => router.push('/voyageur/demandes')
             type="button"
             class="px-4 py-2 rounded-xl bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-800 dark:text-slate-200 font-bold text-xs transition-colors cursor-pointer flex items-center gap-1.5"
           >
-            <span>✏️ Éditer</span>
+            <span>✏️ {{ t('voyageur.voyages.editBtn') }}</span>
           </button>
           <div v-else></div>
 
@@ -791,7 +793,7 @@ const goToDemandes = () => router.push('/voyageur/demandes')
             type="button"
             class="px-4 py-2 rounded-xl bg-[#053754] dark:bg-sky-600 hover:bg-[#074C72] dark:hover:bg-sky-500 text-white font-extrabold text-xs transition-colors cursor-pointer flex items-center gap-1.5"
           >
-            <span>👁️ Voir détails</span>
+            <span>👁️ {{ t('voyageur.voyages.viewDetails') }}</span>
           </button>
         </div>
       </div>
@@ -800,8 +802,8 @@ const goToDemandes = () => router.push('/voyageur/demandes')
     <!-- Empty State if no voyages match filter -->
     <div v-else class="bg-white dark:bg-slate-900 rounded-3xl p-8 text-center border border-gray-200 dark:border-slate-800 space-y-3">
       <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center mx-auto text-xl font-bold">✈️</div>
-      <h3 class="text-base font-bold text-[#053754] dark:text-sky-300">Aucun voyage trouvé</h3>
-      <p class="text-xs text-gray-500 dark:text-slate-400 max-w-sm mx-auto">Aucun voyage ne correspond au statut sélectionné.</p>
+      <h3 class="text-base font-bold text-[#053754] dark:text-sky-300">{{ t('voyageur.voyages.noTripsTitle') }}</h3>
+      <p class="text-xs text-gray-500 dark:text-slate-400 max-w-sm mx-auto">{{ t('voyageur.voyages.noTripsSub') }}</p>
     </div>
 
     <!-- Pagination Controls (10 items per page) -->
@@ -811,11 +813,11 @@ const goToDemandes = () => router.push('/voyageur/demandes')
         :disabled="currentPage === 1"
         class="px-4 py-2 rounded-xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 font-bold text-gray-700 dark:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-slate-800"
       >
-        ◄ Précédent
+        ◄ {{ t('parcelDetail.prevBtn') }}
       </button>
 
       <span class="font-extrabold text-[#053754] dark:text-sky-300">
-        Page {{ currentPage }} sur {{ totalPages }}
+        {{ t('parcelDetail.pageOf') }} {{ currentPage }} / {{ totalPages }}
       </span>
 
       <button
@@ -823,10 +825,12 @@ const goToDemandes = () => router.push('/voyageur/demandes')
         :disabled="currentPage === totalPages"
         class="px-4 py-2 rounded-xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 font-bold text-gray-700 dark:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-slate-800"
       >
-        Suivant ►
+        {{ t('parcelDetail.nextBtn') }} ►
       </button>
     </div>
 
+    <!-- ========================================================================= -->
+    <!-- MULTI-STEP WIZARD MODAL (CREATION AND UPDATE MODE) -->
     <!-- ========================================================================= -->
     <!-- MULTI-STEP WIZARD MODAL (CREATION AND UPDATE MODE) -->
     <!-- ========================================================================= -->
@@ -837,9 +841,9 @@ const goToDemandes = () => router.push('/voyageur/demandes')
         <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3">
           <div>
             <h3 class="text-lg font-bold text-[#053754] dark:text-sky-300 font-serif">
-              {{ isEditing ? 'Modifier le voyage' : 'Publier un nouveau voyage' }}
+              {{ isEditing ? t('voyageur.createVoyageModal.editTitle', 'Modifier le voyage') : t('voyageur.createVoyage.title', 'Publier un nouveau voyage') }}
             </h3>
-            <p class="text-xs text-gray-500 dark:text-slate-400">Étape {{ wizardStep }} sur 5</p>
+            <p class="text-xs text-gray-500 dark:text-slate-400">{{ t('booking.stepProgress', 'Étape {step} sur {total}', { step: wizardStep, total: 5 }) }}</p>
           </div>
           <button @click="showWizardModal = false" class="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 p-1 font-bold text-lg cursor-pointer">✕</button>
         </div>
@@ -854,14 +858,14 @@ const goToDemandes = () => router.push('/voyageur/demandes')
 
         <!-- STEP 1: TRAJET -->
         <div v-if="wizardStep === 1" class="space-y-4">
-          <h4 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">1. Trajet du voyage</h4>
+          <h4 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">{{ t('voyageur.createVoyageModal.step1', '1. Trajet du voyage') }}</h4>
           <div class="space-y-3">
             <div>
-              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">Ville de Départ</label>
+              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">{{ t('voyageur.createVoyageModal.departureCity', 'Ville de Départ') }}</label>
               <CitySelect v-model="form.ville_depart" placeholder="Choisir la ville de départ" @change="onVoyageDepartCitySelect" />
             </div>
             <div>
-              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">Ville de Destination</label>
+              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">{{ t('voyageur.createVoyageModal.destinationCity', 'Ville de Destination') }}</label>
               <CitySelect v-model="form.ville_destination" placeholder="Choisir la ville de destination" @change="onVoyageDestinationCitySelect" />
             </div>
           </div>
@@ -869,14 +873,14 @@ const goToDemandes = () => router.push('/voyageur/demandes')
 
         <!-- STEP 2: DATES -->
         <div v-else-if="wizardStep === 2" class="space-y-4">
-          <h4 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">2. Dates et Heures du vol</h4>
+          <h4 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">{{ t('voyageur.createVoyageModal.step2', '2. Dates et Heures du vol') }}</h4>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">Date et heure de départ</label>
+              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">{{ t('voyageur.createVoyageModal.departureDate', 'Date et heure de départ') }}</label>
               <input v-model="form.date_depart" type="datetime-local" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none" />
             </div>
             <div>
-              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">Date et heure d'arrivée</label>
+              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">{{ t('voyageur.createVoyageModal.arrivalDate', 'Date et heure d\'arrivée') }}</label>
               <input v-model="form.date_arrivee" type="datetime-local" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none" />
             </div>
           </div>
@@ -884,15 +888,15 @@ const goToDemandes = () => router.push('/voyageur/demandes')
 
         <!-- STEP 3: CAPACITÉ & TARIFS -->
         <div v-else-if="wizardStep === 3" class="space-y-4">
-          <h4 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">3. Capacité et Tarification</h4>
+          <h4 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">{{ t('voyageur.createVoyageModal.step3', '3. Capacité et Tarification') }}</h4>
           <div class="space-y-3">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">Capacité disponible (Kg) *</label>
+                <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">{{ t('voyageur.createVoyageModal.capacityAvailable', 'Capacité disponible (Kg) *') }}</label>
                 <input v-model.number="form.capacite_totale" type="number" placeholder="ex: 25" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none" />
               </div>
               <div>
-                <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">Devise du tarif *</label>
+                <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">{{ t('voyageur.createVoyageModal.tariffCurrency', 'Devise du tarif *') }}</label>
                 <select v-model="form.devise" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-bold text-gray-800 dark:text-slate-100 outline-none">
                   <option value="XOF" class="dark:bg-slate-800 text-slate-100">FCFA (XOF) - Franc CFA</option>
                   <option value="EUR" class="dark:bg-slate-800 text-slate-100">EUR (€) - Euro</option>
@@ -902,16 +906,16 @@ const goToDemandes = () => router.push('/voyageur/demandes')
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">Prix au Kg ({{ form.devise }}) *</label>
+                <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">{{ t('voyageur.createVoyageModal.pricePerKg', 'Prix au Kg ({currency}) *', { currency: form.devise }) }}</label>
                 <input v-model.number="form.prix_kg" type="number" placeholder="ex: 8500" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none" />
               </div>
               <div>
-                <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">Prix par objet ({{ form.devise }})</label>
+                <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">{{ t('voyageur.createVoyageModal.pricePerObject', 'Prix par objet ({currency})', { currency: form.devise }) }}</label>
                 <input v-model.number="form.prix_objet" type="number" placeholder="ex: 15000" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none" />
               </div>
             </div>
             <div>
-              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">Description / Consignes</label>
+              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">{{ t('voyageur.createVoyageModal.descriptionLabel', 'Description / Consignes') }}</label>
               <textarea v-model="form.description" rows="2" placeholder="Précisions sur votre vol ou vos bagages..." class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none"></textarea>
             </div>
           </div>
@@ -919,14 +923,14 @@ const goToDemandes = () => router.push('/voyageur/demandes')
 
         <!-- STEP 4: ADRESSES DÉPÔT ET RÉCUPÉRATION WITH CITYSELECT AUTOFILL -->
         <div v-else-if="wizardStep === 4" class="space-y-4">
-          <h4 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">4. Lieux de Dépôt et Récupération</h4>
+          <h4 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">{{ t('voyageur.createVoyageModal.step4', '4. Lieux de Dépôt et Récupération') }}</h4>
           
           <div class="space-y-4">
             <!-- Depot Address Select Card -->
             <div class="bg-slate-50 dark:bg-slate-800/70 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2">
               <div class="flex items-center justify-between">
-                <label class="text-xs font-bold text-gray-700 dark:text-slate-300">Point de Dépôt (Départ)</label>
-                <button @click="showDepotAddressModal = true" type="button" class="text-xs font-bold text-[#B50302] dark:text-rose-400 hover:underline">+ Créer une adresse</button>
+                <label class="text-xs font-bold text-gray-700 dark:text-slate-300">{{ t('voyageur.createVoyageModal.depositPoint', 'Point de Dépôt (Départ)') }}</label>
+                <button @click="showDepotAddressModal = true" type="button" class="text-xs font-bold text-[#B50302] dark:text-rose-400 hover:underline">{{ t('voyageur.createVoyageModal.createAddressBtn', '+ Créer une adresse') }}</button>
               </div>
               <select v-model="form.adresse_depot_id" class="w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 dark:text-slate-100 font-bold outline-none">
                 <option value="" disabled class="dark:bg-slate-800">-- Sélectionner une adresse de dépôt --</option>
@@ -937,8 +941,8 @@ const goToDemandes = () => router.push('/voyageur/demandes')
             <!-- Recup Address Select Card -->
             <div class="bg-slate-50 dark:bg-slate-800/70 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2">
               <div class="flex items-center justify-between">
-                <label class="text-xs font-bold text-gray-700 dark:text-slate-300">Point de Retrait (Destination)</label>
-                <button @click="showRecupAddressModal = true" type="button" class="text-xs font-bold text-[#B50302] dark:text-rose-400 hover:underline">+ Créer une adresse</button>
+                <label class="text-xs font-bold text-gray-700 dark:text-slate-300">{{ t('voyageur.createVoyageModal.pickupPoint', 'Point de Retrait (Destination)') }}</label>
+                <button @click="showRecupAddressModal = true" type="button" class="text-xs font-bold text-[#B50302] dark:text-rose-400 hover:underline">{{ t('voyageur.createVoyageModal.createAddressBtn', '+ Créer une adresse') }}</button>
               </div>
               <select v-model="form.adresse_recuperation_id" class="w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 dark:text-slate-100 font-bold outline-none">
                 <option value="" disabled class="dark:bg-slate-800">-- Sélectionner une adresse de récupération --</option>
@@ -950,11 +954,11 @@ const goToDemandes = () => router.push('/voyageur/demandes')
 
         <!-- STEP 5: OBJECTS LIST JSON -->
         <div v-if="wizardStep === 5" class="space-y-4">
-          <h4 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">5. Catégories d'objets autorisées & interdites</h4>
+          <h4 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">{{ t('voyageur.createVoyageModal.step5', '5. Catégories d\'objets autorisées & interdites') }}</h4>
           
           <!-- Accepted -->
           <div class="space-y-2">
-            <label class="block text-xs font-bold text-emerald-800 dark:text-emerald-300">✅ Objets Autorisés</label>
+            <label class="block text-xs font-bold text-emerald-800 dark:text-emerald-300">{{ t('voyageur.createVoyageModal.authorizedItems', '✅ Objets Autorisés') }}</label>
             <div class="grid grid-cols-2 gap-2">
               <div
                 v-for="cat in allAutorisesList" :key="cat"
@@ -968,13 +972,13 @@ const goToDemandes = () => router.push('/voyageur/demandes')
             </div>
             <div class="flex gap-2 pt-1">
               <input v-model="customAutorise" type="text" placeholder="Autre objet autorisé (ex: Épices scellées)" class="flex-1 bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-gray-800 dark:text-slate-100 outline-none" @keyup.enter="addCustomAutorise" />
-              <button @click="addCustomAutorise" type="button" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-3.5 py-2 rounded-xl cursor-pointer shrink-0">+ Ajouter</button>
+              <button @click="addCustomAutorise" type="button" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-3.5 py-2 rounded-xl cursor-pointer shrink-0">{{ t('voyageur.createVoyageModal.addCustomItem', '+ Ajouter') }}</button>
             </div>
           </div>
 
           <!-- Refused -->
           <div class="space-y-2 pt-2 border-t border-gray-100 dark:border-slate-800">
-            <label class="block text-xs font-bold text-red-800 dark:text-rose-300">🚫 Objets Interdits</label>
+            <label class="block text-xs font-bold text-red-800 dark:text-rose-300">{{ t('voyageur.createVoyageModal.forbiddenItems', '🚫 Objets Interdits') }}</label>
             <div class="grid grid-cols-2 gap-2">
               <div
                 v-for="cat in allInterditsList" :key="cat"
@@ -988,21 +992,21 @@ const goToDemandes = () => router.push('/voyageur/demandes')
             </div>
             <div class="flex gap-2 pt-1">
               <input v-model="customInterdit" type="text" placeholder="Autre objet interdit (ex: Produits corrosifs)" class="flex-1 bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-gray-800 dark:text-slate-100 outline-none" @keyup.enter="addCustomInterdit" />
-              <button @click="addCustomInterdit" type="button" class="bg-[#B50302] hover:bg-[#8B0000] text-white font-bold text-xs px-3.5 py-2 rounded-xl cursor-pointer shrink-0">+ Ajouter</button>
+              <button @click="addCustomInterdit" type="button" class="bg-[#B50302] hover:bg-[#8B0000] text-white font-bold text-xs px-3.5 py-2 rounded-xl cursor-pointer shrink-0">{{ t('voyageur.createVoyageModal.addCustomItem', '+ Ajouter') }}</button>
             </div>
           </div>
         </div>
 
         <!-- Wizard Navigation Buttons -->
         <div class="pt-3 border-t border-gray-100 dark:border-slate-800 flex items-center justify-between gap-3">
-          <button v-if="wizardStep > 1" @click="prevWizardStep" type="button" class="px-4 py-2.5 rounded-xl bg-gray-100 dark:bg-slate-800 font-bold text-xs text-gray-700 dark:text-slate-200 cursor-pointer">Précédent</button>
+          <button v-if="wizardStep > 1" @click="prevWizardStep" type="button" class="px-4 py-2.5 rounded-xl bg-gray-100 dark:bg-slate-800 font-bold text-xs text-gray-700 dark:text-slate-200 cursor-pointer">{{ t('voyageur.createVoyageModal.prevBtn', 'Précédent') }}</button>
           
           <div class="ml-auto flex items-center gap-2">
-            <button v-if="wizardStep < 5" @click="nextWizardStep" type="button" class="bg-[#053754] dark:bg-sky-600 text-white font-bold text-xs px-5 py-2.5 rounded-xl cursor-pointer">Suivant</button>
+            <button v-if="wizardStep < 5" @click="nextWizardStep" type="button" class="bg-[#053754] dark:bg-sky-600 text-white font-bold text-xs px-5 py-2.5 rounded-xl cursor-pointer">{{ t('voyageur.createVoyageModal.nextBtn', 'Suivant') }}</button>
             <template v-else>
-              <button @click="handleSaveVoyage('brouillon')" :disabled="isLoading" type="button" class="bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-slate-200 font-bold text-xs px-4 py-2.5 rounded-xl cursor-pointer">Brouillon</button>
+              <button @click="handleSaveVoyage('brouillon')" :disabled="isLoading" type="button" class="bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-slate-200 font-bold text-xs px-4 py-2.5 rounded-xl cursor-pointer">{{ t('voyageur.createVoyageModal.draftBtn', 'Brouillon') }}</button>
               <button @click="handleSaveVoyage('publie')" :disabled="isLoading" type="button" class="bg-[#B50302] hover:bg-[#8B0000] text-white font-extrabold text-xs px-5 py-2.5 rounded-xl cursor-pointer">
-                {{ isEditing ? 'ENREGISTRER' : 'PUBLIER' }}
+                {{ isEditing ? t('voyageur.createVoyageModal.saveBtn', 'ENREGISTRER') : t('voyageur.createVoyageModal.publishBtn', 'PUBLIER') }}
               </button>
             </template>
           </div>
@@ -1015,7 +1019,7 @@ const goToDemandes = () => router.push('/voyageur/demandes')
     <div v-if="showDepotAddressModal" class="fixed inset-0 z-[60] bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
       <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 font-sans">
         <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3">
-          <h3 class="text-base font-bold text-[#053754] dark:text-sky-300 font-serif">Nouvelle adresse de dépôt</h3>
+          <h3 class="text-base font-bold text-[#053754] dark:text-sky-300 font-serif">{{ t('voyageur.createVoyageModal.newDepotTitle', 'Nouvelle adresse de dépôt') }}</h3>
           <button @click="showDepotAddressModal = false" class="text-gray-400 dark:text-slate-500 font-bold cursor-pointer">✕</button>
         </div>
 
@@ -1026,28 +1030,28 @@ const goToDemandes = () => router.push('/voyageur/demandes')
           </div>
 
           <div>
-            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Pays (Rempli automatiquement)</label>
+            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">{{ t('voyageur.createVoyageModal.autoCountry', 'Pays (Rempli automatiquement)') }}</label>
             <input v-model="newDepotForm.pays" type="text" placeholder="ex: Sénégal" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 font-bold text-gray-800 dark:text-slate-100 outline-none" />
           </div>
 
           <div>
-            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Adresse complète *</label>
+            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">{{ t('voyageur.createVoyageModal.fullAddress', 'Adresse complète *') }}</label>
             <input v-model="newDepotForm.adresse" type="text" placeholder="ex: 15 Rue de Rivoli, Agence Relais Rahma" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-gray-800 dark:text-slate-100 outline-none" />
           </div>
 
           <div>
-            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Horaire d'ouverture</label>
+            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">{{ t('voyageur.createVoyageModal.openingHours', 'Horaire d\'ouverture') }}</label>
             <input v-model="newDepotForm.horaire_ouverture" type="text" placeholder="ex: Du Lundi au Samedi de 08h30 à 19h00" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-gray-800 dark:text-slate-100 outline-none" />
           </div>
 
           <div>
-            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Instructions de dépôt</label>
+            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">{{ t('voyageur.createVoyageModal.depositInstructions', 'Instructions de dépôt') }}</label>
             <textarea v-model="newDepotForm.instructions" rows="2" placeholder="ex: Remettre le colis au comptoir 2..." class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-gray-800 dark:text-slate-100 outline-none"></textarea>
           </div>
 
           <div class="pt-2 flex justify-end gap-2">
-            <button type="button" @click="showDepotAddressModal = false" class="px-4 py-2 text-gray-600 dark:text-slate-400 font-bold cursor-pointer">Annuler</button>
-            <button type="submit" :disabled="isLoading" class="bg-[#053754] text-white font-bold px-5 py-2 rounded-xl cursor-pointer">Enregistrer</button>
+            <button type="button" @click="showDepotAddressModal = false" class="px-4 py-2 text-gray-600 dark:text-slate-400 font-bold cursor-pointer">{{ t('common.cancel', 'Annuler') }}</button>
+            <button type="submit" :disabled="isLoading" class="bg-[#053754] text-white font-bold px-5 py-2 rounded-xl cursor-pointer">{{ t('voyageur.createVoyageModal.saveBtn', 'Enregistrer') }}</button>
           </div>
         </form>
       </div>
@@ -1057,7 +1061,7 @@ const goToDemandes = () => router.push('/voyageur/demandes')
     <div v-if="showRecupAddressModal" class="fixed inset-0 z-[60] bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
       <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 font-sans">
         <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3">
-          <h3 class="text-base font-bold text-[#053754] dark:text-sky-300 font-serif">Nouvelle adresse de récupération</h3>
+          <h3 class="text-base font-bold text-[#053754] dark:text-sky-300 font-serif">{{ t('voyageur.createVoyageModal.newRecupTitle', 'Nouvelle adresse de récupération') }}</h3>
           <button @click="showRecupAddressModal = false" class="text-gray-400 dark:text-slate-500 font-bold cursor-pointer">✕</button>
         </div>
 
@@ -1068,28 +1072,28 @@ const goToDemandes = () => router.push('/voyageur/demandes')
           </div>
 
           <div>
-            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Pays (Rempli automatiquement)</label>
+            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">{{ t('voyageur.createVoyageModal.autoCountry', 'Pays (Rempli automatiquement)') }}</label>
             <input v-model="newRecupForm.pays" type="text" placeholder="ex: France" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 font-bold text-gray-800 dark:text-slate-100 outline-none" />
           </div>
 
           <div>
-            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Adresse complète *</label>
+            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">{{ t('voyageur.createVoyageModal.fullAddress', 'Adresse complète *') }}</label>
             <input v-model="newRecupForm.adresse" type="text" placeholder="ex: Agence Rahma Paris 10ème (Gare du Nord)" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-gray-800 dark:text-slate-100 outline-none" />
           </div>
 
           <div>
-            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Horaire d'ouverture</label>
+            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">{{ t('voyageur.createVoyageModal.openingHours', 'Horaire d\'ouverture') }}</label>
             <input v-model="newRecupForm.horaire_ouverture" type="text" placeholder="ex: Du Lundi au Samedi de 09h00 à 19h00" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-gray-800 dark:text-slate-100 outline-none" />
           </div>
 
           <div>
-            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Instructions de récupération</label>
+            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">{{ t('voyageur.createVoyageModal.pickupInstructions', 'Instructions de récupération') }}</label>
             <textarea v-model="newRecupForm.instructions" rows="2" placeholder="ex: Présenter le code de réservation au guichet..." class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-gray-800 dark:text-slate-100 outline-none"></textarea>
           </div>
 
           <div class="pt-2 flex justify-end gap-2">
-            <button type="button" @click="showRecupAddressModal = false" class="px-4 py-2 text-gray-600 dark:text-slate-400 font-bold cursor-pointer">Annuler</button>
-            <button type="submit" :disabled="isLoading" class="bg-[#053754] text-white font-bold px-5 py-2 rounded-xl cursor-pointer">Enregistrer</button>
+            <button type="button" @click="showRecupAddressModal = false" class="px-4 py-2 text-gray-600 dark:text-slate-400 font-bold cursor-pointer">{{ t('common.cancel', 'Annuler') }}</button>
+            <button type="submit" :disabled="isLoading" class="bg-[#053754] text-white font-bold px-5 py-2 rounded-xl cursor-pointer">{{ t('voyageur.createVoyageModal.saveBtn', 'Enregistrer') }}</button>
           </div>
         </form>
       </div>

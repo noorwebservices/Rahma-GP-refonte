@@ -8,6 +8,20 @@ import NotificationModal from '@/components/common/NotificationModal.vue'
 import { fetchUnreadNotificationsCount } from '@/services/notificationService'
 import { currentCurrency, availableCurrencies, setCurrency } from '@/utils/currencyState'
 import ThemeToggle from '@/components/common/ThemeToggle.vue'
+import LanguageToggle from '@/components/common/LanguageToggle.vue'
+import { useI18n } from '@/composables/useI18n'
+
+const { t, te } = useI18n()
+
+const titleMap = {
+  'Mes Revenus GP': 'headers.myRevenues',
+  'Avis & Évaluations': 'headers.reviews',
+  'Avis et Évaluations': 'headers.reviews',
+  'Détails de la demande': 'headers.requestDetails',
+  'Publier un voyage': 'headers.publishTrip',
+  'Modifier le voyage': 'headers.editTrip',
+  'Suivi de livraison': 'headers.deliveryTracking'
+}
 
 const props = defineProps({
   showBack: {
@@ -52,8 +66,14 @@ const loadUnreadCount = async () => {
 }
 
 onMounted(() => {
-  loadUnreadCount()
-  notifTimer = setInterval(loadUnreadCount, 15000)
+  if (isAuthenticated.value) {
+    loadUnreadCount()
+  }
+  notifTimer = setInterval(() => {
+    if (isAuthenticated.value) {
+      loadUnreadCount()
+    }
+  }, 15000)
 })
 
 onUnmounted(() => {
@@ -65,8 +85,20 @@ watch(isAuthenticated, (val) => {
   if (val) loadUnreadCount()
 })
 
-const headerTitle = computed(() => props.title || headerState.title || route.meta?.headerTitle || '')
-const headerSubtitle = computed(() => headerState.subtitle || route.meta?.headerSubtitle || '')
+const headerTitle = computed(() => {
+  const raw = props.title || headerState.title || route.meta?.headerTitleKey || route.meta?.headerTitle || ''
+  if (!raw) return ''
+  if (te(raw)) return t(raw)
+  if (titleMap[raw]) return t(titleMap[raw])
+  return raw
+})
+
+const headerSubtitle = computed(() => {
+  const raw = headerState.subtitle || route.meta?.headerSubtitle || ''
+  if (!raw) return ''
+  if (te(raw)) return t(raw)
+  return raw
+})
 
 const displayFrom = computed(() => headerState.routeFrom || props.routeFrom || 'Dakar')
 const displayTo = computed(() => headerState.routeTo || props.routeTo || 'Paris')
@@ -110,11 +142,8 @@ const goToMessages = () => {
             </select>
           </div>
 
-          <!-- Language Switcher Pill (FR) -->
-          <div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-xs font-extrabold text-gray-700 dark:text-slate-200">
-            <span class="w-4 h-4 rounded-full overflow-hidden flex items-center justify-center text-[10px] shrink-0">🇫🇷</span>
-            <span>FR</span>
-          </div>
+          <!-- Language Switcher Pill -->
+          <LanguageToggle variant="pill" />
 
           <!-- Notification Bell (If Authenticated) -->
           <button

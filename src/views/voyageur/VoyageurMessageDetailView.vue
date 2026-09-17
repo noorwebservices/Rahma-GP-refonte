@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from '@/composables/useI18n'
 import Swal from 'sweetalert2'
 import { fetchReservation, updateColisStatut } from '@/services/reservationService'
 import { fetchReservationMessages, sendReservationMessage } from '@/services/messageService'
@@ -8,6 +9,7 @@ import { formatVoyageDate } from '@/utils/flagHelper'
 import CountryFlag from '@/components/common/CountryFlag.vue'
 import { decodeId, encodeId } from '@/utils/idMasker'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const maskedId = route.params.id
@@ -355,7 +357,7 @@ const goBack = () => {
     <div v-if="isLoading" class="flex-1 flex items-center justify-center p-8">
       <div class="text-center space-y-3">
         <div class="w-10 h-10 border-4 border-[#053754] dark:border-sky-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
-        <p class="text-xs font-bold text-gray-600 dark:text-slate-300">Chargement de la discussion...</p>
+        <p class="text-xs font-bold text-gray-600 dark:text-slate-300">{{ t('voyageur.messages.loadingChat', 'Chargement de la discussion...') }}</p>
       </div>
     </div>
 
@@ -382,7 +384,7 @@ const goBack = () => {
               <h2 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">{{ reservation?.clientNom || 'Client' }}</h2>
               <p class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                <span>Client Rahma GP</span>
+                <span>{{ t('voyageur.messages.clientTag', 'Client Rahma GP') }}</span>
               </p>
             </div>
           </div>
@@ -392,7 +394,7 @@ const goBack = () => {
             @click="showStatusModal = true"
             class="bg-[#053754] dark:bg-sky-600 hover:bg-[#074C72] dark:hover:bg-sky-500 text-white font-extrabold text-xs px-3.5 py-1.5 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs uppercase tracking-wider"
           >
-            <span>📦 SUIVI COLIS</span>
+            <span>{{ t('voyageur.messages.parcelTrackingBtn', '📦 SUIVI COLIS') }}</span>
           </button>
         </div>
 
@@ -412,9 +414,9 @@ const goBack = () => {
 
       <!-- Status Banner -->
       <div v-if="reservation" class="bg-emerald-50 dark:bg-emerald-950/40 border-b border-emerald-200/80 dark:border-emerald-900/60 px-4 py-2 text-center text-xs font-bold text-emerald-800 dark:text-emerald-300 shrink-0 flex items-center justify-center gap-2">
-        <span>Statut réservation :</span>
+        <span>{{ t('common.status', 'Statut réservation :') }}</span>
         <span class="bg-emerald-100 dark:bg-emerald-900/80 text-emerald-900 dark:text-emerald-200 px-2.5 py-0.5 rounded-full uppercase text-[10px] tracking-wider">
-          {{ reservation.statut === 'acceptee' ? '✓ Réservation Acceptée' : reservation.statut }}
+          {{ reservation.statut === 'acceptee' ? '✓ ' + t('status.accepted', 'Réservation Acceptée') : reservation.statut }}
         </span>
       </div>
 
@@ -458,14 +460,14 @@ const goBack = () => {
         </div>
 
         <div v-if="messages.length === 0" class="text-center py-12 text-gray-400 dark:text-slate-500 text-xs space-y-1">
-          <p class="font-bold">Aucun message pour l'instant.</p>
-          <p>Envoyez un message ci-dessous pour contacter le client.</p>
+          <p class="font-bold">{{ t('messages.noMessagesYet', 'Aucun message pour l\'instant.') }}</p>
+          <p>{{ t('voyageur.messages.sendMsgHint', 'Envoyez un message ci-dessous pour contacter le client.') }}</p>
         </div>
       </div>
 
       <!-- Attachment URL Input Bar (Collapsible) -->
       <div v-if="showAttachmentInput" class="bg-amber-50 dark:bg-amber-950/40 border-t border-amber-200 dark:border-amber-900/60 px-4 py-2 flex items-center gap-2 shrink-0">
-        <span class="text-xs text-amber-900 dark:text-amber-200 font-bold shrink-0">📷 Lien photo / pièce jointe :</span>
+        <span class="text-xs text-amber-900 dark:text-amber-200 font-bold shrink-0">{{ t('voyageur.messages.attachmentLabel', '📷 Lien photo / pièce jointe :') }}</span>
         <input
           v-model="pieceJointe"
           type="url"
@@ -491,7 +493,7 @@ const goBack = () => {
             v-model="newMessage"
             @input="handleMessageInput"
             type="text"
-            placeholder="Écrire un message au client..."
+            :placeholder="t('voyageur.messages.typePlaceholder')"
             class="flex-1 bg-[#EAEFF4] dark:bg-slate-800 border-none rounded-xl px-4 py-2.5 text-xs sm:text-sm text-gray-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 outline-none focus:ring-2 focus:ring-[#074C72]/20 dark:focus:ring-sky-500/20"
           />
 
@@ -513,15 +515,15 @@ const goBack = () => {
       <div v-if="showStatusModal" class="fixed inset-0 z-50 bg-black/60 dark:bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
         <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl animate-in zoom-in-95 duration-200">
           <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3">
-            <h3 class="text-base font-extrabold text-[#053754] dark:text-sky-300">Mettre à jour le statut du colis</h3>
+            <h3 class="text-base font-extrabold text-[#053754] dark:text-sky-300">{{ t('voyageur.demandeDetail.updateStatusModalTitle', 'Mettre à jour le statut du colis') }}</h3>
             <button @click="showStatusModal = false" class="text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200">✕</button>
           </div>
 
-          <p class="text-xs text-gray-500 dark:text-slate-400">Mettez à jour le statut d'acheminement pour informer le client en temps réel :</p>
+          <p class="text-xs text-gray-500 dark:text-slate-400">{{ t('voyageur.demandeDetail.updateStatusDesc', 'Mettez à jour le statut d\'acheminement pour informer le client en temps réel :') }}</p>
 
           <div class="space-y-3">
             <div>
-              <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300 mb-1">Nouveau statut du colis</label>
+              <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300 mb-1">{{ t('voyageur.demandeDetail.newParcelStatus', 'Nouveau statut du colis') }}</label>
               <select
                 v-if="availableColisStatutOptions.length > 0"
                 v-model="selectedColisStatut"
@@ -533,16 +535,16 @@ const goBack = () => {
               </select>
               <div v-else class="px-3.5 py-2.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs font-bold flex items-center gap-1.5">
                 <span>🎉</span>
-                <span>Tous les statuts de suivi ont été appliqués</span>
+                <span>{{ t('voyageur.demandeDetail.allStatusesApplied', 'Tous les statuts de suivi ont été appliqués') }}</span>
               </div>
               <div v-if="!isVoyageClosedOrCompleted" class="mt-2 p-2.5 bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 border border-amber-200 dark:border-amber-800 rounded-xl text-[11px] font-medium flex items-start gap-1.5">
                 <span class="shrink-0 mt-0.5">⏳</span>
-                <span>Voyage en cours : les statuts <strong>Transit</strong>, <strong>Arrivé</strong> et <strong>Livré</strong> seront débloqués quand le voyage sera complet/fermé ou sa date de départ passée.</span>
+                <span>{{ t('voyageur.demandeDetail.ongoingTripNotice', 'Voyage en cours : les statuts Transit, Arrivé et Livré seront débloqués quand le voyage sera complet/fermé ou sa date de départ passée.') }}</span>
               </div>
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300 mb-1">Commentaire (optionnel)</label>
+              <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300 mb-1">{{ t('voyageur.demandeDetail.commentOptional', 'Commentaire (optionnel)') }}</label>
               <input
                 v-model="colisCommentaire"
                 type="text"
@@ -557,7 +559,7 @@ const goBack = () => {
               @click="showStatusModal = false"
               class="flex-1 bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 font-bold text-xs py-3 rounded-xl hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors"
             >
-              Annuler
+              {{ t('common.cancel', 'Annuler') }}
             </button>
             <button
               @click="handleUpdateColisStatut"
@@ -565,7 +567,7 @@ const goBack = () => {
               class="flex-1 bg-[#053754] dark:bg-sky-600 text-white font-extrabold text-xs py-3 rounded-xl hover:bg-[#074C72] dark:hover:bg-sky-500 transition-colors flex items-center justify-center gap-1 disabled:opacity-50"
             >
               <span v-if="isSubmittingColisStatut" class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-              <span>VALIDER</span>
+              <span>{{ t('common.validate', 'VALIDER') }}</span>
             </button>
           </div>
         </div>

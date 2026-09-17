@@ -5,6 +5,9 @@ import { formatVoyageDate } from '@/utils/flagHelper'
 import CountryFlag from '@/components/common/CountryFlag.vue'
 import { encodeId } from '@/utils/idMasker'
 import { currentCurrency, formatPrice } from '@/utils/currencyState'
+import { useI18n } from '@/composables/useI18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   voyage: {
@@ -122,7 +125,7 @@ const goToDetail = () => {
       <div class="flex items-center justify-between text-xs font-bold">
         <span class="text-[#053754] dark:text-sky-300 flex items-center gap-1.5 font-extrabold">
           <span class="text-sm">⚖️</span>
-          <span>{{ poidsDispo }} Kg disponible</span>
+          <span>{{ poidsDispo }} {{ t('common.kg') }} {{ t('clientHome.capacityLeft') }}</span>
         </span>
         <span class="text-gray-400 dark:text-slate-400 font-medium text-[11px]">total {{ poidsTotal }} Kg</span>
       </div>

@@ -4,8 +4,10 @@ import { useRouter, RouterLink } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import { fetchRevenus } from '@/services/revenuService'
 import { currentCurrency, formatPrice, convertAmount } from '@/utils/currencyState'
+import { useI18n } from '@/composables/useI18n'
 
 const router = useRouter()
+const { t } = useI18n()
 const {
   user,
   modeActuel,
@@ -357,14 +359,14 @@ import VoyageurBottomNav from '@/components/voyageur/VoyageurBottomNav.vue'
 // Logout with SweetAlert confirmation
 const handleLogout = async () => {
   const result = await Swal.fire({
-    title: 'Déconnexion',
-    text: 'Voulez-vous vraiment vous déconnecter de votre compte Rahma GP ?',
+    title: t('profile.logoutConfirmTitle'),
+    text: t('profile.logoutConfirmText'),
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#053754',
     cancelButtonColor: '#D94132',
-    confirmButtonText: 'Oui, se déconnecter',
-    cancelButtonText: 'Annuler',
+    confirmButtonText: t('profile.logoutYes'),
+    cancelButtonText: t('common.cancel'),
     customClass: {
       popup: 'rounded-3xl font-sans'
     }
@@ -419,7 +421,7 @@ const handleLogout = async () => {
                 'text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full font-extrabold uppercase tracking-wide',
                 modeActuel === 'voyageur' ? 'bg-tertiaire text-principal-dark' : 'bg-principal-light/10 dark:bg-sky-950 text-principal dark:text-sky-300'
               ]">
-                Mode {{ modeActuel }}
+                Mode {{ modeActuel === 'voyageur' ? t('profile.modeVoyageur') : t('profile.modeClient') }}
               </span>
             </div>
 
@@ -445,7 +447,7 @@ const handleLogout = async () => {
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
             </svg>
-            <span>Basculer vers le mode {{ modeActuel === 'client' ? 'Voyageur' : 'Client' }}</span>
+            <span>{{ t('profile.switchModeTo') }} {{ modeActuel === 'client' ? t('profile.modeVoyageur') : t('profile.modeClient') }}</span>
           </button>
 
           <button
@@ -456,7 +458,7 @@ const handleLogout = async () => {
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
-            <span>Devenir un Voyageur GP</span>
+            <span>{{ t('profile.becomeVoyageur') }}</span>
           </button>
 
           <!-- Déconnexion Button -->
@@ -467,7 +469,7 @@ const handleLogout = async () => {
             <svg class="w-4 h-4 text-[#B50302] dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
-            <span>Déconnexion</span>
+            <span>{{ t('common.logout') }}</span>
           </button>
         </div>
       </div>
@@ -481,7 +483,7 @@ const handleLogout = async () => {
             activeTab === 'info' ? 'border-principal dark:border-sky-400 text-principal-dark dark:text-sky-300 font-bold' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200'
           ]"
         >
-          Informations du Compte
+          {{ t('profile.accountInfo') }}
         </button>
         <button
           @click="activeTab = 'voyageur'"
@@ -490,7 +492,7 @@ const handleLogout = async () => {
             activeTab === 'voyageur' ? 'border-principal dark:border-sky-400 text-principal-dark dark:text-sky-300 font-bold' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200'
           ]"
         >
-          Statut & Profil Voyageur
+          {{ t('profile.voyageurStatus') }}
         </button>
         <button
           v-if="modeActuel === 'voyageur'"
@@ -500,7 +502,7 @@ const handleLogout = async () => {
             activeTab === 'revenus' ? 'border-principal dark:border-sky-400 text-principal-dark dark:text-sky-300 font-bold' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200'
           ]"
         >
-          Mes Revenus GP
+          {{ t('profile.myRevenues') }}
         </button>
         <button
           @click="activeTab = 'edit'"
@@ -509,7 +511,7 @@ const handleLogout = async () => {
             activeTab === 'edit' ? 'border-principal dark:border-sky-400 text-principal-dark dark:text-sky-300 font-bold' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200'
           ]"
         >
-          Modifier mes données
+          {{ t('profile.editData') }}
         </button>
       </div>
 
@@ -518,31 +520,31 @@ const handleLogout = async () => {
         <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-800 space-y-4">
           <h3 class="text-base font-bold text-principal-dark dark:text-sky-300 flex items-center gap-2">
             <svg class="w-5 h-5 text-principal dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-            Identité
+            {{ t('profile.identity') }}
           </h3>
           <div class="text-xs sm:text-sm space-y-2 text-gray-600 dark:text-slate-300 divide-y divide-gray-100 dark:divide-slate-800">
-            <div class="pt-2 flex justify-between"><span class="font-medium text-gray-400 dark:text-slate-400">Prénom:</span> <span class="font-bold text-gray-800 dark:text-slate-100">{{ user?.prenom }}</span></div>
-            <div class="pt-2 flex justify-between"><span class="font-medium text-gray-400 dark:text-slate-400">Nom:</span> <span class="font-bold text-gray-800 dark:text-slate-100">{{ user?.nom }}</span></div>
-            <div class="pt-2 flex justify-between"><span class="font-medium text-gray-400 dark:text-slate-400">Email:</span> <span class="font-bold text-gray-800 dark:text-slate-100">{{ user?.email }}</span></div>
-            <div class="pt-2 flex justify-between"><span class="font-medium text-gray-400 dark:text-slate-400">Téléphone:</span> <span class="font-bold text-gray-800 dark:text-slate-100">{{ user?.telephone }}</span></div>
-            <div class="pt-2 flex justify-between"><span class="font-medium text-gray-400 dark:text-slate-400">Adresse:</span> <span class="font-bold text-gray-800 dark:text-slate-100">{{ user?.adresse || 'Non renseignée' }}</span></div>
+            <div class="pt-2 flex justify-between"><span class="font-medium text-gray-400 dark:text-slate-400">{{ t('profile.firstName') }}</span> <span class="font-bold text-gray-800 dark:text-slate-100">{{ user?.prenom }}</span></div>
+            <div class="pt-2 flex justify-between"><span class="font-medium text-gray-400 dark:text-slate-400">{{ t('profile.lastName') }}</span> <span class="font-bold text-gray-800 dark:text-slate-100">{{ user?.nom }}</span></div>
+            <div class="pt-2 flex justify-between"><span class="font-medium text-gray-400 dark:text-slate-400">{{ t('profile.email') }}</span> <span class="font-bold text-gray-800 dark:text-slate-100">{{ user?.email }}</span></div>
+            <div class="pt-2 flex justify-between"><span class="font-medium text-gray-400 dark:text-slate-400">{{ t('profile.phone') }}</span> <span class="font-bold text-gray-800 dark:text-slate-100">{{ user?.telephone }}</span></div>
+            <div class="pt-2 flex justify-between"><span class="font-medium text-gray-400 dark:text-slate-400">{{ t('profile.address') }}</span> <span class="font-bold text-gray-800 dark:text-slate-100">{{ user?.adresse || t('profile.notSpecified') }}</span></div>
           </div>
         </div>
 
         <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-800 space-y-4">
           <h3 class="text-base font-bold text-principal-dark dark:text-sky-300 flex items-center gap-2">
             <svg class="w-5 h-5 text-principal dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-            Statut & Rôles
+            {{ t('profile.statusAndRoles') }}
           </h3>
           <div class="text-xs sm:text-sm space-y-3">
             <div class="flex items-center justify-between">
-              <span class="text-gray-400 dark:text-slate-400 font-medium">Statut du compte:</span>
+              <span class="text-gray-400 dark:text-slate-400 font-medium">{{ t('profile.accountStatus') }}</span>
               <span class="bg-green-100 dark:bg-emerald-950/80 text-green-800 dark:text-emerald-300 text-xs font-bold px-3 py-1 rounded-full capitalize">
                 {{ user?.statut || 'actif' }}
               </span>
             </div>
             <div class="flex items-center justify-between">
-              <span class="text-gray-400 dark:text-slate-400 font-medium">Rôles attribués:</span>
+              <span class="text-gray-400 dark:text-slate-400 font-medium">{{ t('profile.assignedRoles') }}</span>
               <div class="flex gap-1.5">
                 <span v-for="role in user?.roles" :key="role" class="bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-200 text-xs font-bold px-2.5 py-0.5 rounded-md capitalize">
                   {{ role }}
@@ -550,9 +552,9 @@ const handleLogout = async () => {
               </div>
             </div>
             <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-slate-800">
-              <span class="text-gray-400 dark:text-slate-400 font-medium">Dernière connexion:</span>
+              <span class="text-gray-400 dark:text-slate-400 font-medium">{{ t('profile.lastLogin') }}</span>
               <span class="text-gray-600 dark:text-slate-300 font-medium">
-                {{ user?.dernier_connexion ? new Date(user.dernier_connexion).toLocaleString() : 'Récemment' }}
+                {{ user?.dernier_connexion ? new Date(user.dernier_connexion).toLocaleString() : t('profile.recently') }}
               </span>
             </div>
           </div>
@@ -564,24 +566,24 @@ const handleLogout = async () => {
         <div v-if="user?.voyageur" class="space-y-6">
           <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-4">
             <div>
-              <h3 class="text-lg font-bold text-principal-dark dark:text-sky-300 font-serif">Profil Voyageur Enregistré</h3>
-              <p class="text-xs text-gray-500 dark:text-slate-400">Informations de vérification d'identité pour le transport de colis</p>
+              <h3 class="text-lg font-bold text-principal-dark dark:text-sky-300 font-serif">{{ t('profile.voyageurProfileRegistered') }}</h3>
+              <p class="text-xs text-gray-500 dark:text-slate-400">{{ t('profile.idVerificationDesc') }}</p>
             </div>
             <span :class="[
               'px-3 py-1 text-xs font-bold rounded-full uppercase',
               user.voyageur.statut === 'en_attente' ? 'bg-orange-100 dark:bg-amber-950/80 text-orange-800 dark:text-amber-300' : 'bg-green-100 dark:bg-emerald-950/80 text-green-800 dark:text-emerald-300'
             ]">
-              {{ user.voyageur.statut === 'en_attente' ? 'En attente de validation' : 'Vérifié' }}
+              {{ user.voyageur.statut === 'en_attente' ? t('profile.awaitingValidation') : t('profile.verified') }}
             </span>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
             <div class="bg-gray-50 dark:bg-slate-800/80 p-4 rounded-2xl">
-              <span class="text-gray-400 dark:text-slate-400 font-medium block mb-1">Type de pièce d'identité</span>
+              <span class="text-gray-400 dark:text-slate-400 font-medium block mb-1">{{ t('profile.idType') }}</span>
               <span class="font-bold text-gray-800 dark:text-slate-100 uppercase">{{ user.voyageur.type_piece }}</span>
             </div>
             <div class="bg-gray-50 dark:bg-slate-800/80 p-4 rounded-2xl">
-              <span class="text-gray-400 dark:text-slate-400 font-medium block mb-1">Numéro de la pièce</span>
+              <span class="text-gray-400 dark:text-slate-400 font-medium block mb-1">{{ t('profile.idNumber') }}</span>
               <span class="font-bold text-gray-800 dark:text-slate-100">{{ user.voyageur.numero_piece }}</span>
             </div>
           </div>
@@ -592,7 +594,7 @@ const handleLogout = async () => {
               <svg class="w-4 h-4 text-principal dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              <span>Pièces d'identité téléversées</span>
+              <span>{{ t('profile.uploadedDocuments') }}</span>
             </h4>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -601,10 +603,10 @@ const handleLogout = async () => {
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wide flex items-center gap-1.5">
                     <span class="w-2 h-2 rounded-full bg-principal dark:bg-sky-400"></span>
-                    Recto ({{ user.voyageur.type_piece?.toUpperCase() || 'CNI' }})
+                    {{ t('profile.recto') }} ({{ user.voyageur.type_piece?.toUpperCase() || 'CNI' }})
                   </span>
-                  <span v-if="rectoUrl" class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-2.5 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-800">Fourni</span>
-                  <span v-else class="text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950 px-2.5 py-0.5 rounded-full border border-amber-100 dark:border-amber-800">Non fourni</span>
+                  <span v-if="rectoUrl" class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-2.5 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-800">{{ t('profile.provided') }}</span>
+                  <span v-else class="text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950 px-2.5 py-0.5 rounded-full border border-amber-100 dark:border-amber-800">{{ t('profile.notProvided') }}</span>
                 </div>
 
                 <div class="relative h-44 sm:h-52 bg-gray-100 dark:bg-slate-900 rounded-xl overflow-hidden group flex items-center justify-center border border-gray-200 dark:border-slate-700">
@@ -622,7 +624,7 @@ const handleLogout = async () => {
                       <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/>
                       </svg>
-                      <span class="text-xs font-bold">Cliquer pour agrandir</span>
+                      <span class="text-xs font-bold">{{ t('profile.clickToEnlarge') }}</span>
                     </div>
                   </template>
                   <template v-else>
@@ -630,7 +632,7 @@ const handleLogout = async () => {
                       <svg class="w-10 h-10 mx-auto text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0" />
                       </svg>
-                      <p class="text-xs font-medium text-gray-400 dark:text-slate-500">Aucune image disponible</p>
+                      <p class="text-xs font-medium text-gray-400 dark:text-slate-500">{{ t('profile.noImageAvailable') }}</p>
                     </div>
                   </template>
                 </div>
@@ -641,7 +643,7 @@ const handleLogout = async () => {
                     @click="openImagePreview(rectoUrl, `Pièce d'identité - Recto (${user.voyageur.numero_piece})`)"
                     class="text-xs font-bold text-principal dark:text-sky-300 hover:text-principal-dark dark:hover:text-sky-200 flex items-center gap-1 cursor-pointer"
                   >
-                    <span>Agrandir l'image</span>
+                    <span>{{ t('profile.enlargeImage') }}</span>
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                     </svg>
@@ -654,10 +656,10 @@ const handleLogout = async () => {
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wide flex items-center gap-1.5">
                     <span class="w-2 h-2 rounded-full bg-principal dark:bg-sky-400"></span>
-                    Verso ({{ user.voyageur.type_piece?.toUpperCase() || 'CNI' }})
+                    {{ t('profile.verso') }} ({{ user.voyageur.type_piece?.toUpperCase() || 'CNI' }})
                   </span>
-                  <span v-if="versoUrl" class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-2.5 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-800">Fourni</span>
-                  <span v-else class="text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950 px-2.5 py-0.5 rounded-full border border-amber-100 dark:border-amber-800">Non fourni</span>
+                  <span v-if="versoUrl" class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-2.5 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-800">{{ t('profile.provided') }}</span>
+                  <span v-else class="text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950 px-2.5 py-0.5 rounded-full border border-amber-100 dark:border-amber-800">{{ t('profile.notProvided') }}</span>
                 </div>
 
                 <div class="relative h-44 sm:h-52 bg-gray-100 dark:bg-slate-900 rounded-xl overflow-hidden group flex items-center justify-center border border-gray-200 dark:border-slate-700">
@@ -675,7 +677,7 @@ const handleLogout = async () => {
                       <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/>
                       </svg>
-                      <span class="text-xs font-bold">Cliquer pour agrandir</span>
+                      <span class="text-xs font-bold">{{ t('profile.clickToEnlarge') }}</span>
                     </div>
                   </template>
                   <template v-else>
@@ -683,7 +685,7 @@ const handleLogout = async () => {
                       <svg class="w-10 h-10 mx-auto text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0" />
                       </svg>
-                      <p class="text-xs font-medium text-gray-400 dark:text-slate-500">Aucune image disponible</p>
+                      <p class="text-xs font-medium text-gray-400 dark:text-slate-500">{{ t('profile.noImageAvailable') }}</p>
                     </div>
                   </template>
                 </div>
@@ -694,7 +696,7 @@ const handleLogout = async () => {
                     @click="openImagePreview(versoUrl, `Pièce d'identité - Verso (${user.voyageur.numero_piece})`)"
                     class="text-xs font-bold text-principal dark:text-sky-300 hover:text-principal-dark dark:hover:text-sky-200 flex items-center gap-1 cursor-pointer"
                   >
-                    <span>Agrandir l'image</span>
+                    <span>{{ t('profile.enlargeImage') }}</span>
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                     </svg>
@@ -709,15 +711,15 @@ const handleLogout = async () => {
           <div class="w-16 h-16 bg-tertiaire/20 text-tertiaire-dark dark:text-amber-300 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
           </div>
-          <h3 class="text-lg font-bold text-principal-dark dark:text-sky-300 font-serif mb-2">Vous n'avez pas encore de profil Voyageur</h3>
+          <h3 class="text-lg font-bold text-principal-dark dark:text-sky-300 font-serif mb-2">{{ t('profile.noVoyageurProfile') }}</h3>
           <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400 max-w-md mx-auto mb-6">
-            Devenez un voyageur vérifié pour rentabiliser vos trajets (Dakar ✈️ Paris, etc.) et transporter des colis en toute sécurité.
+            {{ t('profile.noVoyageurProfileSub') }}
           </p>
           <button
             @click="showVoyageurModal = true"
             class="bg-secondaire hover:bg-secondaire-dark text-white font-bold px-6 py-3 rounded-2xl text-xs sm:text-sm shadow-md transition-all cursor-pointer"
           >
-            Soumettre mes pièces d'identité
+            {{ t('profile.submitIdDocs') }}
           </button>
         </div>
       </div>
@@ -727,21 +729,21 @@ const handleLogout = async () => {
         <!-- Revenue Summary Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
           <div class="bg-[#053754] dark:bg-slate-900 border border-transparent dark:border-slate-800 text-white rounded-3xl p-4 sm:p-5 shadow-md space-y-1 relative overflow-hidden">
-            <span class="text-[11px] sm:text-xs font-bold text-sky-200 uppercase tracking-wider block">Total Revenus Générés</span>
+            <span class="text-[11px] sm:text-xs font-bold text-sky-200 uppercase tracking-wider block">{{ t('voyageur.revenus.totalRevenue') }}</span>
             <div class="text-xl sm:text-2xl font-black text-white">{{ formatPrice(totalRevenusProfileConverted, currentCurrency) }}</div>
-            <p class="text-[10px] sm:text-[11px] text-sky-300">Sur {{ paidReservationsProfileCount }} {{ paidReservationsProfileCount > 1 ? 'réservations transportées' : 'réservation transportée' }}</p>
+            <p class="text-[10px] sm:text-[11px] text-sky-300">Sur {{ paidReservationsProfileCount }} {{ paidReservationsProfileCount > 1 ? t('voyageur.revenus.deliveredParcelsCount', 'réservations transportées') : t('voyageur.revenus.deliveredParcelsCount', 'réservation transportée') }}</p>
           </div>
 
           <div class="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-5 border border-emerald-200 dark:border-emerald-900 shadow-2xs space-y-1">
-            <span class="text-[11px] sm:text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">Revenus Disponibles</span>
+            <span class="text-[11px] sm:text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">{{ t('voyageur.revenus.collectedPayments', 'Revenus Disponibles') }}</span>
             <div class="text-xl sm:text-2xl font-black text-emerald-800 dark:text-emerald-300">{{ formatPrice(revenusDisponiblesProfileConverted, currentCurrency) }}</div>
-            <p class="text-[10px] sm:text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">Paiements validés & reçus</p>
+            <p class="text-[10px] sm:text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">{{ t('voyageur.revenus.paidOnline', 'Paiements validés & reçus') }}</p>
           </div>
 
           <div class="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-5 border border-amber-200 dark:border-amber-900 shadow-2xs space-y-1">
-            <span class="text-[11px] sm:text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider block">Revenus en Attente</span>
+            <span class="text-[11px] sm:text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider block">{{ t('voyageur.revenus.pendingPayout', 'Revenus en Attente') }}</span>
             <div class="text-xl sm:text-2xl font-black text-amber-800 dark:text-amber-300">{{ formatPrice(revenusEnAttenteProfileConverted, currentCurrency) }}</div>
-            <p class="text-[10px] sm:text-[11px] text-amber-600 dark:text-amber-400 font-semibold">Colis en cours de livraison</p>
+            <p class="text-[10px] sm:text-[11px] text-amber-600 dark:text-amber-400 font-semibold">{{ t('voyageur.revenus.validatedBookings', 'Colis en cours de livraison') }}</p>
           </div>
         </div>
 
@@ -749,20 +751,20 @@ const handleLogout = async () => {
         <div class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-800 space-y-4">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <h3 class="text-base font-extrabold text-[#053754] dark:text-sky-300">Derniers revenus perçus</h3>
+              <h3 class="text-base font-extrabold text-[#053754] dark:text-sky-300">{{ t('voyageur.revenus.historyTitle', 'Derniers revenus perçus') }}</h3>
               <p class="text-xs text-gray-400 dark:text-slate-400 font-medium sm:hidden">Cliquez sur un reçu pour voir l'historique complet</p>
             </div>
             <button
               @click="router.push('/voyageur/revenus')"
               class="text-xs font-bold text-principal dark:text-sky-300 hover:text-principal-dark dark:hover:text-sky-200 flex items-center gap-1 cursor-pointer self-start sm:self-auto"
             >
-              <span>Voir tout l'historique</span>
+              <span>{{ t('voyageur.revenus.viewDetailsTitle', 'Voir tout l\'historique') }}</span>
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </button>
           </div>
 
           <div v-if="recentTransactionsProfile.length === 0" class="py-6 text-center text-xs text-gray-400 dark:text-slate-400">
-            Aucun revenu enregistré pour le moment.
+            {{ t('voyageur.revenus.noRevenues', 'Aucun revenu enregistré pour le moment.') }}
           </div>
 
           <div v-else class="divide-y divide-gray-100 dark:divide-slate-800 text-xs">
@@ -785,7 +787,7 @@ const handleLogout = async () => {
                   class="inline-block text-[9px] font-bold px-2 py-0.5 rounded-full uppercase"
                   :class="tx.isDisponible ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950' : 'text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-950'"
                 >
-                  {{ tx.isDisponible ? '✓ DISPONIBLE' : '⏳ EN ATTENTE' }}
+                  {{ tx.isDisponible ? t('voyageur.revenus.available', '✓ DISPONIBLE') : t('voyageur.revenus.pending', '⏳ EN ATTENTE') }}
                 </span>
               </div>
             </div>
@@ -795,12 +797,12 @@ const handleLogout = async () => {
 
       <!-- Tab 3: Edit Profile Form -->
       <div v-else-if="activeTab === 'edit'" class="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-800">
-        <h3 class="text-lg font-bold text-principal-dark dark:text-sky-300 font-serif mb-4">Modifier mes informations personnelles</h3>
+        <h3 class="text-lg font-bold text-principal-dark dark:text-sky-300 font-serif mb-4">{{ t('profile.editPersonalTitle') }}</h3>
         <form @submit.prevent="handleUpdateProfile" class="space-y-4" novalidate>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200 mb-1">
-                Prénom <span class="text-gray-400 dark:text-slate-400 font-normal">(non modifiable)</span>
+                {{ t('profile.firstName') }} <span class="text-gray-400 dark:text-slate-400 font-normal">(non modifiable)</span>
               </label>
               <input 
                 v-model="editForm.prenom" 
@@ -811,7 +813,7 @@ const handleLogout = async () => {
             </div>
             <div>
               <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200 mb-1">
-                Nom <span class="text-gray-400 dark:text-slate-400 font-normal">(non modifiable)</span>
+                {{ t('profile.lastName') }} <span class="text-gray-400 dark:text-slate-400 font-normal">(non modifiable)</span>
               </label>
               <input 
                 v-model="editForm.nom" 
@@ -824,7 +826,7 @@ const handleLogout = async () => {
 
           <div>
             <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200 mb-1">
-              Adresse email <span v-if="user?.email" class="text-gray-400 dark:text-slate-400 font-normal">(non modifiable)</span>
+              {{ t('profile.email') }} <span v-if="user?.email" class="text-gray-400 dark:text-slate-400 font-normal">(non modifiable)</span>
             </label>
             <input
               v-model="editForm.email"
@@ -842,7 +844,7 @@ const handleLogout = async () => {
 
           <div>
             <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200 mb-1">
-              Téléphone <span class="text-gray-400 dark:text-slate-400 font-normal">(non modifiable)</span>
+              {{ t('profile.phone') }} <span class="text-gray-400 dark:text-slate-400 font-normal">(non modifiable)</span>
             </label>
             <input
               v-model="editForm.telephone"
@@ -853,17 +855,17 @@ const handleLogout = async () => {
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200 mb-1">Adresse physique</label>
+            <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200 mb-1">{{ t('profile.address') }}</label>
             <input v-model="editForm.adresse" type="text" class="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 rounded-xl focus:border-principal dark:focus:border-sky-400 outline-none font-medium" />
           </div>
 
           <div class="border-t border-gray-100 dark:border-slate-800 pt-4 space-y-4">
-            <h4 class="font-extrabold text-sm text-principal-dark dark:text-sky-300">Changer le mot de passe (optionnel)</h4>
+            <h4 class="font-extrabold text-sm text-principal-dark dark:text-sky-300">{{ t('profile.newPassword') }}</h4>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <!-- Mot de passe actuel -->
               <div>
-                <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200 mb-1">Mot de passe actuel</label>
+                <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200 mb-1">{{ t('profile.currentPassword') }}</label>
                 <div class="relative">
                   <input
                     v-model="editForm.mot_de_passe_actuel"
@@ -889,7 +891,7 @@ const handleLogout = async () => {
 
               <!-- Nouveau mot de passe -->
               <div>
-                <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200 mb-1">Nouveau mot de passe</label>
+                <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200 mb-1">{{ t('profile.newPassword') }}</label>
                 <div class="relative">
                   <input
                     v-model="editForm.password"
@@ -915,7 +917,7 @@ const handleLogout = async () => {
 
               <!-- Confirmer le mot de passe -->
               <div>
-                <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200 mb-1">Confirmer mot de passe</label>
+                <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200 mb-1">{{ t('profile.confirmPassword') }}</label>
                 <div class="relative">
                   <input
                     v-model="editForm.password_confirmation"
@@ -944,14 +946,14 @@ const handleLogout = async () => {
 
           <div class="pt-2 flex justify-end gap-3">
             <button type="button" @click="activeTab = 'info'" class="px-5 py-2.5 text-xs sm:text-sm font-semibold text-gray-600 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200">
-              Annuler
+              {{ t('common.cancel') }}
             </button>
             <button
               type="submit"
               :disabled="isLoading"
               class="bg-principal-dark hover:bg-principal dark:bg-sky-600 dark:hover:bg-sky-500 text-white text-xs sm:text-sm font-bold px-6 py-2.5 rounded-xl shadow-md transition-all cursor-pointer"
             >
-              Enregistrer les modifications
+              {{ t('profile.updateBtn') }}
             </button>
           </div>
         </form>

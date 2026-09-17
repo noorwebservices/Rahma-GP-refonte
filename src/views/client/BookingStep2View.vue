@@ -2,9 +2,11 @@
 import { reactive, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import BookingProgressBar from '@/components/client/BookingProgressBar.vue'
+import { useI18n } from '@/composables/useI18n'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 
 const voyageId = ref(sessionStorage.getItem('rahma_active_voyage_id') || route.query.voyage_id || '')
 
@@ -58,8 +60,8 @@ const goToStep3 = () => {
     <BookingProgressBar
       :step="2"
       :totalSteps="4"
-      title="Informations du Destinataire"
-      subtitle="Coordonnées de la personne recevant le colis"
+      :title="t('booking.step2.title')"
+      :subtitle="t('booking.step2.recipientSection')"
     />
 
     <!-- Form Section -->
@@ -70,12 +72,12 @@ const goToStep3 = () => {
         <!-- Prénom * -->
         <div class="space-y-1.5">
           <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300">
-            Prénom du destinataire <span class="text-[#B50302] dark:text-rose-400">*</span>
+            {{ t('booking.step2.firstName') }} <span class="text-[#B50302] dark:text-rose-400">*</span>
           </label>
           <input
             v-model="form.destinataire_prenom"
             type="text"
-            placeholder="Ex : Moussa"
+            :placeholder="t('booking.step2.firstNamePlaceholder')"
             class="w-full px-4 py-3 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-800 dark:text-slate-100 rounded-xl outline-none focus:border-[#074C72] dark:focus:border-sky-400 focus:ring-2 focus:ring-[#074C72]/20 font-medium placeholder-gray-400 dark:placeholder-slate-500"
           />
         </div>
@@ -83,12 +85,12 @@ const goToStep3 = () => {
         <!-- Nom * -->
         <div class="space-y-1.5">
           <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300">
-            Nom du destinataire <span class="text-[#B50302] dark:text-rose-400">*</span>
+            {{ t('booking.step2.lastName') }} <span class="text-[#B50302] dark:text-rose-400">*</span>
           </label>
           <input
             v-model="form.destinataire_nom"
             type="text"
-            placeholder="Ex : Kouyaté"
+            :placeholder="t('booking.step2.lastNamePlaceholder')"
             class="w-full px-4 py-3 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-800 dark:text-slate-100 rounded-xl outline-none focus:border-[#074C72] dark:focus:border-sky-400 focus:ring-2 focus:ring-[#074C72]/20 font-medium placeholder-gray-400 dark:placeholder-slate-500"
           />
         </div>
@@ -97,12 +99,12 @@ const goToStep3 = () => {
       <!-- Téléphone * -->
       <div class="space-y-1.5">
         <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300">
-          Numéro de téléphone <span class="text-[#B50302] dark:text-rose-400">*</span>
+          {{ t('booking.step2.phone') }} <span class="text-[#B50302] dark:text-rose-400">*</span>
         </label>
         <input
           v-model="form.destinataire_numero"
           type="tel"
-          placeholder="Ex : +242066554492"
+          :placeholder="t('booking.step2.phonePlaceholder')"
           class="w-full px-4 py-3 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-800 dark:text-slate-100 rounded-xl outline-none focus:border-[#074C72] dark:focus:border-sky-400 focus:ring-2 focus:ring-[#074C72]/20 font-medium placeholder-gray-400 dark:placeholder-slate-500"
         />
       </div>
@@ -110,12 +112,12 @@ const goToStep3 = () => {
       <!-- Adresse complète de livraison * -->
       <div class="space-y-1.5">
         <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300">
-          Adresse complète de livraison <span class="text-[#B50302] dark:text-rose-400">*</span>
+          {{ t('booking.step2.address') }} <span class="text-[#B50302] dark:text-rose-400">*</span>
         </label>
         <input
           v-model="form.destinataire_adresse"
           type="text"
-          placeholder="Ex : 15 Rue de la Paix, 75002 Paris, France"
+          :placeholder="t('booking.step2.addressPlaceholder')"
           class="w-full px-4 py-3 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-800 dark:text-slate-100 rounded-xl outline-none focus:border-[#074C72] dark:focus:border-sky-400 focus:ring-2 focus:ring-[#074C72]/20 font-medium placeholder-gray-400 dark:placeholder-slate-500"
         />
       </div>
@@ -129,7 +131,7 @@ const goToStep3 = () => {
         type="button"
         class="bg-[#B50302] hover:bg-[#870202] text-white font-extrabold text-xs sm:text-sm px-8 py-3.5 rounded-xl shadow-md transition-all cursor-pointer active:scale-[0.99]"
       >
-        CONTINUER
+        {{ t('booking.step2.continueBtn') }}
       </button>
     </div>
 

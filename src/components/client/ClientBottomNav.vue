@@ -1,9 +1,11 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from '@/composables/useI18n'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 
 const activeTab = computed(() => {
   const path = route.path
@@ -13,32 +15,32 @@ const activeTab = computed(() => {
   return 'accueil'
 })
 
-const tabs = [
+const tabs = computed(() => [
   {
     id: 'accueil',
-    label: 'Accueil',
+    label: t('nav.home'),
     path: '/client',
     icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6'
   },
   {
     id: 'messages',
-    label: 'Messages',
+    label: t('nav.messages'),
     path: '/client/messages',
     icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z'
   },
   {
     id: 'colis',
-    label: 'Colis',
+    label: t('nav.myParcels'),
     path: '/client/colis',
     icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'
   },
   {
     id: 'profil',
-    label: 'Profil',
+    label: t('nav.profile'),
     path: '/profile',
     icon: 'M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z'
   }
-]
+])
 
 const navigateTo = (path) => {
   router.push(path)

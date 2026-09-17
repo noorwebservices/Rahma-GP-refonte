@@ -1,10 +1,12 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from '@/composables/useI18n'
 import { fetchRevenus } from '@/services/revenuService'
 import { fetchReservations } from '@/services/reservationService'
 import { formatVoyageDate } from '@/utils/flagHelper'
 import { currentCurrency, availableCurrencies, setCurrency, formatPrice, convertAmount } from '@/utils/currencyState'
 
+const { t } = useI18n()
 const isLoading = ref(true)
 const errorMsg = ref('')
 
@@ -162,13 +164,13 @@ const closeDetail = () => {
     <!-- Header Title & Currency Selector -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div class="space-y-1">
-        <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark dark:text-sky-300">Mes revenus GP</h1>
-        <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400 leading-snug">Suivez l'ensemble des revenus générés par l'ensemble de vos voyages</p>
+        <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark dark:text-sky-300">{{ t('voyageur.revenus.title') }}</h1>
+        <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400 leading-snug">{{ t('voyageur.revenus.subTitle') }}</p>
       </div>
 
       <!-- Currency Selector Dropdown -->
       <div class="flex items-center gap-2 bg-white dark:bg-slate-900 px-3.5 py-2 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-2xs self-start sm:self-auto">
-        <span class="text-xs font-bold text-gray-600 dark:text-slate-300">Devise d'affichage :</span>
+        <span class="text-xs font-bold text-gray-600 dark:text-slate-300">{{ t('voyageur.revenus.currencyDisplay', 'Devise d\'affichage :') }}</span>
         <select
           :value="currentCurrency"
           @change="setCurrency($event.target.value)"
@@ -185,52 +187,52 @@ const closeDetail = () => {
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
       <!-- Total Revenus Payés -->
       <div class="bg-[#053754] dark:bg-slate-900 text-white rounded-3xl p-4 sm:p-5 shadow-md space-y-1 relative overflow-hidden dark:border dark:border-slate-800">
-        <span class="text-[11px] sm:text-xs font-bold text-sky-200 dark:text-sky-300 uppercase tracking-wider block">Total Revenus Payés</span>
+        <span class="text-[11px] sm:text-xs font-bold text-sky-200 dark:text-sky-300 uppercase tracking-wider block">{{ t('voyageur.revenus.totalRevenue') }}</span>
         <div class="text-xl sm:text-2xl font-black text-white dark:text-sky-200">{{ formatPrice(totalRevenusConverted, currentCurrency) }}</div>
-        <p class="text-[10px] sm:text-[11px] text-sky-300 dark:text-slate-400">Paiements encaissés</p>
+        <p class="text-[10px] sm:text-[11px] text-sky-300 dark:text-slate-400">{{ t('voyageur.revenus.collectedPayments', 'Paiements encaissés') }}</p>
       </div>
 
       <!-- Wave / Numérique -->
       <div class="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-5 border border-sky-200 dark:border-slate-800 shadow-2xs space-y-1">
         <div class="flex items-center justify-between">
-          <span class="text-[11px] sm:text-xs font-bold text-sky-700 dark:text-sky-300 uppercase tracking-wider block">Paiements Wave</span>
+          <span class="text-[11px] sm:text-xs font-bold text-sky-700 dark:text-sky-300 uppercase tracking-wider block">{{ t('voyageur.revenus.wavePayments', 'Paiements Wave') }}</span>
           <span class="text-sm">🌊</span>
         </div>
         <div class="text-xl sm:text-2xl font-black text-[#074C72] dark:text-sky-300">{{ formatPrice(totalWaveConverted, currentCurrency) }}</div>
-        <p class="text-[10px] sm:text-[11px] text-sky-600 dark:text-slate-400 font-semibold">Réglés en ligne</p>
+        <p class="text-[10px] sm:text-[11px] text-sky-600 dark:text-slate-400 font-semibold">{{ t('voyageur.revenus.paidOnline', 'Réglés en ligne') }}</p>
       </div>
 
       <!-- Espèces -->
       <div class="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-5 border border-emerald-200 dark:border-slate-800 shadow-2xs space-y-1">
         <div class="flex items-center justify-between">
-          <span class="text-[11px] sm:text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider block">Paiements Espèces</span>
+          <span class="text-[11px] sm:text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider block">{{ t('voyageur.revenus.cashPayments', 'Paiements Espèces') }}</span>
           <span class="text-sm">💵</span>
         </div>
         <div class="text-xl sm:text-2xl font-black text-emerald-800 dark:text-emerald-300">{{ formatPrice(totalEspecesConverted, currentCurrency) }}</div>
-        <p class="text-[10px] sm:text-[11px] text-emerald-600 dark:text-slate-400 font-semibold">Encaissés direct</p>
+        <p class="text-[10px] sm:text-[11px] text-emerald-600 dark:text-slate-400 font-semibold">{{ t('voyageur.revenus.collectedDirect', 'Encaissés direct') }}</p>
       </div>
 
       <!-- Acceptées non payées -->
       <div class="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-5 border border-amber-200 dark:border-slate-800 shadow-2xs space-y-1">
         <div class="flex items-center justify-between">
-          <span class="text-[11px] sm:text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider block">Acceptés non Payés</span>
+          <span class="text-[11px] sm:text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider block">{{ t('voyageur.revenus.pendingPayout', 'Acceptés non Payés') }}</span>
           <span class="text-sm">⏳</span>
         </div>
         <div class="text-xl sm:text-2xl font-black text-amber-800 dark:text-amber-300">{{ formatPrice(totalEnAttentePaiementConverted, currentCurrency) }}</div>
-        <p class="text-[10px] sm:text-[11px] text-amber-600 dark:text-slate-400 font-semibold">Réservations validées</p>
+        <p class="text-[10px] sm:text-[11px] text-amber-600 dark:text-slate-400 font-semibold">{{ t('voyageur.revenus.validatedBookings', 'Réservations validées') }}</p>
       </div>
     </div>
 
     <!-- Earnings History List Card -->
     <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-gray-200 dark:border-slate-800 shadow-sm space-y-4">
       <div class="flex flex-col gap-0.5">
-        <h3 class="text-base font-extrabold text-[#053754] dark:text-sky-300">Historique des transactions</h3>
-        <p class="text-xs text-gray-400 dark:text-slate-400 font-medium">Converti automatiquement dans votre devise sélectionnée ({{ currentCurrency }})</p>
+        <h3 class="text-base font-extrabold text-[#053754] dark:text-sky-300">{{ t('voyageur.revenus.historyTitle') }}</h3>
+        <p class="text-xs text-gray-400 dark:text-slate-400 font-medium">{{ t('voyageur.revenus.convertedNote', 'Converti automatiquement dans votre devise sélectionnée ({currency})', { currency: currentCurrency }) }}</p>
       </div>
 
       <!-- Empty State -->
       <div v-if="formattedRevenusList.length === 0 && !isLoading" class="py-8 text-center text-xs text-gray-400 dark:text-slate-500">
-        Aucun revenu enregistré pour le moment.
+        {{ t('voyageur.revenus.noRevenues', 'Aucun revenu enregistré pour le moment.') }}
       </div>
 
       <!-- Simplified Clean List -->
@@ -265,7 +267,7 @@ const closeDetail = () => {
             <button
               @click.stop="openDetail(rev)"
               class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-principal/10 dark:hover:bg-sky-500/20 text-slate-600 dark:text-slate-300 hover:text-principal dark:hover:text-sky-300 flex items-center justify-center transition-all cursor-pointer"
-              title="Voir les détails"
+              :title="t('voyageur.revenus.viewDetailsTitle', 'Voir les détails')"
             >
               <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -297,10 +299,10 @@ const closeDetail = () => {
                   class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase"
                   :class="selectedTransaction.statut === 'disponible' ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300' : 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300'"
                 >
-                  {{ selectedTransaction.statut === 'disponible' ? '✓ DISPONIBLE' : '⏳ EN ATTENTE' }}
+                  {{ selectedTransaction.statut === 'disponible' ? t('voyageur.revenus.available', '✓ DISPONIBLE') : t('voyageur.revenus.pending', '⏳ EN ATTENTE') }}
                 </span>
               </div>
-              <p class="text-xs text-gray-500 dark:text-slate-400">Détails de la transaction financière</p>
+              <p class="text-xs text-gray-500 dark:text-slate-400">{{ t('voyageur.revenus.modalSubtitle', 'Détails de la transaction financière') }}</p>
             </div>
           </div>
           <button @click="closeDetail" class="text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200 p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer">
@@ -313,29 +315,29 @@ const closeDetail = () => {
         <!-- Client & Trajet (Vertical Clean Stack) -->
         <div class="bg-slate-50 dark:bg-slate-800/80 p-4 rounded-2xl space-y-3 border border-slate-100 dark:border-slate-700 text-xs">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 pb-2 border-b border-slate-200/60 dark:border-slate-700">
-            <span class="text-gray-500 dark:text-slate-400 font-semibold">Expéditeur / Client</span>
+            <span class="text-gray-500 dark:text-slate-400 font-semibold">{{ t('voyageur.revenus.clientCol', 'Expéditeur / Client') }}</span>
             <span class="font-extrabold text-gray-900 dark:text-slate-100 sm:text-right">{{ selectedTransaction.client }}</span>
           </div>
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 pb-2 border-b border-slate-200/60 dark:border-slate-700">
-            <span class="text-gray-500 dark:text-slate-400 font-semibold">Trajet du voyage</span>
+            <span class="text-gray-500 dark:text-slate-400 font-semibold">{{ t('voyageur.revenus.routeCol', 'Trajet du voyage') }}</span>
             <span class="font-extrabold text-gray-900 dark:text-slate-100 sm:text-right">{{ selectedTransaction.route }}</span>
           </div>
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
-            <span class="text-gray-500 dark:text-slate-400 font-semibold">Date du transfert</span>
+            <span class="text-gray-500 dark:text-slate-400 font-semibold">{{ t('voyageur.revenus.dateCol', 'Date du transfert') }}</span>
             <span class="font-extrabold text-gray-900 dark:text-slate-100 sm:text-right">{{ selectedTransaction.date }}</span>
           </div>
         </div>
 
         <!-- Caractéristiques du Colis (Grid) -->
         <div class="space-y-2">
-          <h4 class="text-xs font-extrabold text-[#053754] dark:text-sky-300 uppercase tracking-wider">Caractéristiques du colis</h4>
+          <h4 class="text-xs font-extrabold text-[#053754] dark:text-sky-300 uppercase tracking-wider">{{ t('voyageur.revenus.parcelFeatures', 'Caractéristiques du colis') }}</h4>
           <div class="grid grid-cols-2 gap-3 text-xs">
             <div class="bg-slate-50 dark:bg-slate-800/80 p-3 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-0.5">
-              <span class="text-gray-400 dark:text-slate-400 block text-[11px] font-medium">Contenu</span>
+              <span class="text-gray-400 dark:text-slate-400 block text-[11px] font-medium">{{ t('voyageur.revenus.content', 'Contenu') }}</span>
               <span class="font-extrabold text-gray-800 dark:text-slate-200 leading-tight block">{{ selectedTransaction.colisType }}</span>
             </div>
             <div class="bg-slate-50 dark:bg-slate-800/80 p-3 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-0.5">
-              <span class="text-gray-400 dark:text-slate-400 block text-[11px] font-medium">Poids réservé</span>
+              <span class="text-gray-400 dark:text-slate-400 block text-[11px] font-medium">{{ t('voyageur.revenus.reservedWeight', 'Poids réservé') }}</span>
               <span class="font-extrabold text-gray-800 dark:text-slate-200 leading-tight block">{{ selectedTransaction.poids }}</span>
             </div>
           </div>
@@ -343,22 +345,22 @@ const closeDetail = () => {
 
         <!-- Décompte Financier (Vertical Clean Stack) -->
         <div class="space-y-2">
-          <h4 class="text-xs font-extrabold text-[#053754] dark:text-sky-300 uppercase tracking-wider">Décompte financier</h4>
+          <h4 class="text-xs font-extrabold text-[#053754] dark:text-sky-300 uppercase tracking-wider">{{ t('voyageur.revenus.financialBreakdown', 'Décompte financier') }}</h4>
           <div class="bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700 rounded-2xl p-4 text-xs space-y-3">
             <div class="flex justify-between items-center pb-2 border-b border-slate-200/60 dark:border-slate-700">
-              <span class="text-gray-500 dark:text-slate-400 font-medium">Tarif unitaire / Kg</span>
+              <span class="text-gray-500 dark:text-slate-400 font-medium">{{ t('voyageur.revenus.unitTariff', 'Tarif unitaire / Kg') }}</span>
               <span class="font-bold text-gray-800 dark:text-slate-200">{{ selectedTransaction.tarifKg }}</span>
             </div>
             <div class="flex justify-between items-center pb-2 border-b border-slate-200/60 dark:border-slate-700">
-              <span class="text-gray-500 dark:text-slate-400 font-medium">Sous-total transport</span>
+              <span class="text-gray-500 dark:text-slate-400 font-medium">{{ t('voyageur.revenus.subtotal', 'Sous-total transport') }}</span>
               <span class="font-bold text-gray-800 dark:text-slate-200">{{ selectedTransaction.montant }}</span>
             </div>
             <div class="flex justify-between items-center pb-2 border-b border-slate-200/60 dark:border-slate-700">
-              <span class="text-gray-500 dark:text-slate-400 font-medium">Commission Rahma GP</span>
+              <span class="text-gray-500 dark:text-slate-400 font-medium">{{ t('voyageur.revenus.commission', 'Commission Rahma GP') }}</span>
               <span class="font-bold text-emerald-600 dark:text-emerald-400">{{ selectedTransaction.commission }}</span>
             </div>
             <div class="flex justify-between items-center pt-1 text-sm font-black text-[#053754] dark:text-sky-300">
-              <span>Gain Net Voyageur</span>
+              <span>{{ t('voyageur.revenus.netGain', 'Gain Net Voyageur') }}</span>
               <span class="text-emerald-700 dark:text-emerald-400 text-base font-black">{{ selectedTransaction.netGain }}</span>
             </div>
           </div>
@@ -367,7 +369,7 @@ const closeDetail = () => {
         <!-- Mode de Versement Card -->
         <div class="bg-emerald-50/80 dark:bg-emerald-950/40 p-4 rounded-2xl border border-emerald-100 dark:border-emerald-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
           <div>
-            <span class="text-emerald-900 dark:text-emerald-200 font-extrabold block">Mode de versement</span>
+            <span class="text-emerald-900 dark:text-emerald-200 font-extrabold block">{{ t('voyageur.revenus.payoutMethod', 'Mode de versement') }}</span>
             <span class="text-emerald-700 dark:text-emerald-300 text-[11px] font-medium">{{ selectedTransaction.modePaiement }}</span>
           </div>
           <span class="text-[11px] text-emerald-800 dark:text-emerald-300 font-semibold">{{ selectedTransaction.datePaiement }}</span>
@@ -379,7 +381,7 @@ const closeDetail = () => {
             @click="closeDetail"
             class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-[#053754] dark:bg-sky-600 text-white font-bold text-xs hover:bg-[#074C72] dark:hover:bg-sky-500 transition-colors cursor-pointer"
           >
-            Fermer
+            {{ t('common.close', 'Fermer') }}
           </button>
         </div>
 

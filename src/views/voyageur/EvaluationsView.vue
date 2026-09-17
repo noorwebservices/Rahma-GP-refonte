@@ -1,8 +1,10 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from '@/composables/useI18n'
 import { fetchMyEvaluations } from '@/services/evaluationService'
 import { formatVoyageDate } from '@/utils/flagHelper'
 
+const { t } = useI18n()
 const isLoading = ref(true)
 const errorMsg = ref('')
 const rawEvaluations = ref([])
@@ -59,14 +61,14 @@ const paginatedEvaluations = computed(() => {
   <div class="space-y-6 pb-16">
     <!-- Header Title -->
     <div class="space-y-1">
-      <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark dark:text-sky-300">Avis & Évaluations</h1>
-      <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400">Consultez les notes et avis déposés par vos clients</p>
+      <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark dark:text-sky-300">{{ t('voyageur.evaluations.title') }}</h1>
+      <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400">{{ t('voyageur.evaluations.subTitle') }}</p>
     </div>
 
     <!-- Loading State -->
     <div v-if="isLoading" class="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center border border-gray-100 dark:border-slate-800 shadow-sm space-y-4">
       <div class="w-10 h-10 border-4 border-[#053754] dark:border-sky-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
-      <p class="text-sm font-bold text-gray-600 dark:text-slate-300">Chargement de vos avis...</p>
+      <p class="text-sm font-bold text-gray-600 dark:text-slate-300">{{ t('voyageur.voyageDetail.loading', 'Chargement de vos avis...') }}</p>
     </div>
 
     <!-- Error State -->
@@ -79,25 +81,25 @@ const paginatedEvaluations = computed(() => {
       <!-- Rating Summary Banner Card -->
       <div class="bg-[#053754] dark:bg-slate-900 text-white rounded-3xl p-6 shadow-md flex flex-col sm:flex-row items-center justify-between gap-6 dark:border dark:border-slate-800">
         <div class="text-center sm:text-left space-y-1">
-          <span class="text-xs text-sky-200 dark:text-sky-300 uppercase font-extrabold tracking-wider">Note globale Voyageur</span>
+          <span class="text-xs text-sky-200 dark:text-sky-300 uppercase font-extrabold tracking-wider">{{ t('voyageur.evaluations.averageRating') }}</span>
           <div class="flex items-center justify-center sm:justify-start gap-3">
             <span class="text-4xl sm:text-5xl font-black text-amber-400">{{ averageRating }}</span>
             <div class="space-y-0.5">
               <div class="text-amber-400 text-lg">
-                {{ totalReviews > 0 ? '⭐'.repeat(Math.max(1, Math.round(Number(averageRating)))) : '⭐ (Aucune note)' }}
+                {{ totalReviews > 0 ? '⭐'.repeat(Math.max(1, Math.round(Number(averageRating)))) : '⭐' }}
               </div>
-              <p class="text-xs text-sky-200 dark:text-slate-400 font-semibold">Basé sur {{ totalReviews }} avis vérifiés</p>
+              <p class="text-xs text-sky-200 dark:text-slate-400 font-semibold">{{ t('voyageur.evaluations.totalReviews') }}: {{ totalReviews }}</p>
             </div>
           </div>
         </div>
 
         <div class="bg-white/10 dark:bg-slate-800/80 backdrop-blur-md p-4 rounded-2xl border border-white/10 dark:border-slate-700 text-xs space-y-1.5 w-full sm:max-w-xs text-sky-100 dark:text-slate-200">
           <div class="flex items-center justify-between">
-            <span>Notes reçues</span>
-            <span class="font-extrabold text-amber-300 text-sm">{{ totalReviews }} évaluations</span>
+            <span>{{ t('voyageur.evaluations.totalReviews') }}</span>
+            <span class="font-extrabold text-amber-300 text-sm">{{ totalReviews }}</span>
           </div>
           <div class="flex items-center justify-between text-[11px] text-sky-200 dark:text-slate-400">
-            <span>Moyenne générale</span>
+            <span>{{ t('voyageur.evaluations.averageRating') }}</span>
             <span class="font-bold text-white dark:text-slate-100">{{ averageRating }} / 5</span>
           </div>
         </div>
@@ -106,7 +108,7 @@ const paginatedEvaluations = computed(() => {
       <!-- Reviews Grid List (2 items per row on md: screens) -->
       <div class="space-y-4">
         <h3 class="text-base font-extrabold text-[#053754] dark:text-sky-300 flex items-center justify-between">
-          <span>Avis des clients ({{ totalReviews }})</span>
+          <span>{{ t('voyageur.evaluations.title') }} ({{ totalReviews }})</span>
         </h3>
 
         <div v-if="rawEvaluations.length > 0" class="space-y-4">
@@ -128,7 +130,7 @@ const paginatedEvaluations = computed(() => {
                 </div>
 
                 <div class="text-amber-500 font-bold text-sm">
-                  {{ evalItem.note > 0 ? '⭐'.repeat(evalItem.note) : 'Non noté' }}
+                  {{ evalItem.note > 0 ? '⭐'.repeat(evalItem.note) : '' }}
                 </div>
               </div>
 
@@ -163,8 +165,8 @@ const paginatedEvaluations = computed(() => {
           <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-400 flex items-center justify-center text-xl mx-auto font-bold">
             ⭐
           </div>
-          <p class="text-sm font-bold text-gray-700 dark:text-slate-200">Aucune évaluation enregistrée pour le moment.</p>
-          <p class="text-xs text-gray-400 dark:text-slate-400">Les avis déposés par vos clients apparaîtront ici.</p>
+          <p class="text-sm font-bold text-gray-700 dark:text-slate-200">{{ t('voyageur.evaluations.noReviewsTitle') }}</p>
+          <p class="text-xs text-gray-400 dark:text-slate-400">{{ t('voyageur.evaluations.noReviewsSub') }}</p>
         </div>
       </div>
     </template>

@@ -5,6 +5,9 @@ import Swal from 'sweetalert2'
 import BookingProgressBar from '@/components/client/BookingProgressBar.vue'
 import { fetchVoyage } from '@/services/voyageService'
 import { getCategoryIcon, isElectronicType } from '@/utils/flagHelper'
+import { useI18n } from '@/composables/useI18n'
+
+const { t } = useI18n()
 
 const route = useRoute()
 const router = useRouter()
@@ -189,8 +192,8 @@ const goToStep2 = () => {
     <BookingProgressBar
       :step="1"
       :totalSteps="4"
-      title="Détails du colis"
-      subtitle="Sélection des objets et spécifications"
+      :title="t('booking.step1.title')"
+      :subtitle="t('booking.step1.sub')"
     />
 
     <!-- Form Section -->
@@ -200,10 +203,10 @@ const goToStep2 = () => {
       <div class="space-y-2.5">
         <div class="flex items-center justify-between">
           <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300">
-            Type de colis (objets acceptés par le voyageur) <span class="text-[#B50302] dark:text-rose-400">*</span>
+            {{ t('booking.step1.packageTypeLabel') }} <span class="text-[#B50302] dark:text-rose-400">*</span>
           </label>
           <span v-if="voyageData?.objets_autorises" class="text-[11px] font-extrabold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 px-2.5 py-0.5 rounded-full">
-            ✓ Exigences du trajet
+            ✓ {{ t('booking.step1.routeRequirements') }}
           </span>
         </div>
 
@@ -229,8 +232,8 @@ const goToStep2 = () => {
         <div v-if="isElectronic" class="bg-blue-50 dark:bg-sky-950/40 border border-blue-200 dark:border-sky-800/80 rounded-2xl p-3.5 flex items-center gap-3 text-xs text-[#053754] dark:text-sky-200">
           <span class="text-xl">📱</span>
           <div>
-            <div class="font-extrabold text-[#074C72] dark:text-sky-300">Tarification Forfait Objet (Appareil Électronique)</div>
-            <div class="text-[11px] text-gray-600 dark:text-slate-300 font-medium">Les objets électroniques bénéficient d'un tarif forfaitaire fixe de <strong class="text-[#B50302] dark:text-rose-400">{{ unitPriceObjet.toLocaleString() }} {{ devise }} / objet</strong> (au lieu du prix au kilo).</div>
+            <div class="font-extrabold text-[#074C72] dark:text-sky-300">{{ t('booking.step1.electronicNoticeTitle') }}</div>
+            <div class="text-[11px] text-gray-600 dark:text-slate-300 font-medium">{{ t('booking.step1.electronicNoticeText') }} <strong class="text-[#B50302] dark:text-rose-400">{{ unitPriceObjet.toLocaleString() }} {{ devise }} / objet</strong></div>
           </div>
         </div>
       </div>
@@ -238,7 +241,7 @@ const goToStep2 = () => {
       <!-- Photo du contenu du colis * -->
       <div class="space-y-2.5">
         <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300">
-          Photo du contenu du colis <span class="text-[#B50302] dark:text-rose-400">*</span>
+          {{ t('booking.step1.photoLabel') }} <span class="text-[#B50302] dark:text-rose-400">*</span>
         </label>
         
         <div class="border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-800/60 rounded-2xl p-5 flex items-center gap-5">
@@ -253,11 +256,11 @@ const goToStep2 = () => {
           <!-- Right Side Controls -->
           <div class="space-y-3 flex-1">
             <p class="text-xs text-gray-500 dark:text-slate-400 font-medium italic">
-              importer une image du colis
+              {{ t('booking.step1.photoImportHint') }}
             </p>
             <div>
               <label class="inline-block px-5 py-2.5 rounded-xl border border-[#B50302] dark:border-rose-500 bg-white dark:bg-slate-800 text-[#B50302] dark:text-rose-400 hover:bg-red-50 dark:hover:bg-rose-950/30 text-xs sm:text-sm font-bold transition-colors cursor-pointer shadow-2xs">
-                <span>Choisir un fichier</span>
+                <span>{{ t('booking.step1.chooseFileBtn') }}</span>
                 <input type="file" accept="image/*" class="hidden" @change="handleFileChange" />
               </label>
             </div>
@@ -271,12 +274,12 @@ const goToStep2 = () => {
       <!-- Description précise du contenu * -->
       <div class="space-y-2">
         <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300">
-          Description précise du contenu <span class="text-[#B50302] dark:text-rose-400">*</span>
+          {{ t('booking.step1.descLabel') }} <span class="text-[#B50302] dark:text-rose-400">*</span>
         </label>
         <textarea
           v-model="description"
           rows="3"
-          placeholder="ex: Quelques vêtements d'hiver..."
+          :placeholder="t('booking.step1.descPlaceholder')"
           class="w-full p-3.5 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-800 dark:text-slate-100 rounded-2xl outline-none focus:border-[#074C72] dark:focus:border-sky-400 focus:ring-2 focus:ring-[#074C72]/20 font-medium placeholder-gray-400 dark:placeholder-slate-500"
         ></textarea>
       </div>
@@ -285,7 +288,7 @@ const goToStep2 = () => {
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="space-y-2">
           <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300">
-            Valeur estimée ({{ devise }})
+            {{ t('booking.step1.estimatedValueLabel') }} ({{ devise }})
           </label>
           <input
             v-model="estimatedValue"
@@ -296,7 +299,7 @@ const goToStep2 = () => {
         </div>
 
         <div class="space-y-2 flex flex-col justify-end">
-          <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300">Nature du colis</label>
+          <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300">{{ t('booking.step1.natureLabel') }}</label>
           <button
             type="button"
             @click="estFragile = !estFragile"
@@ -307,9 +310,9 @@ const goToStep2 = () => {
           >
             <span class="flex items-center gap-2">
               <span>⚠️</span>
-              <span>Colis fragile</span>
+              <span>{{ t('booking.step1.fragileLabel') }}</span>
             </span>
-            <span class="text-xs font-extrabold uppercase">{{ estFragile ? 'Oui' : 'Non' }}</span>
+            <span class="text-xs font-extrabold uppercase">{{ estFragile ? t('common.yes') : t('common.no') }}</span>
           </button>
         </div>
       </div>
@@ -318,8 +321,8 @@ const goToStep2 = () => {
       <div v-if="!isElectronic" class="bg-gray-50 dark:bg-slate-800/80 rounded-2xl p-5 border border-gray-200 dark:border-slate-700 space-y-3">
         <div class="flex items-center justify-between">
           <div>
-            <div class="text-sm font-bold text-[#074C72] dark:text-sky-300">Poids estimé (Kg)</div>
-            <div class="text-[11px] text-gray-400 dark:text-slate-400 font-medium italic">Pesée certifiée au point de collecte</div>
+            <div class="text-sm font-bold text-[#074C72] dark:text-sky-300">{{ t('booking.step1.weightLabel') }}</div>
+            <div class="text-[11px] text-gray-400 dark:text-slate-400 font-medium italic">{{ t('booking.step1.weightCertHint') }}</div>
           </div>
           <div class="text-lg font-black text-[#074C72] dark:text-sky-300">
             {{ weightKg }} Kg
@@ -341,7 +344,7 @@ const goToStep2 = () => {
             1 Kg = {{ formattedUnitPriceKg }}
           </span>
           <span v-if="voyageData" class="text-gray-500 dark:text-slate-400 font-bold text-[11px]">
-            Capacité disponible: {{ voyageData.capacite_dispo || voyageData.capacite_totale }} Kg
+            {{ t('booking.step1.capacityAvailable') }} {{ voyageData.capacite_dispo || voyageData.capacite_totale }} Kg
           </span>
         </div>
       </div>
@@ -351,14 +354,14 @@ const goToStep2 = () => {
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2 text-sm font-bold text-[#074C72] dark:text-sky-300">
             <span class="text-lg">📱</span>
-            <span>Appareil Électronique (Tarif Fixe par Objet)</span>
+            <span>{{ t('booking.step1.electronicFlatTariff') }}</span>
           </div>
           <span class="text-xs font-black text-[#B50302] dark:text-rose-400 bg-white dark:bg-slate-800 px-3 py-1 rounded-full border border-red-200 dark:border-rose-900 shadow-2xs">
             {{ formattedUnitPriceObjet }} / objet
           </span>
         </div>
         <p class="text-xs text-gray-600 dark:text-slate-300 font-medium leading-relaxed">
-          Ce type de colis est facturé sous forme de forfait fixe par appareil/objet. Le calcul de poids au kilo n'est pas applicable.
+          {{ t('booking.step1.electronicFlatNotice') }}
         </p>
       </div>
 
@@ -367,10 +370,10 @@ const goToStep2 = () => {
     <!-- Bottom Price Bar & Submit CTA -->
     <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 rounded-2xl border shadow-xs">
       <div class="space-y-0.5">
-        <div class="text-xs text-gray-500 dark:text-slate-400 font-medium">Prix total estimé :</div>
+        <div class="text-xs text-gray-500 dark:text-slate-400 font-medium">{{ t('booking.step1.totalEstimatedPrice') }}</div>
         <div class="text-sm sm:text-base font-extrabold text-[#B50302] dark:text-rose-400">
           <template v-if="isElectronic">
-            1 Objet Électronique = {{ formattedTotalPrice }}
+            1 {{ t('booking.step1.electronicFlatTariff') }} = {{ formattedTotalPrice }}
           </template>
           <template v-else>
             {{ weightKg }} Kg × {{ formattedUnitPriceKg }} = {{ formattedTotalPrice }}
@@ -383,7 +386,7 @@ const goToStep2 = () => {
         type="button"
         class="bg-[#B50302] hover:bg-[#870202] text-white font-extrabold text-xs sm:text-sm px-7 py-3.5 rounded-xl shadow-md transition-all cursor-pointer active:scale-[0.99]"
       >
-        CONTINUER
+        {{ t('booking.step1.continueBtn') }}
       </button>
     </div>
 

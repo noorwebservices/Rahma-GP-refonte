@@ -1,12 +1,14 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from '@/composables/useI18n'
 import { fetchReservations } from '@/services/reservationService'
 import { fetchReservationMessages } from '@/services/messageService'
 import { formatVoyageDate } from '@/utils/flagHelper'
 import CountryFlag from '@/components/common/CountryFlag.vue'
 import { encodeId } from '@/utils/idMasker'
 
+const { t } = useI18n()
 const router = useRouter()
 const searchQuery = ref('')
 const isLoading = ref(true)
@@ -117,8 +119,8 @@ const openChat = (maskedId) => {
   <div class="space-y-5 pb-16">
     <!-- Header Title & Subtitle -->
     <div class="space-y-1">
-      <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark dark:text-sky-300">Messagerie Voyageur</h1>
-      <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400">Échangez avec les clients pour valider leurs colis et lieux de dépôt</p>
+      <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark dark:text-sky-300">{{ t('voyageur.messages.title') }}</h1>
+      <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400">{{ t('voyageur.messages.subTitle') }}</p>
     </div>
 
     <!-- Search Input -->
@@ -131,7 +133,7 @@ const openChat = (maskedId) => {
       <input
         v-model="searchQuery"
         type="text"
-        placeholder="Rechercher un client, un trajet ou un n° de colis..."
+        :placeholder="t('voyageur.messages.searchPlaceholder')"
         class="w-full bg-[#F3F4F6] dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs sm:text-sm placeholder-gray-400 dark:placeholder-slate-500 text-gray-800 dark:text-slate-100 outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-[#074C72]/20 focus:border-[#074C72] dark:focus:border-sky-500 transition-all"
       />
     </div>
@@ -139,13 +141,13 @@ const openChat = (maskedId) => {
     <!-- Loading State -->
     <div v-if="isLoading" class="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center border border-gray-100 dark:border-slate-800 shadow-sm space-y-4">
       <div class="w-10 h-10 border-4 border-[#053754] dark:border-sky-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
-      <p class="text-sm font-bold text-gray-600 dark:text-slate-300">Chargement des conversations...</p>
+      <p class="text-sm font-bold text-gray-600 dark:text-slate-300">{{ t('voyageur.voyageDetail.loading', 'Chargement des conversations...') }}</p>
     </div>
 
     <!-- Error State -->
     <div v-else-if="errorMsg" class="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-3xl p-8 text-center space-y-3">
       <p class="text-sm font-bold text-red-800 dark:text-red-300">{{ errorMsg }}</p>
-      <button @click="loadConversations" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-xl cursor-pointer">Réessayer</button>
+      <button @click="loadConversations(false)" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-xl cursor-pointer">Réessayer</button>
     </div>
 
     <!-- Conversations Cards List -->
@@ -206,8 +208,8 @@ const openChat = (maskedId) => {
       <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-400 flex items-center justify-center text-xl mx-auto font-bold">
         💬
       </div>
-      <p class="text-sm font-bold text-gray-700 dark:text-slate-200">Aucune conversation trouvée.</p>
-      <p class="text-xs text-gray-400 dark:text-slate-400">Les messages reçus des clients pour vos réservations s'afficheront ici.</p>
+      <p class="text-sm font-bold text-gray-700 dark:text-slate-200">{{ t('voyageur.messages.noMessagesTitle', 'Aucune conversation trouvée.') }}</p>
+      <p class="text-xs text-gray-400 dark:text-slate-400">{{ t('voyageur.messages.noMessagesSub', 'Les messages reçus des clients pour vos réservations s\'afficheront ici.') }}</p>
     </div>
   </div>
 </template>
