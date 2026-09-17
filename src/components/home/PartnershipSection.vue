@@ -64,7 +64,7 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-  <section id="devenir-partenaire" class="relative pt-6 sm:pt-10 pb-12 sm:pb-16 bg-white overflow-hidden">
+  <section id="devenir-partenaire" class="relative pt-6 sm:pt-10 pb-12 sm:pb-16 bg-white dark:bg-slate-950 overflow-hidden">
     
     <!-- Section Header (Top Part) -->
     <div class="max-w-7xl 2xl:max-w-384 mx-auto px-4 sm:px-6 lg:px-8 mb-6 sm:mb-8">
@@ -78,12 +78,12 @@ const handleSubmit = async () => {
         </div>
 
         <!-- Main Title -->
-        <h2 class="text-lg sm:text-xl lg:text-xl xl:text-3xl font-extrabold text-principal tracking-tight leading-tight">
+        <h2 class="text-lg sm:text-xl lg:text-xl xl:text-3xl font-extrabold text-principal dark:text-sky-300 tracking-tight leading-tight">
           Devenez l'une des 1ères Entreprises Partenaires VIP
         </h2>
 
         <!-- Sub-description -->
-        <p class="text-texte text-xs sm:text-base font-normal leading-relaxed max-w-3xl mx-auto">
+        <p class="text-texte dark:text-slate-300 text-xs sm:text-base font-normal leading-relaxed max-w-3xl mx-auto">
           Vous exercez professionnellement le transport et l'acheminement de colis ? Pré-inscrivez votre entreprise dès aujourd'hui pour bénéficier d'un accès prioritaire garanti au lancement, de 0% de commission sur vos 6 premiers mois et d'un accompagnement personnalisé sur-mesure.
         </p>
 

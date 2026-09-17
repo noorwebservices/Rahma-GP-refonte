@@ -4,11 +4,11 @@ import bannerHero from '@/assets/images/banner-hero.png'
 
 <template>
   <section id="accueil"
-    class="relative min-h-125 sm:min-h-150 lg:min-h-screen flex items-center bg-[#074C72] overflow-hidden">
+    class="relative min-h-125 sm:min-h-150 lg:min-h-screen flex items-center bg-[#074C72] dark:bg-slate-950 overflow-hidden">
 
     <!-- Background Image & Subtle Figma Overlay -->
     <div class="absolute inset-0 z-0">
-      <img :src="bannerHero" alt="Rahma Delivery Hero Banner" class="w-full h-full object-cover object-center" />
+      <img :src="bannerHero" alt="Rahma Delivery Hero Banner" class="w-full h-full object-cover object-center opacity-90 dark:opacity-40" />
 
       <!-- Subtle Linear Gradient Overlay matching Figma mockup specs -->
       <div class="absolute inset-0 pointer-events-none"

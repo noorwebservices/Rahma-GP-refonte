@@ -10,7 +10,7 @@ import Footer from '@/components/home/Footer.vue'
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col justify-between bg-white font-sans text-texte">
+  <div class="min-h-screen flex flex-col justify-between bg-white dark:bg-slate-950 font-sans text-texte dark:text-slate-100">
     <!-- Header -->
     <Header />
 

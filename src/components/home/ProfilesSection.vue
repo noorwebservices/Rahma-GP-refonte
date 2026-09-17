@@ -9,25 +9,25 @@ const setTab = (id) => {
 </script>
 
 <template>
-  <section id="les-profils" class="py-10 sm:py-10 bg-slate-50/50 relative overflow-hidden">
+  <section id="les-profils" class="py-10 sm:py-10 bg-slate-50/50 dark:bg-slate-950 relative overflow-hidden">
     <div class="max-w-7xl 2xl:max-w-384 mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
       
       <!-- Section Header -->
       <div class="text-center max-w-4xl mx-auto space-y-3 sm:space-y-4 mb-8 sm:mb-12">
         <!-- Subtitle Pill -->
         <div>
-          <span class="inline-block px-5 py-2 rounded-full border border-secondaire/40 bg-secondaire/5 text-secondaire text-xs sm:text-sm font-medium uppercase tracking-widest">
+          <span class="inline-block px-5 py-2 rounded-full border border-secondaire/40 dark:border-sky-500/40 bg-secondaire/5 dark:bg-sky-500/10 text-secondaire dark:text-sky-300 text-xs sm:text-sm font-medium uppercase tracking-widest">
             TROIS EXPERIENCES DÉDIÉES
           </span>
         </div>
 
         <!-- Main Heading -->
-        <h2 class="text-lg sm:text-xl lg:text-xl xl:text-3xl font-extrabold text-principal tracking-tight">
+        <h2 class="text-lg sm:text-xl lg:text-xl xl:text-3xl font-extrabold text-principal dark:text-sky-300 tracking-tight">
           Des fonctionnalités adaptées à chaque rôle
         </h2>
 
         <!-- Description -->
-        <p class="text-texte text-xs sm:text-base font-normal leading-relaxed max-w-3xl mx-auto px-2">
+        <p class="text-texte dark:text-slate-300 text-xs sm:text-base font-normal leading-relaxed max-w-3xl mx-auto px-2">
           Rahma Delivery connecte les personnes qui souhaitent envoyer des colis avec celles qui disposent de capacités pour les transporter, qu'il s'agisse d'un voyageur ou d'une entreprise spécialisée. Chaque profil bénéficie d'une expérience adaptée à ses besoins.
         </p>
       </div>
@@ -42,8 +42,8 @@ const setTab = (id) => {
           :class="[
             'shrink-0 snap-start flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-3.5 rounded-2xl border text-xs sm:text-base font-bold whitespace-nowrap transition-all duration-200 cursor-pointer',
             activeTab === 1
-              ? 'border-secondaire text-secondaire bg-white shadow-md ring-2 ring-secondaire/20'
-              : 'border-slate-200 text-slate-500 bg-white hover:border-slate-300 hover:text-slate-700'
+              ? 'border-secondaire dark:border-sky-400 text-secondaire dark:text-sky-300 bg-white dark:bg-slate-900 shadow-md ring-2 ring-secondaire/20 dark:ring-sky-500/20'
+              : 'border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700 hover:text-slate-700 dark:hover:text-slate-200'
           ]"
         >
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 sm:w-8 sm:h-8" viewBox="0 0 32 32">
@@ -61,8 +61,8 @@ const setTab = (id) => {
           :class="[
             'shrink-0 snap-start flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-3.5 rounded-2xl border text-xs sm:text-base font-bold whitespace-nowrap transition-all duration-200 cursor-pointer',
             activeTab === 2
-              ? 'border-secondaire text-secondaire bg-white shadow-md ring-2 ring-secondaire/20'
-              : 'border-slate-200 text-slate-500 bg-white hover:border-slate-300 hover:text-slate-700'
+              ? 'border-secondaire dark:border-sky-400 text-secondaire dark:text-sky-300 bg-white dark:bg-slate-900 shadow-md ring-2 ring-secondaire/20 dark:ring-sky-500/20'
+              : 'border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700 hover:text-slate-700 dark:hover:text-slate-200'
           ]"
         >
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 sm:w-8 sm:h-8" viewBox="0 0 24 24">
@@ -80,8 +80,8 @@ const setTab = (id) => {
           :class="[
             'shrink-0 snap-start flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-3.5 rounded-2xl border text-xs sm:text-base font-bold whitespace-nowrap transition-all duration-200 cursor-pointer',
             activeTab === 3
-              ? 'border-secondaire text-secondaire bg-white shadow-md ring-2 ring-secondaire/20'
-              : 'border-slate-200 text-slate-500 bg-white hover:border-slate-300 hover:text-slate-700'
+              ? 'border-secondaire dark:border-sky-400 text-secondaire dark:text-sky-300 bg-white dark:bg-slate-900 shadow-md ring-2 ring-secondaire/20 dark:ring-sky-500/20'
+              : 'border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700 hover:text-slate-700 dark:hover:text-slate-200'
           ]"
         >
           <svg class="w-4 h-4 sm:w-8 sm:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -93,40 +93,40 @@ const setTab = (id) => {
       </div>
 
       <!-- Tab Content Area -->
-      <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 p-5 sm:p-10 lg:p-12">
+      <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200/80 dark:border-slate-800 p-5 sm:p-10 lg:p-12">
         
         <!-- TAB 1: CLIENT EXPÉDITEUR -->
         <div v-if="activeTab === 1" class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           
           <!-- Left Text Details -->
           <div class="lg:col-span-7 space-y-5 sm:space-y-6">
-            <span class="inline-block px-4 py-1.5 rounded-full bg-slate-200/80 text-principal font-bold text-xs sm:text-sm border border-slate-300">
+            <span class="inline-block px-4 py-1.5 rounded-full bg-slate-200/80 dark:bg-slate-800 text-principal dark:text-sky-300 font-bold text-xs sm:text-sm border border-slate-300 dark:border-slate-700">
               Profil 1 : Client Expéditeur
             </span>
 
-            <h3 class="text-lg sm:text-xl font-extrabold text-secondaire leading-tight">
+            <h3 class="text-lg sm:text-xl font-extrabold text-secondaire dark:text-sky-400 leading-tight">
               Envoyez vos colis vers l'international en toute sérénité
             </h3>
 
-            <p class="text-texte font-normal text-xs sm:text-base leading-relaxed">
+            <p class="text-texte dark:text-slate-300 font-normal text-xs sm:text-base leading-relaxed">
               Vous souhaitez envoyer un colis à vos proches ou clients ? Trouvez immédiatement un voyageur ou un transporteur certifié effectuant le trajet.
             </p>
 
             <ul class="space-y-3">
-              <li class="flex items-start gap-3 text-xs sm:text-base text-texte font-medium">
-                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
+              <li class="flex items-start gap-3 text-xs sm:text-base text-texte dark:text-slate-300 font-medium">
+                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 dark:bg-emerald-950/60 text-tertiaire dark:text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
                 <span>Recherche simple par ville de départ et de destination</span>
               </li>
-              <li class="flex items-start gap-3 text-xs sm:text-base text-texte font-medium">
-                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
+              <li class="flex items-start gap-3 text-xs sm:text-base text-texte dark:text-slate-300 font-medium">
+                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 dark:bg-emerald-950/60 text-tertiaire dark:text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
                 <span>Transparence totale sur les kilos restants et les dates</span>
               </li>
-              <li class="flex items-start gap-3 text-xs sm:text-base text-texte font-medium">
-                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
+              <li class="flex items-start gap-3 text-xs sm:text-base text-texte dark:text-slate-300 font-medium">
+                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 dark:bg-emerald-950/60 text-tertiaire dark:text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
                 <span>Formulaire de demande détaillé pour vos colis</span>
               </li>
-              <li class="flex items-start gap-3 text-xs sm:text-base text-texte font-medium">
-                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
+              <li class="flex items-start gap-3 text-xs sm:text-base text-texte dark:text-slate-300 font-medium">
+                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 dark:bg-emerald-950/60 text-tertiaire dark:text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
                 <span>Historique des envois et notifications instantanées</span>
               </li>
             </ul>
@@ -134,11 +134,11 @@ const setTab = (id) => {
 
           <!-- Right Mockup Card (Ajusté sur mobile) -->
           <div class="lg:col-span-5">
-            <div class="border border-secondaire/30 rounded-3xl p-2.5 sm:p-5 bg-white shadow-lg">
-              <div class="bg-principal rounded-2xl overflow-hidden shadow-md">
+            <div class="border border-secondaire/30 dark:border-slate-800 rounded-3xl p-2.5 sm:p-5 bg-white dark:bg-slate-900 shadow-lg">
+              <div class="bg-principal dark:bg-slate-950 rounded-2xl overflow-hidden shadow-md">
                 
                 <!-- Dark Blue Header -->
-                <div class="p-3 sm:p-4 text-white flex items-center justify-between border-b border-white/10">
+                <div class="p-3 sm:p-4 text-white flex items-center justify-between border-b border-white/10 dark:border-slate-800">
                   <div class="flex items-center gap-1.5 sm:gap-2 font-bold text-xs sm:text-base">
                     <span>Dakar (DKR)</span>
                     <span class="text-white/60">➔</span>
@@ -150,38 +150,38 @@ const setTab = (id) => {
                 </div>
 
                 <!-- Card Body -->
-                <div class="bg-slate-50/95 p-3.5 sm:p-5 space-y-3 sm:space-y-4 text-[11px] sm:text-sm">
+                <div class="bg-slate-50/95 dark:bg-slate-900/95 p-3.5 sm:p-5 space-y-3 sm:space-y-4 text-[11px] sm:text-sm">
                   <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-1.5 text-slate-600">
+                    <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
                       <span>📅</span>
                       <span>Vol du jour :</span>
                     </div>
-                    <span class="font-bold text-slate-800">15 Septembre 2026</span>
+                    <span class="font-bold text-slate-800 dark:text-slate-100">15 Septembre 2026</span>
                   </div>
 
                   <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-1.5 text-slate-600">
+                    <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
                       <span>👤</span>
                       <span>Transporteur :</span>
                     </div>
-                    <span class="font-bold text-slate-800">Moussa K. (Vérifié)</span>
+                    <span class="font-bold text-slate-800 dark:text-slate-100">Moussa K. (Vérifié)</span>
                   </div>
 
                   <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-1.5 text-slate-600">
+                    <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
                       <span>📦</span>
                       <span>Capacité initiale :</span>
                     </div>
-                    <span class="font-bold text-slate-800">20 kg</span>
+                    <span class="font-bold text-slate-800 dark:text-slate-100">20 kg</span>
                   </div>
 
-                  <div class="pt-2 border-t border-slate-200 space-y-1.5">
+                  <div class="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-1.5">
                     <div class="flex items-center justify-between font-bold text-[11px] sm:text-sm">
-                      <span class="text-principal">Capacité restante :</span>
-                      <span class="text-principal">12 kg disponibles</span>
+                      <span class="text-principal dark:text-sky-300">Capacité restante :</span>
+                      <span class="text-principal dark:text-sky-300">12 kg disponibles</span>
                     </div>
-                    <div class="w-full h-2 sm:h-2.5 bg-slate-200 rounded-full overflow-hidden">
-                      <div class="h-full bg-principal rounded-full w-[60%]"></div>
+                    <div class="w-full h-2 sm:h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                      <div class="h-full bg-principal dark:bg-sky-500 rounded-full w-[60%]"></div>
                     </div>
                   </div>
                 </div>
@@ -197,33 +197,33 @@ const setTab = (id) => {
           
           <!-- Left Text Details -->
           <div class="lg:col-span-7 space-y-5 sm:space-y-6">
-            <span class="inline-block px-4 py-1.5 rounded-full bg-slate-200/80 text-principal font-bold text-xs sm:text-sm border border-slate-300">
+            <span class="inline-block px-4 py-1.5 rounded-full bg-slate-200/80 dark:bg-slate-800 text-principal dark:text-sky-300 font-bold text-xs sm:text-sm border border-slate-300 dark:border-slate-700">
               Profil 2 : Voyageur particulier
             </span>
 
-            <h3 class="text-lg sm:text-xl font-extrabold text-secondaire leading-tight">
+            <h3 class="text-lg sm:text-xl font-extrabold text-secondaire dark:text-sky-400 leading-tight">
               Rentabilisez vos bagages et amortissez vos billets d'avion
             </h3>
 
-            <p class="text-texte font-normal text-xs sm:text-base leading-relaxed">
+            <p class="text-texte dark:text-slate-300 font-normal text-xs sm:text-base leading-relaxed">
               Vous avez prévu un voyage et il vous reste de la place dans vos bagages ? Proposez votre capacité disponible sur Rahma Delivery et transportez les colis de personnes qui en ont besoin.
             </p>
 
             <ul class="space-y-3">
-              <li class="flex items-start gap-3 text-xs sm:text-base text-texte font-medium">
-                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
+              <li class="flex items-start gap-3 text-xs sm:text-base text-texte dark:text-slate-300 font-medium">
+                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 dark:bg-emerald-950/60 text-tertiaire dark:text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
                 <span>Publication ultra-rapide de votre trajet (5 kg à 25 kg)</span>
               </li>
-              <li class="flex items-start gap-3 text-xs sm:text-base text-texte font-medium">
-                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
+              <li class="flex items-start gap-3 text-xs sm:text-base text-texte dark:text-slate-300 font-medium">
+                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 dark:bg-emerald-950/60 text-tertiaire dark:text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
                 <span>Contrôle et vérification des demandes reçues</span>
               </li>
-              <li class="flex items-start gap-3 text-xs sm:text-base text-texte font-medium">
-                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
+              <li class="flex items-start gap-3 text-xs sm:text-base text-texte dark:text-slate-300 font-medium">
+                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 dark:bg-emerald-950/60 text-tertiaire dark:text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
                 <span>Liberté absolue d'accepter ou de refuser chaque colis</span>
               </li>
-              <li class="flex items-start gap-3 text-xs sm:text-base text-texte font-medium">
-                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
+              <li class="flex items-start gap-3 text-xs sm:text-base text-texte dark:text-slate-300 font-medium">
+                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 dark:bg-emerald-950/60 text-tertiaire dark:text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
                 <span>Déduction automatique des kilos acceptés</span>
               </li>
             </ul>
@@ -231,11 +231,11 @@ const setTab = (id) => {
 
           <!-- Right Mockup Card (Ajusté sur mobile) -->
           <div class="lg:col-span-5">
-            <div class="border border-secondaire/30 rounded-3xl p-2.5 sm:p-5 bg-white shadow-lg">
-              <div class="bg-principal rounded-2xl overflow-hidden shadow-md">
+            <div class="border border-secondaire/30 dark:border-slate-800 rounded-3xl p-2.5 sm:p-5 bg-white dark:bg-slate-900 shadow-lg">
+              <div class="bg-principal dark:bg-slate-950 rounded-2xl overflow-hidden shadow-md">
                 
                 <!-- Dark Blue Header -->
-                <div class="p-3 sm:p-4 text-white flex items-center justify-between border-b border-white/10">
+                <div class="p-3 sm:p-4 text-white flex items-center justify-between border-b border-white/10 dark:border-slate-800">
                   <span class="font-bold text-xs sm:text-base">Mes Prochains Vols</span>
                   <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full font-bold">
                     Dispo
@@ -243,24 +243,24 @@ const setTab = (id) => {
                 </div>
 
                 <!-- Card Body -->
-                <div class="bg-slate-50/95 p-3.5 sm:p-5 space-y-3 sm:space-y-4 text-[11px] sm:text-sm">
+                <div class="bg-slate-50/95 dark:bg-slate-900/95 p-3.5 sm:p-5 space-y-3 sm:space-y-4 text-[11px] sm:text-sm">
                   <div class="flex items-center justify-between">
-                    <span class="text-slate-600 font-medium">Vol :</span>
-                    <span class="font-bold text-tertiaire">Dakar ➔ Madrid</span>
+                    <span class="text-slate-600 dark:text-slate-400 font-medium">Vol :</span>
+                    <span class="font-bold text-tertiaire dark:text-amber-400">Dakar ➔ Madrid</span>
                   </div>
 
                   <div class="flex items-center justify-between">
-                    <span class="text-slate-600 font-medium">Espace Bagage :</span>
-                    <span class="font-bold text-tertiaire">20 kg au total</span>
+                    <span class="text-slate-600 dark:text-slate-400 font-medium">Espace Bagage :</span>
+                    <span class="font-bold text-tertiaire dark:text-amber-400">20 kg au total</span>
                   </div>
 
-                  <div class="pt-2 border-t border-slate-200 space-y-1.5">
+                  <div class="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-1.5">
                     <div class="flex items-center justify-between font-bold text-[11px] sm:text-sm">
-                      <span class="text-slate-700">Demandes acceptées :</span>
-                      <span class="text-tertiaire">8Kg/15Kg</span>
+                      <span class="text-slate-700 dark:text-slate-300">Demandes acceptées :</span>
+                      <span class="text-tertiaire dark:text-amber-400">8Kg/15Kg</span>
                     </div>
-                    <div class="w-full h-2 sm:h-2.5 bg-slate-200 rounded-full overflow-hidden">
-                      <div class="h-full bg-principal rounded-full w-[53%]"></div>
+                    <div class="w-full h-2 sm:h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                      <div class="h-full bg-principal dark:bg-sky-500 rounded-full w-[53%]"></div>
                     </div>
                   </div>
                 </div>
@@ -276,33 +276,33 @@ const setTab = (id) => {
           
           <!-- Left Text Details -->
           <div class="lg:col-span-7 space-y-5 sm:space-y-6">
-            <span class="inline-block px-4 py-1.5 rounded-full bg-slate-200/80 text-principal font-bold text-xs sm:text-sm border border-slate-300">
+            <span class="inline-block px-4 py-1.5 rounded-full bg-slate-200/80 dark:bg-slate-800 text-principal dark:text-sky-300 font-bold text-xs sm:text-sm border border-slate-300 dark:border-slate-700">
               Profil 3 : Entreprise Pro
             </span>
 
-            <h3 class="text-lg sm:text-xl font-extrabold text-secondaire leading-tight">
+            <h3 class="text-lg sm:text-xl font-extrabold text-secondaire dark:text-sky-400 leading-tight">
               Un véritable espace professionnel de gestion du transport
             </h3>
 
-            <p class="text-texte font-normal text-xs sm:text-base leading-relaxed">
+            <p class="text-texte dark:text-slate-300 font-normal text-xs sm:text-base leading-relaxed">
               Vous êtes une entreprise spécialisée dans le transport de colis à l'international ? Publiez vos voyages, indiquez les capacités disponibles et recevez directement les demandes des clients pour vos acheminements.
             </p>
 
             <ul class="space-y-3">
-              <li class="flex items-start gap-3 text-xs sm:text-base text-texte font-medium">
-                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
+              <li class="flex items-start gap-3 text-xs sm:text-base text-texte dark:text-slate-300 font-medium">
+                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 dark:bg-emerald-950/60 text-tertiaire dark:text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
                 <span>Gestion multi-voyages et lignes régulières internationales</span>
               </li>
-              <li class="flex items-start gap-3 text-xs sm:text-base text-texte font-medium">
-                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
+              <li class="flex items-start gap-3 text-xs sm:text-base text-texte dark:text-slate-300 font-medium">
+                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 dark:bg-emerald-950/60 text-tertiaire dark:text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
                 <span>Tableau de bord pro : suivi des capacités réservées & disponibles</span>
               </li>
-              <li class="flex items-start gap-3 text-xs sm:text-base text-texte font-medium">
-                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
+              <li class="flex items-start gap-3 text-xs sm:text-base text-texte dark:text-slate-300 font-medium">
+                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 dark:bg-emerald-950/60 text-tertiaire dark:text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
                 <span>Gestion des statuts de livraison (Transit, Livré, Attente)</span>
               </li>
-              <li class="flex items-start gap-3 text-xs sm:text-base text-texte font-medium">
-                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 text-tertiaire flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
+              <li class="flex items-start gap-3 text-xs sm:text-base text-texte dark:text-slate-300 font-medium">
+                <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 dark:bg-emerald-950/60 text-tertiaire dark:text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
                 <span>Outils de statistique et d'optimisation de fret</span>
               </li>
             </ul>
@@ -310,11 +310,11 @@ const setTab = (id) => {
 
           <!-- Right Mockup Card (Ajusté sur mobile) -->
           <div class="lg:col-span-5">
-            <div class="border border-secondaire/30 rounded-3xl p-2.5 sm:p-5 bg-white shadow-lg">
-              <div class="bg-principal rounded-2xl overflow-hidden shadow-md">
+            <div class="border border-secondaire/30 dark:border-slate-800 rounded-3xl p-2.5 sm:p-5 bg-white dark:bg-slate-900 shadow-lg">
+              <div class="bg-principal dark:bg-slate-950 rounded-2xl overflow-hidden shadow-md">
                 
                 <!-- Dark Blue Header -->
-                <div class="p-3 sm:p-4 text-white flex items-center justify-between border-b border-white/10">
+                <div class="p-3 sm:p-4 text-white flex items-center justify-between border-b border-white/10 dark:border-slate-800">
                   <span class="font-bold text-xs sm:text-base">Espace Entreprise Pro</span>
                   <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full font-bold">
                     Dispo
@@ -322,31 +322,31 @@ const setTab = (id) => {
                 </div>
 
                 <!-- Card Body -->
-                <div class="bg-slate-50/95 p-3.5 sm:p-5 space-y-3 sm:space-y-4 text-[11px] sm:text-sm">
+                <div class="bg-slate-50/95 dark:bg-slate-900/95 p-3.5 sm:p-5 space-y-3 sm:space-y-4 text-[11px] sm:text-sm">
                   
                   <!-- 3 Stats KPI Boxes -->
                   <div class="grid grid-cols-3 gap-1.5 sm:gap-2 text-center">
-                    <div class="bg-white p-2 sm:p-2.5 rounded-xl border border-slate-200 shadow-2xs">
-                      <p class="font-extrabold text-xs sm:text-base text-principal">4</p>
-                      <p class="text-[9px] sm:text-xs text-slate-500 font-medium">Vols Actifs</p>
+                    <div class="bg-white dark:bg-slate-800 p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xs">
+                      <p class="font-extrabold text-xs sm:text-base text-principal dark:text-sky-300">4</p>
+                      <p class="text-[9px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">Vols Actifs</p>
                     </div>
-                    <div class="bg-white p-2 sm:p-2.5 rounded-xl border border-slate-200 shadow-2xs">
-                      <p class="font-extrabold text-xs sm:text-base text-principal">850 kg</p>
-                      <p class="text-[9px] sm:text-xs text-slate-500 font-medium">Capacité</p>
+                    <div class="bg-white dark:bg-slate-800 p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xs">
+                      <p class="font-extrabold text-xs sm:text-base text-principal dark:text-sky-300">850 kg</p>
+                      <p class="text-[9px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">Capacité</p>
                     </div>
-                    <div class="bg-white p-2 sm:p-2.5 rounded-xl border border-slate-200 shadow-2xs">
-                      <p class="font-extrabold text-xs sm:text-base text-secondaire">240 kg</p>
-                      <p class="text-[9px] sm:text-xs text-slate-500 font-medium">Restants</p>
+                    <div class="bg-white dark:bg-slate-800 p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xs">
+                      <p class="font-extrabold text-xs sm:text-base text-secondaire dark:text-red-400">240 kg</p>
+                      <p class="text-[9px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">Restants</p>
                     </div>
                   </div>
 
                   <!-- Flight Row Card -->
-                  <div class="bg-slate-200/60 p-2.5 sm:p-4 rounded-xl flex items-center justify-between">
+                  <div class="bg-slate-200/60 dark:bg-slate-800/80 p-2.5 sm:p-4 rounded-xl flex items-center justify-between">
                     <div>
-                      <p class="font-bold text-principal text-[11px] sm:text-sm">Dakar ➔ Paris (#102)</p>
-                      <p class="text-[9px] sm:text-xs text-slate-500 font-medium mt-0.5">300kg total | 210kg réservé</p>
+                      <p class="font-bold text-principal dark:text-sky-300 text-[11px] sm:text-sm">Dakar ➔ Paris (#102)</p>
+                      <p class="text-[9px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">300kg total | 210kg réservé</p>
                     </div>
-                    <span class="font-bold text-tertiaire text-[10px] sm:text-sm whitespace-nowrap">
+                    <span class="font-bold text-tertiaire dark:text-amber-400 text-[10px] sm:text-sm whitespace-nowrap">
                       70% Rempli
                     </span>
                   </div>

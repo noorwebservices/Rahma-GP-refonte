@@ -55,7 +55,8 @@ onMounted(() => {
       <!-- Moon Icon (visible when Light to switch to Dark) -->
       <svg
         v-else
-        class="w-5 h-5 text-slate-700 dark:text-slate-200 transform transition-transform duration-300 -rotate-12 group-hover:rotate-0"
+        class="w-5 h-5 transform transition-transform duration-300 -rotate-12 group-hover:rotate-0"
+        :class="variant === 'transparent' ? 'text-amber-300 dark:text-amber-400' : 'text-slate-700 dark:text-slate-200'"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"

@@ -1,5 +1,6 @@
 <script setup>
 import bannerCommentCaMarche from '@/assets/images/banner-comment-ça-marche.png'
+import sansFond from '@/assets/images/sans-fond.png'
 
 const steps = [
   {
@@ -61,15 +62,26 @@ const steps = [
 </script>
 
 <template>
-  <section id="comment-ca-marche" class="relative pt-12 pb-18 sm:pt-10 sm:pb-0 overflow-hidden">
+  <section id="comment-ca-marche" class="relative pt-12 pb-18 sm:pt-10 sm:pb-0 overflow-hidden bg-white dark:bg-slate-950">
     
-    <!-- Background Decorative Banner Image (Dézoomé et ancré en bas sur mobile pour révéler les cartons 3D sans gêner le texte) -->
-    <div class="absolute inset-0 pointer-events-none z-0">
+    <!-- Background Decorative Banner Image for Light Mode -->
+    <div class="absolute inset-0 pointer-events-none z-0 dark:hidden">
       <img 
         :src="bannerCommentCaMarche" 
-        alt="Background Comment Ça Marche" 
-        class="w-full h-full sm:object-contain  object-scale-down object-bottom  "
+        alt="Background Comment Ça Marche Light" 
+        class="w-full h-full sm:object-contain object-scale-down object-bottom opacity-100"
       />
+    </div>
+
+    <!-- Background Decorative Banner Image for Dark Mode (sans-fond.png scale and opacity reduced for perfect subtle alignment) -->
+    <div class="absolute inset-0 pointer-events-none z-0 hidden dark:flex items-end justify-center overflow-hidden">
+      <div class="w-full max-w-6xl 2xl:max-w-7xl h-full flex items-end justify-center px-6 sm:px-10">
+        <img 
+          :src="sansFond" 
+          alt="Background Comment Ça Marche Dark" 
+          class="w-full h-auto max-h-[80%] object-contain object-bottom opacity-20 transform scale-85 sm:scale-90 origin-bottom"
+        />
+      </div>
     </div>
 
     <div class="relative z-10 max-w-7xl 2xl:max-w-384 mx-auto px-4 sm:px-6 lg:px-8">
@@ -77,16 +89,16 @@ const steps = [
       <!-- Section Header -->
       <div class="text-center max-w-3xl mx-auto space-y-3 sm:space-y-4 mb-20 lg:mb-28">
         <div>
-          <span class="inline-block px-6 py-2 rounded-full border border-secondaire/40 bg-secondaire/5 text-secondaire text-xs sm:text-sm font-medium uppercase tracking-widest">
+          <span class="inline-block px-6 py-2 rounded-full border border-secondaire/40 dark:border-sky-500/40 bg-secondaire/5 dark:bg-sky-500/10 text-secondaire dark:text-sky-300 text-xs sm:text-sm font-medium uppercase tracking-widest">
             Le Parcours Colis
           </span>
         </div>
 
-        <h2 class="text-lg sm:text-xl lg:text-xl xl:text-3xl font-extrabold text-principal tracking-tight">
+        <h2 class="text-lg sm:text-xl lg:text-xl xl:text-3xl font-extrabold text-principal dark:text-sky-300 tracking-tight">
           Comment fonctionne Rahma Delivery ?
         </h2>
 
-        <p class="text-texte text-xs sm:text-base font-normal leading-relaxed px-2">
+        <p class="text-texte dark:text-slate-300 text-xs sm:text-base font-normal leading-relaxed px-2">
           Rahma Delivery simplifie l'acheminement de vos colis à l'international. Trouvez une capacité disponible, faites votre demande et laissez votre colis prendre la route vers sa destination.
         </p>
       </div>
@@ -119,7 +131,7 @@ const steps = [
             <!-- Icon Circle (Superposé directement sur le bord supérieur de la carte) -->
             <div 
               :class="[
-                'absolute top-0 left-1/2 -translate-x-1/2 z-30 w-16 h-16 rounded-full text-white flex items-center justify-center shadow-lg border-4 border-white transition-transform duration-300 hover:scale-110',
+                'absolute top-0 left-1/2 -translate-x-1/2 z-30 w-16 h-16 rounded-full text-white flex items-center justify-center shadow-lg border-4 border-white dark:border-slate-900 transition-transform duration-300 hover:scale-110',
                 step.bgColor
               ]"
             >
@@ -157,20 +169,20 @@ const steps = [
             <!-- White Content Card (Toutes les bordures sont en bas: border-b-4) -->
             <div 
               :class="[
-                'w-full bg-white rounded-3xl pt-10 pb-6 px-4 shadow-xl border-t border-slate-100 text-center flex flex-col items-center justify-start min-h-52.5 border-b-4 relative',
+                'w-full bg-white dark:bg-slate-900 rounded-3xl pt-10 pb-6 px-4 shadow-xl border-t border-slate-100 dark:border-slate-800 text-center flex flex-col items-center justify-start min-h-52.5 border-b-4 relative',
                 step.borderColor
               ]"
             >
               <h3 
                 :class="[
                   'font-extrabold text-sm sm:text-base mb-2 leading-snug',
-                  step.titleColor
+                  step.titleColor === 'text-principal' ? 'text-principal dark:text-sky-300' : step.titleColor === 'text-secondaire' ? 'text-secondaire dark:text-red-400' : 'text-tertiaire dark:text-amber-400'
                 ]"
               >
                 {{ step.title }}
               </h3>
 
-              <p class="text-texte text-xs font-normal leading-relaxed">
+              <p class="text-texte dark:text-slate-300 text-xs font-normal leading-relaxed">
                 {{ step.description }}
               </p>
 
@@ -221,7 +233,7 @@ const steps = [
           v-for="step in steps" 
           :key="step.number"
           :class="[
-            'bg-white rounded-2xl p-5 shadow-lg border border-slate-100 flex gap-4 items-start relative border-b-4',
+            'bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-lg border border-slate-100 dark:border-slate-800 flex gap-4 items-start relative border-b-4',
             step.borderColor
           ]"
         >
@@ -240,12 +252,12 @@ const steps = [
             <h3 
               :class="[
                 'font-extrabold text-base',
-                step.titleColor
+                step.titleColor === 'text-principal' ? 'text-principal dark:text-sky-300' : step.titleColor === 'text-secondaire' ? 'text-secondaire dark:text-red-400' : 'text-tertiaire dark:text-amber-400'
               ]"
             >
               {{ step.title }}
             </h3>
-            <p class="text-texte text-xs font-normal leading-relaxed">
+            <p class="text-texte dark:text-slate-300 text-xs font-normal leading-relaxed">
               {{ step.description }}
             </p>
           </div>

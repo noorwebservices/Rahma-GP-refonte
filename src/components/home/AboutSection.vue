@@ -8,16 +8,16 @@ import packageImg from '@/assets/images/package.png'
 </script>
 
 <template>
-  <section id="a-propos" class="relative py-4 sm:py-16 bg-white overflow-hidden">
+  <section id="a-propos" class="relative py-4 sm:py-16 bg-white dark:bg-slate-950 overflow-hidden">
 
     <!-- Background Decorative Banner Image (Masqué complètement sur mobile pour ne pas surcharger) -->
     <div class="hidden absolute inset-0 pointer-events-none z-0">
       <img :src="bannerAPropos" alt="Decorative Banner Accents"
-        class="w-full h-full lg:object-fill object-contain object-right" />
+        class="w-full h-full lg:object-fill object-contain object-right opacity-100 dark:opacity-20" />
     </div>
 
     <!-- Package Accent Image (Positionné en haut à droite) -->
-    <div class="absolute top-4 right-4 sm:right-12 w-42 sm:w-98 pointer-events-none z-10 opacity-80 sm:opacity-100 block">  
+    <div class="absolute top-4 right-4 sm:right-12 w-42 sm:w-98 pointer-events-none z-10 opacity-80 sm:opacity-100 dark:opacity-60 block">  
       <img :src="packageImg" alt="3D Packages Accent" class="w-full h-auto object-contain" />
     </div>
 
@@ -46,11 +46,11 @@ import packageImg from '@/assets/images/package.png'
               <!-- Text ONLY overlay centered on the circular cutout boundary -->
               <div
                 class="absolute top-1/2 right-0 lg:translate-x-[14%] sm:translate-x-[0%] translate-x-[20%] translate-y-[-70%] z-20 flex flex-col justify-center items-center text-center w-24 sm:w-32 lg:w-36 pointer-events-none">
-                <span class="text-[10px] sm:text-[14px] font-light text-secondaire leading-tight">Simple.</span>
+                <span class="text-[10px] sm:text-[14px] font-light text-secondaire dark:text-sky-400 leading-tight">Simple.</span>
                 <span
-                  class="text-[10px] sm:text-[14px] font-light text-secondaire leading-tight mt-0.5 sm:mt-1">Rapide.</span>
+                  class="text-[10px] sm:text-[14px] font-light text-secondaire dark:text-sky-400 leading-tight mt-0.5 sm:mt-1">Rapide.</span>
                 <span
-                  class="text-[10px] sm:text-[14px] font-light text-secondaire leading-tight mt-0.5 sm:mt-1">Fiable.</span>
+                  class="text-[10px] sm:text-[14px] font-light text-secondaire dark:text-sky-400 leading-tight mt-0.5 sm:mt-1">Fiable.</span>
               </div>
 
             </div>
@@ -65,7 +65,7 @@ import packageImg from '@/assets/images/package.png'
                 <!-- Text ONLY overlay positioned cleanly inside top-right speech bubble cutout -->
                 <div
                   class="absolute top-[9%] sm:top-[9%] right-[6%] sm:right-[0%] w-[48%] sm:w-[50%] h-[20%] z-20 flex items-center justify-center text-left pointer-events-none">
-                  <p class="text-[10px] sm:text-[14px] font-light text-principal leading-snug">
+                  <p class="text-[10px] sm:text-[14px] font-semibold text-principal dark:text-sky-300 leading-snug">
                     Voyagez,<br />
                     transportez,<br />
                     partagez.
@@ -89,19 +89,19 @@ import packageImg from '@/assets/images/package.png'
           <div class="flex items-center justify-between gap-4 relative">
             <div class="space-y-1">
               <!-- Subtitle (Rouge Secondaire) -->
-              <p class="text-xs sm:text-sm font-light tracking-widest text-secondaire uppercase">
+              <p class="text-xs sm:text-sm font-light tracking-widest text-secondaire dark:text-sky-400 uppercase">
                 À PROPOS DE RAHMA DELIVERY
               </p>
 
               <!-- Main Title (Bleu Principal) -->
-              <h2 class="text-lg sm:text-xl lg:text-xl xl:text-3xl font-extrabold text-principal tracking-tight leading-tight">
+              <h2 class="text-lg sm:text-xl lg:text-xl xl:text-3xl font-extrabold text-principal dark:text-sky-300 tracking-tight leading-tight">
                 QUI SOMMES-NOUS ?
               </h2>
             </div>
           </div>
 
           <!-- Paragraphs -->
-          <div class="space-y-4 text-texte font-normal text-xs sm:text-base leading-relaxed">
+          <div class="space-y-4 text-texte dark:text-slate-300 font-normal text-xs sm:text-base leading-relaxed">
             <p>
               Rahma Delivery est une plateforme qui facilite l'acheminement de colis à l'international en mettant en
               relation les clients avec des voyageurs et des entreprises disposant de capacité disponible.
@@ -116,7 +116,7 @@ import packageImg from '@/assets/images/package.png'
           <!-- Action Button avec lien WhatsApp (+221 77 685 96 60) -->
           <div class="pt-2">
             <a href="https://wa.me/221776859660" target="_blank" rel="noopener noreferrer"
-              class="relative inline-flex items-center justify-center bg-secondaire hover:bg-secondaire-light text-white font-bold text-xs sm:text-sm uppercase tracking-wider px-9 py-4 rounded-2xl shadow-xl shadow-secondaire/30 transition-all duration-200 transform hover:scale-[1.02] active:scale-95 text-center">
+              class="relative inline-flex items-center justify-center bg-secondaire dark:bg-sky-600 hover:bg-secondaire-light dark:hover:bg-sky-500 text-white font-bold text-xs sm:text-sm uppercase tracking-wider px-9 py-4 rounded-2xl shadow-xl shadow-secondaire/30 dark:shadow-sky-900/30 transition-all duration-200 transform hover:scale-[1.02] active:scale-95 text-center">
               <span>NOUS CONTACTER</span>
             </a>
           </div>
