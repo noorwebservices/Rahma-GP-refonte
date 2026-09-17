@@ -164,71 +164,71 @@ const handlePublishVoyage = async () => {
   <div class="space-y-6 pb-20 font-sans">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div>
-        <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark">Modifier le voyage</h1>
-        <p class="text-xs sm:text-sm text-gray-500">Mettez à jour les caractéristiques de votre trajet</p>
+        <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark dark:text-sky-300">Modifier le voyage</h1>
+        <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400">Mettez à jour les caractéristiques de votre trajet</p>
       </div>
 
       <span
-        class="self-start sm:self-auto text-xs font-bold px-3 py-1 rounded-full uppercase"
-        :class="form.statut === 'publie' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'"
+        class="self-start sm:self-auto text-xs font-bold px-3 py-1 rounded-full uppercase border"
+        :class="form.statut === 'publie' ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800' : 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800'"
       >
         {{ form.statut === 'publie' ? '✓ Publié' : '⏳ Brouillon' }}
       </span>
     </div>
 
-    <div class="bg-white rounded-3xl p-6 border border-gray-200 shadow-sm space-y-5">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-gray-200 dark:border-slate-800 shadow-sm space-y-5">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="space-y-1.5">
-          <label class="block text-xs font-bold text-gray-700">Ville de Départ</label>
+          <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Ville de Départ</label>
           <CitySelect v-model="form.ville_depart" placeholder="Choisir la ville de départ" />
         </div>
 
         <div class="space-y-1.5">
-          <label class="block text-xs font-bold text-gray-700">Ville de Destination</label>
+          <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Ville de Destination</label>
           <CitySelect v-model="form.ville_destination" placeholder="Choisir la ville de destination" />
         </div>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="space-y-1.5">
-          <label class="block text-xs font-bold text-gray-700">Date et heure de départ</label>
-          <input v-model="form.date_depart" type="datetime-local" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-4 py-2.5 text-xs text-gray-800 outline-none" />
+          <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Date et heure de départ</label>
+          <input v-model="form.date_depart" type="datetime-local" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none" />
         </div>
 
         <div class="space-y-1.5">
-          <label class="block text-xs font-bold text-gray-700">Date et heure d'arrivée</label>
-          <input v-model="form.date_arrivee" type="datetime-local" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-4 py-2.5 text-xs text-gray-800 outline-none" />
+          <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Date et heure d'arrivée</label>
+          <input v-model="form.date_arrivee" type="datetime-local" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none" />
         </div>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="space-y-1.5">
-          <label class="block text-xs font-bold text-gray-700">Capacité Bagages (Kg)</label>
-          <input v-model.number="form.capacite_totale" type="number" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-4 py-2.5 text-xs text-gray-800 outline-none" />
+          <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Capacité Bagages (Kg)</label>
+          <input v-model.number="form.capacite_totale" type="number" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none" />
         </div>
 
         <div class="space-y-1.5">
-          <label class="block text-xs font-bold text-gray-700">Devise du tarif</label>
-          <select v-model="form.devise" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold text-gray-800 outline-none">
-            <option value="XOF">FCFA (XOF)</option>
-            <option value="EUR">Euro (€)</option>
-            <option value="USD">Dollar US ($)</option>
+          <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Devise du tarif</label>
+          <select v-model="form.devise" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs font-bold text-gray-800 dark:text-slate-100 outline-none">
+            <option value="XOF" class="dark:bg-slate-800 text-slate-100">FCFA (XOF)</option>
+            <option value="EUR" class="dark:bg-slate-800 text-slate-100">Euro (€)</option>
+            <option value="USD" class="dark:bg-slate-800 text-slate-100">Dollar US ($)</option>
           </select>
         </div>
 
         <div class="space-y-1.5">
-          <label class="block text-xs font-bold text-gray-700">Prix au Kg ({{ form.devise }})</label>
-          <input v-model.number="form.prix_kg" type="number" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-4 py-2.5 text-xs text-gray-800 outline-none" />
+          <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Prix au Kg ({{ form.devise }})</label>
+          <input v-model.number="form.prix_kg" type="number" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none" />
         </div>
       </div>
 
       <div class="space-y-1.5">
-        <label class="block text-xs font-bold text-gray-700">Description</label>
-        <textarea v-model="form.description" rows="3" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-4 py-2.5 text-xs text-gray-800 outline-none"></textarea>
+        <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Description</label>
+        <textarea v-model="form.description" rows="3" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none"></textarea>
       </div>
 
-      <div class="border-t border-gray-100 pt-4 flex items-center justify-between gap-3 flex-wrap">
-        <button @click="saveChanges" :disabled="isLoading" type="button" class="px-5 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs cursor-pointer">
+      <div class="border-t border-gray-100 dark:border-slate-800 pt-4 flex items-center justify-between gap-3 flex-wrap">
+        <button @click="saveChanges" :disabled="isLoading" type="button" class="px-5 py-3 rounded-xl bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 font-bold text-xs cursor-pointer">
           Enregistrer en brouillon
         </button>
 

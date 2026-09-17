@@ -117,13 +117,13 @@ const openChat = (maskedId) => {
   <div class="space-y-5 pb-16">
     <!-- Header Title & Subtitle -->
     <div class="space-y-1">
-      <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark">Messagerie Voyageur</h1>
-      <p class="text-xs sm:text-sm text-gray-500">Échangez avec les clients pour valider leurs colis et lieux de dépôt</p>
+      <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark dark:text-sky-300">Messagerie Voyageur</h1>
+      <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400">Échangez avec les clients pour valider leurs colis et lieux de dépôt</p>
     </div>
 
     <!-- Search Input -->
     <div class="relative">
-      <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+      <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400 dark:text-slate-500">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
@@ -132,19 +132,19 @@ const openChat = (maskedId) => {
         v-model="searchQuery"
         type="text"
         placeholder="Rechercher un client, un trajet ou un n° de colis..."
-        class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-xs sm:text-sm placeholder-gray-400 text-gray-800 outline-none focus:bg-white focus:ring-2 focus:ring-[#074C72]/20 focus:border-[#074C72] transition-all"
+        class="w-full bg-[#F3F4F6] dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs sm:text-sm placeholder-gray-400 dark:placeholder-slate-500 text-gray-800 dark:text-slate-100 outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-[#074C72]/20 focus:border-[#074C72] dark:focus:border-sky-500 transition-all"
       />
     </div>
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm space-y-4">
-      <div class="w-10 h-10 border-4 border-[#053754] border-t-transparent rounded-full animate-spin mx-auto"></div>
-      <p class="text-sm font-bold text-gray-600">Chargement des conversations...</p>
+    <div v-if="isLoading" class="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center border border-gray-100 dark:border-slate-800 shadow-sm space-y-4">
+      <div class="w-10 h-10 border-4 border-[#053754] dark:border-sky-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
+      <p class="text-sm font-bold text-gray-600 dark:text-slate-300">Chargement des conversations...</p>
     </div>
 
     <!-- Error State -->
-    <div v-else-if="errorMsg" class="bg-red-50 border border-red-200 rounded-3xl p-8 text-center space-y-3">
-      <p class="text-sm font-bold text-red-800">{{ errorMsg }}</p>
+    <div v-else-if="errorMsg" class="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-3xl p-8 text-center space-y-3">
+      <p class="text-sm font-bold text-red-800 dark:text-red-300">{{ errorMsg }}</p>
       <button @click="loadConversations" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-xl cursor-pointer">Réessayer</button>
     </div>
 
@@ -154,13 +154,13 @@ const openChat = (maskedId) => {
         v-for="conv in filteredConversations"
         :key="conv.id"
         @click="openChat(conv.maskedId)"
-        class="bg-white rounded-2xl p-4 border border-gray-200 hover:border-[#074C72]/40 transition-all shadow-2xs cursor-pointer flex items-center gap-3.5 group relative overflow-hidden"
+        class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-gray-200 dark:border-slate-800 hover:border-[#074C72]/40 dark:hover:border-sky-500/40 transition-all shadow-2xs cursor-pointer flex items-center gap-3.5 group relative overflow-hidden"
       >
         <!-- Unread Marker Line -->
         <div v-if="conv.hasUnread" class="absolute left-0 top-0 bottom-0 w-1 bg-[#B50302]"></div>
 
         <!-- Avatar Circle -->
-        <div class="w-12 h-12 sm:w-13 sm:h-13 rounded-full bg-[#B50302] text-white flex items-center justify-center font-extrabold text-sm shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+        <div class="w-12 h-12 sm:w-13 sm:h-13 rounded-full bg-[#B50302] dark:bg-red-700 text-white flex items-center justify-center font-extrabold text-sm shrink-0 shadow-xs group-hover:scale-105 transition-transform">
           {{ conv.avatar }}
         </div>
 
@@ -168,11 +168,11 @@ const openChat = (maskedId) => {
         <div class="flex-1 min-w-0 space-y-1.5">
           <!-- Top Row: Name + Time + Unread Badge -->
           <div class="flex items-center justify-between">
-            <h3 class="text-sm font-extrabold text-[#053754] truncate flex items-center gap-1.5">
+            <h3 class="text-sm font-extrabold text-[#053754] dark:text-sky-300 truncate flex items-center gap-1.5">
               <span>{{ conv.clientName }}</span>
             </h3>
             <div class="flex items-center gap-2">
-              <span class="text-xs text-gray-400 font-medium shrink-0">{{ conv.time }}</span>
+              <span class="text-xs text-gray-400 dark:text-slate-400 font-medium shrink-0">{{ conv.time }}</span>
               <span v-if="conv.unreadCount > 0" class="bg-[#B50302] text-white text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 shadow-2xs">
                 {{ conv.unreadCount }}
               </span>
@@ -181,20 +181,20 @@ const openChat = (maskedId) => {
 
           <!-- Middle Row: Route + Parcel ID -->
           <div class="flex items-center justify-between text-xs">
-            <div class="flex items-center gap-1.5 font-bold text-gray-800">
+            <div class="flex items-center gap-1.5 font-bold text-gray-800 dark:text-slate-200">
               <CountryFlag :city="conv.routeFrom" :country="conv.countryFrom" size="w-4 h-3" />
               <span>{{ conv.routeFrom }}</span>
-              <div class="w-4 h-4 rounded-full border border-gray-400 text-gray-600 flex items-center justify-center text-[10px]">
+              <div class="w-4 h-4 rounded-full border border-gray-400 dark:border-slate-600 text-gray-600 dark:text-slate-400 flex items-center justify-center text-[10px]">
                 ➔
               </div>
               <CountryFlag :city="conv.routeTo" :country="conv.countryTo" size="w-4 h-3" />
               <span>{{ conv.routeTo }}</span>
             </div>
-            <span class="hidden sm:inline-block font-extrabold text-[#053754] text-xs shrink-0 font-mono bg-sky-50 px-2 py-0.5 rounded border border-sky-100">{{ conv.parcelCode }}</span>
+            <span class="hidden sm:inline-block font-extrabold text-[#053754] dark:text-sky-300 text-xs shrink-0 font-mono bg-sky-50 dark:bg-sky-950/60 px-2 py-0.5 rounded border border-sky-100 dark:border-sky-800">{{ conv.parcelCode }}</span>
           </div>
 
           <!-- Bottom Row: Last Message -->
-          <p class="text-xs text-gray-500 truncate leading-tight">
+          <p class="text-xs text-gray-500 dark:text-slate-400 truncate leading-tight">
             {{ conv.lastMessage }}
           </p>
         </div>
@@ -202,12 +202,12 @@ const openChat = (maskedId) => {
     </div>
 
     <!-- Empty State -->
-    <div v-else class="bg-white rounded-3xl p-10 text-center border border-gray-200 space-y-2">
-      <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-xl mx-auto font-bold">
+    <div v-else class="bg-white dark:bg-slate-900 rounded-3xl p-10 text-center border border-gray-200 dark:border-slate-800 space-y-2">
+      <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-400 flex items-center justify-center text-xl mx-auto font-bold">
         💬
       </div>
-      <p class="text-sm font-bold text-gray-700">Aucune conversation trouvée.</p>
-      <p class="text-xs text-gray-400">Les messages reçus des clients pour vos réservations s'afficheront ici.</p>
+      <p class="text-sm font-bold text-gray-700 dark:text-slate-200">Aucune conversation trouvée.</p>
+      <p class="text-xs text-gray-400 dark:text-slate-400">Les messages reçus des clients pour vos réservations s'afficheront ici.</p>
     </div>
   </div>
 </template>

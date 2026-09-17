@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useRoute, useRouter, RouterView, RouterLink } from 'vue-router'
 import sansFond from '@/assets/images/sans-fond.png'
+import ThemeToggle from '@/components/common/ThemeToggle.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -24,9 +25,9 @@ const navigateTab = (tab) => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#FAF7F2] flex flex-col justify-between selection:bg-secondaire selection:text-white font-sans overflow-x-hidden">
+  <div class="min-h-screen bg-[#FAF7F2] dark:bg-slate-950 flex flex-col justify-between selection:bg-secondaire selection:text-white font-sans overflow-x-hidden transition-colors duration-300">
     <!-- Top Header Bar -->
-    <header class="w-full bg-[#FAF7F2] py-3.5 px-4 sm:px-8 border-b border-black/5 z-30 sticky top-0 backdrop-blur-md bg-opacity-90">
+    <header class="w-full bg-[#FAF7F2] dark:bg-slate-900 py-3.5 px-4 sm:px-8 border-b border-black/5 dark:border-slate-800 z-30 sticky top-0 backdrop-blur-md bg-opacity-90 dark:bg-opacity-90">
       <div class="w-full max-w-7xl mx-auto flex items-center justify-between gap-2">
         
         <!-- Logo Rouge (Masqué sur Mobile < sm) -->
@@ -36,7 +37,7 @@ const navigateTab = (tab) => {
 
         <!-- Top Switcher Pill Bar (Scrollable on Mobile) -->
         <div class="flex-1 sm:flex-initial flex items-center overflow-x-auto no-scrollbar max-w-full py-1">
-          <div class="flex items-center bg-white p-1 rounded-full shadow-xs border border-gray-200 text-xs sm:text-sm font-medium shrink-0 mx-auto sm:mx-0">
+          <div class="flex items-center bg-white dark:bg-slate-800 p-1 rounded-full shadow-xs border border-gray-200 dark:border-slate-700 text-xs sm:text-sm font-medium shrink-0 mx-auto sm:mx-0">
             <button
               type="button"
               @click="navigateTab('login')"
@@ -44,7 +45,7 @@ const navigateTab = (tab) => {
                 'px-4 py-2 rounded-full transition-all duration-200 cursor-pointer whitespace-nowrap',
                 activeTab === 'login'
                   ? 'bg-principal-dark text-white font-semibold shadow-xs'
-                  : 'text-gray-600 hover:text-principal'
+                  : 'text-gray-600 dark:text-gray-300 hover:text-principal'
               ]"
             >
               Connexion
@@ -56,7 +57,7 @@ const navigateTab = (tab) => {
                 'px-4 py-2 rounded-full transition-all duration-200 cursor-pointer whitespace-nowrap',
                 activeTab === 'register'
                   ? 'bg-principal-dark text-white font-semibold shadow-xs'
-                  : 'text-gray-600 hover:text-principal'
+                  : 'text-gray-600 dark:text-gray-300 hover:text-principal'
               ]"
             >
               Inscription
@@ -64,16 +65,17 @@ const navigateTab = (tab) => {
             <button
               type="button"
               @click="navigateTab('visiteur')"
-              class="px-4 py-2 rounded-full text-gray-600 hover:text-principal transition-all duration-200 cursor-pointer whitespace-nowrap"
+              class="px-4 py-2 rounded-full text-gray-600 dark:text-gray-300 hover:text-principal transition-all duration-200 cursor-pointer whitespace-nowrap"
             >
               Espace visiteur
             </button>
           </div>
         </div>
 
-        <!-- Right Quick Links (Desktop) -->
-        <div class="hidden md:flex items-center gap-3 shrink-0">
-          <RouterLink to="/" class="p-2 px-3 rounded-xl bg-white border border-gray-200 text-gray-600 hover:text-principal transition-colors text-xs font-semibold flex items-center gap-1.5 shadow-2xs">
+        <!-- Right Quick Links & Theme Toggle -->
+        <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+          <ThemeToggle variant="pill" />
+          <RouterLink to="/" class="hidden md:flex p-2 px-3 rounded-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-gray-300 hover:text-principal transition-colors text-xs font-semibold items-center gap-1.5 shadow-2xs">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
             </svg>
@@ -183,14 +185,14 @@ const navigateTab = (tab) => {
       </div>
 
       <!-- Right Form View Container (Full height & width on desktop) -->
-      <div class="lg:w-1/2 p-6 sm:p-12 lg:p-16 flex flex-col justify-center bg-white shadow-2xs">
+      <div class="lg:w-1/2 p-6 sm:p-12 lg:p-16 flex flex-col justify-center bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-2xs transition-colors duration-300">
         <RouterView />
       </div>
 
     </main>
 
     <!-- Footer Copyright -->
-    <footer class="py-3 text-center text-xs text-gray-500 font-medium bg-[#FAF7F2] border-t border-black/5">
+    <footer class="py-3 text-center text-xs text-gray-500 dark:text-gray-400 font-medium bg-[#FAF7F2] dark:bg-slate-900 border-t border-black/5 dark:border-slate-800 transition-colors duration-300">
       &copy; {{ new Date().getFullYear() }} Rahma GP. Tous droits réservés.
     </footer>
   </div>

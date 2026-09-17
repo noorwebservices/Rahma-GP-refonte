@@ -250,38 +250,38 @@ const goToTracking = () => {
 </script>
 
 <template>
-  <div class="flex flex-col h-[calc(100vh-140px)] max-h-[800px] -mx-4 sm:-mx-6 bg-[#FAF7F2] relative">
+  <div class="flex flex-col h-[calc(100vh-140px)] max-h-[800px] -mx-4 sm:-mx-6 bg-[#FAF7F2] dark:bg-slate-950 relative transition-colors duration-300">
     
     <!-- Loading State -->
     <div v-if="isLoading" class="flex-1 flex items-center justify-center p-8">
       <div class="text-center space-y-3">
-        <div class="w-10 h-10 border-4 border-[#053754] border-t-transparent rounded-full animate-spin mx-auto"></div>
-        <p class="text-xs font-bold text-gray-600">Chargement de la discussion...</p>
+        <div class="w-10 h-10 border-4 border-[#053754] dark:border-sky-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
+        <p class="text-xs font-bold text-gray-600 dark:text-slate-300">Chargement de la discussion...</p>
       </div>
     </div>
 
     <template v-else>
       <!-- Top Chat Sub-Header -->
-      <div class="bg-white border-b border-gray-200 px-4 py-3 space-y-2.5 shrink-0 shadow-2xs">
+      <div class="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 px-4 py-3 space-y-2.5 shrink-0 shadow-2xs">
         <div class="flex items-center justify-between">
           <!-- Left: Back Arrow + Transporter Info -->
           <div class="flex items-center gap-3">
             <button
               @click="goBack"
-              class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 transition-colors cursor-pointer"
+              class="w-8 h-8 rounded-full bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 transition-colors cursor-pointer"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
             </button>
 
-            <div class="w-10 h-10 rounded-full bg-[#053754] text-white flex items-center justify-center font-bold text-xs shrink-0">
+            <div class="w-10 h-10 rounded-full bg-[#053754] dark:bg-sky-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
               {{ reservation?.transporteurAvatar || 'GP' }}
             </div>
 
             <div>
-              <h2 class="text-sm font-extrabold text-[#053754]">{{ reservation?.transporteurNom || 'Transporteur GP' }}</h2>
-              <p class="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
+              <h2 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">{{ reservation?.transporteurNom || 'Transporteur GP' }}</h2>
+              <p class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                 <span>En ligne</span>
               </p>
@@ -293,7 +293,7 @@ const goToTracking = () => {
             <button
               @click="showReportModal = true"
               title="Signaler ce compte"
-              class="bg-red-50 hover:bg-red-100 text-red-600 font-extrabold text-xs px-2.5 py-1.5 rounded-xl transition-colors cursor-pointer flex items-center gap-1 border border-red-100 shadow-2xs"
+              class="bg-red-50 dark:bg-red-950/80 hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-300 font-extrabold text-xs px-2.5 py-1.5 rounded-xl transition-colors cursor-pointer flex items-center gap-1 border border-red-100 dark:border-red-900 shadow-2xs"
             >
               <span>🚩</span>
               <span class="hidden sm:inline">Signaler</span>
@@ -301,7 +301,7 @@ const goToTracking = () => {
 
             <button
               @click="goToTracking"
-              class="bg-[#D8ECF8] hover:bg-sky-200 text-[#074C72] font-extrabold text-xs px-3.5 py-1.5 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
+              class="bg-[#D8ECF8] dark:bg-sky-950/80 hover:bg-sky-200 dark:hover:bg-sky-900 text-[#074C72] dark:text-sky-300 font-extrabold text-xs px-3.5 py-1.5 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs border border-transparent dark:border-sky-800"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -312,23 +312,23 @@ const goToTracking = () => {
         </div>
 
         <!-- Parcel Code & Route Pill -->
-        <div v-if="reservation" class="bg-white border border-gray-200 rounded-xl px-4 py-2 flex items-center justify-between text-xs font-bold shadow-2xs">
-          <span class="text-[#074C72] font-black font-mono">{{ reservation.code }}</span>
-          <div class="flex items-center gap-1.5 text-gray-700">
+        <div v-if="reservation" class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl px-4 py-2 flex items-center justify-between text-xs font-bold shadow-2xs">
+          <span class="text-[#074C72] dark:text-sky-300 font-black font-mono">{{ reservation.code }}</span>
+          <div class="flex items-center gap-1.5 text-gray-700 dark:text-slate-200">
             <CountryFlag :city="reservation.villeDepart" :country="reservation.paysDepart" size="w-4 h-3" />
             <span>{{ reservation.villeDepart }}</span>
-            <span class="text-[#074C72]">➔</span>
+            <span class="text-[#074C72] dark:text-sky-300">➔</span>
             <CountryFlag :city="reservation.villeDestination" :country="reservation.paysDestination" size="w-4 h-3" />
             <span>{{ reservation.villeDestination }}</span>
           </div>
-          <span class="text-[#B50302] font-extrabold">{{ reservation.poids }}</span>
+          <span class="text-[#B50302] dark:text-red-400 font-extrabold">{{ reservation.poids }}</span>
         </div>
       </div>
 
       <!-- Status Banner -->
-      <div v-if="reservation" class="bg-sky-50/80 border-b border-sky-100 px-4 py-1.5 text-center text-xs font-bold text-[#053754] shrink-0 flex items-center justify-center gap-1.5">
+      <div v-if="reservation" class="bg-sky-50/80 dark:bg-slate-900 border-b border-sky-100 dark:border-slate-800 px-4 py-1.5 text-center text-xs font-bold text-[#053754] dark:text-sky-300 shrink-0 flex items-center justify-center gap-1.5">
         <span>Statut réservation :</span>
-        <span class="uppercase tracking-wider text-[11px] font-extrabold" :class="reservation.statut === 'acceptee' ? 'text-emerald-700' : 'text-amber-700'">
+        <span class="uppercase tracking-wider text-[11px] font-extrabold" :class="reservation.statut === 'acceptee' ? 'text-emerald-700 dark:text-emerald-300' : 'text-amber-700 dark:text-amber-300'">
           {{ reservation.statut === 'acceptee' ? '✓ Acceptée' : reservation.statut === 'en_attente' ? '⏳ En attente' : reservation.statut }}
         </span>
       </div>
@@ -345,11 +345,11 @@ const goToTracking = () => {
           <div
             class="max-w-[85%] sm:max-w-[75%] p-3.5 space-y-2 shadow-2xs"
             :class="msg.isMine
-              ? 'bg-[#053754] text-white rounded-2xl rounded-tr-xs'
-              : 'bg-white border border-gray-200 text-gray-800 rounded-2xl rounded-tl-xs'"
+              ? 'bg-[#053754] dark:bg-sky-600 text-white rounded-2xl rounded-tr-xs'
+              : 'bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-gray-800 dark:text-slate-100 rounded-2xl rounded-tl-xs'"
           >
             <!-- Sender name if group/received -->
-            <span v-if="!msg.isMine" class="text-[10px] font-extrabold text-[#074C72] block">
+            <span v-if="!msg.isMine" class="text-[10px] font-extrabold text-[#074C72] dark:text-sky-300 block">
               {{ msg.senderName }}
             </span>
 
@@ -366,7 +366,7 @@ const goToTracking = () => {
 
             <div
               class="text-[10px] text-right font-medium flex items-center justify-end gap-1"
-              :class="msg.isMine ? 'text-sky-200/80' : 'text-gray-400'"
+              :class="msg.isMine ? 'text-sky-200/80' : 'text-gray-400 dark:text-slate-400'"
             >
               <span>{{ msg.time }}</span>
               <span v-if="msg.isMine" class="text-xs font-bold">{{ msg.isRead ? '✓✓' : '✓' }}</span>
@@ -375,33 +375,33 @@ const goToTracking = () => {
         </div>
 
         <!-- Empty Messages Placeholder -->
-        <div v-if="messages.length === 0" class="text-center py-12 text-gray-400 text-xs space-y-1">
+        <div v-if="messages.length === 0" class="text-center py-12 text-gray-400 dark:text-slate-400 text-xs space-y-1">
           <p class="font-bold">Aucun message pour l'instant.</p>
           <p>Envoyez un message ci-dessous pour démarrer la discussion.</p>
         </div>
       </div>
 
       <!-- Attachment URL Input Bar (Collapsible) -->
-      <div v-if="showAttachmentInput" class="bg-amber-50 border-t border-amber-200 px-4 py-2 flex items-center gap-2 shrink-0">
-        <span class="text-xs text-amber-900 font-bold shrink-0">📷 Lien photo / pièce jointe :</span>
+      <div v-if="showAttachmentInput" class="bg-amber-50 dark:bg-amber-950/80 border-t border-amber-200 dark:border-amber-900 px-4 py-2 flex items-center gap-2 shrink-0">
+        <span class="text-xs text-amber-900 dark:text-amber-300 font-bold shrink-0">📷 Lien photo / pièce jointe :</span>
         <input
           v-model="pieceJointe"
           type="url"
           placeholder="https://example.com/photo.jpg"
-          class="flex-1 px-3 py-1.5 bg-white border border-amber-300 rounded-lg text-xs outline-none"
+          class="flex-1 px-3 py-1.5 bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-800 rounded-lg text-xs outline-none text-gray-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500"
         />
-        <button @click="showAttachmentInput = false" class="text-xs text-gray-500 font-bold px-2">✕</button>
+        <button @click="showAttachmentInput = false" class="text-xs text-gray-500 dark:text-slate-400 font-bold px-2">✕</button>
       </div>
 
       <!-- Bottom Input Bar -->
-      <div class="bg-white border-t border-gray-200 px-4 py-3 shrink-0">
+      <div class="bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 px-4 py-3 shrink-0">
         <form @submit.prevent="handleSendMessage" class="flex items-center gap-2">
           <!-- Plus Attachment Toggle Button -->
           <button
             @click="showAttachmentInput = !showAttachmentInput"
             type="button"
-            class="w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-500 hover:text-[#074C72] text-2xl font-bold transition-colors cursor-pointer shrink-0"
-            :class="{ 'text-[#074C72] bg-sky-100': showAttachmentInput }"
+            class="w-9 h-9 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 flex items-center justify-center text-gray-500 dark:text-slate-400 hover:text-[#074C72] dark:hover:text-sky-300 text-2xl font-bold transition-colors cursor-pointer shrink-0"
+            :class="{ 'text-[#074C72] dark:text-sky-300 bg-sky-100 dark:bg-sky-950': showAttachmentInput }"
           >
             +
           </button>
@@ -412,14 +412,14 @@ const goToTracking = () => {
             @input="handleMessageInput"
             type="text"
             placeholder="Écrire un message au transporteur..."
-            class="flex-1 bg-[#EAEFF4] border-none rounded-xl px-4 py-2.5 text-xs sm:text-sm text-gray-800 placeholder-gray-400 outline-none focus:ring-2 focus:ring-[#074C72]/20"
+            class="flex-1 bg-[#EAEFF4] dark:bg-slate-800 border-none rounded-xl px-4 py-2.5 text-xs sm:text-sm text-gray-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 outline-none focus:ring-2 focus:ring-[#074C72]/20 dark:focus:ring-sky-400/20 font-medium"
           />
 
           <!-- Send Arrow Button -->
           <button
             type="submit"
             :disabled="isSending || (!newMessage.trim() && !pieceJointe.trim())"
-            class="w-9 h-9 text-[#053754] hover:text-[#074C72] flex items-center justify-center transition-colors cursor-pointer shrink-0 disabled:opacity-40"
+            class="w-9 h-9 text-[#053754] dark:text-sky-400 hover:text-[#074C72] dark:hover:text-sky-300 flex items-center justify-center transition-colors cursor-pointer shrink-0 disabled:opacity-40"
           >
             <svg class="w-6 h-6 transform rotate-45" fill="currentColor" viewBox="0 0 24 24">
               <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />

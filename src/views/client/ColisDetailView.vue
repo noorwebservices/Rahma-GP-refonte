@@ -391,20 +391,20 @@ const allSteps = computed(() => {
 <template>
   <div class="space-y-5 pb-16">
     <!-- Loading State -->
-    <div v-if="isLoading" class="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm space-y-4">
-      <div class="w-10 h-10 border-4 border-[#053754] border-t-transparent rounded-full animate-spin mx-auto"></div>
-      <p class="text-sm font-bold text-gray-600">Chargement du suivi de colis...</p>
+    <div v-if="isLoading" class="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center border border-gray-100 dark:border-slate-800 shadow-sm space-y-4">
+      <div class="w-10 h-10 border-4 border-[#053754] dark:border-sky-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
+      <p class="text-sm font-bold text-gray-600 dark:text-slate-300">Chargement du suivi de colis...</p>
     </div>
 
     <!-- Error State -->
-    <div v-else-if="errorMsg" class="bg-red-50 border border-red-200 rounded-3xl p-8 text-center space-y-3">
-      <p class="text-sm font-bold text-red-800">{{ errorMsg }}</p>
+    <div v-else-if="errorMsg" class="bg-red-50 dark:bg-red-950/80 border border-red-200 dark:border-red-900 rounded-3xl p-8 text-center space-y-3">
+      <p class="text-sm font-bold text-red-800 dark:text-red-300">{{ errorMsg }}</p>
       <button @click="router.push('/client/colis')" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-xl cursor-pointer">Retour aux colis</button>
     </div>
 
     <template v-else-if="reservation">
       <!-- Top Summary Container (Dark Blue Card) -->
-      <div class="bg-[#053754] text-white rounded-2xl p-5 shadow-lg space-y-4 relative overflow-hidden">
+      <div class="bg-[#053754] dark:bg-slate-900 border border-transparent dark:border-slate-800 text-white rounded-2xl p-5 shadow-lg space-y-4 relative overflow-hidden">
         <!-- Weight & Code Badge Top Left -->
         <div class="flex items-center justify-between">
           <span class="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-3.5 py-1 rounded-full text-xs font-extrabold text-sky-100 border border-white/10">
@@ -431,7 +431,7 @@ const allSteps = computed(() => {
             <div class="w-full flex items-center gap-1">
               <span class="w-2.5 h-2.5 rounded-full bg-red-500 shrink-0"></span>
               <div class="flex-1 border-t-2 border-dashed border-red-400"></div>
-              <div class="bg-[#053754] px-1 transform -rotate-12">
+              <div class="bg-[#053754] dark:bg-slate-900 px-1 transform -rotate-12">
                 <span class="text-red-500 text-sm font-bold">✈</span>
               </div>
               <div class="flex-1 border-t-2 border-dashed border-amber-400"></div>
@@ -454,23 +454,23 @@ const allSteps = computed(() => {
       </div>
 
       <!-- Transporteur Card -->
-      <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-2xs space-y-2">
-        <span class="text-xs text-gray-400 font-medium block">Transporteur GP</span>
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-2">
+        <span class="text-xs text-gray-400 dark:text-slate-400 font-medium block">Transporteur GP</span>
         
         <div class="flex items-center justify-between gap-3">
           <!-- Transporter Info -->
           <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-full bg-[#053754] text-white flex items-center justify-center font-extrabold text-xs shrink-0 shadow-xs uppercase">
+            <div class="w-12 h-12 rounded-full bg-[#053754] dark:bg-sky-600 text-white flex items-center justify-center font-extrabold text-xs shrink-0 shadow-xs uppercase">
               GP
             </div>
 
             <div class="space-y-0.5">
-              <h3 class="text-sm font-extrabold text-[#053754]">{{ reservation.transporteurNom }}</h3>
+              <h3 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">{{ reservation.transporteurNom }}</h3>
               <div class="flex items-center gap-2 text-xs">
                 <span class="flex items-center gap-1 font-bold text-amber-500">
                   ⭐ {{ voyageurReviews.moyenneNotes }}
                 </span>
-                <span class="text-gray-400 font-medium text-[11px]">
+                <span class="text-gray-400 dark:text-slate-400 font-medium text-[11px]">
                   ({{ voyageurReviews.totalEvaluations }} {{ voyageurReviews.totalEvaluations > 1 ? 'avis' : 'avis' }})
                 </span>
               </div>
@@ -481,7 +481,7 @@ const allSteps = computed(() => {
           <button
             @click="goToChat"
             type="button"
-            class="bg-[#B50302] hover:bg-[#8B0000] text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer flex items-center gap-1.5 uppercase tracking-wider shrink-0"
+            class="bg-[#B50302] dark:bg-red-700 hover:bg-[#8B0000] dark:hover:bg-red-600 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer flex items-center gap-1.5 uppercase tracking-wider shrink-0"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -492,46 +492,46 @@ const allSteps = computed(() => {
       </div>
 
       <!-- Information de paiement pour le client -->
-      <div v-if="['acceptee', 'en_cours', 'livre', 'livree'].includes(reservation.statut)" class="bg-white rounded-2xl p-5 border border-gray-200 shadow-2xs space-y-3">
-        <div class="flex items-center gap-2 border-b border-gray-100 pb-2.5">
+      <div v-if="['acceptee', 'en_cours', 'livre', 'livree'].includes(reservation.statut)" class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-3">
+        <div class="flex items-center gap-2 border-b border-gray-100 dark:border-slate-800 pb-2.5">
           <span class="text-lg">💳</span>
-          <h3 class="text-sm font-extrabold text-[#053754]">Mode & Statut de paiement</h3>
+          <h3 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">Mode & Statut de paiement</h3>
         </div>
 
-        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+        <div class="bg-slate-50 dark:bg-slate-800/80 p-4 rounded-xl border border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
           <div>
-            <span class="text-gray-500 font-medium block">Mode de paiement choisi :</span>
-            <span class="font-extrabold text-[#053754] text-sm uppercase tracking-wide">
+            <span class="text-gray-500 dark:text-slate-400 font-medium block">Mode de paiement choisi :</span>
+            <span class="font-extrabold text-[#053754] dark:text-sky-300 text-sm uppercase tracking-wide">
               {{ reservation.modePaiement.toLowerCase().includes('wave') ? '🌊 Wave (En ligne)' : (reservation.modePaiement.toLowerCase().includes('livraison') ? '📦 À la livraison (Espèces)' : '💵 Espèces au dépôt') }}
             </span>
           </div>
 
           <div class="text-left sm:text-right">
-            <span class="text-gray-500 font-medium block">Montant à régler :</span>
-            <span class="font-black text-[#B50302] text-sm sm:text-base">{{ formattedMontantTotal }}</span>
+            <span class="text-gray-500 dark:text-slate-400 font-medium block">Montant à régler :</span>
+            <span class="font-black text-[#B50302] dark:text-red-400 text-sm sm:text-base">{{ formattedMontantTotal }}</span>
           </div>
         </div>
 
-        <p v-if="!reservation.modePaiement.toLowerCase().includes('wave')" class="text-[11px] text-gray-500 italic bg-amber-50/60 p-3 rounded-xl border border-amber-200/50">
+        <p v-if="!reservation.modePaiement.toLowerCase().includes('wave')" class="text-[11px] text-gray-500 dark:text-amber-300 italic bg-amber-50/60 dark:bg-amber-950/80 p-3 rounded-xl border border-amber-200/50 dark:border-amber-800">
           💡 Le paiement en espèces s'effectue directement auprès du transporteur GP lors de la remise ou du retrait du colis.
         </p>
       </div>
 
       <!-- Poster une évaluation pour cette réservation -->
-      <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-2xs space-y-4">
-        <div class="flex items-center gap-2 border-b border-gray-100 pb-3">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-4">
+        <div class="flex items-center gap-2 border-b border-gray-100 dark:border-slate-800 pb-3">
           <span class="text-lg">⭐</span>
-          <h3 class="text-sm font-extrabold text-[#053754]">Évaluer ce transporteur GP</h3>
+          <h3 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">Évaluer ce transporteur GP</h3>
         </div>
 
-        <div v-if="hasSubmittedRating" class="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-xl text-xs font-bold text-center space-y-1">
+        <div v-if="hasSubmittedRating" class="bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 p-4 rounded-xl text-xs font-bold text-center space-y-1">
           <span class="text-base">🎉</span>
           <p>Merci ! Votre évaluation a été enregistrée avec succès.</p>
         </div>
 
         <form v-else @submit.prevent="submitRating" class="space-y-3">
           <div>
-            <label class="block text-xs font-bold text-gray-600 mb-1.5">Votre note :</label>
+            <label class="block text-xs font-bold text-gray-600 dark:text-slate-300 mb-1.5">Votre note :</label>
             <div class="flex items-center gap-1">
               <button
                 v-for="star in 5"
@@ -540,26 +540,26 @@ const allSteps = computed(() => {
                 @click="ratingNote = star"
                 class="text-2xl transition-transform cursor-pointer hover:scale-110"
               >
-                <span :class="star <= ratingNote ? 'text-amber-400' : 'text-gray-300'">★</span>
+                <span :class="star <= ratingNote ? 'text-amber-400' : 'text-gray-300 dark:text-slate-600'">★</span>
               </button>
-              <span class="text-xs font-bold text-amber-600 ml-2">({{ ratingNote }} / 5)</span>
+              <span class="text-xs font-bold text-amber-600 dark:text-amber-400 ml-2">({{ ratingNote }} / 5)</span>
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-gray-600 mb-1">Votre commentaire :</label>
+            <label class="block text-xs font-bold text-gray-600 dark:text-slate-300 mb-1">Votre commentaire :</label>
             <textarea
               v-model="ratingComment"
               rows="3"
               placeholder="ex: Voyageur très ponctuel et professionnel, le colis est arrivé intact !"
-              class="w-full bg-[#FAF7F2] border border-gray-200 rounded-xl p-3 text-xs font-medium text-gray-800 outline-none focus:border-[#074C72] focus:bg-white"
+              class="w-full bg-[#FAF7F2] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-3 text-xs font-medium text-gray-800 dark:text-slate-100 outline-none focus:border-[#074C72] dark:focus:border-sky-400 placeholder-gray-400 dark:placeholder-slate-500"
             ></textarea>
           </div>
 
           <button
             type="submit"
             :disabled="isSubmittingRating"
-            class="w-full bg-[#053754] hover:bg-[#074C72] text-white font-extrabold text-xs py-3 rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 uppercase tracking-wider disabled:opacity-50"
+            class="w-full bg-[#053754] dark:bg-sky-600 hover:bg-[#074C72] dark:hover:bg-sky-500 text-white font-extrabold text-xs py-3 rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 uppercase tracking-wider disabled:opacity-50"
           >
             <span v-if="isSubmittingRating" class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
             <span>ENREGISTRER L'ÉVALUATION</span>
@@ -568,44 +568,44 @@ const allSteps = computed(() => {
       </div>
 
       <!-- Consulter les évaluations existantes du voyageur -->
-      <div v-if="voyageurReviews.data && voyageurReviews.data.length > 0" class="bg-white rounded-2xl p-5 border border-gray-200 shadow-2xs space-y-3">
-        <div class="flex items-center justify-between border-b border-gray-100 pb-3">
-          <h3 class="text-sm font-extrabold text-[#053754] flex items-center gap-2">
+      <div v-if="voyageurReviews.data && voyageurReviews.data.length > 0" class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-3">
+        <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3">
+          <h3 class="text-sm font-extrabold text-[#053754] dark:text-sky-300 flex items-center gap-2">
             <span>Avis des clients sur {{ reservation.transporteurNom }}</span>
-            <span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-0.5 rounded-full font-bold">⭐ {{ voyageurReviews.moyenneNotes }}</span>
+            <span class="bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 text-xs px-2.5 py-0.5 rounded-full font-bold">⭐ {{ voyageurReviews.moyenneNotes }}</span>
           </h3>
-          <span class="text-xs text-gray-400 font-medium">({{ voyageurReviews.totalEvaluations }} avis)</span>
+          <span class="text-xs text-gray-400 dark:text-slate-400 font-medium">({{ voyageurReviews.totalEvaluations }} avis)</span>
         </div>
 
         <div class="space-y-3">
           <div
             v-for="rev in paginatedVoyageurReviews"
             :key="rev.id"
-            class="bg-gray-50 p-3.5 rounded-xl border border-gray-100 space-y-1.5 text-xs"
+            class="bg-gray-50 dark:bg-slate-800/80 p-3.5 rounded-xl border border-gray-100 dark:border-slate-700 space-y-1.5 text-xs"
           >
             <div class="flex items-center justify-between">
-              <span class="font-extrabold text-[#053754]">{{ rev.evaluateur ? `${rev.evaluateur.prenom || ''} ${rev.evaluateur.nom || ''}` : 'Client Rahma' }}</span>
+              <span class="font-extrabold text-[#053754] dark:text-sky-300">{{ rev.evaluateur ? `${rev.evaluateur.prenom || ''} ${rev.evaluateur.nom || ''}` : 'Client Rahma' }}</span>
               <span class="text-amber-500 font-bold">{{ rev.note > 0 ? '⭐'.repeat(rev.note) : 'Non noté' }}</span>
             </div>
-            <p v-if="rev.commentaire" class="text-gray-600 italic">"{{ rev.commentaire }}"</p>
-            <span class="text-[10px] text-gray-400 block text-right">{{ formatVoyageDate(rev.created_at) }}</span>
+            <p v-if="rev.commentaire" class="text-gray-600 dark:text-slate-300 italic">"{{ rev.commentaire }}"</p>
+            <span class="text-[10px] text-gray-400 dark:text-slate-400 block text-right">{{ formatVoyageDate(rev.created_at) }}</span>
           </div>
         </div>
 
         <!-- Pagination Controls (2 per page) -->
-        <div v-if="totalReviewPages > 1" class="flex items-center justify-between pt-3 border-t border-gray-100 text-xs">
+        <div v-if="totalReviewPages > 1" class="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-slate-800 text-xs">
           <button
             @click="currentReviewPage = Math.max(1, currentReviewPage - 1)"
             :disabled="currentReviewPage === 1"
-            class="px-3 py-1 bg-white border border-gray-200 rounded-lg text-gray-700 font-bold disabled:opacity-40 cursor-pointer shadow-2xs"
+            class="px-3 py-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-gray-700 dark:text-slate-200 font-bold disabled:opacity-40 cursor-pointer shadow-2xs"
           >
             ← Précédent
           </button>
-          <span class="text-gray-500 font-semibold">Page {{ currentReviewPage }} / {{ totalReviewPages }}</span>
+          <span class="text-gray-500 dark:text-slate-400 font-semibold">Page {{ currentReviewPage }} / {{ totalReviewPages }}</span>
           <button
             @click="currentReviewPage = Math.min(totalReviewPages, currentReviewPage + 1)"
             :disabled="currentReviewPage === totalReviewPages"
-            class="px-3 py-1 bg-white border border-gray-200 rounded-lg text-gray-700 font-bold disabled:opacity-40 cursor-pointer shadow-2xs"
+            class="px-3 py-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-gray-700 dark:text-slate-200 font-bold disabled:opacity-40 cursor-pointer shadow-2xs"
           >
             Suivant →
           </button>
@@ -613,16 +613,16 @@ const allSteps = computed(() => {
       </div>
 
       <!-- Historique et progression Section -->
-      <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-2xs space-y-4">
-        <div class="flex items-center gap-2 border-b border-gray-100 pb-3">
-          <svg class="w-5 h-5 text-[#053754]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-4">
+        <div class="flex items-center gap-2 border-b border-gray-100 dark:border-slate-800 pb-3">
+          <svg class="w-5 h-5 text-[#053754] dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <h3 class="text-sm sm:text-base font-extrabold text-[#053754]">Historique et progression de la livraison</h3>
+          <h3 class="text-sm sm:text-base font-extrabold text-[#053754] dark:text-sky-300">Historique et progression de la livraison</h3>
         </div>
 
         <!-- Stepper Vertical Timeline (All steps displayed with blur on future steps) -->
-        <div class="relative pl-3 space-y-6 before:absolute before:left-5 before:top-3 before:bottom-3 before:w-0.5 before:bg-gray-200">
+        <div class="relative pl-3 space-y-6 before:absolute before:left-5 before:top-3 before:bottom-3 before:w-0.5 before:bg-gray-200 dark:before:bg-slate-700">
           <div
             v-for="step in allSteps"
             :key="step.id"
@@ -633,15 +633,15 @@ const allSteps = computed(() => {
             <div class="relative z-10 flex items-center justify-center shrink-0">
               <div
                 v-if="step.isCompleted"
-                class="w-5 h-5 rounded-full bg-[#053754] text-white flex items-center justify-center text-[10px] font-bold ring-4 ring-sky-50 shadow-xs"
+                class="w-5 h-5 rounded-full bg-[#053754] dark:bg-sky-600 text-white flex items-center justify-center text-[10px] font-bold ring-4 ring-sky-50 dark:ring-slate-800 shadow-xs"
               >
                 ✓
               </div>
               <div
                 v-else
-                class="w-5 h-5 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center"
+                class="w-5 h-5 rounded-full bg-gray-100 dark:bg-slate-800 border-2 border-gray-300 dark:border-slate-700 flex items-center justify-center"
               >
-                <div class="w-1.5 h-1.5 rounded-full bg-gray-400"></div>
+                <div class="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-slate-500"></div>
               </div>
             </div>
 
@@ -649,11 +649,11 @@ const allSteps = computed(() => {
             <div class="flex-1 min-w-0 -mt-0.5">
               <h4
                 class="text-xs sm:text-sm font-extrabold leading-tight"
-                :class="step.isCompleted ? 'text-[#053754]' : 'text-gray-500'"
+                :class="step.isCompleted ? 'text-[#053754] dark:text-sky-300' : 'text-gray-500 dark:text-slate-400'"
               >
                 {{ step.title }}
               </h4>
-              <p class="text-[11px] text-gray-400 font-medium mt-0.5">
+              <p class="text-[11px] text-gray-400 dark:text-slate-400 font-medium mt-0.5">
                 {{ step.subtitle }}
               </p>
             </div>
@@ -661,7 +661,7 @@ const allSteps = computed(() => {
             <!-- Step Time -->
             <span
               class="text-[11px] font-medium shrink-0"
-              :class="step.isCompleted ? 'text-gray-600 font-semibold' : 'text-gray-400 italic'"
+              :class="step.isCompleted ? 'text-gray-600 dark:text-slate-300 font-semibold' : 'text-gray-400 dark:text-slate-500 italic'"
             >
               {{ step.time }}
             </span>
@@ -670,15 +670,15 @@ const allSteps = computed(() => {
       </div>
 
       <!-- Point de Dépôt Card ("Où déposer mon colis ?") -->
-      <div v-if="reservation.adresseDepot" class="bg-white rounded-2xl p-4 border border-gray-200 shadow-2xs space-y-3">
-        <span class="text-xs text-gray-400 font-medium block">Où déposer mon colis ?</span>
+      <div v-if="reservation.adresseDepot" class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-3">
+        <span class="text-xs text-gray-400 dark:text-slate-400 font-medium block">Où déposer mon colis ?</span>
 
         <div class="flex items-start gap-2.5">
-          <span class="text-red-600 text-lg">📍</span>
+          <span class="text-red-600 dark:text-red-400 text-lg">📍</span>
           <div class="space-y-0.5">
-            <h4 class="text-xs sm:text-sm font-extrabold text-[#053754]">{{ reservation.adresseDepot.adresse }} ({{ reservation.adresseDepot.ville }}, {{ reservation.adresseDepot.pays }})</h4>
-            <p v-if="reservation.adresseDepot.horaire_ouverture" class="text-xs text-gray-500">
-              Horaires : <span class="font-extrabold text-[#053754]">{{ reservation.adresseDepot.horaire_ouverture }}</span>
+            <h4 class="text-xs sm:text-sm font-extrabold text-[#053754] dark:text-sky-300">{{ reservation.adresseDepot.adresse }} ({{ reservation.adresseDepot.ville }}, {{ reservation.adresseDepot.pays }})</h4>
+            <p v-if="reservation.adresseDepot.horaire_ouverture" class="text-xs text-gray-500 dark:text-slate-400">
+              Horaires : <span class="font-extrabold text-[#053754] dark:text-sky-300">{{ reservation.adresseDepot.horaire_ouverture }}</span>
             </p>
           </div>
         </div>
@@ -686,7 +686,7 @@ const allSteps = computed(() => {
         <button
           @click="openMap(`${reservation.adresseDepot.adresse}, ${reservation.adresseDepot.ville}`)"
           type="button"
-          class="w-full bg-red-50 hover:bg-red-100 text-[#B50302] border border-red-100 font-extrabold text-xs py-3 rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-2"
+          class="w-full bg-red-50 dark:bg-red-950/80 hover:bg-red-100 dark:hover:bg-red-900 text-[#B50302] dark:text-red-300 border border-red-100 dark:border-red-900 font-extrabold text-xs py-3 rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-2"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5-4V4l5 4m0 0l6-4 6 4v12l-6-4m-6 4V8m6 12V8" />
@@ -696,15 +696,15 @@ const allSteps = computed(() => {
       </div>
 
       <!-- Point de Retrait Card ("Où retirer le colis à destination ?") -->
-      <div v-if="reservation.adresseRetrait" class="bg-white rounded-2xl p-4 border border-gray-200 shadow-2xs space-y-3">
-        <span class="text-xs text-gray-400 font-medium block">Où retirer le colis à destination ?</span>
+      <div v-if="reservation.adresseRetrait" class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-3">
+        <span class="text-xs text-gray-400 dark:text-slate-400 font-medium block">Où retirer le colis à destination ?</span>
 
         <div class="flex items-start gap-2.5">
-          <span class="text-red-600 text-lg">📍</span>
+          <span class="text-red-600 dark:text-red-400 text-lg">📍</span>
           <div class="space-y-0.5">
-            <h4 class="text-xs sm:text-sm font-extrabold text-[#053754]">{{ reservation.adresseRetrait.adresse }} ({{ reservation.adresseRetrait.ville }}, {{ reservation.adresseRetrait.pays }})</h4>
-            <p v-if="reservation.adresseRetrait.horaire_ouverture" class="text-xs text-gray-500">
-              Horaires : <span class="font-extrabold text-[#053754]">{{ reservation.adresseRetrait.horaire_ouverture }}</span>
+            <h4 class="text-xs sm:text-sm font-extrabold text-[#053754] dark:text-sky-300">{{ reservation.adresseRetrait.adresse }} ({{ reservation.adresseRetrait.ville }}, {{ reservation.adresseRetrait.pays }})</h4>
+            <p v-if="reservation.adresseRetrait.horaire_ouverture" class="text-xs text-gray-500 dark:text-slate-400">
+              Horaires : <span class="font-extrabold text-[#053754] dark:text-sky-300">{{ reservation.adresseRetrait.horaire_ouverture }}</span>
             </p>
           </div>
         </div>
@@ -712,7 +712,7 @@ const allSteps = computed(() => {
         <button
           @click="openMap(`${reservation.adresseRetrait.adresse}, ${reservation.adresseRetrait.ville}`)"
           type="button"
-          class="w-full bg-red-50 hover:bg-red-100 text-[#B50302] border border-red-100 font-extrabold text-xs py-3 rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-2"
+          class="w-full bg-red-50 dark:bg-red-950/80 hover:bg-red-100 dark:hover:bg-red-900 text-[#B50302] dark:text-red-300 border border-red-100 dark:border-red-900 font-extrabold text-xs py-3 rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-2"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5-4V4l5 4m0 0l6-4 6 4v12l-6-4m-6 4V8m6 12V8" />
@@ -726,7 +726,7 @@ const allSteps = computed(() => {
         <button
           @click="handleCancel"
           type="button"
-          class="w-full bg-white border border-red-200 hover:bg-red-50 text-[#B50302] font-extrabold text-xs sm:text-sm py-3.5 rounded-xl transition-colors cursor-pointer shadow-xs"
+          class="w-full bg-white dark:bg-slate-900 border border-red-200 dark:border-red-900 hover:bg-red-50 dark:hover:bg-red-950/80 text-[#B50302] dark:text-red-400 font-extrabold text-xs sm:text-sm py-3.5 rounded-xl transition-colors cursor-pointer shadow-xs"
         >
           🚫 Annuler cette réservation
         </button>

@@ -12,7 +12,7 @@ const showBack = computed(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#FAF7F2] font-sans pb-24 flex flex-col justify-between selection:bg-secondaire selection:text-white">
+  <div class="min-h-screen bg-[#FAF7F2] dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans pb-24 flex flex-col justify-between selection:bg-secondaire selection:text-white transition-colors duration-300">
     <!-- Top Voyageur Header -->
     <VoyageurHeader :showBack="showBack" />
 

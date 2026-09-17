@@ -7,6 +7,7 @@ import { useAuth } from '@/composables/useAuth'
 import NotificationModal from '@/components/common/NotificationModal.vue'
 import { fetchUnreadNotificationsCount } from '@/services/notificationService'
 import { currentCurrency, availableCurrencies, setCurrency } from '@/utils/currencyState'
+import ThemeToggle from '@/components/common/ThemeToggle.vue'
 
 const props = defineProps({
   showBack: {
@@ -80,10 +81,10 @@ const goToMessages = () => {
 </script>
 
 <template>
-  <header class="w-full bg-white border-b border-gray-200 sticky top-0 z-40 shadow-2xs">
+  <header class="w-full bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 sticky top-0 z-40 shadow-2xs transition-colors duration-300">
     
     <!-- Top Bar Header (Logo, Language & Currency Switcher, Auth / Notification Bell) -->
-    <div class="w-full py-2.5 px-4 sm:px-6 bg-white">
+    <div class="w-full py-2.5 px-4 sm:px-6 bg-white dark:bg-slate-900 transition-colors duration-300">
       <div class="max-w-4xl mx-auto flex items-center justify-between gap-3">
         <!-- Logo Rahma Delivery -->
         <router-link to="/client" class="flex items-center">
@@ -91,23 +92,26 @@ const goToMessages = () => {
         </router-link>
 
         <!-- Right Action Badges -->
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5 sm:gap-2">
+          <!-- Theme Toggle Button -->
+          <ThemeToggle variant="pill" />
+
           <!-- Currency Switcher Pill -->
-          <div class="flex items-center gap-1 bg-[#F3F4F6] border border-gray-200 px-2.5 py-1 rounded-full text-xs font-extrabold text-gray-700">
+          <div class="flex items-center gap-1 bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 px-2.5 py-1 rounded-full text-xs font-extrabold text-gray-700 dark:text-slate-200">
             <span>💱</span>
             <select
               :value="currentCurrency"
               @change="setCurrency($event.target.value)"
-              class="bg-transparent border-none text-xs font-extrabold text-[#053754] outline-none cursor-pointer p-0"
+              class="bg-transparent border-none text-xs font-extrabold text-[#053754] dark:text-sky-300 outline-none cursor-pointer p-0"
             >
-              <option v-for="c in availableCurrencies" :key="c.code" :value="c.code">
+              <option v-for="c in availableCurrencies" :key="c.code" :value="c.code" class="dark:bg-slate-800 text-slate-800 dark:text-slate-100">
                 {{ c.code }}
               </option>
             </select>
           </div>
 
           <!-- Language Switcher Pill (FR) -->
-          <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#F3F4F6] border border-gray-200 text-xs font-extrabold text-gray-700">
+          <div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-xs font-extrabold text-gray-700 dark:text-slate-200">
             <span class="w-4 h-4 rounded-full overflow-hidden flex items-center justify-center text-[10px] shrink-0">🇫🇷</span>
             <span>FR</span>
           </div>
@@ -117,14 +121,14 @@ const goToMessages = () => {
             v-if="isAuthenticated"
             @click="showNotifModal = true"
             type="button"
-            class="w-9 h-9 rounded-full bg-[#F3F4F6] hover:bg-gray-200 flex items-center justify-center text-gray-600 relative transition-colors cursor-pointer"
+            class="w-9 h-9 rounded-full bg-[#F3F4F6] dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 flex items-center justify-center text-gray-600 dark:text-gray-300 relative transition-colors cursor-pointer"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
             </svg>
             <span
               v-if="unreadNotifCount > 0"
-              class="absolute -top-1 -right-1 bg-[#B50302] text-white text-[10px] font-black rounded-full min-w-4.5 h-4.5 px-1 flex items-center justify-center border-2 border-white"
+              class="absolute -top-1 -right-1 bg-[#B50302] text-white text-[10px] font-black rounded-full min-w-4.5 h-4.5 px-1 flex items-center justify-center border-2 border-white dark:border-slate-900"
             >
               {{ unreadNotifCount }}
             </span>
@@ -152,37 +156,37 @@ const goToMessages = () => {
     />
 
     <!-- Sub-Header Row: Back Arrow (Left) + Dynamic Route/Title Bar (CENTERED) -->
-    <div v-if="showBack" class="w-full py-2.5 px-4 sm:px-6 border-t border-gray-100 bg-white sticky top-[53px] z-30">
+    <div v-if="showBack" class="w-full py-2.5 px-4 sm:px-6 border-t border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-[53px] z-30 transition-colors duration-300">
       <div class="max-w-4xl mx-auto flex items-center relative min-h-[36px]">
         
         <!-- Back Arrow Icon Button (Stays on Far Left) -->
         <button
           @click="goBack"
-          class="w-9 h-9 rounded-full bg-[#F3F4F6] hover:bg-gray-200 flex items-center justify-center text-gray-700 transition-colors cursor-pointer shrink-0 absolute left-0"
+          class="w-9 h-9 rounded-full bg-[#F3F4F6] dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 flex items-center justify-center text-gray-700 dark:text-gray-200 transition-colors cursor-pointer shrink-0 absolute left-0"
         >
-          <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-5 h-5 text-gray-700 dark:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
         </button>
 
         <!-- Custom Header Title -->
         <div v-if="headerTitle" class="flex flex-col items-center justify-center mx-auto text-center">
-          <h2 class="text-sm sm:text-base font-extrabold text-[#074C72] leading-tight">{{ headerTitle }}</h2>
-          <div v-if="headerSubtitle" class="text-xs font-bold text-[#074C72] flex items-center gap-1">
+          <h2 class="text-sm sm:text-base font-extrabold text-[#074C72] dark:text-sky-300 leading-tight">{{ headerTitle }}</h2>
+          <div v-if="headerSubtitle" class="text-xs font-bold text-[#074C72] dark:text-sky-300 flex items-center gap-1">
             <span class="text-sm">📦</span>
             <span>{{ headerSubtitle }}</span>
           </div>
         </div>
 
         <!-- Route Display CENTERED (Dynamic Route with Flags) -->
-        <div v-else class="flex items-center justify-center gap-2 text-sm sm:text-base font-extrabold text-[#074C72] mx-auto">
+        <div v-else class="flex items-center justify-center gap-2 text-sm sm:text-base font-extrabold text-[#074C72] dark:text-sky-300 mx-auto">
           <div class="flex items-center gap-1.5">
             <CountryFlag :city="displayFrom" :country="headerState.countryFrom" size="w-5 h-3.5" />
             <span>{{ displayFrom }}</span>
           </div>
 
           <!-- Circle Arrow Icon -->
-          <div class="w-6 h-6 rounded-full border-2 border-[#074C72] text-[#074C72] flex items-center justify-center shrink-0">
+          <div class="w-6 h-6 rounded-full border-2 border-[#074C72] dark:border-sky-300 text-[#074C72] dark:text-sky-300 flex items-center justify-center shrink-0">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3" />
             </svg>

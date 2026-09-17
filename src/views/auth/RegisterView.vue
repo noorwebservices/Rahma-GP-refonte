@@ -166,17 +166,17 @@ const handleSubmit = async () => {
       <span class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-tertiaire font-sans">
         Bienvenue chez Rahma GP
       </span>
-      <h1 class="text-2xl sm:text-3xl font-serif font-bold text-principal-dark mt-1">
+      <h1 class="text-2xl sm:text-3xl font-serif font-bold text-principal-dark dark:text-sky-300 mt-1">
         Créer votre compte
       </h1>
-      <p class="text-xs sm:text-sm text-gray-500 mt-1">
+      <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400 mt-1">
         Rejoignez la communauté de livraison collaborative.
       </p>
     </div>
 
     <!-- Alert Error -->
-    <div v-if="error" class="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs sm:text-sm rounded-xl flex items-center gap-2 shadow-2xs">
-      <svg class="w-5 h-5 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div v-if="error" class="mb-4 p-3 bg-red-50 dark:bg-red-950/80 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 text-xs sm:text-sm rounded-xl flex items-center gap-2 shadow-2xs">
+      <svg class="w-5 h-5 text-red-500 dark:text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
       <span>{{ error }}</span>
@@ -187,7 +187,7 @@ const handleSubmit = async () => {
       <!-- Grid Nom & Prénom -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div class="space-y-1">
-          <label for="prenom" class="block text-xs font-semibold text-gray-700">Prénom</label>
+          <label for="prenom" class="block text-xs font-semibold text-gray-700 dark:text-slate-200">Prénom</label>
           <input
             id="prenom"
             v-model="form.prenom"
@@ -195,13 +195,13 @@ const handleSubmit = async () => {
             @input="touched.prenom && validateField('prenom')"
             type="text"
             placeholder="Zahra"
-            class="w-full px-3 py-2.5 text-xs sm:text-sm text-gray-900 bg-white border border-gray-300 rounded-xl focus:border-principal focus:ring-2 focus:ring-principal/20 outline-none transition-all font-medium"
+            class="w-full px-3 py-2.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl focus:border-principal dark:focus:border-sky-400 focus:ring-2 focus:ring-principal/20 outline-none transition-all placeholder-gray-400 dark:placeholder-slate-500 font-medium"
           />
-          <p v-if="errors.prenom" class="text-[11px] text-red-600 font-medium">{{ errors.prenom }}</p>
+          <p v-if="errors.prenom" class="text-[11px] text-red-600 dark:text-red-400 font-medium">{{ errors.prenom }}</p>
         </div>
 
         <div class="space-y-1">
-          <label for="nom" class="block text-xs font-semibold text-gray-700">Nom</label>
+          <label for="nom" class="block text-xs font-semibold text-gray-700 dark:text-slate-200">Nom</label>
           <input
             id="nom"
             v-model="form.nom"
@@ -209,15 +209,15 @@ const handleSubmit = async () => {
             @input="touched.nom && validateField('nom')"
             type="text"
             placeholder="Ndiaye"
-            class="w-full px-3 py-2.5 text-xs sm:text-sm text-gray-900 bg-white border border-gray-300 rounded-xl focus:border-principal focus:ring-2 focus:ring-principal/20 outline-none transition-all font-medium"
+            class="w-full px-3 py-2.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl focus:border-principal dark:focus:border-sky-400 focus:ring-2 focus:ring-principal/20 outline-none transition-all placeholder-gray-400 dark:placeholder-slate-500 font-medium"
           />
-          <p v-if="errors.nom" class="text-[11px] text-red-600 font-medium">{{ errors.nom }}</p>
+          <p v-if="errors.nom" class="text-[11px] text-red-600 dark:text-red-400 font-medium">{{ errors.nom }}</p>
         </div>
       </div>
 
       <!-- Email -->
       <div class="space-y-1">
-        <label for="email" class="block text-xs font-semibold text-gray-700">Adresse email <span class="text-gray-400 font-normal">(Optionnel)</span></label>
+        <label for="email" class="block text-xs font-semibold text-gray-700 dark:text-slate-200">Adresse email <span class="text-gray-400 dark:text-slate-400 font-normal">(Optionnel)</span></label>
         <input
           id="email"
           v-model="form.email"
@@ -225,14 +225,14 @@ const handleSubmit = async () => {
           @input="touched.email && validateField('email')"
           type="email"
           placeholder="zahra.ndiaye@example.com"
-          class="w-full px-3 py-2.5 text-xs sm:text-sm text-gray-900 bg-white border border-gray-300 rounded-xl focus:border-principal focus:ring-2 focus:ring-principal/20 outline-none transition-all font-medium"
+          class="w-full px-3 py-2.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl focus:border-principal dark:focus:border-sky-400 focus:ring-2 focus:ring-principal/20 outline-none transition-all placeholder-gray-400 dark:placeholder-slate-500 font-medium"
         />
-        <p v-if="errors.email" class="text-[11px] text-red-600 font-medium">{{ errors.email }}</p>
+        <p v-if="errors.email" class="text-[11px] text-red-600 dark:text-red-400 font-medium">{{ errors.email }}</p>
       </div>
 
       <!-- Téléphone avec Sélecteur d'Indicatif de Pays -->
       <div class="space-y-1">
-        <label for="telephone" class="block text-xs font-semibold text-gray-700">Téléphone</label>
+        <label for="telephone" class="block text-xs font-semibold text-gray-700 dark:text-slate-200">Téléphone</label>
         <CountryPhoneInput
           id="telephone"
           v-model="form.telephone"
@@ -240,25 +240,25 @@ const handleSubmit = async () => {
           @update:modelValue="touched.telephone && validateField('telephone')"
           placeholder="78 150 96 80"
         />
-        <p v-if="errors.telephone" class="text-[11px] text-red-600 font-medium">{{ errors.telephone }}</p>
+        <p v-if="errors.telephone" class="text-[11px] text-red-600 dark:text-red-400 font-medium">{{ errors.telephone }}</p>
       </div>
 
       <!-- Adresse -->
       <div class="space-y-1">
-        <label for="adresse" class="block text-xs font-semibold text-gray-700">Adresse (Ville, Région)</label>
+        <label for="adresse" class="block text-xs font-semibold text-gray-700 dark:text-slate-200">Adresse (Ville, Région)</label>
         <input
           id="adresse"
           v-model="form.adresse"
           type="text"
           placeholder="Thiès, Sénégal"
-          class="w-full px-3 py-2.5 text-xs sm:text-sm text-gray-900 bg-white border border-gray-300 rounded-xl focus:border-principal focus:ring-2 focus:ring-principal/20 outline-none transition-all font-medium"
+          class="w-full px-3 py-2.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl focus:border-principal dark:focus:border-sky-400 focus:ring-2 focus:ring-principal/20 outline-none transition-all placeholder-gray-400 dark:placeholder-slate-500 font-medium"
         />
       </div>
 
       <!-- Password & Confirmation -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div class="space-y-1">
-          <label for="password" class="block text-xs font-semibold text-gray-700">Mot de passe</label>
+          <label for="password" class="block text-xs font-semibold text-gray-700 dark:text-slate-200">Mot de passe</label>
           <div class="relative">
             <input
               id="password"
@@ -267,18 +267,18 @@ const handleSubmit = async () => {
               @input="touched.password && validateField('password')"
               :type="showPassword ? 'text' : 'password'"
               placeholder="••••••••"
-              class="w-full px-3 py-2.5 pr-8 text-xs sm:text-sm text-gray-900 bg-white border border-gray-300 rounded-xl focus:border-principal focus:ring-2 focus:ring-principal/20 outline-none font-medium"
+              class="w-full px-3 py-2.5 pr-8 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl focus:border-principal dark:focus:border-sky-400 focus:ring-2 focus:ring-principal/20 outline-none font-medium placeholder-gray-400 dark:placeholder-slate-500"
             />
-            <button type="button" @click="showPassword = !showPassword" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 p-1">
+            <button type="button" @click="showPassword = !showPassword" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200 p-1">
               <svg v-if="!showPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
               <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a10.016 10.016 0 014.122-.963c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l18 18"/></svg>
             </button>
           </div>
-          <p v-if="errors.password" class="text-[11px] text-red-600 font-medium">{{ errors.password }}</p>
+          <p v-if="errors.password" class="text-[11px] text-red-600 dark:text-red-400 font-medium">{{ errors.password }}</p>
         </div>
 
         <div class="space-y-1">
-          <label for="password_confirmation" class="block text-xs font-semibold text-gray-700">Confirmation</label>
+          <label for="password_confirmation" class="block text-xs font-semibold text-gray-700 dark:text-slate-200">Confirmation</label>
           <div class="relative">
             <input
               id="password_confirmation"
@@ -287,14 +287,14 @@ const handleSubmit = async () => {
               @input="touched.password_confirmation && validateField('password_confirmation')"
               :type="showConfirmPassword ? 'text' : 'password'"
               placeholder="••••••••"
-              class="w-full px-3 py-2.5 pr-8 text-xs sm:text-sm text-gray-900 bg-white border border-gray-300 rounded-xl focus:border-principal focus:ring-2 focus:ring-principal/20 outline-none font-medium"
+              class="w-full px-3 py-2.5 pr-8 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl focus:border-principal dark:focus:border-sky-400 focus:ring-2 focus:ring-principal/20 outline-none font-medium placeholder-gray-400 dark:placeholder-slate-500"
             />
-            <button type="button" @click="showConfirmPassword = !showConfirmPassword" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 p-1">
+            <button type="button" @click="showConfirmPassword = !showConfirmPassword" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200 p-1">
               <svg v-if="!showConfirmPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
               <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a10.016 10.016 0 014.122-.963c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l18 18"/></svg>
             </button>
           </div>
-          <p v-if="errors.password_confirmation" class="text-[11px] text-red-600 font-medium">{{ errors.password_confirmation }}</p>
+          <p v-if="errors.password_confirmation" class="text-[11px] text-red-600 dark:text-red-400 font-medium">{{ errors.password_confirmation }}</p>
         </div>
       </div>
 
@@ -305,8 +305,8 @@ const handleSubmit = async () => {
         :class="[
           'w-full py-3.5 rounded-xl font-bold transition-all duration-200 flex items-center justify-center gap-2 mt-4',
           isFormValid && !isLoading
-            ? 'bg-principal-dark hover:bg-principal text-white shadow-md hover:shadow-lg active:scale-[0.99] cursor-pointer'
-            : 'bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300 opacity-75'
+            ? 'bg-principal-dark hover:bg-principal dark:bg-sky-600 dark:hover:bg-sky-500 text-white shadow-md hover:shadow-lg active:scale-[0.99] cursor-pointer'
+            : 'bg-gray-200 dark:bg-slate-800 text-gray-400 dark:text-slate-600 cursor-not-allowed border border-gray-300 dark:border-slate-700 opacity-75'
         ]"
       >
         <svg v-if="isLoading" class="w-5 h-5 animate-spin text-white" fill="none" viewBox="0 0 24 24">
@@ -318,9 +318,9 @@ const handleSubmit = async () => {
     </form>
 
     <!-- Footer Login link -->
-    <div class="mt-6 text-center text-xs sm:text-sm text-gray-600">
+    <div class="mt-6 text-center text-xs sm:text-sm text-gray-600 dark:text-slate-400">
       Déjà un compte ?
-      <RouterLink to="/auth/login" class="font-bold text-principal-dark hover:text-secondaire transition-colors underline ml-1">
+      <RouterLink to="/auth/login" class="font-bold text-principal-dark dark:text-sky-400 hover:text-secondaire dark:hover:text-sky-300 transition-colors underline ml-1">
         Se connecter
       </RouterLink>
     </div>

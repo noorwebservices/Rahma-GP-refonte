@@ -2,7 +2,7 @@
   <div class="space-y-6 max-w-4xl mx-auto">
     
     <!-- Profile Banner Card -->
-    <div class="bg-[#053754] text-white rounded-3xl p-6 sm:p-8 shadow-xl flex flex-col sm:flex-row items-center gap-6">
+    <div class="bg-[#053754] dark:bg-slate-900 border border-transparent dark:border-slate-800 text-white rounded-3xl p-6 sm:p-8 shadow-xl flex flex-col sm:flex-row items-center gap-6">
       <div class="w-20 h-20 rounded-full bg-white/20 border-4 border-white/30 text-white font-black text-2xl flex items-center justify-center shrink-0 shadow-lg">
         {{ currentUser?.prenom?.charAt(0) || 'A' }}
       </div>
@@ -19,20 +19,20 @@
     </div>
 
     <!-- Alert Messages -->
-    <div v-if="successMsg" class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2">
+    <div v-if="successMsg" class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-bold flex items-center gap-2">
       <span>✓</span> <span>{{ successMsg }}</span>
     </div>
     
-    <div v-if="errorMsg" class="p-4 rounded-2xl bg-red-50 border border-red-200 text-[#B50302] text-xs font-bold flex items-center gap-2">
+    <div v-if="errorMsg" class="p-4 rounded-2xl bg-red-50 dark:bg-red-950/80 border border-red-200 dark:border-red-900 text-[#B50302] dark:text-red-300 text-xs font-bold flex items-center gap-2">
       <span>⚠️</span> <span>{{ errorMsg }}</span>
     </div>
 
     <!-- Profile Form Card -->
-    <div class="bg-white border border-gray-200 rounded-3xl p-6 sm:p-8 shadow-2xs space-y-6">
+    <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xs space-y-6">
       
-      <div class="border-b border-gray-100 pb-3">
-        <h3 class="font-extrabold text-base text-[#053754]">Modifier mes informations de compte</h3>
-        <p class="text-xs text-gray-500 font-medium">Mettez à jour vos identifiants administrateur et mot de passe</p>
+      <div class="border-b border-gray-100 dark:border-slate-800 pb-3">
+        <h3 class="font-extrabold text-base text-[#053754] dark:text-sky-300">Modifier mes informations de compte</h3>
+        <p class="text-xs text-gray-500 dark:text-slate-400 font-medium">Mettez à jour vos identifiants administrateur et mot de passe</p>
       </div>
 
       <form @submit.prevent="handleSaveProfile" class="space-y-4">
@@ -40,23 +40,23 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <!-- Prénom -->
           <div class="space-y-1">
-            <label class="block text-xs font-extrabold text-[#074C72]">Prénom *</label>
+            <label class="block text-xs font-extrabold text-[#074C72] dark:text-sky-300">Prénom *</label>
             <input 
               v-model="form.prenom"
               type="text"
               required
-              class="w-full bg-[#FAF7F2] border border-gray-200 rounded-2xl px-4 py-3 text-xs text-gray-800 focus:outline-none focus:border-[#074C72]"
+              class="w-full bg-[#FAF7F2] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs text-gray-800 dark:text-slate-100 focus:outline-none focus:border-[#074C72] dark:focus:border-sky-400"
             />
           </div>
 
           <!-- Nom -->
           <div class="space-y-1">
-            <label class="block text-xs font-extrabold text-[#074C72]">Nom *</label>
+            <label class="block text-xs font-extrabold text-[#074C72] dark:text-sky-300">Nom *</label>
             <input 
               v-model="form.nom"
               type="text"
               required
-              class="w-full bg-[#FAF7F2] border border-gray-200 rounded-2xl px-4 py-3 text-xs text-gray-800 focus:outline-none focus:border-[#074C72]"
+              class="w-full bg-[#FAF7F2] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs text-gray-800 dark:text-slate-100 focus:outline-none focus:border-[#074C72] dark:focus:border-sky-400"
             />
           </div>
         </div>
@@ -64,56 +64,56 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <!-- Email -->
           <div class="space-y-1">
-            <label class="block text-xs font-extrabold text-[#074C72]">Adresse Email *</label>
+            <label class="block text-xs font-extrabold text-[#074C72] dark:text-sky-300">Adresse Email *</label>
             <input 
               v-model="form.email"
               type="email"
               required
-              class="w-full bg-[#FAF7F2] border border-gray-200 rounded-2xl px-4 py-3 text-xs text-gray-800 focus:outline-none focus:border-[#074C72]"
+              class="w-full bg-[#FAF7F2] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs text-gray-800 dark:text-slate-100 focus:outline-none focus:border-[#074C72] dark:focus:border-sky-400"
             />
           </div>
 
           <!-- Téléphone -->
           <div class="space-y-1">
-            <label class="block text-xs font-extrabold text-[#074C72]">Numéro de Téléphone *</label>
+            <label class="block text-xs font-extrabold text-[#074C72] dark:text-sky-300">Numéro de Téléphone *</label>
             <input 
               v-model="form.telephone"
               type="tel"
               required
-              class="w-full bg-[#FAF7F2] border border-gray-200 rounded-2xl px-4 py-3 text-xs text-gray-800 focus:outline-none focus:border-[#074C72]"
+              class="w-full bg-[#FAF7F2] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs text-gray-800 dark:text-slate-100 focus:outline-none focus:border-[#074C72] dark:focus:border-sky-400"
             />
           </div>
         </div>
 
         <!-- Adresse -->
         <div class="space-y-1">
-          <label class="block text-xs font-extrabold text-[#074C72]">Adresse</label>
+          <label class="block text-xs font-extrabold text-[#074C72] dark:text-sky-300">Adresse</label>
           <input 
             v-model="form.adresse"
             type="text"
             placeholder="Ex: Dakar, Sénégal"
-            class="w-full bg-[#FAF7F2] border border-gray-200 rounded-2xl px-4 py-3 text-xs text-gray-800 focus:outline-none focus:border-[#074C72]"
+            class="w-full bg-[#FAF7F2] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs text-gray-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:border-[#074C72] dark:focus:border-sky-400"
           />
         </div>
 
-        <div class="border-t border-gray-100 pt-4 space-y-4">
-          <h4 class="font-extrabold text-sm text-[#053754]">Changer le mot de passe (optionnel)</h4>
+        <div class="border-t border-gray-100 dark:border-slate-800 pt-4 space-y-4">
+          <h4 class="font-extrabold text-sm text-[#053754] dark:text-sky-300">Changer le mot de passe (optionnel)</h4>
 
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <!-- Mot de passe actuel -->
             <div class="space-y-1">
-              <label class="block text-xs font-extrabold text-[#074C72]">Mot de passe actuel</label>
+              <label class="block text-xs font-extrabold text-[#074C72] dark:text-sky-300">Mot de passe actuel</label>
               <div class="relative">
                 <input 
                   v-model="form.mot_de_passe_actuel"
                   :type="showCurrentPassword ? 'text' : 'password'"
                   placeholder="••••••••"
-                  class="w-full bg-[#FAF7F2] border border-gray-200 rounded-2xl pl-4 pr-10 py-3 text-xs text-gray-800 focus:outline-none focus:border-[#074C72]"
+                  class="w-full bg-[#FAF7F2] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl pl-4 pr-10 py-3 text-xs text-gray-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:border-[#074C72] dark:focus:border-sky-400"
                 />
                 <button 
                   type="button"
                   @click="showCurrentPassword = !showCurrentPassword"
-                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1 cursor-pointer"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200 transition-colors p-1 cursor-pointer"
                 >
                   <svg v-if="!showCurrentPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -128,18 +128,18 @@
 
             <!-- Nouveau mot de passe -->
             <div class="space-y-1">
-              <label class="block text-xs font-extrabold text-[#074C72]">Nouveau mot de passe</label>
+              <label class="block text-xs font-extrabold text-[#074C72] dark:text-sky-300">Nouveau mot de passe</label>
               <div class="relative">
                 <input 
                   v-model="form.password"
                   :type="showNewPassword ? 'text' : 'password'"
                   placeholder="••••••••"
-                  class="w-full bg-[#FAF7F2] border border-gray-200 rounded-2xl pl-4 pr-10 py-3 text-xs text-gray-800 focus:outline-none focus:border-[#074C72]"
+                  class="w-full bg-[#FAF7F2] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl pl-4 pr-10 py-3 text-xs text-gray-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:border-[#074C72] dark:focus:border-sky-400"
                 />
                 <button 
                   type="button"
                   @click="showNewPassword = !showNewPassword"
-                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1 cursor-pointer"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200 transition-colors p-1 cursor-pointer"
                 >
                   <svg v-if="!showNewPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -154,18 +154,18 @@
 
             <!-- Confirmer le mot de passe -->
             <div class="space-y-1">
-              <label class="block text-xs font-extrabold text-[#074C72]">Confirmer le mot de passe</label>
+              <label class="block text-xs font-extrabold text-[#074C72] dark:text-sky-300">Confirmer le mot de passe</label>
               <div class="relative">
                 <input 
                   v-model="form.password_confirmation"
                   :type="showConfirmPassword ? 'text' : 'password'"
                   placeholder="••••••••"
-                  class="w-full bg-[#FAF7F2] border border-gray-200 rounded-2xl pl-4 pr-10 py-3 text-xs text-gray-800 focus:outline-none focus:border-[#074C72]"
+                  class="w-full bg-[#FAF7F2] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl pl-4 pr-10 py-3 text-xs text-gray-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:border-[#074C72] dark:focus:border-sky-400"
                 />
                 <button 
                   type="button"
                   @click="showConfirmPassword = !showConfirmPassword"
-                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1 cursor-pointer"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200 transition-colors p-1 cursor-pointer"
                 >
                   <svg v-if="!showConfirmPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -185,7 +185,7 @@
           <button 
             type="submit" 
             :disabled="loading"
-            class="px-6 py-3.5 bg-[#053754] hover:bg-[#074C72] text-white font-extrabold text-xs rounded-2xl shadow-md transition-all cursor-pointer disabled:opacity-50 flex items-center gap-2"
+            class="px-6 py-3.5 bg-[#053754] hover:bg-[#074C72] dark:bg-sky-600 dark:hover:bg-sky-500 text-white font-extrabold text-xs rounded-2xl shadow-md transition-all cursor-pointer disabled:opacity-50 flex items-center gap-2"
           >
             <span v-if="!loading">Enregistrer les modifications</span>
             <span v-else>Mise à jour en cours...</span>

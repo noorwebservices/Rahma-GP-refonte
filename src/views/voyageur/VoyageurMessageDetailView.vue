@@ -349,38 +349,38 @@ const goBack = () => {
 </script>
 
 <template>
-  <div class="flex flex-col h-[calc(100vh-140px)] max-h-[800px] -mx-4 sm:-mx-6 bg-[#FAF7F2] relative">
+  <div class="flex flex-col h-[calc(100vh-140px)] max-h-[800px] -mx-4 sm:-mx-6 bg-[#FAF7F2] dark:bg-slate-950 relative">
     
     <!-- Loading State -->
     <div v-if="isLoading" class="flex-1 flex items-center justify-center p-8">
       <div class="text-center space-y-3">
-        <div class="w-10 h-10 border-4 border-[#053754] border-t-transparent rounded-full animate-spin mx-auto"></div>
-        <p class="text-xs font-bold text-gray-600">Chargement de la discussion...</p>
+        <div class="w-10 h-10 border-4 border-[#053754] dark:border-sky-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
+        <p class="text-xs font-bold text-gray-600 dark:text-slate-300">Chargement de la discussion...</p>
       </div>
     </div>
 
     <template v-else>
       <!-- Top Chat Sub-Header -->
-      <div class="bg-white border-b border-gray-200 px-4 py-3 space-y-2.5 shrink-0 shadow-2xs">
+      <div class="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 px-4 py-3 space-y-2.5 shrink-0 shadow-2xs">
         <div class="flex items-center justify-between">
           <!-- Left: Back Arrow + Client Info -->
           <div class="flex items-center gap-3">
             <button
               @click="goBack"
-              class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 transition-colors cursor-pointer"
+              class="w-8 h-8 rounded-full bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 flex items-center justify-center text-gray-700 dark:text-slate-300 transition-colors cursor-pointer"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
             </button>
 
-            <div class="w-10 h-10 rounded-full bg-[#B50302] text-white flex items-center justify-center font-bold text-xs shrink-0">
+            <div class="w-10 h-10 rounded-full bg-[#B50302] dark:bg-red-700 text-white flex items-center justify-center font-bold text-xs shrink-0">
               {{ reservation?.clientAvatar || 'CL' }}
             </div>
 
             <div>
-              <h2 class="text-sm font-extrabold text-[#053754]">{{ reservation?.clientNom || 'Client' }}</h2>
-              <p class="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
+              <h2 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">{{ reservation?.clientNom || 'Client' }}</h2>
+              <p class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                 <span>Client Rahma GP</span>
               </p>
@@ -390,30 +390,30 @@ const goBack = () => {
           <!-- Right: Action Button "Mettre à jour le suivi" -->
           <button
             @click="showStatusModal = true"
-            class="bg-[#053754] hover:bg-[#074C72] text-white font-extrabold text-xs px-3.5 py-1.5 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs uppercase tracking-wider"
+            class="bg-[#053754] dark:bg-sky-600 hover:bg-[#074C72] dark:hover:bg-sky-500 text-white font-extrabold text-xs px-3.5 py-1.5 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs uppercase tracking-wider"
           >
             <span>📦 SUIVI COLIS</span>
           </button>
         </div>
 
         <!-- Parcel Code & Route Pill -->
-        <div v-if="reservation" class="bg-white border border-gray-200 rounded-xl px-4 py-2 flex items-center justify-between text-xs font-bold shadow-2xs">
-          <span class="text-[#074C72] font-black font-mono">{{ reservation.code }}</span>
-          <div class="flex items-center gap-1.5 text-gray-700">
+        <div v-if="reservation" class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl px-4 py-2 flex items-center justify-between text-xs font-bold shadow-2xs">
+          <span class="text-[#074C72] dark:text-sky-300 font-black font-mono">{{ reservation.code }}</span>
+          <div class="flex items-center gap-1.5 text-gray-700 dark:text-slate-300">
             <CountryFlag :city="reservation.villeDepart" :country="reservation.paysDepart" size="w-4 h-3" />
             <span>{{ reservation.villeDepart }}</span>
-            <span class="text-[#074C72]">➔</span>
+            <span class="text-[#074C72] dark:text-sky-300">➔</span>
             <CountryFlag :city="reservation.villeDestination" :country="reservation.paysDestination" size="w-4 h-3" />
             <span>{{ reservation.villeDestination }}</span>
           </div>
-          <span class="text-[#B50302] font-extrabold">{{ reservation.poids }}</span>
+          <span class="text-[#B50302] dark:text-red-400 font-extrabold">{{ reservation.poids }}</span>
         </div>
       </div>
 
       <!-- Status Banner -->
-      <div v-if="reservation" class="bg-emerald-50 border-b border-emerald-200/80 px-4 py-2 text-center text-xs font-bold text-emerald-800 shrink-0 flex items-center justify-center gap-2">
+      <div v-if="reservation" class="bg-emerald-50 dark:bg-emerald-950/40 border-b border-emerald-200/80 dark:border-emerald-900/60 px-4 py-2 text-center text-xs font-bold text-emerald-800 dark:text-emerald-300 shrink-0 flex items-center justify-center gap-2">
         <span>Statut réservation :</span>
-        <span class="bg-emerald-100 text-emerald-900 px-2.5 py-0.5 rounded-full uppercase text-[10px] tracking-wider">
+        <span class="bg-emerald-100 dark:bg-emerald-900/80 text-emerald-900 dark:text-emerald-200 px-2.5 py-0.5 rounded-full uppercase text-[10px] tracking-wider">
           {{ reservation.statut === 'acceptee' ? '✓ Réservation Acceptée' : reservation.statut }}
         </span>
       </div>
@@ -430,10 +430,10 @@ const goBack = () => {
           <div
             class="max-w-[85%] sm:max-w-[75%] p-3.5 space-y-2 shadow-2xs"
             :class="msg.isMine
-              ? 'bg-[#053754] text-white rounded-2xl rounded-tr-xs'
-              : 'bg-white border border-gray-200 text-gray-800 rounded-2xl rounded-tl-xs'"
+              ? 'bg-[#053754] dark:bg-sky-700 text-white rounded-2xl rounded-tr-xs'
+              : 'bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-gray-800 dark:text-slate-100 rounded-2xl rounded-tl-xs'"
           >
-            <span v-if="!msg.isMine" class="text-[10px] font-extrabold text-[#B50302] block">
+            <span v-if="!msg.isMine" class="text-[10px] font-extrabold text-[#B50302] dark:text-red-400 block">
               {{ msg.senderName }}
             </span>
 
@@ -449,7 +449,7 @@ const goBack = () => {
 
             <div
               class="text-[10px] text-right font-medium flex items-center justify-end gap-1"
-              :class="msg.isMine ? 'text-sky-200/80' : 'text-gray-400'"
+              :class="msg.isMine ? 'text-sky-200/80' : 'text-gray-400 dark:text-slate-500'"
             >
               <span>{{ msg.time }}</span>
               <span v-if="msg.isMine" class="text-xs font-bold">{{ msg.isRead ? '✓✓' : '✓' }}</span>
@@ -457,32 +457,32 @@ const goBack = () => {
           </div>
         </div>
 
-        <div v-if="messages.length === 0" class="text-center py-12 text-gray-400 text-xs space-y-1">
+        <div v-if="messages.length === 0" class="text-center py-12 text-gray-400 dark:text-slate-500 text-xs space-y-1">
           <p class="font-bold">Aucun message pour l'instant.</p>
           <p>Envoyez un message ci-dessous pour contacter le client.</p>
         </div>
       </div>
 
       <!-- Attachment URL Input Bar (Collapsible) -->
-      <div v-if="showAttachmentInput" class="bg-amber-50 border-t border-amber-200 px-4 py-2 flex items-center gap-2 shrink-0">
-        <span class="text-xs text-amber-900 font-bold shrink-0">📷 Lien photo / pièce jointe :</span>
+      <div v-if="showAttachmentInput" class="bg-amber-50 dark:bg-amber-950/40 border-t border-amber-200 dark:border-amber-900/60 px-4 py-2 flex items-center gap-2 shrink-0">
+        <span class="text-xs text-amber-900 dark:text-amber-200 font-bold shrink-0">📷 Lien photo / pièce jointe :</span>
         <input
           v-model="pieceJointe"
           type="url"
           placeholder="https://example.com/photo.jpg"
-          class="flex-1 px-3 py-1.5 bg-white border border-amber-300 rounded-lg text-xs outline-none"
+          class="flex-1 px-3 py-1.5 bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-800 text-xs text-gray-800 dark:text-slate-100 outline-none"
         />
-        <button @click="showAttachmentInput = false" class="text-xs text-gray-500 font-bold px-2">✕</button>
+        <button @click="showAttachmentInput = false" class="text-xs text-gray-500 dark:text-slate-400 font-bold px-2">✕</button>
       </div>
 
       <!-- Bottom Input Bar -->
-      <div class="bg-white border-t border-gray-200 px-4 py-3 shrink-0">
+      <div class="bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 px-4 py-3 shrink-0">
         <form @submit.prevent="handleSendMessage" class="flex items-center gap-2">
           <button
             @click="showAttachmentInput = !showAttachmentInput"
             type="button"
-            class="w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-500 hover:text-[#074C72] text-2xl font-bold transition-colors cursor-pointer shrink-0"
-            :class="{ 'text-[#074C72] bg-sky-100': showAttachmentInput }"
+            class="w-9 h-9 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 flex items-center justify-center text-gray-500 dark:text-slate-400 hover:text-[#074C72] dark:hover:text-sky-300 text-2xl font-bold transition-colors cursor-pointer shrink-0"
+            :class="{ 'text-[#074C72] dark:text-sky-300 bg-sky-100 dark:bg-sky-950/60': showAttachmentInput }"
           >
             +
           </button>
@@ -492,13 +492,13 @@ const goBack = () => {
             @input="handleMessageInput"
             type="text"
             placeholder="Écrire un message au client..."
-            class="flex-1 bg-[#EAEFF4] border-none rounded-xl px-4 py-2.5 text-xs sm:text-sm text-gray-800 placeholder-gray-400 outline-none focus:ring-2 focus:ring-[#074C72]/20"
+            class="flex-1 bg-[#EAEFF4] dark:bg-slate-800 border-none rounded-xl px-4 py-2.5 text-xs sm:text-sm text-gray-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 outline-none focus:ring-2 focus:ring-[#074C72]/20 dark:focus:ring-sky-500/20"
           />
 
           <button
             type="submit"
             :disabled="isSending || (!newMessage.trim() && !pieceJointe.trim())"
-            class="w-9 h-9 text-[#053754] hover:text-[#074C72] flex items-center justify-center transition-colors cursor-pointer shrink-0 disabled:opacity-40"
+            class="w-9 h-9 text-[#053754] dark:text-sky-300 hover:text-[#074C72] dark:hover:text-sky-400 flex items-center justify-center transition-colors cursor-pointer shrink-0 disabled:opacity-40"
           >
             <svg class="w-6 h-6 transform rotate-45" fill="currentColor" viewBox="0 0 24 24">
               <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
@@ -510,44 +510,44 @@ const goBack = () => {
 
     <!-- Status Change Modal ("Mettre à jour le suivi") -->
     <Teleport to="body">
-      <div v-if="showStatusModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl animate-in zoom-in-95 duration-200">
-          <div class="flex items-center justify-between border-b border-gray-100 pb-3">
-            <h3 class="text-base font-extrabold text-[#053754]">Mettre à jour le statut du colis</h3>
-            <button @click="showStatusModal = false" class="text-gray-400 hover:text-gray-600">✕</button>
+      <div v-if="showStatusModal" class="fixed inset-0 z-50 bg-black/60 dark:bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl animate-in zoom-in-95 duration-200">
+          <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3">
+            <h3 class="text-base font-extrabold text-[#053754] dark:text-sky-300">Mettre à jour le statut du colis</h3>
+            <button @click="showStatusModal = false" class="text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200">✕</button>
           </div>
 
-          <p class="text-xs text-gray-500">Mettez à jour le statut d'acheminement pour informer le client en temps réel :</p>
+          <p class="text-xs text-gray-500 dark:text-slate-400">Mettez à jour le statut d'acheminement pour informer le client en temps réel :</p>
 
           <div class="space-y-3">
             <div>
-              <label class="block text-xs font-bold text-[#074C72] mb-1">Nouveau statut du colis</label>
+              <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300 mb-1">Nouveau statut du colis</label>
               <select
                 v-if="availableColisStatutOptions.length > 0"
                 v-model="selectedColisStatut"
-                class="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-xl text-xs font-bold outline-none focus:border-[#074C72]"
+                class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 text-xs font-bold text-gray-800 dark:text-slate-100 outline-none focus:border-[#074C72] dark:focus:border-sky-500"
               >
                 <option v-for="opt in availableColisStatutOptions" :key="opt.value" :value="opt.value">
                   {{ opt.label }}
                 </option>
               </select>
-              <div v-else class="px-3.5 py-2.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold flex items-center gap-1.5">
+              <div v-else class="px-3.5 py-2.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs font-bold flex items-center gap-1.5">
                 <span>🎉</span>
                 <span>Tous les statuts de suivi ont été appliqués</span>
               </div>
-              <div v-if="!isVoyageClosedOrCompleted" class="mt-2 p-2.5 bg-amber-50 text-amber-900 border border-amber-200 rounded-xl text-[11px] font-medium flex items-start gap-1.5">
+              <div v-if="!isVoyageClosedOrCompleted" class="mt-2 p-2.5 bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 border border-amber-200 dark:border-amber-800 rounded-xl text-[11px] font-medium flex items-start gap-1.5">
                 <span class="shrink-0 mt-0.5">⏳</span>
                 <span>Voyage en cours : les statuts <strong>Transit</strong>, <strong>Arrivé</strong> et <strong>Livré</strong> seront débloqués quand le voyage sera complet/fermé ou sa date de départ passée.</span>
               </div>
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-[#074C72] mb-1">Commentaire (optionnel)</label>
+              <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300 mb-1">Commentaire (optionnel)</label>
               <input
                 v-model="colisCommentaire"
                 type="text"
                 placeholder="ex: Le colis est dans l'avion..."
-                class="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-xl text-xs outline-none focus:border-[#074C72]"
+                class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 text-gray-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 rounded-xl text-xs outline-none focus:border-[#074C72] dark:focus:border-sky-500"
               />
             </div>
           </div>
@@ -555,14 +555,14 @@ const goBack = () => {
           <div class="flex items-center gap-2 pt-2">
             <button
               @click="showStatusModal = false"
-              class="flex-1 bg-gray-100 text-gray-700 font-bold text-xs py-3 rounded-xl hover:bg-gray-200 transition-colors"
+              class="flex-1 bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 font-bold text-xs py-3 rounded-xl hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors"
             >
               Annuler
             </button>
             <button
               @click="handleUpdateColisStatut"
               :disabled="isSubmittingColisStatut"
-              class="flex-1 bg-[#053754] text-white font-extrabold text-xs py-3 rounded-xl hover:bg-[#074C72] transition-colors flex items-center justify-center gap-1 disabled:opacity-50"
+              class="flex-1 bg-[#053754] dark:bg-sky-600 text-white font-extrabold text-xs py-3 rounded-xl hover:bg-[#074C72] dark:hover:bg-sky-500 transition-colors flex items-center justify-center gap-1 disabled:opacity-50"
             >
               <span v-if="isSubmittingColisStatut" class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
               <span>VALIDER</span>

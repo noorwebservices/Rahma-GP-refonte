@@ -34,20 +34,20 @@ const stepTitles = [
 <template>
   <div class="w-full space-y-2 mb-6">
     <!-- Header Row -->
-    <div class="flex items-center justify-between text-xs font-semibold text-gray-500 uppercase tracking-wider">
+    <div class="flex items-center justify-between text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
       <span>Étape {{ step }} sur {{ totalSteps }}</span>
-      <span class="text-gray-400 capitalize font-normal">{{ subtitle || stepTitles[step - 1] }}</span>
+      <span class="text-gray-400 dark:text-slate-400 capitalize font-normal">{{ subtitle || stepTitles[step - 1] }}</span>
     </div>
 
     <!-- Step Title -->
-    <h2 class="text-lg sm:text-xl font-bold text-principal-dark font-serif">
+    <h2 class="text-lg sm:text-xl font-bold text-principal-dark dark:text-sky-300 font-serif">
       {{ step }}. {{ title || stepTitles[step - 1] }}
     </h2>
 
     <!-- Progress Bar Track -->
-    <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+    <div class="w-full h-2 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
       <div
-        class="h-full bg-[#053754] rounded-full transition-all duration-300"
+        class="h-full bg-[#053754] dark:bg-sky-500 rounded-full transition-all duration-300"
         :style="{ width: `${percentage}%` }"
       ></div>
     </div>

@@ -619,8 +619,8 @@ const goToDemandes = () => router.push('/voyageur/demandes')
     <!-- Header Title & Action -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark">Mes voyages GP</h1>
-        <p class="text-xs sm:text-sm text-gray-500">Publiez vos trajets et gérez vos capacités de bagages</p>
+        <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark dark:text-sky-300">Mes voyages GP</h1>
+        <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400">Publiez vos trajets et gérez vos capacités de bagages</p>
       </div>
 
       <button
@@ -634,48 +634,48 @@ const goToDemandes = () => router.push('/voyageur/demandes')
 
     <!-- Quick Stats Cards Banner -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-      <div @click="goToRevenus" class="bg-white rounded-2xl p-4 border border-gray-200 shadow-2xs hover:border-[#074C72] transition-all cursor-pointer space-y-1">
-        <span class="text-[11px] font-bold text-gray-400 block uppercase">Revenus générés</span>
-        <div class="text-base sm:text-lg font-black text-[#053754]">{{ formattedTotalRevenus }}</div>
-        <span class="text-[10px] text-emerald-600 font-bold flex items-center gap-0.5">↗ {{ paidReservationsCount }} {{ paidReservationsCount > 1 ? 'réservations payées' : 'réservation payée' }}</span>
+      <div @click="goToRevenus" class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-gray-200 dark:border-slate-800 shadow-2xs hover:border-[#074C72] dark:hover:border-sky-400 transition-all cursor-pointer space-y-1">
+        <span class="text-[11px] font-bold text-gray-400 dark:text-slate-400 block uppercase">Revenus générés</span>
+        <div class="text-base sm:text-lg font-black text-[#053754] dark:text-sky-300">{{ formattedTotalRevenus }}</div>
+        <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-0.5">↗ {{ paidReservationsCount }} {{ paidReservationsCount > 1 ? 'réservations payées' : 'réservation payée' }}</span>
       </div>
 
-      <div @click="goToDemandes" class="bg-white rounded-2xl p-4 border border-amber-200 bg-amber-50/40 shadow-2xs hover:border-amber-400 transition-all cursor-pointer space-y-1">
-        <span class="text-[11px] font-bold text-amber-700 block uppercase">Demandes en attente</span>
-        <div class="text-base sm:text-lg font-black text-amber-900 font-serif">
+      <div @click="goToDemandes" class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-amber-200 dark:border-amber-800/80 bg-amber-50/40 dark:bg-amber-950/20 shadow-2xs hover:border-amber-400 transition-all cursor-pointer space-y-1">
+        <span class="text-[11px] font-bold text-amber-700 dark:text-amber-300 block uppercase">Demandes en attente</span>
+        <div class="text-base sm:text-lg font-black text-amber-900 dark:text-amber-200 font-serif">
           {{ pendingDemandesCount }} {{ pendingDemandesCount > 1 ? 'demandes' : 'demande' }}
         </div>
-        <span class="text-[10px] text-amber-600 font-bold underline">Répondre aux clients ➔</span>
+        <span class="text-[10px] text-amber-600 dark:text-amber-400 font-bold underline">Répondre aux clients ➔</span>
       </div>
 
-      <div @click="router.push('/voyageur/evaluations')" class="bg-white rounded-2xl p-4 border border-gray-200 shadow-2xs hover:border-[#053754] transition-all cursor-pointer space-y-1 group">
-        <span class="text-[11px] font-bold text-gray-400 block uppercase group-hover:text-[#053754]">Note Voyageur</span>
-        <div class="text-base sm:text-lg font-black text-[#053754] flex items-center gap-1.5">
+      <div @click="router.push('/voyageur/evaluations')" class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-gray-200 dark:border-slate-800 shadow-2xs hover:border-[#053754] dark:hover:border-sky-400 transition-all cursor-pointer space-y-1 group">
+        <span class="text-[11px] font-bold text-gray-400 dark:text-slate-400 block uppercase group-hover:text-[#053754] dark:group-hover:text-sky-300">Note Voyageur</span>
+        <div class="text-base sm:text-lg font-black text-[#053754] dark:text-sky-300 flex items-center gap-1.5">
           <span v-if="voyageurRating !== null" class="flex items-center gap-1">
             <span class="text-amber-500">⭐</span>
             <span>{{ voyageurRating }} / 5</span>
           </span>
-          <span v-else class="text-xs sm:text-sm font-bold text-gray-400">Aucun avis</span>
-          <span class="text-xs text-gray-400 font-medium">({{ voyageurReviewsCount }} {{ voyageurReviewsCount > 1 ? 'avis' : 'avis' }})</span>
+          <span v-else class="text-xs sm:text-sm font-bold text-gray-400 dark:text-slate-500">Aucun avis</span>
+          <span class="text-xs text-gray-400 dark:text-slate-400 font-medium">({{ voyageurReviewsCount }} {{ voyageurReviewsCount > 1 ? 'avis' : 'avis' }})</span>
         </div>
-        <span class="text-[10px] text-sky-700 font-bold underline block">Voir mes évaluations ➔</span>
+        <span class="text-[10px] text-sky-700 dark:text-sky-400 font-bold underline block">Voir mes évaluations ➔</span>
       </div>
     </div>
 
     <!-- Search Bar & Filter Bar -->
-    <div class="space-y-3 bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs">
+    <div class="space-y-3 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-2xs">
       <div class="relative w-full">
         <input
           v-model="searchQuery"
           type="text"
           placeholder="Rechercher un voyage par ville, pays..."
-          class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium outline-none focus:border-[#074C72] focus:ring-2 focus:ring-[#074C72]/20"
+          class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-xs font-medium text-gray-800 dark:text-slate-100 outline-none focus:border-[#074C72] dark:focus:border-sky-400 focus:ring-2 focus:ring-[#074C72]/20 placeholder-gray-400 dark:placeholder-slate-500"
         />
-        <span class="absolute left-3.5 top-2.5 text-gray-400 text-sm">🔍</span>
+        <span class="absolute left-3.5 top-2.5 text-gray-400 dark:text-slate-500 text-sm">🔍</span>
       </div>
 
       <div class="space-y-1.5">
-        <label class="block text-[10px] font-extrabold uppercase tracking-wider text-gray-400">Filtrer par statut de voyage :</label>
+        <label class="block text-[10px] font-extrabold uppercase tracking-wider text-gray-400 dark:text-slate-400">Filtrer par statut de voyage :</label>
         <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
           <button
             v-for="opt in statusOptions"
@@ -684,8 +684,8 @@ const goToDemandes = () => router.push('/voyageur/demandes')
             class="px-3.5 py-1.5 rounded-full text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap shrink-0 border"
             :class="[
               activeStatutFilter === opt.value
-                ? 'bg-[#053754] text-white border-[#053754] shadow-xs'
-                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                ? 'bg-[#053754] dark:bg-sky-500 text-white border-[#053754] dark:border-sky-500 shadow-xs'
+                : 'bg-white dark:bg-slate-800 text-gray-600 dark:text-slate-300 border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700'
             ]"
           >
             {{ opt.label }}
@@ -699,12 +699,12 @@ const goToDemandes = () => router.push('/voyageur/demandes')
       <div
         v-for="voyage in paginatedVoyages"
         :key="voyage.id"
-        class="bg-white rounded-3xl p-5 border border-gray-200 shadow-sm space-y-4 hover:border-sky-300 transition-all flex flex-col justify-between"
+        class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-gray-200 dark:border-slate-800 shadow-sm space-y-4 hover:border-sky-300 dark:hover:border-sky-500 transition-all flex flex-col justify-between"
       >
         <div class="space-y-4">
           <!-- Top Row: Route Flags + Status Badge -->
           <div class="flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2 font-black text-[#053754] text-sm sm:text-base">
+            <div class="flex items-center gap-2 font-black text-[#053754] dark:text-sky-300 text-sm sm:text-base">
               <div class="flex items-center gap-1.5">
                 <CountryFlag :city="voyage.routeFrom" :country="voyage.countryFrom" size="w-5 h-3.5" />
                 <span>{{ voyage.routeFrom }}</span>
@@ -719,12 +719,12 @@ const goToDemandes = () => router.push('/voyageur/demandes')
             <span
               class="text-[10px] font-extrabold px-3 py-0.5 rounded-full uppercase border shrink-0"
               :class="{
-                'bg-emerald-50 text-emerald-800 border-emerald-200': voyage.statut === 'publie',
-                'bg-amber-50 text-amber-800 border-amber-200': voyage.statut === 'brouillon',
-                'bg-purple-50 text-purple-800 border-purple-200': voyage.statut === 'complet',
-                'bg-sky-50 text-sky-800 border-sky-200': voyage.statut === 'en_cours',
-                'bg-slate-100 text-slate-700 border-slate-200': voyage.statut === 'termine',
-                'bg-red-50 text-red-800 border-red-200': voyage.statut === 'annule'
+                'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800': voyage.statut === 'publie',
+                'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800': voyage.statut === 'brouillon',
+                'bg-purple-50 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border-purple-200 dark:border-purple-800': voyage.statut === 'complet',
+                'bg-sky-50 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 border-sky-200 dark:border-sky-800': voyage.statut === 'en_cours',
+                'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700': voyage.statut === 'termine',
+                'bg-red-50 dark:bg-rose-950/60 text-red-800 dark:text-rose-300 border-red-200 dark:border-rose-800': voyage.statut === 'annule'
               }"
             >
               {{ voyage.statut }}
@@ -732,42 +732,42 @@ const goToDemandes = () => router.push('/voyageur/demandes')
           </div>
 
           <!-- Departure & Arrival Dates with Smart Date Formatter -->
-          <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100 flex items-center justify-between text-xs">
+          <div class="bg-slate-50 dark:bg-slate-800/80 p-3 rounded-2xl border border-slate-100 dark:border-slate-700 flex items-center justify-between text-xs">
             <div>
-              <span class="text-gray-400 block text-[10px] uppercase font-bold">Départ</span>
-              <span class="font-bold text-gray-900">{{ formatVoyageDate(voyage.departureDate) }}</span>
+              <span class="text-gray-400 dark:text-slate-400 block text-[10px] uppercase font-bold">Départ</span>
+              <span class="font-bold text-gray-900 dark:text-slate-100">{{ formatVoyageDate(voyage.departureDate) }}</span>
             </div>
             <div class="text-right">
-              <span class="text-gray-400 block text-[10px] uppercase font-bold">Tarif au Kg</span>
-              <span class="font-extrabold text-[#B50302] text-sm">{{ voyage.prixKg }}</span>
+              <span class="text-gray-400 dark:text-slate-400 block text-[10px] uppercase font-bold">Tarif au Kg</span>
+              <span class="font-extrabold text-[#B50302] dark:text-rose-400 text-sm">{{ voyage.prixKg }}</span>
             </div>
           </div>
 
           <!-- Capacity Bar (Fully Dynamic) -->
-          <div class="space-y-1.5 bg-gray-50 p-3 rounded-2xl border border-gray-100">
+          <div class="space-y-1.5 bg-gray-50 dark:bg-slate-800/60 p-3 rounded-2xl border border-gray-100 dark:border-slate-700">
             <div class="flex justify-between text-[11px] font-bold">
-              <span class="text-gray-700 flex items-center gap-1">
+              <span class="text-gray-700 dark:text-slate-300 flex items-center gap-1">
                 <span>⚖️</span>
                 <span>Capacité disponible :</span>
               </span>
-              <span :class="[voyage.capaciteDispo === 0 ? 'text-red-600 font-black' : 'text-[#053754] font-extrabold']">
+              <span :class="[voyage.capaciteDispo === 0 ? 'text-red-600 dark:text-rose-400 font-black' : 'text-[#053754] dark:text-sky-300 font-extrabold']">
                 {{ voyage.capaciteDispo }} Kg / {{ voyage.capaciteTotale }} Kg
               </span>
             </div>
-            <div class="w-full bg-gray-200 h-2.5 rounded-full overflow-hidden">
+            <div class="w-full bg-gray-200 dark:bg-slate-700 h-2.5 rounded-full overflow-hidden">
               <div
                 class="h-full rounded-full transition-all duration-300"
                 :class="[
                   (voyage.capaciteTotale > 0 ? ((voyage.capaciteTotale - voyage.capaciteDispo) / voyage.capaciteTotale) * 100 : 0) >= 90
-                    ? 'bg-red-600'
+                    ? 'bg-red-600 dark:bg-rose-500'
                     : (voyage.capaciteTotale > 0 ? ((voyage.capaciteTotale - voyage.capaciteDispo) / voyage.capaciteTotale) * 100 : 0) >= 60
                     ? 'bg-amber-500'
-                    : 'bg-[#053754]'
+                    : 'bg-[#053754] dark:bg-sky-500'
                 ]"
                 :style="{ width: `${voyage.capaciteTotale > 0 ? Math.min(100, Math.max(0, Math.round(((voyage.capaciteTotale - voyage.capaciteDispo) / voyage.capaciteTotale) * 100))) : 0}%` }"
               ></div>
             </div>
-            <div class="flex justify-between text-[10px] text-gray-400 font-medium">
+            <div class="flex justify-between text-[10px] text-gray-400 dark:text-slate-400 font-medium">
               <span>{{ Math.max(0, voyage.capaciteTotale - voyage.capaciteDispo) }} Kg réservés</span>
               <span>{{ voyage.capaciteTotale > 0 ? Math.round(((voyage.capaciteTotale - voyage.capaciteDispo) / voyage.capaciteTotale) * 100) : 0 }}% réservé</span>
             </div>
@@ -775,12 +775,12 @@ const goToDemandes = () => router.push('/voyageur/demandes')
         </div>
 
         <!-- Action Row: Éditer opens the multi-step Wizard Modal in edit mode! -->
-        <div class="pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
+        <div class="pt-3 border-t border-gray-100 dark:border-slate-800 flex items-center justify-between gap-2">
           <button
             v-if="voyage.statut === 'brouillon'"
             @click="openEditModal(voyage)"
             type="button"
-            class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs transition-colors cursor-pointer flex items-center gap-1.5"
+            class="px-4 py-2 rounded-xl bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-800 dark:text-slate-200 font-bold text-xs transition-colors cursor-pointer flex items-center gap-1.5"
           >
             <span>✏️ Éditer</span>
           </button>
@@ -789,7 +789,7 @@ const goToDemandes = () => router.push('/voyageur/demandes')
           <button
             @click="goToVoyageDetail(voyage.id)"
             type="button"
-            class="px-4 py-2 rounded-xl bg-[#053754] hover:bg-[#074C72] text-white font-extrabold text-xs transition-colors cursor-pointer flex items-center gap-1.5"
+            class="px-4 py-2 rounded-xl bg-[#053754] dark:bg-sky-600 hover:bg-[#074C72] dark:hover:bg-sky-500 text-white font-extrabold text-xs transition-colors cursor-pointer flex items-center gap-1.5"
           >
             <span>👁️ Voir détails</span>
           </button>
@@ -798,30 +798,30 @@ const goToDemandes = () => router.push('/voyageur/demandes')
     </div>
 
     <!-- Empty State if no voyages match filter -->
-    <div v-else class="bg-white rounded-3xl p-8 text-center border border-gray-200 space-y-3">
-      <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center mx-auto text-xl font-bold">✈️</div>
-      <h3 class="text-base font-bold text-[#053754]">Aucun voyage trouvé</h3>
-      <p class="text-xs text-gray-500 max-w-sm mx-auto">Aucun voyage ne correspond au statut sélectionné.</p>
+    <div v-else class="bg-white dark:bg-slate-900 rounded-3xl p-8 text-center border border-gray-200 dark:border-slate-800 space-y-3">
+      <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center mx-auto text-xl font-bold">✈️</div>
+      <h3 class="text-base font-bold text-[#053754] dark:text-sky-300">Aucun voyage trouvé</h3>
+      <p class="text-xs text-gray-500 dark:text-slate-400 max-w-sm mx-auto">Aucun voyage ne correspond au statut sélectionné.</p>
     </div>
 
     <!-- Pagination Controls (10 items per page) -->
-    <div v-if="totalPages > 1" class="flex items-center justify-between pt-4 border-t border-gray-200 text-xs">
+    <div v-if="totalPages > 1" class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-slate-800 text-xs">
       <button
         @click="prevPage"
         :disabled="currentPage === 1"
-        class="px-4 py-2 rounded-xl bg-white border border-gray-200 font-bold text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+        class="px-4 py-2 rounded-xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 font-bold text-gray-700 dark:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-slate-800"
       >
         ◄ Précédent
       </button>
 
-      <span class="font-extrabold text-[#053754]">
+      <span class="font-extrabold text-[#053754] dark:text-sky-300">
         Page {{ currentPage }} sur {{ totalPages }}
       </span>
 
       <button
         @click="nextPage"
         :disabled="currentPage === totalPages"
-        class="px-4 py-2 rounded-xl bg-white border border-gray-200 font-bold text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+        class="px-4 py-2 rounded-xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 font-bold text-gray-700 dark:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-slate-800"
       >
         Suivant ►
       </button>
@@ -831,37 +831,37 @@ const goToDemandes = () => router.push('/voyageur/demandes')
     <!-- MULTI-STEP WIZARD MODAL (CREATION AND UPDATE MODE) -->
     <!-- ========================================================================= -->
     <div v-if="showWizardModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div class="bg-white w-full max-w-2xl rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto font-sans">
+      <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 w-full max-w-2xl rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto font-sans">
         
         <!-- Modal Header -->
-        <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+        <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3">
           <div>
-            <h3 class="text-lg font-bold text-[#053754] font-serif">
+            <h3 class="text-lg font-bold text-[#053754] dark:text-sky-300 font-serif">
               {{ isEditing ? 'Modifier le voyage' : 'Publier un nouveau voyage' }}
             </h3>
-            <p class="text-xs text-gray-500">Étape {{ wizardStep }} sur 5</p>
+            <p class="text-xs text-gray-500 dark:text-slate-400">Étape {{ wizardStep }} sur 5</p>
           </div>
-          <button @click="showWizardModal = false" class="text-gray-400 hover:text-gray-600 p-1 font-bold text-lg">✕</button>
+          <button @click="showWizardModal = false" class="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 p-1 font-bold text-lg cursor-pointer">✕</button>
         </div>
 
         <!-- Wizard Progress Bar -->
-        <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden flex">
+        <div class="w-full bg-gray-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden flex">
           <div
-            class="bg-[#B50302] h-full transition-all duration-300 rounded-full"
+            class="bg-[#B50302] dark:bg-rose-500 h-full transition-all duration-300 rounded-full"
             :style="{ width: `${(wizardStep / 5) * 100}%` }"
           ></div>
         </div>
 
         <!-- STEP 1: TRAJET -->
         <div v-if="wizardStep === 1" class="space-y-4">
-          <h4 class="text-sm font-extrabold text-[#053754]">1. Trajet du voyage</h4>
+          <h4 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">1. Trajet du voyage</h4>
           <div class="space-y-3">
             <div>
-              <label class="block text-xs font-bold text-gray-700 mb-1">Ville de Départ</label>
+              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">Ville de Départ</label>
               <CitySelect v-model="form.ville_depart" placeholder="Choisir la ville de départ" @change="onVoyageDepartCitySelect" />
             </div>
             <div>
-              <label class="block text-xs font-bold text-gray-700 mb-1">Ville de Destination</label>
+              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">Ville de Destination</label>
               <CitySelect v-model="form.ville_destination" placeholder="Choisir la ville de destination" @change="onVoyageDestinationCitySelect" />
             </div>
           </div>
@@ -869,80 +869,80 @@ const goToDemandes = () => router.push('/voyageur/demandes')
 
         <!-- STEP 2: DATES -->
         <div v-else-if="wizardStep === 2" class="space-y-4">
-          <h4 class="text-sm font-extrabold text-[#053754]">2. Dates et Heures du vol</h4>
+          <h4 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">2. Dates et Heures du vol</h4>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-bold text-gray-700 mb-1">Date et heure de départ</label>
-              <input v-model="form.date_depart" type="datetime-local" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 outline-none" />
+              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">Date et heure de départ</label>
+              <input v-model="form.date_depart" type="datetime-local" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none" />
             </div>
             <div>
-              <label class="block text-xs font-bold text-gray-700 mb-1">Date et heure d'arrivée</label>
-              <input v-model="form.date_arrivee" type="datetime-local" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 outline-none" />
+              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">Date et heure d'arrivée</label>
+              <input v-model="form.date_arrivee" type="datetime-local" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none" />
             </div>
           </div>
         </div>
 
         <!-- STEP 3: CAPACITÉ & TARIFS -->
         <div v-else-if="wizardStep === 3" class="space-y-4">
-          <h4 class="text-sm font-extrabold text-[#053754]">3. Capacité et Tarification</h4>
+          <h4 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">3. Capacité et Tarification</h4>
           <div class="space-y-3">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label class="block text-xs font-bold text-gray-700 mb-1">Capacité disponible (Kg) *</label>
-                <input v-model.number="form.capacite_totale" type="number" placeholder="ex: 25" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 outline-none" />
+                <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">Capacité disponible (Kg) *</label>
+                <input v-model.number="form.capacite_totale" type="number" placeholder="ex: 25" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none" />
               </div>
               <div>
-                <label class="block text-xs font-bold text-gray-700 mb-1">Devise du tarif *</label>
-                <select v-model="form.devise" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-gray-800 outline-none">
-                  <option value="XOF">FCFA (XOF) - Franc CFA</option>
-                  <option value="EUR">EUR (€) - Euro</option>
-                  <option value="USD">USD ($) - Dollar US</option>
+                <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">Devise du tarif *</label>
+                <select v-model="form.devise" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-bold text-gray-800 dark:text-slate-100 outline-none">
+                  <option value="XOF" class="dark:bg-slate-800 text-slate-100">FCFA (XOF) - Franc CFA</option>
+                  <option value="EUR" class="dark:bg-slate-800 text-slate-100">EUR (€) - Euro</option>
+                  <option value="USD" class="dark:bg-slate-800 text-slate-100">USD ($) - Dollar US</option>
                 </select>
               </div>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label class="block text-xs font-bold text-gray-700 mb-1">Prix au Kg ({{ form.devise }}) *</label>
-                <input v-model.number="form.prix_kg" type="number" placeholder="ex: 8500" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 outline-none" />
+                <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">Prix au Kg ({{ form.devise }}) *</label>
+                <input v-model.number="form.prix_kg" type="number" placeholder="ex: 8500" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none" />
               </div>
               <div>
-                <label class="block text-xs font-bold text-gray-700 mb-1">Prix par objet ({{ form.devise }})</label>
-                <input v-model.number="form.prix_objet" type="number" placeholder="ex: 15000" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 outline-none" />
+                <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">Prix par objet ({{ form.devise }})</label>
+                <input v-model.number="form.prix_objet" type="number" placeholder="ex: 15000" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none" />
               </div>
             </div>
             <div>
-              <label class="block text-xs font-bold text-gray-700 mb-1">Description / Consignes</label>
-              <textarea v-model="form.description" rows="2" placeholder="Précisions sur votre vol ou vos bagages..." class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 outline-none"></textarea>
+              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">Description / Consignes</label>
+              <textarea v-model="form.description" rows="2" placeholder="Précisions sur votre vol ou vos bagages..." class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none"></textarea>
             </div>
           </div>
         </div>
 
         <!-- STEP 4: ADRESSES DÉPÔT ET RÉCUPÉRATION WITH CITYSELECT AUTOFILL -->
         <div v-else-if="wizardStep === 4" class="space-y-4">
-          <h4 class="text-sm font-extrabold text-[#053754]">4. Lieux de Dépôt et Récupération</h4>
+          <h4 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">4. Lieux de Dépôt et Récupération</h4>
           
           <div class="space-y-4">
             <!-- Depot Address Select Card -->
-            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
+            <div class="bg-slate-50 dark:bg-slate-800/70 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2">
               <div class="flex items-center justify-between">
-                <label class="text-xs font-bold text-gray-700">Point de Dépôt (Départ)</label>
-                <button @click="showDepotAddressModal = true" type="button" class="text-xs font-bold text-[#B50302] hover:underline">+ Créer une adresse</button>
+                <label class="text-xs font-bold text-gray-700 dark:text-slate-300">Point de Dépôt (Départ)</label>
+                <button @click="showDepotAddressModal = true" type="button" class="text-xs font-bold text-[#B50302] dark:text-rose-400 hover:underline">+ Créer une adresse</button>
               </div>
-              <select v-model="form.adresse_depot_id" class="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 font-bold outline-none">
-                <option value="" disabled>-- Sélectionner une adresse de dépôt --</option>
-                <option v-for="a in adressesDepot" :key="a.id" :value="a.id">{{ a.adresse }} ({{ a.ville }}, {{ a.pays }})</option>
+              <select v-model="form.adresse_depot_id" class="w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 dark:text-slate-100 font-bold outline-none">
+                <option value="" disabled class="dark:bg-slate-800">-- Sélectionner une adresse de dépôt --</option>
+                <option v-for="a in adressesDepot" :key="a.id" :value="a.id" class="dark:bg-slate-800">{{ a.adresse }} ({{ a.ville }}, {{ a.pays }})</option>
               </select>
             </div>
 
             <!-- Recup Address Select Card -->
-            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
+            <div class="bg-slate-50 dark:bg-slate-800/70 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2">
               <div class="flex items-center justify-between">
-                <label class="text-xs font-bold text-gray-700">Point de Retrait (Destination)</label>
-                <button @click="showRecupAddressModal = true" type="button" class="text-xs font-bold text-[#B50302] hover:underline">+ Créer une adresse</button>
+                <label class="text-xs font-bold text-gray-700 dark:text-slate-300">Point de Retrait (Destination)</label>
+                <button @click="showRecupAddressModal = true" type="button" class="text-xs font-bold text-[#B50302] dark:text-rose-400 hover:underline">+ Créer une adresse</button>
               </div>
-              <select v-model="form.adresse_recuperation_id" class="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 font-bold outline-none">
-                <option value="" disabled>-- Sélectionner une adresse de récupération --</option>
-                <option v-for="a in adressesRecuperation" :key="a.id" :value="a.id">{{ a.adresse }} ({{ a.ville }}, {{ a.pays }})</option>
+              <select v-model="form.adresse_recuperation_id" class="w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 dark:text-slate-100 font-bold outline-none">
+                <option value="" disabled class="dark:bg-slate-800">-- Sélectionner une adresse de récupération --</option>
+                <option v-for="a in adressesRecuperation" :key="a.id" :value="a.id" class="dark:bg-slate-800">{{ a.adresse }} ({{ a.ville }}, {{ a.pays }})</option>
               </select>
             </div>
           </div>
@@ -950,58 +950,58 @@ const goToDemandes = () => router.push('/voyageur/demandes')
 
         <!-- STEP 5: OBJECTS LIST JSON -->
         <div v-if="wizardStep === 5" class="space-y-4">
-          <h4 class="text-sm font-extrabold text-[#053754]">5. Catégories d'objets autorisées & interdites</h4>
+          <h4 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">5. Catégories d'objets autorisées & interdites</h4>
           
           <!-- Accepted -->
           <div class="space-y-2">
-            <label class="block text-xs font-bold text-emerald-800">✅ Objets Autorisés</label>
+            <label class="block text-xs font-bold text-emerald-800 dark:text-emerald-300">✅ Objets Autorisés</label>
             <div class="grid grid-cols-2 gap-2">
               <div
                 v-for="cat in allAutorisesList" :key="cat"
                 @click="toggleAutorise(cat)"
                 class="p-2.5 rounded-xl border text-xs font-bold flex items-center justify-between cursor-pointer transition-all"
-                :class="form.objets_autorises.includes(cat) ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'"
+                :class="form.objets_autorises.includes(cat) ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300' : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700'"
               >
                 <span>{{ cat }}</span>
-                <span v-if="form.objets_autorises.includes(cat)" class="text-emerald-600 font-bold">✓</span>
+                <span v-if="form.objets_autorises.includes(cat)" class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span>
               </div>
             </div>
             <div class="flex gap-2 pt-1">
-              <input v-model="customAutorise" type="text" placeholder="Autre objet autorisé (ex: Épices scellées)" class="flex-1 bg-[#F3F4F6] border border-gray-200 rounded-xl px-3 py-2 text-xs outline-none" @keyup.enter="addCustomAutorise" />
+              <input v-model="customAutorise" type="text" placeholder="Autre objet autorisé (ex: Épices scellées)" class="flex-1 bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-gray-800 dark:text-slate-100 outline-none" @keyup.enter="addCustomAutorise" />
               <button @click="addCustomAutorise" type="button" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-3.5 py-2 rounded-xl cursor-pointer shrink-0">+ Ajouter</button>
             </div>
           </div>
 
           <!-- Refused -->
-          <div class="space-y-2 pt-2 border-t border-gray-100">
-            <label class="block text-xs font-bold text-red-800">🚫 Objets Interdits</label>
+          <div class="space-y-2 pt-2 border-t border-gray-100 dark:border-slate-800">
+            <label class="block text-xs font-bold text-red-800 dark:text-rose-300">🚫 Objets Interdits</label>
             <div class="grid grid-cols-2 gap-2">
               <div
                 v-for="cat in allInterditsList" :key="cat"
                 @click="toggleInterdit(cat)"
                 class="p-2.5 rounded-xl border text-xs font-bold flex items-center justify-between cursor-pointer transition-all"
-                :class="form.objets_interdits.includes(cat) ? 'bg-red-50 border-red-300 text-red-800' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'"
+                :class="form.objets_interdits.includes(cat) ? 'bg-red-50 dark:bg-rose-950/60 border-red-300 dark:border-rose-800 text-red-800 dark:text-rose-300' : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700'"
               >
                 <span>{{ cat }}</span>
-                <span v-if="form.objets_interdits.includes(cat)" class="text-red-600 font-bold">✕</span>
+                <span v-if="form.objets_interdits.includes(cat)" class="text-red-600 dark:text-rose-400 font-bold">✕</span>
               </div>
             </div>
             <div class="flex gap-2 pt-1">
-              <input v-model="customInterdit" type="text" placeholder="Autre objet interdit (ex: Produits corrosifs)" class="flex-1 bg-[#F3F4F6] border border-gray-200 rounded-xl px-3 py-2 text-xs outline-none" @keyup.enter="addCustomInterdit" />
+              <input v-model="customInterdit" type="text" placeholder="Autre objet interdit (ex: Produits corrosifs)" class="flex-1 bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-gray-800 dark:text-slate-100 outline-none" @keyup.enter="addCustomInterdit" />
               <button @click="addCustomInterdit" type="button" class="bg-[#B50302] hover:bg-[#8B0000] text-white font-bold text-xs px-3.5 py-2 rounded-xl cursor-pointer shrink-0">+ Ajouter</button>
             </div>
           </div>
         </div>
 
         <!-- Wizard Navigation Buttons -->
-        <div class="pt-3 border-t border-gray-100 flex items-center justify-between gap-3">
-          <button v-if="wizardStep > 1" @click="prevWizardStep" type="button" class="px-4 py-2.5 rounded-xl bg-gray-100 font-bold text-xs text-gray-700">Précédent</button>
+        <div class="pt-3 border-t border-gray-100 dark:border-slate-800 flex items-center justify-between gap-3">
+          <button v-if="wizardStep > 1" @click="prevWizardStep" type="button" class="px-4 py-2.5 rounded-xl bg-gray-100 dark:bg-slate-800 font-bold text-xs text-gray-700 dark:text-slate-200 cursor-pointer">Précédent</button>
           
           <div class="ml-auto flex items-center gap-2">
-            <button v-if="wizardStep < 5" @click="nextWizardStep" type="button" class="bg-[#053754] text-white font-bold text-xs px-5 py-2.5 rounded-xl">Suivant</button>
+            <button v-if="wizardStep < 5" @click="nextWizardStep" type="button" class="bg-[#053754] dark:bg-sky-600 text-white font-bold text-xs px-5 py-2.5 rounded-xl cursor-pointer">Suivant</button>
             <template v-else>
-              <button @click="handleSaveVoyage('brouillon')" :disabled="isLoading" type="button" class="bg-gray-100 text-gray-800 font-bold text-xs px-4 py-2.5 rounded-xl">Brouillon</button>
-              <button @click="handleSaveVoyage('publie')" :disabled="isLoading" type="button" class="bg-[#B50302] text-white font-extrabold text-xs px-5 py-2.5 rounded-xl">
+              <button @click="handleSaveVoyage('brouillon')" :disabled="isLoading" type="button" class="bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-slate-200 font-bold text-xs px-4 py-2.5 rounded-xl cursor-pointer">Brouillon</button>
+              <button @click="handleSaveVoyage('publie')" :disabled="isLoading" type="button" class="bg-[#B50302] hover:bg-[#8B0000] text-white font-extrabold text-xs px-5 py-2.5 rounded-xl cursor-pointer">
                 {{ isEditing ? 'ENREGISTRER' : 'PUBLIER' }}
               </button>
             </template>
@@ -1013,41 +1013,41 @@ const goToDemandes = () => router.push('/voyageur/demandes')
 
     <!-- MODAL CREATION ADRESSE DEPOT (WITH CITYSELECT & AUTOFILL COUNTRY) -->
     <div v-if="showDepotAddressModal" class="fixed inset-0 z-[60] bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
-      <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 font-sans">
-        <div class="flex items-center justify-between border-b border-gray-100 pb-3">
-          <h3 class="text-base font-bold text-[#053754] font-serif">Nouvelle adresse de dépôt</h3>
-          <button @click="showDepotAddressModal = false" class="text-gray-400 font-bold">✕</button>
+      <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 font-sans">
+        <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3">
+          <h3 class="text-base font-bold text-[#053754] dark:text-sky-300 font-serif">Nouvelle adresse de dépôt</h3>
+          <button @click="showDepotAddressModal = false" class="text-gray-400 dark:text-slate-500 font-bold cursor-pointer">✕</button>
         </div>
 
         <form @submit.prevent="submitNewDepotAddress" class="space-y-3 text-xs">
           <div>
-            <label class="block font-bold text-gray-700 mb-1">Ville *</label>
+            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Ville *</label>
             <CitySelect v-model="newDepotForm.ville" @change="onDepotCitySelect" />
           </div>
 
           <div>
-            <label class="block font-bold text-gray-700 mb-1">Pays (Rempli automatiquement)</label>
-            <input v-model="newDepotForm.pays" type="text" placeholder="ex: Sénégal" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 font-bold outline-none" />
+            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Pays (Rempli automatiquement)</label>
+            <input v-model="newDepotForm.pays" type="text" placeholder="ex: Sénégal" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 font-bold text-gray-800 dark:text-slate-100 outline-none" />
           </div>
 
           <div>
-            <label class="block font-bold text-gray-700 mb-1">Adresse complète *</label>
-            <input v-model="newDepotForm.adresse" type="text" placeholder="ex: 15 Rue de Rivoli, Agence Relais Rahma" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none" />
+            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Adresse complète *</label>
+            <input v-model="newDepotForm.adresse" type="text" placeholder="ex: 15 Rue de Rivoli, Agence Relais Rahma" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-gray-800 dark:text-slate-100 outline-none" />
           </div>
 
           <div>
-            <label class="block font-bold text-gray-700 mb-1">Horaire d'ouverture</label>
-            <input v-model="newDepotForm.horaire_ouverture" type="text" placeholder="ex: Du Lundi au Samedi de 08h30 à 19h00" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none" />
+            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Horaire d'ouverture</label>
+            <input v-model="newDepotForm.horaire_ouverture" type="text" placeholder="ex: Du Lundi au Samedi de 08h30 à 19h00" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-gray-800 dark:text-slate-100 outline-none" />
           </div>
 
           <div>
-            <label class="block font-bold text-gray-700 mb-1">Instructions de dépôt</label>
-            <textarea v-model="newDepotForm.instructions" rows="2" placeholder="ex: Remettre le colis au comptoir 2..." class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none"></textarea>
+            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Instructions de dépôt</label>
+            <textarea v-model="newDepotForm.instructions" rows="2" placeholder="ex: Remettre le colis au comptoir 2..." class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-gray-800 dark:text-slate-100 outline-none"></textarea>
           </div>
 
           <div class="pt-2 flex justify-end gap-2">
-            <button type="button" @click="showDepotAddressModal = false" class="px-4 py-2 text-gray-600 font-bold">Annuler</button>
-            <button type="submit" :disabled="isLoading" class="bg-[#053754] text-white font-bold px-5 py-2 rounded-xl">Enregistrer</button>
+            <button type="button" @click="showDepotAddressModal = false" class="px-4 py-2 text-gray-600 dark:text-slate-400 font-bold cursor-pointer">Annuler</button>
+            <button type="submit" :disabled="isLoading" class="bg-[#053754] text-white font-bold px-5 py-2 rounded-xl cursor-pointer">Enregistrer</button>
           </div>
         </form>
       </div>
@@ -1055,41 +1055,41 @@ const goToDemandes = () => router.push('/voyageur/demandes')
 
     <!-- MODAL CREATION ADRESSE RECUPERATION (WITH CITYSELECT & AUTOFILL COUNTRY) -->
     <div v-if="showRecupAddressModal" class="fixed inset-0 z-[60] bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
-      <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 font-sans">
-        <div class="flex items-center justify-between border-b border-gray-100 pb-3">
-          <h3 class="text-base font-bold text-[#053754] font-serif">Nouvelle adresse de récupération</h3>
-          <button @click="showRecupAddressModal = false" class="text-gray-400 font-bold">✕</button>
+      <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 font-sans">
+        <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3">
+          <h3 class="text-base font-bold text-[#053754] dark:text-sky-300 font-serif">Nouvelle adresse de récupération</h3>
+          <button @click="showRecupAddressModal = false" class="text-gray-400 dark:text-slate-500 font-bold cursor-pointer">✕</button>
         </div>
 
         <form @submit.prevent="submitNewRecupAddress" class="space-y-3 text-xs">
           <div>
-            <label class="block font-bold text-gray-700 mb-1">Ville *</label>
+            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Ville *</label>
             <CitySelect v-model="newRecupForm.ville" @change="onRecupCitySelect" />
           </div>
 
           <div>
-            <label class="block font-bold text-gray-700 mb-1">Pays (Rempli automatiquement)</label>
-            <input v-model="newRecupForm.pays" type="text" placeholder="ex: France" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 font-bold outline-none" />
+            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Pays (Rempli automatiquement)</label>
+            <input v-model="newRecupForm.pays" type="text" placeholder="ex: France" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 font-bold text-gray-800 dark:text-slate-100 outline-none" />
           </div>
 
           <div>
-            <label class="block font-bold text-gray-700 mb-1">Adresse complète *</label>
-            <input v-model="newRecupForm.adresse" type="text" placeholder="ex: Agence Rahma Paris 10ème (Gare du Nord)" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none" />
+            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Adresse complète *</label>
+            <input v-model="newRecupForm.adresse" type="text" placeholder="ex: Agence Rahma Paris 10ème (Gare du Nord)" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-gray-800 dark:text-slate-100 outline-none" />
           </div>
 
           <div>
-            <label class="block font-bold text-gray-700 mb-1">Horaire d'ouverture</label>
-            <input v-model="newRecupForm.horaire_ouverture" type="text" placeholder="ex: Du Lundi au Samedi de 09h00 à 19h00" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none" />
+            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Horaire d'ouverture</label>
+            <input v-model="newRecupForm.horaire_ouverture" type="text" placeholder="ex: Du Lundi au Samedi de 09h00 à 19h00" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-gray-800 dark:text-slate-100 outline-none" />
           </div>
 
           <div>
-            <label class="block font-bold text-gray-700 mb-1">Instructions de récupération</label>
-            <textarea v-model="newRecupForm.instructions" rows="2" placeholder="ex: Présenter le code de réservation au guichet..." class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none"></textarea>
+            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Instructions de récupération</label>
+            <textarea v-model="newRecupForm.instructions" rows="2" placeholder="ex: Présenter le code de réservation au guichet..." class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-gray-800 dark:text-slate-100 outline-none"></textarea>
           </div>
 
           <div class="pt-2 flex justify-end gap-2">
-            <button type="button" @click="showRecupAddressModal = false" class="px-4 py-2 text-gray-600 font-bold">Annuler</button>
-            <button type="submit" :disabled="isLoading" class="bg-[#053754] text-white font-bold px-5 py-2 rounded-xl">Enregistrer</button>
+            <button type="button" @click="showRecupAddressModal = false" class="px-4 py-2 text-gray-600 dark:text-slate-400 font-bold cursor-pointer">Annuler</button>
+            <button type="submit" :disabled="isLoading" class="bg-[#053754] text-white font-bold px-5 py-2 rounded-xl cursor-pointer">Enregistrer</button>
           </div>
         </form>
       </div>

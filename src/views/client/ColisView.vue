@@ -73,19 +73,19 @@ const displayedParcels = computed(() => {
 const getStatusBadge = (statut) => {
   switch (statut) {
     case 'en_attente':
-      return { text: 'En Attente', cls: 'bg-amber-50 text-amber-700 border-amber-300' }
+      return { text: 'En Attente', cls: 'bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-800' }
     case 'acceptee':
-      return { text: 'Acceptée', cls: 'bg-emerald-50 text-emerald-700 border-emerald-300' }
+      return { text: 'Acceptée', cls: 'bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800' }
     case 'refusee':
-      return { text: 'Refusée', cls: 'bg-red-50 text-red-700 border-red-300' }
+      return { text: 'Refusée', cls: 'bg-red-50 dark:bg-red-950/80 text-red-700 dark:text-red-300 border-red-300 dark:border-red-900' }
     case 'annulee':
     case 'annule':
-      return { text: 'Annulée', cls: 'bg-red-50 text-red-800 border-red-300' }
+      return { text: 'Annulée', cls: 'bg-red-50 dark:bg-red-950/80 text-red-800 dark:text-red-300 border-red-300 dark:border-red-900' }
     case 'livree':
     case 'livre':
-      return { text: 'Livré', cls: 'bg-blue-50 text-blue-700 border-blue-300' }
+      return { text: 'Livré', cls: 'bg-blue-50 dark:bg-sky-950/80 text-blue-700 dark:text-sky-300 border-blue-300 dark:border-sky-800' }
     default:
-      return { text: statut || 'Inconnu', cls: 'bg-slate-100 text-slate-700 border-slate-200' }
+      return { text: statut || 'Inconnu', cls: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700' }
   }
 }
 
@@ -99,19 +99,19 @@ const goToTrackParcel = (id) => {
   <div class="space-y-5 pb-16">
     <!-- Header Title & Subtitle -->
     <div class="space-y-1">
-      <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark">Mes colis</h1>
-      <p class="text-xs sm:text-sm text-gray-500">Gérez et suivez vos colis en temps réel</p>
+      <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark dark:text-sky-300">Mes colis</h1>
+      <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400">Gérez et suivez vos colis en temps réel</p>
     </div>
 
     <!-- Filter Tabs (En cours / Livrés) -->
-    <div class="bg-[#EAEFF4]/60 p-1.5 rounded-2xl flex items-center gap-2 w-full max-w-sm">
+    <div class="bg-[#EAEFF4]/60 dark:bg-slate-800/80 p-1.5 rounded-2xl flex items-center gap-2 w-full max-w-sm">
       <button
         @click="activeTab = 'active'"
         class="flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center gap-1.5"
-        :class="activeTab === 'active' ? 'bg-white text-[#053754] shadow-sm' : 'text-gray-500 hover:text-gray-700'"
+        :class="activeTab === 'active' ? 'bg-white dark:bg-slate-900 text-[#053754] dark:text-sky-300 shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'"
       >
         <span>En cours</span>
-        <span class="w-5 h-5 rounded-full bg-[#053754] text-white text-[10px] flex items-center justify-center font-black">
+        <span class="w-5 h-5 rounded-full bg-[#053754] dark:bg-sky-600 text-white text-[10px] flex items-center justify-center font-black">
           {{ activeParcels.length }}
         </span>
       </button>
@@ -119,24 +119,24 @@ const goToTrackParcel = (id) => {
       <button
         @click="activeTab = 'delivered'"
         class="flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center gap-1.5"
-        :class="activeTab === 'delivered' ? 'bg-white text-[#053754] shadow-sm' : 'text-gray-500 hover:text-gray-700'"
+        :class="activeTab === 'delivered' ? 'bg-white dark:bg-slate-900 text-[#053754] dark:text-sky-300 shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'"
       >
         <span>Historique / Livrés</span>
-        <span class="w-5 h-5 rounded-full bg-gray-300 text-gray-700 text-[10px] flex items-center justify-center font-bold">
+        <span class="w-5 h-5 rounded-full bg-gray-300 dark:bg-slate-700 text-gray-700 dark:text-slate-300 text-[10px] flex items-center justify-center font-bold">
           {{ deliveredParcels.length }}
         </span>
       </button>
     </div>
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm space-y-4">
-      <div class="w-10 h-10 border-4 border-[#053754] border-t-transparent rounded-full animate-spin mx-auto"></div>
-      <p class="text-sm font-bold text-gray-600">Chargement de vos réservations...</p>
+    <div v-if="isLoading" class="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center border border-gray-100 dark:border-slate-800 shadow-sm space-y-4">
+      <div class="w-10 h-10 border-4 border-[#053754] dark:border-sky-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
+      <p class="text-sm font-bold text-gray-600 dark:text-slate-300">Chargement de vos réservations...</p>
     </div>
 
     <!-- Error State -->
-    <div v-else-if="errorMsg" class="bg-red-50 border border-red-200 rounded-3xl p-8 text-center space-y-3">
-      <p class="text-sm font-bold text-red-800">{{ errorMsg }}</p>
+    <div v-else-if="errorMsg" class="bg-red-50 dark:bg-red-950/80 border border-red-200 dark:border-red-900 rounded-3xl p-8 text-center space-y-3">
+      <p class="text-sm font-bold text-red-800 dark:text-red-300">{{ errorMsg }}</p>
       <button @click="loadReservations" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-xl cursor-pointer">Réessayer</button>
     </div>
 
@@ -145,7 +145,7 @@ const goToTrackParcel = (id) => {
       <div
         v-for="parcel in displayedParcels"
         :key="parcel.id"
-        class="bg-white rounded-3xl p-5 border border-gray-200 shadow-sm space-y-4 hover:border-sky-300 transition-all"
+        class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-gray-200 dark:border-slate-800 shadow-sm space-y-4 hover:border-sky-300 dark:hover:border-sky-500 transition-all"
       >
         <!-- Card Top Bar: Code + Status Badge + Transporter Tag -->
         <div class="space-y-2">
@@ -153,8 +153,8 @@ const goToTrackParcel = (id) => {
             <div class="flex items-center gap-2">
               <span class="text-lg">📦</span>
               <div>
-                <span class="font-extrabold text-[#053754] text-sm sm:text-base block">{{ parcel.code }}</span>
-                <span class="text-[11px] text-gray-400 font-mono block">{{ parcel.tracking }}</span>
+                <span class="font-extrabold text-[#053754] dark:text-sky-300 text-sm sm:text-base block">{{ parcel.code }}</span>
+                <span class="text-[11px] text-gray-400 dark:text-slate-400 font-mono block">{{ parcel.tracking }}</span>
               </div>
             </div>
 
@@ -169,8 +169,8 @@ const goToTrackParcel = (id) => {
 
           <!-- Transporter Badge -->
           <div class="flex justify-end">
-            <div class="bg-[#EAEFF4] text-gray-700 text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1.5 border border-gray-200/80">
-              <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="bg-[#EAEFF4] dark:bg-slate-800 text-gray-700 dark:text-slate-300 text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1.5 border border-gray-200/80 dark:border-slate-700">
+              <svg class="w-3.5 h-3.5 text-gray-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
               <span>{{ parcel.transporter }}</span>
@@ -183,8 +183,8 @@ const goToTrackParcel = (id) => {
           <!-- Departure -->
           <div class="space-y-0.5">
             <CountryFlag :city="parcel.routeFrom" :country="parcel.countryFrom" size="w-6 h-4" />
-            <h4 class="text-sm font-extrabold text-gray-900 leading-tight">{{ parcel.routeFrom }}</h4>
-            <p class="text-[11px] text-gray-400 font-medium">{{ parcel.countryFrom }}</p>
+            <h4 class="text-sm font-extrabold text-gray-900 dark:text-slate-100 leading-tight">{{ parcel.routeFrom }}</h4>
+            <p class="text-[11px] text-gray-400 dark:text-slate-400 font-medium">{{ parcel.countryFrom }}</p>
           </div>
 
           <!-- Flight Line -->
@@ -192,7 +192,7 @@ const goToTrackParcel = (id) => {
             <div class="w-full flex items-center gap-1">
               <span class="w-2.5 h-2.5 rounded-full bg-red-500 shrink-0"></span>
               <div class="flex-1 border-t-2 border-dashed border-red-400"></div>
-              <div class="bg-white px-1 transform -rotate-12">
+              <div class="bg-white dark:bg-slate-900 px-1 transform -rotate-12">
                 <span class="text-red-500 text-sm font-bold">✈</span>
               </div>
               <div class="flex-1 border-t-2 border-dashed border-amber-400"></div>
@@ -203,32 +203,32 @@ const goToTrackParcel = (id) => {
           <!-- Destination -->
           <div class="space-y-0.5 text-right">
             <CountryFlag :city="parcel.routeTo" :country="parcel.countryTo" size="w-6 h-4" />
-            <h4 class="text-sm font-extrabold text-gray-900 leading-tight">{{ parcel.routeTo }}</h4>
-            <p class="text-[11px] text-gray-400 font-medium">{{ parcel.countryTo }}</p>
+            <h4 class="text-sm font-extrabold text-gray-900 dark:text-slate-100 leading-tight">{{ parcel.routeTo }}</h4>
+            <p class="text-[11px] text-gray-400 dark:text-slate-400 font-medium">{{ parcel.countryTo }}</p>
           </div>
         </div>
 
         <!-- Details Info Grid -->
-        <div class="border-t border-gray-100 pt-3 grid grid-cols-2 gap-2 text-xs">
+        <div class="border-t border-gray-100 dark:border-slate-800 pt-3 grid grid-cols-2 gap-2 text-xs">
           <div>
-            <span class="text-gray-400 block font-medium">Départ prévu</span>
-            <span class="font-extrabold text-gray-800 text-xs sm:text-sm">{{ formatVoyageDate(parcel.departureDate) }}</span>
+            <span class="text-gray-400 dark:text-slate-400 block font-medium">Départ prévu</span>
+            <span class="font-extrabold text-gray-800 dark:text-slate-100 text-xs sm:text-sm">{{ formatVoyageDate(parcel.departureDate) }}</span>
           </div>
           <div class="text-right">
-            <span class="text-gray-400 block font-medium">Poids du colis</span>
-            <span class="font-extrabold text-gray-800 text-xs sm:text-sm">{{ parcel.weight }}</span>
+            <span class="text-gray-400 dark:text-slate-400 block font-medium">Poids du colis</span>
+            <span class="font-extrabold text-gray-800 dark:text-slate-100 text-xs sm:text-sm">{{ parcel.weight }}</span>
           </div>
         </div>
 
         <!-- Price & Action Button -->
-        <div class="border-t border-gray-100 pt-3 flex items-center justify-between">
-          <span class="font-black text-[#053754] text-base sm:text-lg">{{ parcel.price }}</span>
+        <div class="border-t border-gray-100 dark:border-slate-800 pt-3 flex items-center justify-between">
+          <span class="font-black text-[#053754] dark:text-sky-300 text-base sm:text-lg">{{ parcel.price }}</span>
 
           <button
             v-if="!['annulee', 'annule'].includes(parcel.status)"
             @click="goToTrackParcel(parcel.id)"
             type="button"
-            class="bg-[#B50302] hover:bg-[#8B0000] text-white font-extrabold px-6 py-2.5 rounded-xl text-xs uppercase shadow-xs transition-colors cursor-pointer tracking-wider"
+            class="bg-[#B50302] dark:bg-red-700 hover:bg-[#8B0000] dark:hover:bg-red-600 text-white font-extrabold px-6 py-2.5 rounded-xl text-xs uppercase shadow-xs transition-colors cursor-pointer tracking-wider"
           >
             SUIVRE
           </button>
@@ -238,12 +238,12 @@ const goToTrackParcel = (id) => {
     </div>
 
     <!-- Empty State -->
-    <div v-else class="bg-white rounded-3xl p-12 text-center border border-gray-200 space-y-2">
-      <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-xl mx-auto font-bold">
+    <div v-else class="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center border border-gray-200 dark:border-slate-800 space-y-2">
+      <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center text-xl mx-auto font-bold">
         📦
       </div>
-      <p class="text-sm font-bold text-gray-700">Aucun colis dans cette catégorie.</p>
-      <p class="text-xs text-gray-400">Vos réservations actives ou livrées apparaîtront ici.</p>
+      <p class="text-sm font-bold text-gray-700 dark:text-slate-200">Aucun colis dans cette catégorie.</p>
+      <p class="text-xs text-gray-400 dark:text-slate-400">Vos réservations actives ou livrées apparaîtront ici.</p>
     </div>
   </div>
 </template>

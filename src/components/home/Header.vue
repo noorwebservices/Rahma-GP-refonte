@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { RouterLink } from 'vue-router'
+import ThemeToggle from '@/components/common/ThemeToggle.vue'
 
 const isMobileMenuOpen = ref(false)
 const activeLink = ref('#accueil')
@@ -70,7 +71,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <header class="sticky top-0 z-50 bg-principal text-white shadow-md">
+  <header class="sticky top-0 z-50 bg-principal dark:bg-slate-900 text-white shadow-md border-b border-white/10 dark:border-slate-800 transition-colors duration-300">
     <div class="max-w-7xl 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-20">
 
@@ -94,6 +95,8 @@ onUnmounted(() => {
 
         <!-- Desktop Action Buttons (>= 1024px) -->
         <div class="hidden lg:flex items-center gap-3">
+          <ThemeToggle variant="transparent" />
+
           <RouterLink
             to="/auth/login"
             class="bg-white/10 hover:bg-white/20 text-white font-semibold text-xs xl:text-sm px-4 xl:px-5 py-2.5 rounded-2xl border border-white/20 transition-all duration-200 text-center whitespace-nowrap"
@@ -107,7 +110,8 @@ onUnmounted(() => {
         </div>
 
         <!-- Mobile & Tablet Menu Toggle Button (< 1024px) -->
-        <div class="flex lg:hidden items-center">
+        <div class="flex lg:hidden items-center gap-2">
+          <ThemeToggle variant="transparent" />
           <button @click="toggleMobileMenu" type="button"
             class="p-2.5 rounded-xl text-white hover:bg-white/10 focus:outline-none transition-colors"
             aria-label="Toggle Menu">

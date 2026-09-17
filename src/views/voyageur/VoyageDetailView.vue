@@ -227,13 +227,13 @@ const goBack = () => {
 </script>
 
 <template>
-  <div class="space-y-6 pb-16">
+  <div class="space-y-6 pb-16 font-sans">
     <!-- Top Action Bar -->
-    <div class="flex items-center justify-between gap-2 border-b border-gray-200/60 pb-3">
+    <div class="flex items-center justify-between gap-2 border-b border-gray-200/60 dark:border-slate-800 pb-3">
       <button
         @click="goBack"
         type="button"
-        class="inline-flex items-center gap-1.5 text-xs font-bold text-gray-700 bg-white border border-gray-200 px-3 py-2 rounded-xl hover:bg-gray-50 transition-colors shadow-2xs cursor-pointer shrink"
+        class="inline-flex items-center gap-1.5 text-xs font-bold text-gray-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 px-3 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors shadow-2xs cursor-pointer shrink"
       >
         <span>←</span>
         <span>Retour aux voyages</span>
@@ -249,25 +249,25 @@ const goBack = () => {
     </div>
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm space-y-4">
-      <div class="w-10 h-10 border-4 border-[#053754] border-t-transparent rounded-full animate-spin mx-auto"></div>
-      <p class="text-sm font-bold text-gray-600">Chargement des détails complets du voyage...</p>
+    <div v-if="isLoading" class="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center border border-gray-100 dark:border-slate-800 shadow-sm space-y-4">
+      <div class="w-10 h-10 border-4 border-[#053754] dark:border-sky-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
+      <p class="text-sm font-bold text-gray-600 dark:text-slate-300">Chargement des détails complets du voyage...</p>
     </div>
 
     <!-- Error State -->
-    <div v-else-if="errorMsg" class="bg-red-50 border border-red-200 rounded-3xl p-8 text-center space-y-3">
-      <p class="text-sm font-bold text-red-800">{{ errorMsg }}</p>
-      <button @click="goBack" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-xl">Retour</button>
+    <div v-else-if="errorMsg" class="bg-red-50 dark:bg-rose-950/40 border border-red-200 dark:border-rose-900 rounded-3xl p-8 text-center space-y-3">
+      <p class="text-sm font-bold text-red-800 dark:text-rose-300">{{ errorMsg }}</p>
+      <button @click="goBack" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-xl cursor-pointer">Retour</button>
     </div>
 
     <!-- Main Content when loaded -->
     <template v-else-if="voyage">
       <!-- Title Header -->
       <div>
-        <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark">
+        <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark dark:text-sky-300">
           Détails du voyage {{ voyage.routeFrom }} ➔ {{ voyage.routeTo }}
         </h1>
-        <p class="text-xs sm:text-sm text-gray-500">
+        <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400">
           Toutes les caractéristiques, adresses et les réservations associées à ce vol
         </p>
       </div>
@@ -361,78 +361,78 @@ const goBack = () => {
         <div class="lg:col-span-7 space-y-5">
           
           <!-- Tarifs Card -->
-          <div class="bg-white rounded-3xl p-5 border border-gray-200 shadow-2xs space-y-3">
-            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Tarification appliquée</h3>
+          <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-3">
+            <h3 class="text-xs font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider">Tarification appliquée</h3>
             <div class="grid grid-cols-2 gap-4">
-              <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 space-y-1">
-                <span class="text-xs text-gray-500 block font-medium">Prix par Kg</span>
-                <span class="text-lg font-black text-[#B50302] block">{{ voyage.prixKg }}</span>
+              <div class="bg-slate-50 dark:bg-slate-800/80 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-1">
+                <span class="text-xs text-gray-500 dark:text-slate-400 block font-medium">Prix par Kg</span>
+                <span class="text-lg font-black text-[#B50302] dark:text-rose-400 block">{{ voyage.prixKg }}</span>
               </div>
-              <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 space-y-1">
-                <span class="text-xs text-gray-500 block font-medium">Prix par Objet (Forfait)</span>
-                <span class="text-lg font-black text-[#053754] block">{{ voyage.prixObjet }}</span>
+              <div class="bg-slate-50 dark:bg-slate-800/80 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-1">
+                <span class="text-xs text-gray-500 dark:text-slate-400 block font-medium">Prix par Objet (Forfait)</span>
+                <span class="text-lg font-black text-[#053754] dark:text-sky-300 block">{{ voyage.prixObjet }}</span>
               </div>
             </div>
           </div>
 
           <!-- Adresse de Dépôt Card -->
-          <div class="bg-white rounded-3xl p-5 border border-gray-200 shadow-2xs space-y-3">
-            <div class="flex items-center justify-between border-b border-gray-100 pb-2">
-              <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+          <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-3">
+            <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-2">
+              <h3 class="text-xs font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                 <span>📍</span> Adresse de Dépôt du colis (Départ)
               </h3>
             </div>
             
             <template v-if="voyage.adresseDepot">
               <div class="space-y-1 text-xs">
-                <p class="font-extrabold text-[#053754] text-sm sm:text-base">{{ voyage.adresseDepot.adresse }}</p>
-                <p class="text-gray-600 font-medium">{{ voyage.adresseDepot.ville }}, {{ voyage.adresseDepot.pays }}</p>
+                <p class="font-extrabold text-[#053754] dark:text-sky-300 text-sm sm:text-base">{{ voyage.adresseDepot.adresse }}</p>
+                <p class="text-gray-600 dark:text-slate-300 font-medium">{{ voyage.adresseDepot.ville }}, {{ voyage.adresseDepot.pays }}</p>
               </div>
               
-              <div v-if="voyage.adresseDepot.horaire_ouverture" class="bg-amber-50/60 border border-amber-200/60 p-3 rounded-2xl text-xs space-y-0.5">
-                <span class="text-amber-800 font-bold block">🕒 Horaires d'ouverture :</span>
-                <span class="text-amber-900 font-medium block">{{ voyage.adresseDepot.horaire_ouverture }}</span>
+              <div v-if="voyage.adresseDepot.horaire_ouverture" class="bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-800/60 p-3 rounded-2xl text-xs space-y-0.5">
+                <span class="text-amber-800 dark:text-amber-300 font-bold block">🕒 Horaires d'ouverture :</span>
+                <span class="text-amber-900 dark:text-amber-200 font-medium block">{{ voyage.adresseDepot.horaire_ouverture }}</span>
               </div>
 
-              <div v-if="voyage.adresseDepot.instructions" class="bg-blue-50/60 border border-blue-200/60 p-3 rounded-2xl text-xs space-y-0.5">
-                <span class="text-blue-800 font-bold block">💡 Instructions de dépôt :</span>
-                <span class="text-blue-900 font-medium block">{{ voyage.adresseDepot.instructions }}</span>
+              <div v-if="voyage.adresseDepot.instructions" class="bg-blue-50/60 dark:bg-sky-950/40 border border-blue-200/60 dark:border-sky-800/60 p-3 rounded-2xl text-xs space-y-0.5">
+                <span class="text-blue-800 dark:text-sky-300 font-bold block">💡 Instructions de dépôt :</span>
+                <span class="text-blue-900 dark:text-sky-200 font-medium block">{{ voyage.adresseDepot.instructions }}</span>
               </div>
             </template>
-            <p v-else class="text-xs text-gray-400 italic">Aucune adresse de dépôt spécifique attribuée.</p>
+            <p v-else class="text-xs text-gray-400 dark:text-slate-500 italic">Aucune adresse de dépôt spécifique attribuée.</p>
           </div>
 
           <!-- Adresse de Récupération Card -->
-          <div class="bg-white rounded-3xl p-5 border border-gray-200 shadow-2xs space-y-3">
-            <div class="flex items-center justify-between border-b border-gray-100 pb-2">
-              <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+          <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-3">
+            <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-2">
+              <h3 class="text-xs font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                 <span>📍</span> Adresse de Retrait du colis (Destination)
               </h3>
             </div>
 
             <template v-if="voyage.adresseRetrait">
               <div class="space-y-1 text-xs">
-                <p class="font-extrabold text-[#053754] text-sm sm:text-base">{{ voyage.adresseRetrait.adresse }}</p>
-                <p class="text-gray-600 font-medium">{{ voyage.adresseRetrait.ville }}, {{ voyage.adresseRetrait.pays }}</p>
+                <p class="font-extrabold text-[#053754] dark:text-sky-300 text-sm sm:text-base">{{ voyage.adresseRetrait.adresse }}</p>
+                <p class="text-gray-600 dark:text-slate-300 font-medium">{{ voyage.adresseRetrait.ville }}, {{ voyage.adresseRetrait.pays }}</p>
               </div>
 
-              <div v-if="voyage.adresseRetrait.horaire_ouverture" class="bg-amber-50/60 border border-amber-200/60 p-3 rounded-2xl text-xs space-y-0.5">
-                <span class="text-amber-800 font-bold block">🕒 Horaires de retrait :</span>
-                <span class="text-amber-900 font-medium block">{{ voyage.adresseRetrait.horaire_ouverture }}</span>
+              <div v-if="voyage.adresseRetrait.horaire_ouverture" class="bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-800/60 p-3 rounded-2xl text-xs space-y-0.5">
+                <span class="text-amber-800 dark:text-amber-300 font-bold block">🕒 Horaires de retrait :</span>
+                <span class="text-amber-900 dark:text-amber-200 font-medium block">{{ voyage.adresseRetrait.horaire_ouverture }}</span>
               </div>
 
-              <div v-if="voyage.adresseRetrait.instructions" class="bg-blue-50/60 border border-blue-200/60 p-3 rounded-2xl text-xs space-y-0.5">
-                <span class="text-blue-800 font-bold block">💡 Instructions de retrait :</span>
-                <span class="text-blue-900 font-medium block">{{ voyage.adresseRetrait.instructions }}</span>
+              <div v-if="voyage.adresseRetrait.instructions" class="bg-blue-50/60 dark:bg-sky-950/40 border border-blue-200/60 dark:border-sky-800/60 p-3 rounded-2xl text-xs space-y-0.5">
+                <span class="text-blue-800 dark:text-sky-300 font-bold block">💡 Instructions de retrait :</span>
+                <span class="text-blue-900 dark:text-sky-200 font-medium block">{{ voyage.adresseRetrait.instructions }}</span>
               </div>
             </template>
-            <p v-else class="text-xs text-gray-400 italic">Aucune adresse de retrait spécifique attribuée.</p>
+            <p v-else class="text-xs text-gray-400 dark:text-slate-500 italic">Aucune adresse de retrait spécifique attribuée.</p>
           </div>
 
           <!-- Description / Notes -->
-          <div v-if="voyage.description" class="bg-white rounded-3xl p-5 border border-gray-200 shadow-2xs space-y-2">
-            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Note ou description du transporteur</h3>
-            <p class="text-xs text-gray-700 leading-relaxed font-medium bg-gray-50 p-3.5 rounded-2xl border border-gray-100">
+          <div v-if="voyage.description" class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-2">
+            <h3 class="text-xs font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider">Note ou description du transporteur</h3>
+            <p class="text-xs text-gray-700 dark:text-slate-300 leading-relaxed font-medium bg-gray-50 dark:bg-slate-800/80 p-3.5 rounded-2xl border border-gray-100 dark:border-slate-700">
               {{ voyage.description }}
             </p>
           </div>
@@ -442,8 +442,8 @@ const goBack = () => {
         <div class="lg:col-span-5 space-y-5 lg:sticky lg:top-20">
           
           <!-- Objets autorisés Card -->
-          <div class="bg-white rounded-3xl p-5 border border-emerald-300 shadow-2xs space-y-3">
-            <div class="flex items-center gap-2 text-emerald-800 font-extrabold text-sm border-b border-emerald-100 pb-2">
+          <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-emerald-300 dark:border-emerald-800 shadow-2xs space-y-3">
+            <div class="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-extrabold text-sm border-b border-emerald-100 dark:border-emerald-900/60 pb-2">
               <span class="text-base">✅</span>
               <span>Catégories d'objets autorisées :</span>
             </div>
@@ -452,18 +452,18 @@ const goBack = () => {
               <span
                 v-for="cat in voyage.categoriesAutorisees"
                 :key="cat"
-                class="bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5"
+                class="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5"
               >
                 <span>✓</span>
                 <span>{{ cat }}</span>
               </span>
             </div>
-            <p v-else class="text-xs text-gray-400 italic">Aucune catégorie spécifiée.</p>
+            <p v-else class="text-xs text-gray-400 dark:text-slate-500 italic">Aucune catégorie spécifiée.</p>
           </div>
 
           <!-- Objets interdits Card -->
-          <div class="bg-white rounded-3xl p-5 border border-red-300 shadow-2xs space-y-3">
-            <div class="flex items-center gap-2 text-red-800 font-extrabold text-sm border-b border-red-100 pb-2">
+          <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-red-300 dark:border-rose-900 shadow-2xs space-y-3">
+            <div class="flex items-center gap-2 text-red-800 dark:text-rose-300 font-extrabold text-sm border-b border-red-100 dark:border-rose-950 pb-2">
               <span class="text-base">🚫</span>
               <span>Catégories d'objets interdites :</span>
             </div>
@@ -472,26 +472,26 @@ const goBack = () => {
               <span
                 v-for="cat in voyage.categoriesRefusees"
                 :key="cat"
-                class="bg-red-50 text-red-800 border border-red-200 text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5"
+                class="bg-red-50 dark:bg-rose-950/60 text-red-800 dark:text-rose-300 border border-red-200 dark:border-rose-800 text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5"
               >
                 <span>✕</span>
                 <span>{{ cat }}</span>
               </span>
             </div>
-            <p v-else class="text-xs text-gray-400 italic">Aucune interdiction spécifique.</p>
+            <p v-else class="text-xs text-gray-400 dark:text-slate-500 italic">Aucune interdiction spécifique.</p>
           </div>
         </div>
 
       </div>
 
       <!-- Reservations Section (Premium Redesigned Cards) -->
-      <div class="space-y-4 pt-4 border-t border-gray-200">
+      <div class="space-y-4 pt-4 border-t border-gray-200 dark:border-slate-800">
         <div class="flex items-center justify-between">
-          <h2 class="text-base sm:text-lg font-bold text-principal-dark flex items-center gap-2">
+          <h2 class="text-base sm:text-lg font-bold text-principal-dark dark:text-sky-300 flex items-center gap-2">
             <span>Demandes & Réservations associées</span>
-            <span class="bg-sky-100 text-[#074C72] text-xs px-2.5 py-0.5 rounded-full font-black">{{ reservations.length }}</span>
+            <span class="bg-sky-100 dark:bg-sky-950 text-[#074C72] dark:text-sky-300 text-xs px-2.5 py-0.5 rounded-full font-black">{{ reservations.length }}</span>
           </h2>
-          <span class="text-xs text-gray-500 font-medium hidden sm:inline">
+          <span class="text-xs text-gray-500 dark:text-slate-400 font-medium hidden sm:inline">
             Cliquez sur une carte pour voir les détails complets de la demande
           </span>
         </div>
@@ -501,19 +501,19 @@ const goBack = () => {
             v-for="res in reservations"
             :key="res.id"
             @click="goToDemandeDetail(res.id)"
-            class="bg-white rounded-3xl p-5 border border-gray-200 shadow-sm space-y-4 hover:border-[#074C72] hover:shadow-md transition-all flex flex-col justify-between cursor-pointer group"
+            class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-gray-200 dark:border-slate-800 shadow-sm space-y-4 hover:border-[#074C72] dark:hover:border-sky-400 hover:shadow-md transition-all flex flex-col justify-between cursor-pointer group"
           >
             <!-- Card Header: Client Avatar + Name + Status Badge -->
             <div class="flex items-center justify-between gap-3">
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-[#053754] text-white font-extrabold text-xs flex items-center justify-center shrink-0 shadow-xs group-hover:bg-[#B50302] transition-colors">
+                <div class="w-10 h-10 rounded-full bg-[#053754] dark:bg-slate-800 text-white font-extrabold text-xs flex items-center justify-center shrink-0 shadow-xs group-hover:bg-[#B50302] transition-colors">
                   {{ res.clientNom.slice(0, 2).toUpperCase() }}
                 </div>
                 <div>
-                  <h4 class="text-sm font-extrabold text-gray-900 group-hover:text-[#074C72] transition-colors flex items-center gap-2">
+                  <h4 class="text-sm font-extrabold text-gray-900 dark:text-slate-100 group-hover:text-[#074C72] dark:group-hover:text-sky-300 transition-colors flex items-center gap-2">
                     <span>{{ res.clientNom }}</span>
                   </h4>
-                  <span class="text-[10px] text-gray-400 font-medium">Client Rahma GP</span>
+                  <span class="text-[10px] text-gray-400 dark:text-slate-400 font-medium">Client Rahma GP</span>
                 </div>
               </div>
 
@@ -526,33 +526,33 @@ const goBack = () => {
             </div>
 
             <!-- Main Info Box -->
-            <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 space-y-2.5">
+            <div class="bg-slate-50 dark:bg-slate-800/80 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-2.5">
               <div class="flex items-center justify-between text-xs">
-                <span class="text-gray-400 font-medium">N° Réservation :</span>
-                <span class="font-extrabold text-[#053754] font-mono bg-white px-2 py-0.5 rounded-md border border-gray-200">{{ res.numero }}</span>
+                <span class="text-gray-400 dark:text-slate-400 font-medium">N° Réservation :</span>
+                <span class="font-extrabold text-[#053754] dark:text-sky-300 font-mono bg-white dark:bg-slate-900 px-2 py-0.5 rounded-md border border-gray-200 dark:border-slate-700">{{ res.numero }}</span>
               </div>
 
               <div class="grid grid-cols-2 gap-2 text-xs">
                 <div>
-                  <span class="text-gray-400 font-medium block">Contenu :</span>
-                  <span class="font-extrabold text-gray-900 block truncate">{{ res.colisType }}</span>
+                  <span class="text-gray-400 dark:text-slate-400 font-medium block">Contenu :</span>
+                  <span class="font-extrabold text-gray-900 dark:text-slate-100 block truncate">{{ res.colisType }}</span>
                 </div>
                 <div class="text-right">
-                  <span class="text-gray-400 font-medium block">Poids :</span>
-                  <span class="font-extrabold text-[#B50302] block">{{ res.colisPoids }}</span>
+                  <span class="text-gray-400 dark:text-slate-400 font-medium block">Poids :</span>
+                  <span class="font-extrabold text-[#B50302] dark:text-rose-400 block">{{ res.colisPoids }}</span>
                 </div>
               </div>
 
-              <div v-if="res.colisEstFragile" class="bg-amber-50 text-amber-800 text-[11px] font-bold px-2.5 py-1 rounded-lg border border-amber-200/80 flex items-center gap-1.5">
+              <div v-if="res.colisEstFragile" class="bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-[11px] font-bold px-2.5 py-1 rounded-lg border border-amber-200/80 dark:border-amber-800 flex items-center gap-1.5">
                 <span>⚠️</span> Colis fragile à manipuler avec précaution
               </div>
             </div>
 
             <!-- Footer Action & Price Row -->
-            <div class="border-t border-gray-100 pt-3 flex items-center justify-between gap-3">
+            <div class="border-t border-gray-100 dark:border-slate-800 pt-3 flex items-center justify-between gap-3">
               <div>
-                <span class="text-[10px] text-gray-400 font-bold uppercase block">Montant Total</span>
-                <span class="font-black text-[#053754] text-base sm:text-lg">{{ res.montantTotal }}</span>
+                <span class="text-[10px] text-gray-400 dark:text-slate-400 font-bold uppercase block">Montant Total</span>
+                <span class="font-black text-[#053754] dark:text-sky-300 text-base sm:text-lg">{{ res.montantTotal }}</span>
               </div>
 
               <div class="flex items-center gap-2" @click.stop>
@@ -571,7 +571,7 @@ const goBack = () => {
                   @click="handleRefuser(res.id)"
                   :disabled="isUpdatingStatus"
                   type="button"
-                  class="bg-red-50 hover:bg-red-100 text-[#B50302] border border-red-200 font-extrabold text-xs px-3 py-2 rounded-xl transition-colors cursor-pointer"
+                  class="bg-red-50 dark:bg-rose-950/50 hover:bg-red-100 dark:hover:bg-rose-900/60 text-[#B50302] dark:text-rose-300 border border-red-200 dark:border-rose-900 font-extrabold text-xs px-3 py-2 rounded-xl transition-colors cursor-pointer"
                 >
                   Refuser
                 </button>
@@ -579,7 +579,7 @@ const goBack = () => {
                 <button
                   @click="goToDemandeDetail(res.id)"
                   type="button"
-                  class="bg-[#053754] hover:bg-[#074C72] text-white font-extrabold text-xs px-3.5 py-2 rounded-xl transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
+                  class="bg-[#053754] dark:bg-sky-600 hover:bg-[#074C72] dark:hover:bg-sky-500 text-white font-extrabold text-xs px-3.5 py-2 rounded-xl transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
                 >
                   <span>Détails</span>
                   <span>➔</span>
@@ -590,12 +590,12 @@ const goBack = () => {
         </div>
 
         <!-- Empty state if no reservations -->
-        <div v-else class="bg-white rounded-3xl p-10 text-center border border-gray-200 space-y-2">
-          <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-xl mx-auto font-bold">
+        <div v-else class="bg-white dark:bg-slate-900 rounded-3xl p-10 text-center border border-gray-200 dark:border-slate-800 space-y-2">
+          <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 flex items-center justify-center text-xl mx-auto font-bold">
             📦
           </div>
-          <p class="text-sm font-bold text-gray-700">Aucune réservation sur ce vol pour le moment.</p>
-          <p class="text-xs text-gray-400">Les réservations envoyées par les clients s'afficheront ici automatiquement.</p>
+          <p class="text-sm font-bold text-gray-700 dark:text-slate-200">Aucune réservation sur ce vol pour le moment.</p>
+          <p class="text-xs text-gray-400 dark:text-slate-400">Les réservations envoyées par les clients s'afficheront ici automatiquement.</p>
         </div>
       </div>
     </template>

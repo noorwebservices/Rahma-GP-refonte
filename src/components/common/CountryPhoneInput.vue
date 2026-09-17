@@ -124,18 +124,18 @@ watch(() => props.modelValue, (val) => {
 <template>
   <div class="relative w-full" ref="dropdownRef">
     <!-- Input Row -->
-    <div class="flex rounded-xl overflow-visible border border-gray-300 focus-within:border-principal focus-within:ring-2 focus-within:ring-principal/20 transition-all bg-white shadow-2xs">
+    <div class="flex rounded-xl overflow-visible border border-gray-300 dark:border-slate-700 focus-within:border-principal dark:focus-within:border-sky-400 focus-within:ring-2 focus-within:ring-principal/20 transition-all bg-white dark:bg-slate-800 shadow-2xs">
 
       <!-- Country Trigger Button -->
       <button
         type="button"
         @click="isOpen = !isOpen"
-        class="bg-gray-100 hover:bg-gray-200/80 px-3 py-3 text-xs sm:text-sm font-bold text-gray-700 flex items-center gap-1.5 border-r border-gray-300 cursor-pointer transition-colors shrink-0 rounded-l-xl"
+        class="bg-gray-100 dark:bg-slate-700 hover:bg-gray-200/80 dark:hover:bg-slate-600 px-3 py-3 text-xs sm:text-sm font-bold text-gray-700 dark:text-slate-200 flex items-center gap-1.5 border-r border-gray-300 dark:border-slate-700 cursor-pointer transition-colors shrink-0 rounded-l-xl"
       >
         <span class="text-base leading-none">{{ selectedCountry.flag }}</span>
         <span class="font-mono">{{ selectedCountry.dialCode }}</span>
         <svg
-          class="w-3 h-3 text-gray-500 transition-transform duration-200 shrink-0"
+          class="w-3 h-3 text-gray-500 dark:text-slate-400 transition-transform duration-200 shrink-0"
           :class="{ 'rotate-180': isOpen }"
           fill="none" stroke="currentColor" viewBox="0 0 24 24"
         >
@@ -151,7 +151,7 @@ watch(() => props.modelValue, (val) => {
         @blur="emit('blur')"
         type="tel"
         :placeholder="placeholder"
-        class="w-full px-3.5 py-3 text-xs sm:text-sm text-gray-900 bg-transparent outline-none placeholder-gray-400 font-medium rounded-r-xl"
+        class="w-full px-3.5 py-3 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-transparent outline-none placeholder-gray-400 dark:placeholder-slate-500 font-medium rounded-r-xl"
       />
     </div>
 
@@ -166,31 +166,31 @@ watch(() => props.modelValue, (val) => {
     >
       <div
         v-if="isOpen"
-        class="absolute left-0 top-full mt-1.5 w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 z-[200] overflow-hidden"
+        class="absolute left-0 top-full mt-1.5 w-80 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-700 z-[200] overflow-hidden"
       >
         <!-- Search -->
-        <div class="p-2 border-b border-gray-100 bg-gray-50">
+        <div class="p-2 border-b border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-900">
           <div class="relative">
             <input
               v-model="searchQuery"
               type="text"
               placeholder="Rechercher pays ou indicatif..."
-              class="w-full pl-8 pr-3 py-2 text-xs text-gray-800 bg-white border border-gray-200 rounded-xl outline-none focus:border-principal"
+              class="w-full pl-8 pr-3 py-2 text-xs text-gray-800 dark:text-slate-100 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl outline-none focus:border-principal dark:focus:border-sky-400"
               @click.stop
             />
-            <svg class="w-4 h-4 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 text-gray-400 dark:text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
         </div>
 
         <!-- Divider label when no search -->
-        <div v-if="!searchQuery" class="px-3.5 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+        <div v-if="!searchQuery" class="px-3.5 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-slate-400">
           Pays fréquents
         </div>
 
         <!-- Scrollable List -->
-        <div class="max-h-60 overflow-y-auto divide-y divide-gray-50 no-scrollbar">
+        <div class="max-h-60 overflow-y-auto divide-y divide-gray-50 dark:divide-slate-700/50 no-scrollbar">
           <template v-if="!searchQuery">
             <!-- Priority countries -->
             <button
@@ -199,18 +199,18 @@ watch(() => props.modelValue, (val) => {
               type="button"
               @click="selectCountry(country)"
               :class="[
-                'w-full px-3.5 py-2.5 flex items-center justify-between text-left hover:bg-principal/5 transition-colors cursor-pointer',
-                selectedCountry.iso2 === country.iso2 ? 'bg-principal/10 font-bold text-principal-dark' : 'text-gray-700'
+                'w-full px-3.5 py-2.5 flex items-center justify-between text-left hover:bg-principal/5 dark:hover:bg-slate-700 transition-colors cursor-pointer',
+                selectedCountry.iso2 === country.iso2 ? 'bg-principal/10 dark:bg-slate-700 font-bold text-principal-dark dark:text-sky-300' : 'text-gray-700 dark:text-slate-200'
               ]"
             >
               <div class="flex items-center gap-2 truncate">
                 <span class="text-base leading-none shrink-0">{{ country.flag }}</span>
                 <span class="text-xs sm:text-sm truncate">{{ country.name }}</span>
               </div>
-              <span class="font-mono text-xs text-gray-500 shrink-0 ml-2 font-semibold">{{ country.dialCode }}</span>
+              <span class="font-mono text-xs text-gray-500 dark:text-slate-400 shrink-0 ml-2 font-semibold">{{ country.dialCode }}</span>
             </button>
 
-            <div class="px-3.5 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-gray-400 bg-gray-50 border-t border-gray-100">
+            <div class="px-3.5 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-slate-400 bg-gray-50 dark:bg-slate-900 border-t border-gray-100 dark:border-slate-700">
               Tous les pays
             </div>
 
@@ -221,15 +221,15 @@ watch(() => props.modelValue, (val) => {
               type="button"
               @click="selectCountry(country)"
               :class="[
-                'w-full px-3.5 py-2.5 flex items-center justify-between text-left hover:bg-principal/5 transition-colors cursor-pointer',
-                selectedCountry.iso2 === country.iso2 ? 'bg-principal/10 font-bold text-principal-dark' : 'text-gray-700'
+                'w-full px-3.5 py-2.5 flex items-center justify-between text-left hover:bg-principal/5 dark:hover:bg-slate-700 transition-colors cursor-pointer',
+                selectedCountry.iso2 === country.iso2 ? 'bg-principal/10 dark:bg-slate-700 font-bold text-principal-dark dark:text-sky-300' : 'text-gray-700 dark:text-slate-200'
               ]"
             >
               <div class="flex items-center gap-2 truncate">
                 <span class="text-base leading-none shrink-0">{{ country.flag }}</span>
                 <span class="text-xs sm:text-sm truncate">{{ country.name }}</span>
               </div>
-              <span class="font-mono text-xs text-gray-500 shrink-0 ml-2 font-semibold">{{ country.dialCode }}</span>
+              <span class="font-mono text-xs text-gray-500 dark:text-slate-400 shrink-0 ml-2 font-semibold">{{ country.dialCode }}</span>
             </button>
           </template>
 
@@ -241,17 +241,17 @@ watch(() => props.modelValue, (val) => {
               type="button"
               @click="selectCountry(country)"
               :class="[
-                'w-full px-3.5 py-2.5 flex items-center justify-between text-left hover:bg-principal/5 transition-colors cursor-pointer',
-                selectedCountry.iso2 === country.iso2 ? 'bg-principal/10 font-bold text-principal-dark' : 'text-gray-700'
+                'w-full px-3.5 py-2.5 flex items-center justify-between text-left hover:bg-principal/5 dark:hover:bg-slate-700 transition-colors cursor-pointer',
+                selectedCountry.iso2 === country.iso2 ? 'bg-principal/10 dark:bg-slate-700 font-bold text-principal-dark dark:text-sky-300' : 'text-gray-700 dark:text-slate-200'
               ]"
             >
               <div class="flex items-center gap-2 truncate">
                 <span class="text-base leading-none shrink-0">{{ country.flag }}</span>
                 <span class="text-xs sm:text-sm truncate">{{ country.name }}</span>
               </div>
-              <span class="font-mono text-xs text-gray-500 shrink-0 ml-2 font-semibold">{{ country.dialCode }}</span>
+              <span class="font-mono text-xs text-gray-500 dark:text-slate-400 shrink-0 ml-2 font-semibold">{{ country.dialCode }}</span>
             </button>
-            <div v-if="filteredCountries.length === 0" class="p-4 text-center text-xs text-gray-400">
+            <div v-if="filteredCountries.length === 0" class="p-4 text-center text-xs text-gray-400 dark:text-slate-400">
               Aucun pays trouvé
             </div>
           </template>

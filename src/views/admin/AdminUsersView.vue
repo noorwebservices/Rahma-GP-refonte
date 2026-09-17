@@ -4,41 +4,41 @@
     <!-- 2 Summary Cards: Clients & Voyageurs -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <!-- Card Clients -->
-      <div class="bg-white border border-sky-200/70 rounded-3xl p-5 shadow-2xs flex items-center justify-between">
+      <div class="bg-white dark:bg-slate-900 border border-sky-200/70 dark:border-slate-800 rounded-3xl p-5 shadow-2xs flex items-center justify-between">
         <div>
-          <span class="text-xs font-extrabold text-[#074C72] uppercase tracking-wider block">Total Clients (Uniquement)</span>
-          <h3 class="text-2xl sm:text-3xl font-black text-[#053754] mt-1">{{ totalClientsCount }}</h3>
-          <p class="text-[11px] font-medium text-gray-400">Comptes avec le rôle Client seulement</p>
+          <span class="text-xs font-extrabold text-[#074C72] dark:text-sky-300 uppercase tracking-wider block">Total Clients (Uniquement)</span>
+          <h3 class="text-2xl sm:text-3xl font-black text-[#053754] dark:text-white mt-1">{{ totalClientsCount }}</h3>
+          <p class="text-[11px] font-medium text-gray-400 dark:text-gray-400">Comptes avec le rôle Client seulement</p>
         </div>
-        <div class="w-12 h-12 rounded-2xl bg-sky-50 text-[#074C72] flex items-center justify-center font-bold text-xl shrink-0 border border-sky-100">
+        <div class="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950 text-[#074C72] dark:text-sky-300 flex items-center justify-center font-bold text-xl shrink-0 border border-sky-100 dark:border-sky-900">
           👤
         </div>
       </div>
 
       <!-- Card Voyageurs -->
-      <div class="bg-white border border-emerald-200/70 rounded-3xl p-5 shadow-2xs flex items-center justify-between">
+      <div class="bg-white dark:bg-slate-900 border border-emerald-200/70 dark:border-slate-800 rounded-3xl p-5 shadow-2xs flex items-center justify-between">
         <div>
-          <span class="text-xs font-extrabold text-emerald-800 uppercase tracking-wider block">Total Voyageurs (GP)</span>
-          <h3 class="text-2xl sm:text-3xl font-black text-emerald-950 mt-1">{{ totalVoyageursCount }}</h3>
-          <p class="text-[11px] font-medium text-gray-400">Comptes avec le rôle Voyageur</p>
+          <span class="text-xs font-extrabold text-emerald-800 dark:text-emerald-400 uppercase tracking-wider block">Total Voyageurs (GP)</span>
+          <h3 class="text-2xl sm:text-3xl font-black text-emerald-950 dark:text-white mt-1">{{ totalVoyageursCount }}</h3>
+          <p class="text-[11px] font-medium text-gray-400 dark:text-gray-400">Comptes avec le rôle Voyageur</p>
         </div>
-        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-xl shrink-0 border border-emerald-100">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 flex items-center justify-center font-bold text-xl shrink-0 border border-emerald-100 dark:border-emerald-900">
           ✈️
         </div>
       </div>
     </div>
     
     <!-- Header with 2 Tabs (Clients / Voyageurs) & Filters -->
-    <div class="bg-white border border-gray-200 rounded-3xl p-5 shadow-2xs space-y-4">
+    <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-5 shadow-2xs space-y-4">
       
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         
         <!-- Tab Selector: Clients / Voyageurs -->
-        <div class="bg-[#FAF7F2] p-1 rounded-2xl flex items-center border border-gray-200">
+        <div class="bg-[#FAF7F2] dark:bg-slate-800 p-1 rounded-2xl flex items-center border border-gray-200 dark:border-slate-700">
           <button
             @click="activeTab = 'client'; fetchUsers()"
             class="px-5 py-2.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center gap-2"
-            :class="activeTab === 'client' ? 'bg-[#053754] text-white shadow-2xs' : 'text-gray-600 hover:text-gray-900'"
+            :class="activeTab === 'client' ? 'bg-[#053754] text-white shadow-2xs' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'"
           >
             <span>👤</span>
             <span>Clients</span>
@@ -47,7 +47,7 @@
           <button
             @click="activeTab = 'voyageur'; fetchUsers()"
             class="px-5 py-2.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center gap-2"
-            :class="activeTab === 'voyageur' ? 'bg-[#053754] text-white shadow-2xs' : 'text-gray-600 hover:text-gray-900'"
+            :class="activeTab === 'voyageur' ? 'bg-[#053754] text-white shadow-2xs' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'"
           >
             <span>✈️</span>
             <span>Voyageurs</span>
@@ -65,14 +65,14 @@
               @input="fetchUsers"
               type="text" 
               placeholder="Rechercher par nom, email, téléphone..."
-              class="w-full bg-[#FAF7F2] border border-gray-200 rounded-2xl pl-9 pr-4 py-2 text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#074C72]"
+              class="w-full bg-[#FAF7F2] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl pl-9 pr-4 py-2 text-xs text-gray-800 dark:text-slate-100 placeholder-gray-400 focus:outline-none focus:border-[#074C72]"
             />
           </div>
 
-          <select v-model="filters.statut" @change="fetchUsers" class="bg-[#FAF7F2] border border-gray-200 rounded-2xl px-3 py-2 text-xs font-bold text-[#053754] outline-none cursor-pointer">
-            <option value="">Tous Statuts</option>
-            <option value="actif">Actif</option>
-            <option value="suspendu">Bloqué</option>
+          <select v-model="filters.statut" @change="fetchUsers" class="bg-[#FAF7F2] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl px-3 py-2 text-xs font-bold text-[#053754] dark:text-sky-300 outline-none cursor-pointer">
+            <option value="" class="dark:bg-slate-800 dark:text-slate-100">Tous Statuts</option>
+            <option value="actif" class="dark:bg-slate-800 dark:text-slate-100">Actif</option>
+            <option value="suspendu" class="dark:bg-slate-800 dark:text-slate-100">Bloqué</option>
           </select>
         </div>
 
@@ -81,12 +81,12 @@
     </div>
 
     <!-- Table Container -->
-    <div class="bg-white border border-gray-200 rounded-3xl shadow-2xs overflow-hidden">
+    <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl shadow-2xs overflow-hidden">
       
       <!-- Loading State -->
       <div v-if="loading" class="p-12 text-center space-y-3">
-        <div class="w-10 h-10 border-4 border-[#053754] border-t-transparent rounded-full animate-spin mx-auto"></div>
-        <p class="text-xs font-bold text-[#074C72]">Chargement de la liste des {{ activeTab === 'client' ? 'clients' : 'voyageurs' }}...</p>
+        <div class="w-10 h-10 border-4 border-[#053754] dark:border-sky-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
+        <p class="text-xs font-bold text-[#074C72] dark:text-sky-300">Chargement de la liste des {{ activeTab === 'client' ? 'clients' : 'voyageurs' }}...</p>
       </div>
 
       <!-- Empty State -->
@@ -96,7 +96,7 @@
 
       <div v-else class="overflow-x-auto">
         <table class="w-full min-w-[850px] text-left text-xs sm:text-sm">
-          <thead class="bg-slate-50 text-[#053754] uppercase tracking-wider font-extrabold border-b border-gray-200 text-[11px] whitespace-nowrap">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-[#053754] dark:text-sky-300 uppercase tracking-wider font-extrabold border-b border-gray-200 dark:border-slate-800 text-[11px] whitespace-nowrap">
             <tr>
               <th class="px-6 py-4">Utilisateur</th>
               <th class="px-6 py-4">Contact</th>
@@ -107,38 +107,38 @@
               <th class="px-6 py-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-100">
-            <tr v-for="user in paginatedUsers" :key="user.id" class="hover:bg-slate-50/80 transition-colors">
+          <tbody class="divide-y divide-gray-100 dark:divide-slate-800">
+            <tr v-for="user in paginatedUsers" :key="user.id" class="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
               
               <!-- User Info -->
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center gap-3">
-                  <div v-if="user.avatar" class="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-gray-200">
+                  <div v-if="user.avatar" class="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-gray-200 dark:border-slate-700">
                     <img :src="user.avatar" class="w-full h-full object-cover" />
                   </div>
-                  <div v-else class="w-10 h-10 rounded-full bg-[#053754] text-white font-extrabold text-xs flex items-center justify-center shrink-0 border border-gray-200 shadow-2xs">
+                  <div v-else class="w-10 h-10 rounded-full bg-[#053754] text-white font-extrabold text-xs flex items-center justify-center shrink-0 border border-gray-200 dark:border-slate-700 shadow-2xs">
                     {{ getInitials(user.prenom, user.nom) }}
                   </div>
                   <div>
-                    <p class="font-extrabold text-[#053754] text-xs sm:text-sm whitespace-nowrap">{{ user.prenom }} {{ user.nom }}</p>
+                    <p class="font-extrabold text-[#053754] dark:text-slate-100 text-xs sm:text-sm whitespace-nowrap">{{ user.prenom }} {{ user.nom }}</p>
                   </div>
                 </div>
               </td>
 
               <!-- Contact -->
               <td class="px-6 py-4 font-medium text-xs whitespace-nowrap">
-                <p class="text-[#074C72] font-bold whitespace-nowrap">{{ user.email || 'Email non renseigné' }}</p>
-                <p class="text-gray-500 font-mono whitespace-nowrap">{{ user.telephone }}</p>
+                <p class="text-[#074C72] dark:text-sky-300 font-bold whitespace-nowrap">{{ user.email || 'Email non renseigné' }}</p>
+                <p class="text-gray-500 dark:text-gray-400 font-mono whitespace-nowrap">{{ user.telephone }}</p>
               </td>
 
               <!-- Dernière Connexion -->
-              <td class="px-6 py-4 text-xs font-mono font-bold text-gray-500 whitespace-nowrap">
+              <td class="px-6 py-4 text-xs font-mono font-bold text-gray-500 dark:text-gray-400 whitespace-nowrap">
                 {{ user.dernier_connexion ? formatDate(user.dernier_connexion) : 'Jamais' }}
               </td>
 
               <!-- Statut Compte -->
               <td class="px-6 py-4 whitespace-nowrap">
-                <span class="px-3 py-1 rounded-full text-xs font-extrabold capitalize border whitespace-nowrap" :class="user.statut === 'actif' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-[#B50302] border-red-200'">
+                <span class="px-3 py-1 rounded-full text-xs font-extrabold capitalize border whitespace-nowrap" :class="user.statut === 'actif' ? 'bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800' : 'bg-red-50 dark:bg-red-950/80 text-[#B50302] dark:text-red-400 border-red-200 dark:border-red-800'">
                   {{ user.statut === 'suspendu' ? 'Bloqué' : user.statut }}
                 </span>
               </td>
@@ -152,7 +152,7 @@
               </td>
 
               <!-- Données BD -->
-              <td class="px-6 py-4 text-xs font-extrabold text-[#074C72] whitespace-nowrap">
+              <td class="px-6 py-4 text-xs font-extrabold text-[#074C72] dark:text-sky-300 whitespace-nowrap">
                 {{ user.capacite_donnees?.formatted || '0 Ko' }}
               </td>
 
@@ -186,14 +186,14 @@
       </div>
 
       <!-- Pagination Footer (5 items per page) -->
-      <div v-if="totalPages > 1" class="p-4 border-t border-gray-100 bg-slate-50 flex items-center justify-between text-xs font-bold text-gray-600">
+      <div v-if="totalPages > 1" class="p-4 border-t border-gray-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 flex items-center justify-between text-xs font-bold text-gray-600 dark:text-gray-300">
         <span>Page {{ currentPage }} sur {{ totalPages }} ({{ filteredUsers.length }} résultats)</span>
 
         <div class="flex items-center gap-1.5">
           <button 
             @click="currentPage > 1 && currentPage--" 
             :disabled="currentPage === 1"
-            class="px-3 py-1.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            class="px-3 py-1.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
           >
             ← Précédent
           </button>
@@ -203,7 +203,7 @@
             :key="p" 
             @click="currentPage = p"
             class="w-8 h-8 rounded-xl border text-xs font-extrabold transition-colors cursor-pointer"
-            :class="currentPage === p ? 'bg-[#053754] text-white border-[#053754]' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'"
+            :class="currentPage === p ? 'bg-[#053754] dark:bg-sky-600 text-white border-[#053754] dark:border-sky-600' : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-slate-700 hover:bg-gray-100 dark:hover:bg-slate-700'"
           >
             {{ p }}
           </button>
@@ -211,7 +211,7 @@
           <button 
             @click="currentPage < totalPages && currentPage++" 
             :disabled="currentPage === totalPages"
-            class="px-3 py-1.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            class="px-3 py-1.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
           >
             Suivant →
           </button>

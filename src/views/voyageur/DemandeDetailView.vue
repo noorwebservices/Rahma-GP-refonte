@@ -467,7 +467,7 @@ const goBackToVoyage = () => {
       <button
         @click="goBackToVoyage"
         type="button"
-        class="inline-flex items-center gap-2 text-xs font-bold text-gray-600 bg-white border border-gray-200 px-3.5 py-2 rounded-xl hover:bg-gray-50 transition-colors shadow-2xs cursor-pointer"
+        class="inline-flex items-center gap-2 text-xs font-bold text-gray-600 dark:text-slate-300 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 px-3.5 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors shadow-2xs cursor-pointer"
       >
         <span>←</span>
         <span>Retour aux réservations</span>
@@ -477,10 +477,10 @@ const goBackToVoyage = () => {
         v-if="demande"
         class="text-xs font-extrabold px-3.5 py-1 rounded-full uppercase tracking-wider border"
         :class="{
-          'bg-amber-50 text-amber-800 border-amber-300': demande.statut === 'en_attente',
-          'bg-emerald-50 text-emerald-800 border-emerald-300': demande.statut === 'acceptee',
-          'bg-red-50 text-red-800 border-red-300': demande.statut === 'refusee',
-          'bg-gray-100 text-gray-700 border-gray-300': demande.statut === 'annulee' || demande.statut === 'annule'
+          'bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800': demande.statut === 'en_attente',
+          'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800': demande.statut === 'acceptee',
+          'bg-red-50 dark:bg-red-950/50 text-red-800 dark:text-red-300 border-red-300 dark:border-red-800': demande.statut === 'refusee',
+          'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 border-gray-300 dark:border-slate-700': demande.statut === 'annulee' || demande.statut === 'annule'
         }"
       >
         {{ demande.statut === 'en_attente' ? '⏳ En attente' : demande.statut === 'acceptee' ? '✓ Acceptée' : demande.statut === 'refusee' ? '✕ Refusée' : '🚫 Annulée' }}
@@ -488,35 +488,35 @@ const goBackToVoyage = () => {
     </div>
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm space-y-4">
-      <div class="w-10 h-10 border-4 border-[#053754] border-t-transparent rounded-full animate-spin mx-auto"></div>
-      <p class="text-sm font-bold text-gray-600">Chargement des détails de la demande...</p>
+    <div v-if="isLoading" class="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center border border-gray-100 dark:border-slate-800 shadow-sm space-y-4">
+      <div class="w-10 h-10 border-4 border-[#053754] dark:border-sky-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
+      <p class="text-sm font-bold text-gray-600 dark:text-slate-300">Chargement des détails de la demande...</p>
     </div>
 
     <!-- Error State -->
-    <div v-else-if="errorMsg" class="bg-red-50 border border-red-200 rounded-3xl p-8 text-center space-y-3">
-      <p class="text-sm font-bold text-red-800">{{ errorMsg }}</p>
+    <div v-else-if="errorMsg" class="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-3xl p-8 text-center space-y-3">
+      <p class="text-sm font-bold text-red-800 dark:text-red-300">{{ errorMsg }}</p>
       <button @click="goBackToVoyage" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-xl">Retour</button>
     </div>
 
     <template v-else-if="demande">
       <!-- Header Info Banner -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 sm:p-5 rounded-2xl border border-gray-200 shadow-2xs">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-2xs">
         <div class="space-y-0.5">
           <div class="flex items-center gap-2">
-            <h1 class="text-lg sm:text-xl font-serif font-bold text-principal-dark">Détails de la demande</h1>
-            <span class="font-extrabold text-[#074C72] text-xs bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-100 font-mono">
+            <h1 class="text-lg sm:text-xl font-serif font-bold text-principal-dark dark:text-sky-300">Détails de la demande</h1>
+            <span class="font-extrabold text-[#074C72] dark:text-sky-300 text-xs bg-sky-50 dark:bg-sky-950/50 px-2.5 py-0.5 rounded-full border border-sky-100 dark:border-sky-800 font-mono">
               {{ demande.code }}
             </span>
           </div>
-          <p class="text-xs text-gray-500 flex items-center gap-1.5 mt-0.5">
+          <p class="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5">
             <span>Code de Suivi :</span>
-            <strong class="font-mono text-gray-800 bg-gray-100 px-2 py-0.5 rounded">{{ demande.codeTracking }}</strong>
+            <strong class="font-mono text-gray-800 dark:text-slate-200 bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded">{{ demande.codeTracking }}</strong>
           </p>
         </div>
 
         <!-- Trajet Mini Badge -->
-        <div class="bg-slate-50 border border-slate-200 px-3.5 py-1.5 rounded-xl flex items-center gap-2 text-xs font-bold text-gray-800">
+        <div class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3.5 py-1.5 rounded-xl flex items-center gap-2 text-xs font-bold text-gray-800 dark:text-slate-200">
           <div class="flex items-center gap-1">
             <CountryFlag :city="demande.routeFrom" :country="demande.countryFrom" size="w-4 h-3" />
             <span>{{ demande.routeFrom }}</span>
@@ -530,24 +530,24 @@ const goBackToVoyage = () => {
       </div>
 
       <!-- Main Detail Card Container -->
-      <div class="bg-white rounded-3xl p-5 sm:p-6 border border-gray-200 shadow-sm space-y-6">
+      <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-gray-200 dark:border-slate-800 shadow-sm space-y-6">
         
         <!-- Client Identity Banner -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 pb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 dark:border-slate-800 pb-4">
           <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-full bg-[#053754] text-white font-extrabold text-sm flex items-center justify-center shrink-0 shadow-xs">
+            <div class="w-12 h-12 rounded-full bg-[#053754] dark:bg-sky-600 text-white font-extrabold text-sm flex items-center justify-center shrink-0 shadow-xs">
               {{ demande.clientName.slice(0, 2).toUpperCase() }}
             </div>
             <div>
-              <h3 class="text-base font-extrabold text-gray-900 leading-tight">{{ demande.clientName }}</h3>
-              <span class="text-[10px] text-sky-700 font-extrabold bg-sky-50 px-2 py-0.5 rounded-full border border-sky-100 mt-1 inline-block">Client Rahma GP</span>
+              <h3 class="text-base font-extrabold text-gray-900 dark:text-slate-100 leading-tight">{{ demande.clientName }}</h3>
+              <span class="text-[10px] text-sky-700 dark:text-sky-300 font-extrabold bg-sky-50 dark:bg-sky-950/50 px-2 py-0.5 rounded-full border border-sky-100 dark:border-sky-800 mt-1 inline-block">Client Rahma GP</span>
             </div>
           </div>
 
           <button
             @click="goToChat"
             type="button"
-            class="w-full sm:w-auto bg-sky-50 text-[#074C72] border border-sky-200 hover:bg-sky-100 font-extrabold text-xs px-4 py-2.5 rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+            class="w-full sm:w-auto bg-sky-50 dark:bg-sky-950/60 text-[#074C72] dark:text-sky-300 border border-sky-200 dark:border-sky-800 hover:bg-sky-100 dark:hover:bg-sky-900/60 font-extrabold text-xs px-4 py-2.5 rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-1.5"
           >
             <span>💬</span> DISCUTER AVEC LE CLIENT
           </button>
@@ -555,47 +555,47 @@ const goBackToVoyage = () => {
 
         <!-- Parcel Description & Image Card -->
         <div class="space-y-3">
-          <h4 class="text-xs font-extrabold text-gray-400 uppercase tracking-wider">Détails du colis</h4>
+          <h4 class="text-xs font-extrabold text-gray-400 dark:text-slate-400 uppercase tracking-wider">Détails du colis</h4>
           
-          <div class="bg-gray-50 rounded-2xl p-4 border border-gray-200/80 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
+          <div class="bg-gray-50 dark:bg-slate-800/60 rounded-2xl p-4 border border-gray-200/80 dark:border-slate-700/80 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
             <div class="space-y-2.5">
               <div>
-                <span class="text-gray-400 font-medium block">Type de contenu :</span>
-                <span class="font-extrabold text-[#053754] text-sm sm:text-base">{{ demande.parcelType }}</span>
+                <span class="text-gray-400 dark:text-slate-400 font-medium block">Type de contenu :</span>
+                <span class="font-extrabold text-[#053754] dark:text-sky-300 text-sm sm:text-base">{{ demande.parcelType }}</span>
               </div>
               <div>
-                <span class="text-gray-400 font-medium block">Poids du colis :</span>
-                <span class="font-extrabold text-[#B50302] text-sm">{{ demande.weight }}</span>
+                <span class="text-gray-400 dark:text-slate-400 font-medium block">Poids du colis :</span>
+                <span class="font-extrabold text-[#B50302] dark:text-red-400 text-sm">{{ demande.weight }}</span>
               </div>
               <div>
-                <span class="text-gray-400 font-medium block">Valeur estimée du colis :</span>
-                <span class="font-bold text-gray-800 text-sm">{{ formattedEstimatedValue }}</span>
+                <span class="text-gray-400 dark:text-slate-400 font-medium block">Valeur estimée du colis :</span>
+                <span class="font-bold text-gray-800 dark:text-slate-200 text-sm">{{ formattedEstimatedValue }}</span>
               </div>
               <div>
-                <span class="text-gray-400 font-medium block">Nature du colis :</span>
-                <span class="font-bold text-xs px-2.5 py-0.5 rounded-md inline-block mt-0.5" :class="demande.isFragile ? 'bg-amber-100 text-amber-900 border border-amber-200' : 'bg-gray-200 text-gray-700'">
+                <span class="text-gray-400 dark:text-slate-400 font-medium block">Nature du colis :</span>
+                <span class="font-bold text-xs px-2.5 py-0.5 rounded-md inline-block mt-0.5" :class="demande.isFragile ? 'bg-amber-100 dark:bg-amber-950/50 text-amber-900 dark:text-amber-300 border border-amber-200 dark:border-amber-800' : 'bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300'">
                   {{ demande.isFragile ? '⚠️ Colis Fragile' : 'Standard' }}
                 </span>
               </div>
               <div>
-                <span class="text-gray-400 font-medium block">Mode de paiement souhaité :</span>
-                <span class="font-bold text-sky-800 uppercase tracking-wider">{{ demande.paymentMode }}</span>
+                <span class="text-gray-400 dark:text-slate-400 font-medium block">Mode de paiement souhaité :</span>
+                <span class="font-bold text-sky-800 dark:text-sky-300 uppercase tracking-wider">{{ demande.paymentMode }}</span>
               </div>
             </div>
 
             <!-- Description & Photo -->
             <div class="space-y-2">
               <div>
-                <span class="text-gray-400 font-medium block">Description :</span>
-                <p class="text-xs text-gray-800 font-semibold bg-white p-2.5 rounded-xl border border-gray-200 leading-relaxed mt-1">
+                <span class="text-gray-400 dark:text-slate-400 font-medium block">Description :</span>
+                <p class="text-xs text-gray-800 dark:text-slate-200 font-semibold bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-gray-200 dark:border-slate-700 leading-relaxed mt-1">
                   {{ demande.description }}
                 </p>
               </div>
 
               <div v-if="demande.photo" class="space-y-1">
-                <span class="text-gray-400 font-medium block">Photo du colis :</span>
+                <span class="text-gray-400 dark:text-slate-400 font-medium block">Photo du colis :</span>
                 <div 
-                  class="w-full h-44 sm:h-52 rounded-2xl overflow-hidden border border-gray-200 bg-gray-50 relative group cursor-pointer shadow-2xs" 
+                  class="w-full h-44 sm:h-52 rounded-2xl overflow-hidden border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 relative group cursor-pointer shadow-2xs" 
                   @click="openPhotoLightbox(demande.photo)"
                 >
                   <img 
@@ -615,32 +615,32 @@ const goBackToVoyage = () => {
 
         <!-- Recipient Information Card -->
         <div class="space-y-3 pt-2">
-          <h4 class="text-xs font-extrabold text-gray-400 uppercase tracking-wider">Informations du Destinataire à l'arrivée</h4>
+          <h4 class="text-xs font-extrabold text-gray-400 dark:text-slate-400 uppercase tracking-wider">Informations du Destinataire à l'arrivée</h4>
 
-          <div class="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-4 space-y-1.5 shadow-2xs">
-            <div class="font-extrabold text-gray-900 text-sm sm:text-base">{{ demande.recipientName }}</div>
-            <div class="text-xs text-gray-600 font-medium pt-1 border-t border-amber-200/60">
+          <div class="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/50 rounded-2xl p-4 space-y-1.5 shadow-2xs">
+            <div class="font-extrabold text-gray-900 dark:text-amber-200 text-sm sm:text-base">{{ demande.recipientName }}</div>
+            <div class="text-xs text-gray-600 dark:text-amber-300 font-medium pt-1 border-t border-amber-200/60 dark:border-amber-800/40">
               📍 {{ demande.recipientAddress }}
             </div>
           </div>
         </div>
 
         <!-- Section Validation du Paiement en Espèces (Voyageur) -->
-        <div v-if="demande.statut === 'acceptee' && !isPaymentDone" class="space-y-3 pt-4 border-t border-gray-100">
+        <div v-if="demande.statut === 'acceptee' && !isPaymentDone" class="space-y-3 pt-4 border-t border-gray-100 dark:border-slate-800">
           <div class="flex items-center gap-2">
             <span class="text-lg">💳</span>
-            <h4 class="text-xs font-extrabold text-[#053754] uppercase tracking-wider">Encaissement du paiement en espèces</h4>
+            <h4 class="text-xs font-extrabold text-[#053754] dark:text-sky-300 uppercase tracking-wider">Encaissement du paiement en espèces</h4>
           </div>
 
-          <div class="p-4 bg-sky-50/60 rounded-2xl border border-sky-100 space-y-3">
-            <p class="text-xs text-gray-600 font-medium leading-relaxed">
+          <div class="p-4 bg-sky-50/60 dark:bg-slate-800/80 rounded-2xl border border-sky-100 dark:border-slate-700 space-y-3">
+            <p class="text-xs text-gray-600 dark:text-slate-300 font-medium leading-relaxed">
               Sélectionnez le mode d'encaissement et confirmez la réception du paiement par le client :
             </p>
 
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <select 
                 v-model="selectedPaymentMode"
-                class="flex-1 px-3.5 py-2.5 bg-white border border-sky-200 text-xs sm:text-sm font-semibold rounded-xl text-gray-800 outline-none focus:ring-2 focus:ring-[#074C72]/20"
+                class="flex-1 px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-sky-200 dark:border-slate-700 text-xs sm:text-sm font-semibold rounded-xl text-gray-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-[#074C72]/20"
               >
                 <option value="espece_depot">💵 Espèces lors du dépôt</option>
                 <option value="espece_retrait">💵 Espèces lors du retrait (À l'arrivée)</option>
@@ -659,44 +659,44 @@ const goBackToVoyage = () => {
         </div>
 
         <!-- Section Suivi & Mise à jour du Colis (pour les réservations acceptées) -->
-        <div v-if="demande.statut === 'acceptee'" class="space-y-4 pt-4 border-t border-gray-100">
+        <div v-if="demande.statut === 'acceptee'" class="space-y-4 pt-4 border-t border-gray-100 dark:border-slate-800">
           <div class="flex items-center gap-2">
             <span class="text-lg">🚚</span>
-            <h4 class="text-xs font-extrabold text-[#053754] uppercase tracking-wider">
+            <h4 class="text-xs font-extrabold text-[#053754] dark:text-sky-300 uppercase tracking-wider">
               Mettre à jour le Statut du Colis (Suivi de Livraison)
             </h4>
           </div>
 
-          <div class="bg-sky-50/70 border border-sky-200/80 rounded-2xl p-4 sm:p-5 space-y-4">
+          <div class="bg-sky-50/70 dark:bg-slate-800/80 border border-sky-200/80 dark:border-slate-700 rounded-2xl p-4 sm:p-5 space-y-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label class="block text-xs font-bold text-[#074C72] mb-1">Nouveau statut du colis</label>
+                <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300 mb-1">Nouveau statut du colis</label>
                 <select
                   v-if="availableColisStatutOptions.length > 0"
                   v-model="selectedColisStatut"
-                  class="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-xl text-xs font-bold outline-none focus:border-[#074C72] focus:ring-2 focus:ring-[#074C72]/20"
+                  class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl text-xs font-bold text-gray-800 dark:text-slate-100 outline-none focus:border-[#074C72] dark:focus:border-sky-500 focus:ring-2 focus:ring-[#074C72]/20"
                 >
                   <option v-for="opt in availableColisStatutOptions" :key="opt.value" :value="opt.value">
                     {{ opt.label }}
                   </option>
                 </select>
-                <div v-else class="px-3.5 py-2.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold flex items-center gap-1.5">
+                <div v-else class="px-3.5 py-2.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs font-bold flex items-center gap-1.5">
                   <span>🎉</span>
                   <span>Tous les statuts de suivi ont été appliqués</span>
                 </div>
-                <div v-if="!isVoyageClosedOrCompleted" class="mt-2 p-2.5 bg-amber-50 text-amber-900 border border-amber-200 rounded-xl text-[11px] font-medium flex items-start gap-1.5">
+                <div v-if="!isVoyageClosedOrCompleted" class="mt-2 p-2.5 bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 border border-amber-200 dark:border-amber-800 rounded-xl text-[11px] font-medium flex items-start gap-1.5">
                   <span class="shrink-0 mt-0.5">⏳</span>
                   <span>Voyage en cours : les statuts <strong>Transit</strong>, <strong>Arrivé</strong> et <strong>Livré</strong> seront débloqués quand le voyage sera complet/fermé ou sa date de départ passée.</span>
                 </div>
               </div>
 
               <div>
-                <label class="block text-xs font-bold text-[#074C72] mb-1">Commentaire (optionnel)</label>
+                <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300 mb-1">Commentaire (optionnel)</label>
                 <input
                   v-model="colisCommentaire"
                   type="text"
                   placeholder="ex: Le colis est dans l'avion en direction de Paris..."
-                  class="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-xl text-xs font-medium outline-none focus:border-[#074C72] focus:ring-2 focus:ring-[#074C72]/20"
+                  class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 text-gray-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 rounded-xl text-xs font-medium outline-none focus:border-[#074C72] dark:focus:border-sky-500 focus:ring-2 focus:ring-[#074C72]/20"
                 />
               </div>
             </div>
@@ -706,7 +706,7 @@ const goBackToVoyage = () => {
                 @click="handleUpdateColisStatut"
                 :disabled="isSubmittingColisStatut || availableColisStatutOptions.length === 0"
                 type="button"
-                class="w-full sm:w-auto bg-[#053754] hover:bg-[#074C72] text-white font-extrabold text-xs px-5 py-3 rounded-xl shadow-xs transition-all cursor-pointer flex items-center justify-center gap-2 uppercase tracking-wider disabled:opacity-50"
+                class="w-full sm:w-auto bg-[#053754] dark:bg-sky-600 hover:bg-[#074C72] dark:hover:bg-sky-500 text-white font-extrabold text-xs px-5 py-3 rounded-xl shadow-xs transition-all cursor-pointer flex items-center justify-center gap-2 uppercase tracking-wider disabled:opacity-50"
               >
                 <span v-if="isSubmittingColisStatut" class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
                 <span>METTRE À JOUR LE STATUT DU COLIS</span>
@@ -714,21 +714,21 @@ const goBackToVoyage = () => {
             </div>
 
             <!-- Historique des suivis du colis -->
-            <div v-if="demande.suivis && demande.suivis.length > 0" class="pt-3 border-t border-sky-200/60 space-y-2">
-              <span class="text-[11px] font-extrabold text-[#074C72] block uppercase tracking-wider">
+            <div v-if="demande.suivis && demande.suivis.length > 0" class="pt-3 border-t border-sky-200/60 dark:border-slate-700 space-y-2">
+              <span class="text-[11px] font-extrabold text-[#074C72] dark:text-sky-300 block uppercase tracking-wider">
                 Historique du suivi ({{ demande.suivis.length }})
               </span>
               <div class="space-y-2">
                 <div
                   v-for="s in demande.suivis"
                   :key="s.id"
-                  class="bg-white p-3 rounded-xl border border-sky-100 flex items-center justify-between text-xs"
+                  class="bg-white dark:bg-slate-900 p-3 rounded-xl border border-sky-100 dark:border-slate-700 flex items-center justify-between text-xs"
                 >
                   <div>
-                    <span class="font-extrabold text-[#053754] block">{{ getColisStatutLabel(s.statut) }}</span>
-                    <span v-if="s.commentaire" class="text-gray-600 text-[11px] block italic mt-0.5">{{ s.commentaire }}</span>
+                    <span class="font-extrabold text-[#053754] dark:text-sky-300 block">{{ getColisStatutLabel(s.statut) }}</span>
+                    <span v-if="s.commentaire" class="text-gray-600 dark:text-slate-400 text-[11px] block italic mt-0.5">{{ s.commentaire }}</span>
                   </div>
-                  <span class="text-[10px] text-gray-400 font-medium shrink-0 ml-2">
+                  <span class="text-[10px] text-gray-400 dark:text-slate-500 font-medium shrink-0 ml-2">
                     {{ formatDateTime(s.date_changement || s.created_at) }}
                   </span>
                 </div>
@@ -738,10 +738,10 @@ const goBackToVoyage = () => {
         </div>
 
         <!-- Price & Action CTA Row -->
-        <div class="border-t border-gray-100 pt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="border-t border-gray-100 dark:border-slate-800 pt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <span class="text-xs text-gray-400 font-medium block">Prix total du transport :</span>
-            <span class="font-black text-[#053754] text-xl sm:text-2xl">{{ formattedPrice }}</span>
+            <span class="text-xs text-gray-400 dark:text-slate-400 font-medium block">Prix total du transport :</span>
+            <span class="font-black text-[#053754] dark:text-sky-300 text-xl sm:text-2xl">{{ formattedPrice }}</span>
           </div>
 
           <div v-if="demande.statut === 'en_attente'" class="flex items-center gap-3">
@@ -749,7 +749,7 @@ const goBackToVoyage = () => {
               @click="refuseDemande"
               :disabled="isUpdatingStatus"
               type="button"
-              class="flex-1 sm:flex-none px-5 py-3 rounded-xl bg-red-50 text-[#B50302] border border-red-200 font-extrabold text-xs hover:bg-red-100 transition-colors cursor-pointer"
+              class="flex-1 sm:flex-none px-5 py-3 rounded-xl bg-red-50 dark:bg-red-950/50 text-[#B50302] dark:text-red-400 border border-red-200 dark:border-red-900 font-extrabold text-xs hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors cursor-pointer"
             >
               REFUSER
             </button>
@@ -758,14 +758,14 @@ const goBackToVoyage = () => {
               @click="acceptDemande"
               :disabled="isUpdatingStatus"
               type="button"
-              class="flex-1 sm:flex-none bg-[#053754] hover:bg-[#074C72] text-white font-extrabold text-xs sm:text-sm py-3.5 px-6 rounded-xl shadow-lg transition-all cursor-pointer uppercase tracking-wider active:scale-[0.99]"
+              class="flex-1 sm:flex-none bg-[#053754] dark:bg-sky-600 hover:bg-[#074C72] dark:hover:bg-sky-500 text-white font-extrabold text-xs sm:text-sm py-3.5 px-6 rounded-xl shadow-lg transition-all cursor-pointer uppercase tracking-wider active:scale-[0.99]"
             >
               ✓ ACCEPTER LA RÉSERVATION
             </button>
           </div>
 
           <div v-else-if="demande.statut === 'acceptee'">
-            <span class="text-xs font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3.5 py-1.5 rounded-xl flex items-center gap-1.5">
+            <span class="text-xs font-extrabold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 px-3.5 py-1.5 rounded-xl flex items-center gap-1.5">
               ✓ Réservation acceptée
             </span>
           </div>

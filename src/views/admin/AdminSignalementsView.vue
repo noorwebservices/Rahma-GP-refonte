@@ -2,13 +2,13 @@
   <div class="space-y-6">
     
     <!-- Header & Filter Card -->
-    <div class="bg-white border border-gray-200 rounded-3xl p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h2 class="font-extrabold text-base sm:text-lg text-[#053754]">Signalements de Comptes Utilisateurs</h2>
-        <p class="text-xs text-gray-500 font-medium">Modérez les comptes dénoncés par les clients ou les voyageurs</p>
+        <h2 class="font-extrabold text-base sm:text-lg text-[#053754] dark:text-sky-300">Signalements de Comptes Utilisateurs</h2>
+        <p class="text-xs text-gray-500 dark:text-slate-400 font-medium">Modérez les comptes dénoncés par les clients ou les voyageurs</p>
       </div>
 
-      <select v-model="filterStatut" @change="fetchSignalements" class="w-full sm:w-auto bg-[#FAF7F2] border border-gray-200 rounded-2xl px-4 py-2.5 text-xs font-bold text-[#053754] outline-none cursor-pointer">
+      <select v-model="filterStatut" @change="fetchSignalements" class="w-full sm:w-auto bg-[#FAF7F2] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl px-4 py-2.5 text-xs font-bold text-[#053754] dark:text-slate-100 outline-none cursor-pointer">
         <option value="">Tous les Signalements</option>
         <option value="en_attente">En Attente de Traitement</option>
         <option value="traite">Traités</option>
@@ -17,22 +17,22 @@
     </div>
 
     <!-- Table Container -->
-    <div class="bg-white border border-gray-200 rounded-3xl shadow-2xs overflow-hidden">
+    <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl shadow-2xs overflow-hidden">
       
       <!-- Loading State -->
       <div v-if="loading" class="p-12 text-center space-y-3">
-        <div class="w-10 h-10 border-4 border-[#053754] border-t-transparent rounded-full animate-spin mx-auto"></div>
-        <p class="text-xs font-bold text-[#074C72]">Chargement des signalements...</p>
+        <div class="w-10 h-10 border-4 border-[#053754] dark:border-sky-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
+        <p class="text-xs font-bold text-[#074C72] dark:text-sky-300">Chargement des signalements...</p>
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="signalements.length === 0" class="text-center py-16 text-gray-400 font-semibold text-sm">
+      <div v-else-if="signalements.length === 0" class="text-center py-16 text-gray-400 dark:text-slate-400 font-semibold text-sm">
         Aucun signalement trouvé.
       </div>
 
       <div v-else class="overflow-x-auto">
         <table class="w-full min-w-[850px] text-left text-xs sm:text-sm">
-          <thead class="bg-slate-50 text-[#053754] uppercase tracking-wider font-extrabold border-b border-gray-200 text-[11px] whitespace-nowrap">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-[#053754] dark:text-sky-300 uppercase tracking-wider font-extrabold border-b border-gray-200 dark:border-slate-800 text-[11px] whitespace-nowrap">
             <tr>
               <th class="px-6 py-4">Compte Signalé</th>
               <th class="px-6 py-4">Signaleur</th>
@@ -42,8 +42,8 @@
               <th class="px-6 py-4 text-right">Décision / Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-100">
-            <tr v-for="sig in paginatedSignalements" :key="sig.id" class="hover:bg-slate-50/80 transition-colors">
+          <tbody class="divide-y divide-gray-100 dark:divide-slate-800">
+            <tr v-for="sig in paginatedSignalements" :key="sig.id" class="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
               
               <!-- Compte Signalé -->
               <td class="px-6 py-4 whitespace-nowrap">
@@ -55,31 +55,31 @@
                     {{ getInitials(sig.signale.prenom, sig.signale.nom) }}
                   </div>
                   <div>
-                    <p class="font-extrabold text-[#053754] text-xs sm:text-sm whitespace-nowrap">{{ sig.signale.prenom }} {{ sig.signale.nom }}</p>
-                    <p class="text-xs text-gray-400 font-medium whitespace-nowrap">{{ sig.signale.email || sig.signale.telephone }}</p>
+                    <p class="font-extrabold text-[#053754] dark:text-slate-100 text-xs sm:text-sm whitespace-nowrap">{{ sig.signale.prenom }} {{ sig.signale.nom }}</p>
+                    <p class="text-xs text-gray-400 dark:text-slate-400 font-medium whitespace-nowrap">{{ sig.signale.email || sig.signale.telephone }}</p>
                   </div>
                 </div>
-                <span v-else class="text-gray-400">Inconnu</span>
+                <span v-else class="text-gray-400 dark:text-slate-500">Inconnu</span>
               </td>
 
               <!-- Signaleur -->
-              <td class="px-6 py-4 font-semibold text-gray-700 whitespace-nowrap">
+              <td class="px-6 py-4 font-semibold text-gray-700 dark:text-slate-300 whitespace-nowrap">
                 <div v-if="sig.signaleur" class="whitespace-nowrap">
                   {{ sig.signaleur.prenom }} {{ sig.signaleur.nom }}
                 </div>
-                <span v-else class="text-gray-400">Anonyme</span>
+                <span v-else class="text-gray-400 dark:text-slate-500">Anonyme</span>
               </td>
 
               <!-- Motif & Description -->
               <td class="px-6 py-4 max-w-sm">
-                <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-red-50 text-[#B50302] border border-red-200 mb-1 whitespace-nowrap">
+                <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-red-50 dark:bg-red-950/80 text-[#B50302] dark:text-red-300 border border-red-200 dark:border-red-900 mb-1 whitespace-nowrap">
                   {{ sig.motif }}
                 </span>
-                <p class="text-xs text-gray-600 line-clamp-2 font-medium">{{ sig.description || 'Aucune description fournie.' }}</p>
+                <p class="text-xs text-gray-600 dark:text-slate-300 line-clamp-2 font-medium">{{ sig.description || 'Aucune description fournie.' }}</p>
               </td>
 
               <!-- Date -->
-              <td class="px-6 py-4 text-xs font-mono font-bold text-gray-500 whitespace-nowrap">
+              <td class="px-6 py-4 text-xs font-mono font-bold text-gray-500 dark:text-slate-400 whitespace-nowrap">
                 {{ formatDate(sig.created_at) }}
               </td>
 
@@ -105,7 +105,7 @@
                   <button 
                     v-if="sig.statut === 'en_attente'"
                     @click="processSignalement(sig, 'traite', 'avertissement')" 
-                    class="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-[#053754] hover:bg-[#074C72] text-white transition-all shadow-xs cursor-pointer whitespace-nowrap"
+                    class="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-[#053754] hover:bg-[#074C72] dark:bg-sky-600 dark:hover:bg-sky-500 text-white transition-all shadow-xs cursor-pointer whitespace-nowrap"
                   >
                     Marquer Traité
                   </button>
@@ -113,18 +113,18 @@
                   <button 
                     v-if="sig.statut === 'en_attente'"
                     @click="processSignalement(sig, 'rejete', 'sans_suite')" 
-                    class="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-gray-100 hover:bg-gray-200 text-gray-700 transition-all border border-gray-200 cursor-pointer whitespace-nowrap"
+                    class="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 transition-all border border-gray-200 dark:border-slate-700 cursor-pointer whitespace-nowrap"
                   >
                     Rejeter
                   </button>
 
-                  <span v-if="sig.statut !== 'en_attente' && sig.signale?.statut === 'suspendu'" class="text-[11px] font-extrabold text-red-700 bg-red-50 border border-red-200 px-3 py-1 rounded-full whitespace-nowrap">
+                  <span v-if="sig.statut !== 'en_attente' && sig.signale?.statut === 'suspendu'" class="text-[11px] font-extrabold text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-950/80 border border-red-200 dark:border-red-900 px-3 py-1 rounded-full whitespace-nowrap">
                     Compte Bloqué & Traité
                   </span>
-                  <span v-else-if="sig.statut === 'traite'" class="text-[11px] font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full whitespace-nowrap">
+                  <span v-else-if="sig.statut === 'traite'" class="text-[11px] font-extrabold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200 dark:border-emerald-800 px-3 py-1 rounded-full whitespace-nowrap">
                     Signalement Traité
                   </span>
-                  <span v-else-if="sig.statut === 'rejete'" class="text-[11px] font-extrabold text-gray-500 bg-gray-100 border border-gray-200 px-3 py-1 rounded-full whitespace-nowrap">
+                  <span v-else-if="sig.statut === 'rejete'" class="text-[11px] font-extrabold text-gray-500 dark:text-slate-400 bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 px-3 py-1 rounded-full whitespace-nowrap">
                     Rejeté / Sans suite
                   </span>
                 </div>
@@ -136,14 +136,14 @@
       </div>
 
       <!-- Pagination Footer (5 items per page) -->
-      <div v-if="totalPages > 1" class="p-4 border-t border-gray-100 bg-slate-50 flex items-center justify-between text-xs font-bold text-gray-600">
+      <div v-if="totalPages > 1" class="p-4 border-t border-gray-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-between text-xs font-bold text-gray-600 dark:text-slate-300">
         <span>Page {{ currentPage }} sur {{ totalPages }} ({{ signalements.length }} signalements)</span>
 
         <div class="flex items-center gap-1.5">
           <button 
             @click="currentPage > 1 && currentPage--" 
             :disabled="currentPage === 1"
-            class="px-3 py-1.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            class="px-3 py-1.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
           >
             ← Précédent
           </button>
@@ -153,7 +153,7 @@
             :key="p" 
             @click="currentPage = p"
             class="w-8 h-8 rounded-xl border text-xs font-extrabold transition-colors cursor-pointer"
-            :class="currentPage === p ? 'bg-[#053754] text-white border-[#053754]' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'"
+            :class="currentPage === p ? 'bg-[#053754] dark:bg-sky-500 text-white dark:text-slate-950 border-[#053754] dark:border-sky-500' : 'bg-white dark:bg-slate-900 text-gray-700 dark:text-slate-200 border-gray-200 dark:border-slate-700 hover:bg-gray-100 dark:hover:bg-slate-800'"
           >
             {{ p }}
           </button>
@@ -161,7 +161,7 @@
           <button 
             @click="currentPage < totalPages && currentPage++" 
             :disabled="currentPage === totalPages"
-            class="px-3 py-1.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            class="px-3 py-1.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
           >
             Suivant →
           </button>

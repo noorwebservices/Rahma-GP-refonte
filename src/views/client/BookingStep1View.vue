@@ -194,15 +194,15 @@ const goToStep2 = () => {
     />
 
     <!-- Form Section -->
-    <div class="space-y-6 bg-white rounded-3xl p-6 sm:p-8 border border-gray-200 shadow-2xs">
+    <div class="space-y-6 bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-gray-200 dark:border-slate-800 shadow-2xs">
       
       <!-- Type de colis (Accepted categories by traveler) * -->
       <div class="space-y-2.5">
         <div class="flex items-center justify-between">
-          <label class="block text-xs font-bold text-[#074C72]">
-            Type de colis (objets acceptés par le voyageur) <span class="text-[#B50302]">*</span>
+          <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300">
+            Type de colis (objets acceptés par le voyageur) <span class="text-[#B50302] dark:text-rose-400">*</span>
           </label>
-          <span v-if="voyageData?.objets_autorises" class="text-[11px] font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
+          <span v-if="voyageData?.objets_autorises" class="text-[11px] font-extrabold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 px-2.5 py-0.5 rounded-full">
             ✓ Exigences du trajet
           </span>
         </div>
@@ -216,8 +216,8 @@ const goToStep2 = () => {
             :class="[
               'p-3.5 rounded-2xl border text-left flex items-center gap-3 transition-all cursor-pointer shadow-2xs',
               selectedType === type.id
-                ? 'border-[#074C72] bg-white ring-2 ring-[#074C72]/20 font-bold text-[#074C72] shadow-xs'
-                : 'border-gray-200 bg-white hover:border-gray-300 text-gray-600 font-medium'
+                ? 'border-[#074C72] dark:border-sky-400 bg-white dark:bg-slate-800 ring-2 ring-[#074C72]/20 dark:ring-sky-400/20 font-bold text-[#074C72] dark:text-sky-300 shadow-xs'
+                : 'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 hover:border-gray-300 dark:hover:border-slate-600 text-gray-600 dark:text-slate-300 font-medium'
             ]"
           >
             <span class="text-xl shrink-0">{{ type.icon }}</span>
@@ -226,42 +226,42 @@ const goToStep2 = () => {
         </div>
 
         <!-- Tariff notice box for electronic item vs standard -->
-        <div v-if="isElectronic" class="bg-blue-50 border border-blue-200 rounded-2xl p-3.5 flex items-center gap-3 text-xs text-[#053754]">
+        <div v-if="isElectronic" class="bg-blue-50 dark:bg-sky-950/40 border border-blue-200 dark:border-sky-800/80 rounded-2xl p-3.5 flex items-center gap-3 text-xs text-[#053754] dark:text-sky-200">
           <span class="text-xl">📱</span>
           <div>
-            <div class="font-extrabold text-[#074C72]">Tarification Forfait Objet (Appareil Électronique)</div>
-            <div class="text-[11px] text-gray-600 font-medium">Les objets électroniques bénéficient d'un tarif forfaitaire fixe de <strong class="text-[#B50302]">{{ unitPriceObjet.toLocaleString() }} {{ devise }} / objet</strong> (au lieu du prix au kilo).</div>
+            <div class="font-extrabold text-[#074C72] dark:text-sky-300">Tarification Forfait Objet (Appareil Électronique)</div>
+            <div class="text-[11px] text-gray-600 dark:text-slate-300 font-medium">Les objets électroniques bénéficient d'un tarif forfaitaire fixe de <strong class="text-[#B50302] dark:text-rose-400">{{ unitPriceObjet.toLocaleString() }} {{ devise }} / objet</strong> (au lieu du prix au kilo).</div>
           </div>
         </div>
       </div>
 
       <!-- Photo du contenu du colis * -->
       <div class="space-y-2.5">
-        <label class="block text-xs font-bold text-[#074C72]">
-          Photo du contenu du colis <span class="text-[#B50302]">*</span>
+        <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300">
+          Photo du contenu du colis <span class="text-[#B50302] dark:text-rose-400">*</span>
         </label>
         
-        <div class="border border-gray-200 bg-white rounded-2xl p-5 flex items-center gap-5">
+        <div class="border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-800/60 rounded-2xl p-5 flex items-center gap-5">
           <!-- Square Image Container -->
-          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[#EAEFF4] border border-gray-200/80 flex items-center justify-center shrink-0 overflow-hidden relative">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[#EAEFF4] dark:bg-slate-900 border border-gray-200/80 dark:border-slate-700 flex items-center justify-center shrink-0 overflow-hidden relative">
             <img v-if="previewImage" :src="previewImage" alt="Colis preview" class="w-full h-full object-cover" />
-            <svg v-else class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg v-else class="w-10 h-10 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           </div>
 
           <!-- Right Side Controls -->
           <div class="space-y-3 flex-1">
-            <p class="text-xs text-gray-500 font-medium italic">
+            <p class="text-xs text-gray-500 dark:text-slate-400 font-medium italic">
               importer une image du colis
             </p>
             <div>
-              <label class="inline-block px-5 py-2.5 rounded-xl border border-[#B50302] bg-white text-[#B50302] hover:bg-red-50 text-xs sm:text-sm font-bold transition-colors cursor-pointer shadow-2xs">
+              <label class="inline-block px-5 py-2.5 rounded-xl border border-[#B50302] dark:border-rose-500 bg-white dark:bg-slate-800 text-[#B50302] dark:text-rose-400 hover:bg-red-50 dark:hover:bg-rose-950/30 text-xs sm:text-sm font-bold transition-colors cursor-pointer shadow-2xs">
                 <span>Choisir un fichier</span>
                 <input type="file" accept="image/*" class="hidden" @change="handleFileChange" />
               </label>
             </div>
-            <p v-if="fileName" class="text-[11px] text-gray-600 font-semibold truncate">
+            <p v-if="fileName" class="text-[11px] text-gray-600 dark:text-slate-300 font-semibold truncate">
               {{ fileName }}
             </p>
           </div>
@@ -270,39 +270,39 @@ const goToStep2 = () => {
 
       <!-- Description précise du contenu * -->
       <div class="space-y-2">
-        <label class="block text-xs font-bold text-[#074C72]">
-          Description précise du contenu <span class="text-[#B50302]">*</span>
+        <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300">
+          Description précise du contenu <span class="text-[#B50302] dark:text-rose-400">*</span>
         </label>
         <textarea
           v-model="description"
           rows="3"
           placeholder="ex: Quelques vêtements d'hiver..."
-          class="w-full p-3.5 text-xs sm:text-sm bg-white border border-gray-300 rounded-2xl outline-none focus:border-[#074C72] focus:ring-2 focus:ring-[#074C72]/20 font-medium placeholder-gray-400"
+          class="w-full p-3.5 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-800 dark:text-slate-100 rounded-2xl outline-none focus:border-[#074C72] dark:focus:border-sky-400 focus:ring-2 focus:ring-[#074C72]/20 font-medium placeholder-gray-400 dark:placeholder-slate-500"
         ></textarea>
       </div>
 
       <!-- Valeur estimée & Fragile Row -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="space-y-2">
-          <label class="block text-xs font-bold text-[#074C72]">
+          <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300">
             Valeur estimée ({{ devise }})
           </label>
           <input
             v-model="estimatedValue"
             type="number"
             placeholder="25000"
-            class="w-full px-4 py-3 text-xs sm:text-sm bg-white border border-gray-300 rounded-xl outline-none focus:border-[#074C72] focus:ring-2 focus:ring-[#074C72]/20 font-bold text-principal-dark"
+            class="w-full px-4 py-3 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-principal-dark dark:text-slate-100 rounded-xl outline-none focus:border-[#074C72] dark:focus:border-sky-400 focus:ring-2 focus:ring-[#074C72]/20 font-bold"
           />
         </div>
 
         <div class="space-y-2 flex flex-col justify-end">
-          <label class="block text-xs font-bold text-[#074C72]">Nature du colis</label>
+          <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300">Nature du colis</label>
           <button
             type="button"
             @click="estFragile = !estFragile"
             :class="[
               'w-full py-3 px-4 rounded-xl border font-bold text-xs flex items-center justify-between transition-all cursor-pointer',
-              estFragile ? 'bg-amber-50 border-amber-300 text-amber-900 ring-2 ring-amber-400/20' : 'bg-gray-50 border-gray-200 text-gray-600'
+              estFragile ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 ring-2 ring-amber-400/20' : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300'
             ]"
           >
             <span class="flex items-center gap-2">
@@ -315,13 +315,13 @@ const goToStep2 = () => {
       </div>
 
       <!-- Poids estimé(Kg) Slider (Standard items only) -->
-      <div v-if="!isElectronic" class="bg-gray-50 rounded-2xl p-5 border border-gray-200 space-y-3">
+      <div v-if="!isElectronic" class="bg-gray-50 dark:bg-slate-800/80 rounded-2xl p-5 border border-gray-200 dark:border-slate-700 space-y-3">
         <div class="flex items-center justify-between">
           <div>
-            <div class="text-sm font-bold text-[#074C72]">Poids estimé (Kg)</div>
-            <div class="text-[11px] text-gray-400 font-medium italic">Pesée certifiée au point de collecte</div>
+            <div class="text-sm font-bold text-[#074C72] dark:text-sky-300">Poids estimé (Kg)</div>
+            <div class="text-[11px] text-gray-400 dark:text-slate-400 font-medium italic">Pesée certifiée au point de collecte</div>
           </div>
-          <div class="text-lg font-black text-[#074C72]">
+          <div class="text-lg font-black text-[#074C72] dark:text-sky-300">
             {{ weightKg }} Kg
           </div>
         </div>
@@ -337,27 +337,27 @@ const goToStep2 = () => {
         />
 
         <div class="flex items-center justify-between text-xs pt-1">
-          <span class="text-[#FF9F02] font-extrabold bg-amber-50 border border-amber-200 px-3 py-1 rounded-full text-[11px]">
+          <span class="text-[#FF9F02] dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 px-3 py-1 rounded-full text-[11px] font-extrabold">
             1 Kg = {{ formattedUnitPriceKg }}
           </span>
-          <span v-if="voyageData" class="text-gray-500 font-bold text-[11px]">
+          <span v-if="voyageData" class="text-gray-500 dark:text-slate-400 font-bold text-[11px]">
             Capacité disponible: {{ voyageData.capacite_dispo || voyageData.capacite_totale }} Kg
           </span>
         </div>
       </div>
 
       <!-- Electronic Object Tariff Banner (Electronic items) -->
-      <div v-else class="bg-sky-50/70 border border-sky-200 rounded-2xl p-5 space-y-2 shadow-2xs">
+      <div v-else class="bg-sky-50/70 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/80 rounded-2xl p-5 space-y-2 shadow-2xs">
         <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2 text-sm font-bold text-[#074C72]">
+          <div class="flex items-center gap-2 text-sm font-bold text-[#074C72] dark:text-sky-300">
             <span class="text-lg">📱</span>
             <span>Appareil Électronique (Tarif Fixe par Objet)</span>
           </div>
-          <span class="text-xs font-black text-[#B50302] bg-white px-3 py-1 rounded-full border border-red-200 shadow-2xs">
+          <span class="text-xs font-black text-[#B50302] dark:text-rose-400 bg-white dark:bg-slate-800 px-3 py-1 rounded-full border border-red-200 dark:border-rose-900 shadow-2xs">
             {{ formattedUnitPriceObjet }} / objet
           </span>
         </div>
-        <p class="text-xs text-gray-600 font-medium leading-relaxed">
+        <p class="text-xs text-gray-600 dark:text-slate-300 font-medium leading-relaxed">
           Ce type de colis est facturé sous forme de forfait fixe par appareil/objet. Le calcul de poids au kilo n'est pas applicable.
         </p>
       </div>
@@ -365,10 +365,10 @@ const goToStep2 = () => {
     </div>
 
     <!-- Bottom Price Bar & Submit CTA -->
-    <div class="flex items-center justify-between pt-4 border-t border-gray-200 bg-white p-5 rounded-2xl border shadow-xs">
+    <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 rounded-2xl border shadow-xs">
       <div class="space-y-0.5">
-        <div class="text-xs text-gray-500 font-medium">Prix total estimé :</div>
-        <div class="text-sm sm:text-base font-extrabold text-[#B50302]">
+        <div class="text-xs text-gray-500 dark:text-slate-400 font-medium">Prix total estimé :</div>
+        <div class="text-sm sm:text-base font-extrabold text-[#B50302] dark:text-rose-400">
           <template v-if="isElectronic">
             1 Objet Électronique = {{ formattedTotalPrice }}
           </template>

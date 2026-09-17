@@ -77,10 +77,10 @@ const goToDetail = () => {
 </script>
 
 <template>
-  <div class="bg-white rounded-3xl p-5 border border-gray-200/80 shadow-md hover:shadow-lg transition-all space-y-3.5 relative overflow-hidden">
+  <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-gray-200/80 dark:border-slate-800 shadow-md hover:shadow-lg transition-all space-y-3.5 relative overflow-hidden">
     
     <!-- Route Visual: Departure City ─── ✈️ ─── Destination City -->
-    <div class="flex items-center justify-between text-base sm:text-lg font-black text-principal-dark px-1">
+    <div class="flex items-center justify-between text-base sm:text-lg font-black text-principal-dark dark:text-sky-300 px-1">
       <div class="flex items-center gap-2">
         <CountryFlag :city="villeDepart" :country="paysDepart" size="w-6 h-4" />
         <span>{{ villeDepart }}</span>
@@ -88,8 +88,8 @@ const goToDetail = () => {
 
       <!-- Dotted Line & Airplane -->
       <div class="flex-1 flex items-center justify-center px-4 relative">
-        <div class="w-full border-b-2 border-gray-300 border-dashed"></div>
-        <div class="absolute bg-white px-2 text-[#D94132] font-bold text-sm">
+        <div class="w-full border-b-2 border-gray-300 dark:border-slate-700 border-dashed"></div>
+        <div class="absolute bg-white dark:bg-slate-900 px-2 text-[#D94132] font-bold text-sm">
           ✈️
         </div>
       </div>
@@ -101,15 +101,15 @@ const goToDetail = () => {
     </div>
 
     <!-- Info Row: Date & Transporter Badge -->
-    <div class="flex items-center justify-between text-xs font-semibold text-gray-600 gap-2">
-      <div class="bg-gray-100 px-3 py-1.5 rounded-xl flex items-center gap-2">
-        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="flex items-center justify-between text-xs font-semibold text-gray-600 dark:text-slate-300 gap-2">
+      <div class="bg-gray-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl flex items-center gap-2 text-gray-700 dark:text-slate-200">
+        <svg class="w-4 h-4 text-gray-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
         <span>{{ formatVoyageDate(dateDepart) }}</span>
       </div>
 
-      <div class="bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-xl border border-emerald-200 flex items-center gap-1.5 font-bold">
+      <div class="bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 px-3 py-1.5 rounded-xl border border-emerald-200 dark:border-emerald-800 flex items-center gap-1.5 font-bold">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
         </svg>
@@ -118,16 +118,16 @@ const goToDetail = () => {
     </div>
 
     <!-- Weight Capacity Progress Bar Card -->
-    <div class="bg-gray-50 p-3 rounded-2xl border border-gray-100 space-y-1.5">
+    <div class="bg-gray-50 dark:bg-slate-800/80 p-3 rounded-2xl border border-gray-100 dark:border-slate-700 space-y-1.5">
       <div class="flex items-center justify-between text-xs font-bold">
-        <span class="text-[#053754] flex items-center gap-1.5 font-extrabold">
+        <span class="text-[#053754] dark:text-sky-300 flex items-center gap-1.5 font-extrabold">
           <span class="text-sm">⚖️</span>
           <span>{{ poidsDispo }} Kg disponible</span>
         </span>
-        <span class="text-gray-400 font-medium text-[11px]">total {{ poidsTotal }} Kg</span>
+        <span class="text-gray-400 dark:text-slate-400 font-medium text-[11px]">total {{ poidsTotal }} Kg</span>
       </div>
       <!-- Progress Track -->
-      <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+      <div class="w-full h-2 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
         <div
           class="h-full bg-[#BD0A0A] rounded-full transition-all"
           :style="{ width: `${percentageUsed}%` }"
@@ -136,30 +136,30 @@ const goToDetail = () => {
     </div>
 
     <!-- Location Row -->
-    <div v-if="pointCollecte" class="flex items-center gap-2 text-xs text-gray-500 font-medium pt-1">
-      <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div v-if="pointCollecte" class="flex items-center gap-2 text-xs text-gray-500 dark:text-slate-400 font-medium pt-1">
+      <svg class="w-4 h-4 text-gray-400 dark:text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
       </svg>
       <span>Point de collecte :</span>
-      <span class="font-bold text-gray-700 truncate">{{ pointCollecte }}</span>
+      <span class="font-bold text-gray-700 dark:text-slate-200 truncate">{{ pointCollecte }}</span>
     </div>
 
     <!-- Bottom Transporter & Action Row -->
-    <div class="flex items-center justify-between pt-2 border-t border-gray-100">
+    <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-slate-800">
       <!-- Transporter Avatar + Name + Rating -->
       <div class="flex items-center gap-2.5">
         <div class="w-10 h-10 rounded-full bg-[#BD0A0A] text-white font-black text-xs flex items-center justify-center shadow-xs shrink-0 uppercase">
           {{ transporteurNom.slice(0, 2) }}
         </div>
         <div>
-          <div class="text-xs sm:text-sm font-bold text-principal-dark">
+          <div class="text-xs sm:text-sm font-bold text-principal-dark dark:text-sky-300">
             {{ transporteurNom }}
           </div>
           <div class="text-xs text-amber-500 font-extrabold flex items-center gap-1">
             <span>★</span>
             <span>{{ voyageurNote }}</span>
-            <span v-if="totalEvaluationsCount > 0" class="text-[10px] text-gray-400 font-normal">({{ totalEvaluationsCount }})</span>
+            <span v-if="totalEvaluationsCount > 0" class="text-[10px] text-gray-400 dark:text-slate-400 font-normal">({{ totalEvaluationsCount }})</span>
           </div>
         </div>
       </div>
@@ -167,7 +167,7 @@ const goToDetail = () => {
       <!-- Price & Eye Button -->
       <div class="flex items-center gap-2">
         <div class="text-right">
-          <div class="text-xs sm:text-sm font-black text-principal-dark">
+          <div class="text-xs sm:text-sm font-black text-principal-dark dark:text-sky-300">
             {{ prixKg }}
           </div>
         </div>
@@ -175,7 +175,7 @@ const goToDetail = () => {
           @click="goToDetail"
           type="button"
           aria-label="Voir le voyage"
-          class="w-9 h-9 rounded-full bg-red-50 hover:bg-red-100 text-[#BD0A0A] flex items-center justify-center transition-colors cursor-pointer shrink-0 border border-red-100 active:scale-95"
+          class="w-9 h-9 rounded-full bg-red-50 dark:bg-red-950/80 hover:bg-red-100 dark:hover:bg-red-900 text-[#BD0A0A] dark:text-red-300 flex items-center justify-center transition-colors cursor-pointer shrink-0 border border-red-100 dark:border-red-900 active:scale-95"
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

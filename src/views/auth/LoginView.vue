@@ -133,32 +133,32 @@ const handleSubmit = async () => {
       <span class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-tertiaire font-sans">
         Espace personnel
       </span>
-      <h1 class="text-2xl sm:text-3xl font-serif font-bold text-principal-dark mt-1">
+      <h1 class="text-2xl sm:text-3xl font-serif font-bold text-principal-dark dark:text-sky-300 mt-1">
         Content de vous revoir
       </h1>
-      <p class="text-xs sm:text-sm text-gray-500 mt-1">
+      <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400 mt-1">
         Connectez-vous pour suivre vos colis, vos trajets et vos échanges.
       </p>
     </div>
 
     <!-- Alert Global Error -->
-    <div v-if="error" class="mb-5 p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs sm:text-sm rounded-xl flex items-center gap-2 shadow-2xs">
-      <svg class="w-5 h-5 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div v-if="error" class="mb-5 p-3.5 bg-red-50 dark:bg-red-950/80 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 text-xs sm:text-sm rounded-xl flex items-center gap-2 shadow-2xs">
+      <svg class="w-5 h-5 text-red-500 dark:text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
       <span>{{ error }}</span>
     </div>
 
     <!-- Login Mode Switcher Tabs (Téléphone | Email) -->
-    <div class="bg-gray-100 p-1 rounded-2xl flex items-center mb-6 border border-gray-200/80">
+    <div class="bg-gray-100 dark:bg-slate-800 p-1 rounded-2xl flex items-center mb-6 border border-gray-200/80 dark:border-slate-700">
       <button
         type="button"
         @click="toggleLoginType('phone')"
         :class="[
           'flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer text-center',
           loginType === 'phone'
-            ? 'bg-white text-principal-dark shadow-2xs font-bold'
-            : 'text-gray-500 hover:text-gray-800'
+            ? 'bg-white dark:bg-slate-700 text-principal-dark dark:text-sky-300 shadow-2xs font-bold'
+            : 'text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-white'
         ]"
       >
         Téléphone
@@ -169,8 +169,8 @@ const handleSubmit = async () => {
         :class="[
           'flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer text-center',
           loginType === 'email'
-            ? 'bg-white text-principal-dark shadow-2xs font-bold'
-            : 'text-gray-500 hover:text-gray-800'
+            ? 'bg-white dark:bg-slate-700 text-principal-dark dark:text-sky-300 shadow-2xs font-bold'
+            : 'text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-white'
         ]"
       >
         Email
@@ -181,7 +181,7 @@ const handleSubmit = async () => {
     <form @submit.prevent="handleSubmit" class="space-y-4" novalidate>
       <!-- Phone Input Mode with International Country Code Selector -->
       <div v-if="loginType === 'phone'" class="space-y-1">
-        <label for="telephone" class="block text-xs sm:text-sm font-semibold text-gray-700">
+        <label for="telephone" class="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-slate-200">
           Numéro de téléphone
         </label>
         <CountryPhoneInput
@@ -191,12 +191,12 @@ const handleSubmit = async () => {
           @update:modelValue="touched.telephone && validateField('telephone')"
           placeholder="77 000 00 00"
         />
-        <p v-if="errors.loginField" class="text-xs text-red-600 mt-1 font-medium">{{ errors.loginField }}</p>
+        <p v-if="errors.loginField" class="text-xs text-red-600 dark:text-red-400 mt-1 font-medium">{{ errors.loginField }}</p>
       </div>
 
       <!-- Email Input Mode -->
       <div v-else class="space-y-1">
-        <label for="email" class="block text-xs sm:text-sm font-semibold text-gray-700">
+        <label for="email" class="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-slate-200">
           Adresse email
         </label>
         <div class="relative">
@@ -207,15 +207,15 @@ const handleSubmit = async () => {
             @input="touched.email && validateField('email')"
             type="email"
             placeholder="exemple@rahma.sn"
-            class="w-full px-3.5 py-3 text-xs sm:text-sm text-gray-900 bg-white border border-gray-300 rounded-xl focus:border-principal focus:ring-2 focus:ring-principal/20 outline-none transition-all placeholder-gray-400 font-medium"
+            class="w-full px-3.5 py-3 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl focus:border-principal dark:focus:border-sky-400 focus:ring-2 focus:ring-principal/20 outline-none transition-all placeholder-gray-400 dark:placeholder-slate-500 font-medium"
           />
         </div>
-        <p v-if="errors.loginField" class="text-xs text-red-600 mt-1 font-medium">{{ errors.loginField }}</p>
+        <p v-if="errors.loginField" class="text-xs text-red-600 dark:text-red-400 mt-1 font-medium">{{ errors.loginField }}</p>
       </div>
 
       <!-- Password Input -->
       <div class="space-y-1">
-        <label for="password" class="block text-xs sm:text-sm font-semibold text-gray-700">
+        <label for="password" class="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-slate-200">
           Mot de passe
         </label>
         <div class="relative">
@@ -226,12 +226,12 @@ const handleSubmit = async () => {
             @input="touched.password && validateField('password')"
             :type="showPassword ? 'text' : 'password'"
             placeholder="••••••••"
-            class="w-full px-3.5 py-3 pr-10 text-xs sm:text-sm text-gray-900 bg-white border border-gray-300 rounded-xl focus:border-principal focus:ring-2 focus:ring-principal/20 outline-none transition-all placeholder-gray-400 font-medium"
+            class="w-full px-3.5 py-3 pr-10 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl focus:border-principal dark:focus:border-sky-400 focus:ring-2 focus:ring-principal/20 outline-none transition-all placeholder-gray-400 dark:placeholder-slate-500 font-medium"
           />
           <button
             type="button"
             @click="showPassword = !showPassword"
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200 transition-colors p-1"
           >
             <svg v-if="!showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -242,7 +242,7 @@ const handleSubmit = async () => {
             </svg>
           </button>
         </div>
-        <p v-if="errors.password" class="text-xs text-red-600 mt-1 font-medium">{{ errors.password }}</p>
+        <p v-if="errors.password" class="text-xs text-red-600 dark:text-red-400 mt-1 font-medium">{{ errors.password }}</p>
       </div>
 
       <!-- Remember Me -->
@@ -251,9 +251,9 @@ const handleSubmit = async () => {
           <input
             type="checkbox"
             v-model="rememberMe"
-            class="w-4 h-4 rounded text-principal focus:ring-principal/20 border-gray-300"
+            class="w-4 h-4 rounded text-principal focus:ring-principal/20 border-gray-300 dark:border-slate-700 dark:bg-slate-800"
           />
-          <span class="text-xs text-gray-600 font-medium">Se souvenir de moi</span>
+          <span class="text-xs text-gray-600 dark:text-slate-300 font-medium">Se souvenir de moi</span>
         </label>
       </div>
 
@@ -264,8 +264,8 @@ const handleSubmit = async () => {
         :class="[
           'w-full py-3.5 rounded-xl font-bold transition-all duration-200 flex items-center justify-center gap-2 mt-4',
           isFormValid && !isLoading
-            ? 'bg-principal-dark hover:bg-principal text-white shadow-md hover:shadow-lg active:scale-[0.99] cursor-pointer'
-            : 'bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300 opacity-75'
+            ? 'bg-principal-dark hover:bg-principal dark:bg-sky-600 dark:hover:bg-sky-500 text-white shadow-md hover:shadow-lg active:scale-[0.99] cursor-pointer'
+            : 'bg-gray-200 dark:bg-slate-800 text-gray-400 dark:text-slate-600 cursor-not-allowed border border-gray-300 dark:border-slate-700 opacity-75'
         ]"
       >
         <svg v-if="isLoading" class="w-5 h-5 animate-spin text-white" fill="none" viewBox="0 0 24 24">
@@ -277,9 +277,9 @@ const handleSubmit = async () => {
     </form>
 
     <!-- Footer Register link -->
-    <div class="mt-8 text-center text-xs sm:text-sm text-gray-600">
+    <div class="mt-8 text-center text-xs sm:text-sm text-gray-600 dark:text-slate-400">
       Pas encore de compte ?
-      <RouterLink to="/auth/register" class="font-bold text-principal-dark hover:text-secondaire transition-colors underline ml-1">
+      <RouterLink to="/auth/register" class="font-bold text-principal-dark dark:text-sky-400 hover:text-secondaire dark:hover:text-sky-300 transition-colors underline ml-1">
         Créer un compte
       </RouterLink>
     </div>

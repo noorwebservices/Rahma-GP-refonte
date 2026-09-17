@@ -63,60 +63,60 @@ const goToStep3 = () => {
     />
 
     <!-- Form Section -->
-    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-gray-200 shadow-2xs space-y-4">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-4">
       
       <!-- Prénom & Nom Grid -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <!-- Prénom * -->
         <div class="space-y-1.5">
-          <label class="block text-xs font-bold text-[#074C72]">
-            Prénom du destinataire <span class="text-[#B50302]">*</span>
+          <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300">
+            Prénom du destinataire <span class="text-[#B50302] dark:text-rose-400">*</span>
           </label>
           <input
             v-model="form.destinataire_prenom"
             type="text"
             placeholder="Ex : Moussa"
-            class="w-full px-4 py-3 text-xs sm:text-sm bg-white border border-gray-300 rounded-xl outline-none focus:border-[#074C72] focus:ring-2 focus:ring-[#074C72]/20 font-medium placeholder-gray-400"
+            class="w-full px-4 py-3 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-800 dark:text-slate-100 rounded-xl outline-none focus:border-[#074C72] dark:focus:border-sky-400 focus:ring-2 focus:ring-[#074C72]/20 font-medium placeholder-gray-400 dark:placeholder-slate-500"
           />
         </div>
 
         <!-- Nom * -->
         <div class="space-y-1.5">
-          <label class="block text-xs font-bold text-[#074C72]">
-            Nom du destinataire <span class="text-[#B50302]">*</span>
+          <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300">
+            Nom du destinataire <span class="text-[#B50302] dark:text-rose-400">*</span>
           </label>
           <input
             v-model="form.destinataire_nom"
             type="text"
             placeholder="Ex : Kouyaté"
-            class="w-full px-4 py-3 text-xs sm:text-sm bg-white border border-gray-300 rounded-xl outline-none focus:border-[#074C72] focus:ring-2 focus:ring-[#074C72]/20 font-medium placeholder-gray-400"
+            class="w-full px-4 py-3 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-800 dark:text-slate-100 rounded-xl outline-none focus:border-[#074C72] dark:focus:border-sky-400 focus:ring-2 focus:ring-[#074C72]/20 font-medium placeholder-gray-400 dark:placeholder-slate-500"
           />
         </div>
       </div>
 
       <!-- Téléphone * -->
       <div class="space-y-1.5">
-        <label class="block text-xs font-bold text-[#074C72]">
-          Numéro de téléphone <span class="text-[#B50302]">*</span>
+        <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300">
+          Numéro de téléphone <span class="text-[#B50302] dark:text-rose-400">*</span>
         </label>
         <input
           v-model="form.destinataire_numero"
           type="tel"
           placeholder="Ex : +242066554492"
-          class="w-full px-4 py-3 text-xs sm:text-sm bg-white border border-gray-300 rounded-xl outline-none focus:border-[#074C72] focus:ring-2 focus:ring-[#074C72]/20 font-medium placeholder-gray-400"
+          class="w-full px-4 py-3 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-800 dark:text-slate-100 rounded-xl outline-none focus:border-[#074C72] dark:focus:border-sky-400 focus:ring-2 focus:ring-[#074C72]/20 font-medium placeholder-gray-400 dark:placeholder-slate-500"
         />
       </div>
 
       <!-- Adresse complète de livraison * -->
       <div class="space-y-1.5">
-        <label class="block text-xs font-bold text-[#074C72]">
-          Adresse complète de livraison <span class="text-[#B50302]">*</span>
+        <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300">
+          Adresse complète de livraison <span class="text-[#B50302] dark:text-rose-400">*</span>
         </label>
         <input
           v-model="form.destinataire_adresse"
           type="text"
           placeholder="Ex : 15 Rue de la Paix, 75002 Paris, France"
-          class="w-full px-4 py-3 text-xs sm:text-sm bg-white border border-gray-300 rounded-xl outline-none focus:border-[#074C72] focus:ring-2 focus:ring-[#074C72]/20 font-medium placeholder-gray-400"
+          class="w-full px-4 py-3 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-800 dark:text-slate-100 rounded-xl outline-none focus:border-[#074C72] dark:focus:border-sky-400 focus:ring-2 focus:ring-[#074C72]/20 font-medium placeholder-gray-400 dark:placeholder-slate-500"
         />
       </div>
 

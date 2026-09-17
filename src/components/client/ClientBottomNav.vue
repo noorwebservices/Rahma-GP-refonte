@@ -46,7 +46,7 @@ const navigateTo = (path) => {
 </script>
 
 <template>
-  <nav class="fixed bottom-0 left-0 right-0 z-50 bg-[#053754] text-white py-2 px-6 shadow-2xl border-t border-white/10 overflow-visible">
+  <nav class="fixed bottom-0 left-0 right-0 z-50 bg-[#053754] dark:bg-slate-900 text-white py-2 px-6 shadow-2xl border-t border-white/10 dark:border-slate-800 overflow-visible transition-colors duration-300">
     <div class="max-w-md mx-auto flex items-center justify-between relative overflow-visible">
       <button
         v-for="tab in tabs"
@@ -59,7 +59,7 @@ const navigateTo = (path) => {
           :class="[
             'w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 shrink-0',
             activeTab === tab.id
-              ? 'bg-[#053754] ring-[6px] ring-[#FAF7F2] -translate-y-7 text-white shadow-2xl scale-110'
+              ? 'bg-[#053754] dark:bg-slate-900 ring-[6px] ring-[#FAF7F2] dark:ring-slate-950 -translate-y-7 text-white shadow-2xl scale-110'
               : 'text-white/70 hover:text-white'
           ]"
         >

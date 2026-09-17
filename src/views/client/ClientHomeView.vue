@@ -91,12 +91,12 @@ const resetSearch = () => {
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
       
       <!-- Search Card (Full width on mobile, 5 cols on Desktop) -->
-      <div class="lg:col-span-5 bg-[#053754] text-white rounded-3xl p-6 sm:p-7 shadow-xl relative overflow-hidden space-y-5 lg:sticky lg:top-20">
+      <div class="lg:col-span-5 bg-[#053754] dark:bg-slate-900 text-white rounded-3xl p-6 sm:p-7 shadow-xl border border-transparent dark:border-slate-800 relative overflow-hidden space-y-5 lg:sticky lg:top-20">
         <!-- Background texture overlay -->
         <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none"></div>
 
         <div class="relative z-10 space-y-2">
-          <span class="inline-block bg-white/15 backdrop-blur-md px-3.5 py-1 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#FF9F02] border border-white/10">
+          <span class="inline-block bg-white/15 backdrop-blur-md px-3.5 py-1 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#FF9F02] dark:text-amber-300 border border-white/10">
             Transport international de colis
           </span>
           <h1 class="text-xl sm:text-2xl font-serif font-bold text-white leading-tight">
@@ -105,7 +105,7 @@ const resetSearch = () => {
         </div>
 
         <!-- Search Form Box (White box inside hero) -->
-        <div class="bg-white rounded-2xl p-4 sm:p-5 text-gray-800 shadow-lg space-y-4 relative z-10">
+        <div class="bg-white dark:bg-slate-800/95 rounded-2xl p-4 sm:p-5 text-gray-800 dark:text-slate-100 shadow-lg border border-transparent dark:border-slate-700 space-y-4 relative z-10">
           
           <!-- Ville Départ avec Recherche -->
           <CitySelect
@@ -129,7 +129,7 @@ const resetSearch = () => {
           <button
             type="button"
             @click="handleSearch"
-            class="w-full bg-[#B50302] hover:bg-[#870202] text-white font-extrabold text-xs sm:text-sm py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+            class="w-full bg-[#B50302] dark:bg-red-700 hover:bg-[#870202] dark:hover:bg-red-600 text-white font-extrabold text-xs sm:text-sm py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
           >
             <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -150,8 +150,8 @@ const resetSearch = () => {
               :class="[
                 'px-4 py-2.5 rounded-full text-xs font-extrabold whitespace-nowrap transition-all cursor-pointer shadow-2xs',
                 activeFilter === 'all'
-                  ? 'bg-[#074C72] text-white shadow-md'
-                  : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                  ? 'bg-[#074C72] dark:bg-sky-600 text-white shadow-md'
+                  : 'bg-white dark:bg-slate-800 text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700'
               ]"
             >
               Tous les voyages ({{ filteredVoyages.length }})
@@ -162,8 +162,8 @@ const resetSearch = () => {
               :class="[
                 'px-4 py-2.5 rounded-full text-xs font-extrabold whitespace-nowrap transition-all cursor-pointer shadow-2xs',
                 activeFilter === 'semaine'
-                  ? 'bg-[#074C72] text-white shadow-md'
-                  : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                  ? 'bg-[#074C72] dark:bg-sky-600 text-white shadow-md'
+                  : 'bg-white dark:bg-slate-800 text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700'
               ]"
             >
               📅 Voyages de la semaine
@@ -173,7 +173,7 @@ const resetSearch = () => {
           <button
             v-if="isSearchActive"
             @click="resetSearch"
-            class="text-xs text-[#B50302] font-bold underline hover:text-[#870202] shrink-0"
+            class="text-xs text-[#B50302] dark:text-red-400 font-bold underline hover:text-[#870202] dark:hover:text-red-300 shrink-0"
           >
             Réinitialiser
           </button>
@@ -188,17 +188,17 @@ const resetSearch = () => {
           />
 
           <!-- Empty Search State -->
-          <div v-if="paginatedVoyages.length === 0" class="bg-white rounded-3xl p-8 text-center space-y-3 border border-gray-200 shadow-sm">
-            <div class="w-12 h-12 rounded-full bg-red-50 text-[#B50302] flex items-center justify-center mx-auto text-xl font-bold">
+          <div v-if="paginatedVoyages.length === 0" class="bg-white dark:bg-slate-900 rounded-3xl p-8 text-center space-y-3 border border-gray-200 dark:border-slate-800 shadow-sm">
+            <div class="w-12 h-12 rounded-full bg-red-50 dark:bg-red-950/80 text-[#B50302] dark:text-red-300 flex items-center justify-center mx-auto text-xl font-bold">
               🔍
             </div>
-            <h3 class="text-base font-bold text-[#074C72]">Aucun trajet disponible</h3>
-            <p class="text-xs text-gray-500 max-w-sm mx-auto">
-              Aucun voyage ne correspond à la recherche <span class="font-bold text-gray-700">{{ departCity }} ➔ {{ destinationCity }}</span>.
+            <h3 class="text-base font-bold text-[#074C72] dark:text-sky-300">Aucun trajet disponible</h3>
+            <p class="text-xs text-gray-500 dark:text-slate-400 max-w-sm mx-auto">
+              Aucun voyage ne correspond à la recherche <span class="font-bold text-gray-700 dark:text-slate-200">{{ departCity }} ➔ {{ destinationCity }}</span>.
             </p>
             <button
               @click="resetSearch"
-              class="px-5 py-2.5 rounded-xl bg-[#074C72] text-white text-xs font-bold shadow-md hover:bg-[#053754] transition-all cursor-pointer"
+              class="px-5 py-2.5 rounded-xl bg-[#074C72] dark:bg-sky-600 text-white text-xs font-bold shadow-md hover:bg-[#053754] dark:hover:bg-sky-500 transition-all cursor-pointer"
             >
               Voir tous les trajets disponibles
             </button>
@@ -210,7 +210,7 @@ const resetSearch = () => {
           <button
             @click="currentPage > 1 && currentPage--"
             :disabled="currentPage === 1"
-            class="w-10 h-10 rounded-full border border-gray-300 bg-white text-gray-600 flex items-center justify-center hover:bg-gray-100 font-bold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            class="w-10 h-10 rounded-full border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-600 dark:text-slate-300 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-slate-700 font-bold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             ‹
           </button>
@@ -222,8 +222,8 @@ const resetSearch = () => {
             :class="[
               'w-10 h-10 rounded-full font-bold text-xs flex items-center justify-center transition-colors cursor-pointer',
               currentPage === p
-                ? 'bg-[#074C72] text-white font-extrabold shadow-md'
-                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                ? 'bg-[#074C72] dark:bg-sky-600 text-white font-extrabold shadow-md'
+                : 'bg-white dark:bg-slate-800 text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700'
             ]"
           >
             {{ p }}
@@ -232,7 +232,7 @@ const resetSearch = () => {
           <button
             @click="currentPage < totalPages && currentPage++"
             :disabled="currentPage === totalPages"
-            class="w-10 h-10 rounded-full border border-gray-300 bg-white text-gray-600 flex items-center justify-center hover:bg-gray-100 font-bold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            class="w-10 h-10 rounded-full border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-600 dark:text-slate-300 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-slate-700 font-bold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             ›
           </button>

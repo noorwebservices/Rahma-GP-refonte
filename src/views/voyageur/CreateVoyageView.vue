@@ -346,13 +346,13 @@ const handleSaveVoyage = async (targetStatut) => {
   <div class="space-y-6 pb-20 font-sans">
     <!-- Header -->
     <div class="space-y-1">
-      <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark">Publier un voyage</h1>
-      <p class="text-xs sm:text-sm text-gray-500">Renseignez votre trajet, vos adresses et vos disponibilités pour transporter des colis</p>
+      <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark dark:text-sky-300">Publier un voyage</h1>
+      <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400">Renseignez votre trajet, vos adresses et vos disponibilités pour transporter des colis</p>
     </div>
 
     <!-- Multi-Step Progress Indicator -->
-    <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-2xs space-y-3">
-      <div class="flex items-center justify-between text-xs font-bold text-[#053754]">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-3">
+      <div class="flex items-center justify-between text-xs font-bold text-[#053754] dark:text-sky-300">
         <span>Étape {{ currentStep }} sur 5</span>
         <span v-if="currentStep === 1">1. Trajet</span>
         <span v-else-if="currentStep === 2">2. Dates & Heures</span>
@@ -361,25 +361,25 @@ const handleSaveVoyage = async (targetStatut) => {
         <span v-else>5. Catégories d'objets</span>
       </div>
 
-      <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden flex">
+      <div class="w-full bg-gray-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden flex">
         <div
-          class="bg-[#B50302] h-full transition-all duration-300 rounded-full"
+          class="bg-[#B50302] dark:bg-rose-500 h-full transition-all duration-300 rounded-full"
           :style="{ width: `${(currentStep / 5) * 100}%` }"
         ></div>
       </div>
     </div>
 
     <!-- Form Content Container -->
-    <div class="bg-white rounded-3xl p-6 border border-gray-200 shadow-sm space-y-6">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-gray-200 dark:border-slate-800 shadow-sm space-y-6">
       
       <!-- STEP 1: TRAJET -->
       <div v-if="currentStep === 1" class="space-y-4">
-        <h3 class="text-base font-extrabold text-[#053754] border-b border-gray-100 pb-2">1. Sélectionnez votre trajet</h3>
+        <h3 class="text-base font-extrabold text-[#053754] dark:text-sky-300 border-b border-gray-100 dark:border-slate-800 pb-2">1. Sélectionnez votre trajet</h3>
 
         <div class="space-y-4">
           <!-- Departure City Select -->
           <div class="space-y-1.5">
-            <label class="block text-xs font-bold text-gray-700">Ville de Départ</label>
+            <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Ville de Départ</label>
             <CitySelect
               v-model="form.ville_depart"
               placeholder="Choisir la ville de départ"
@@ -388,7 +388,7 @@ const handleSaveVoyage = async (targetStatut) => {
 
           <!-- Destination City Select -->
           <div class="space-y-1.5">
-            <label class="block text-xs font-bold text-gray-700">Ville de Destination</label>
+            <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Ville de Destination</label>
             <CitySelect
               v-model="form.ville_destination"
               placeholder="Choisir la ville de destination"
@@ -399,97 +399,97 @@ const handleSaveVoyage = async (targetStatut) => {
 
       <!-- STEP 2: DATES & HEURES -->
       <div v-else-if="currentStep === 2" class="space-y-4">
-        <h3 class="text-base font-extrabold text-[#053754] border-b border-gray-100 pb-2">2. Dates et Heures du voyage</h3>
+        <h3 class="text-base font-extrabold text-[#053754] dark:text-sky-300 border-b border-gray-100 dark:border-slate-800 pb-2">2. Dates et Heures du voyage</h3>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="space-y-1.5">
-            <label class="block text-xs font-bold text-gray-700">Date et heure de départ</label>
+            <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Date et heure de départ</label>
             <input
               v-model="form.date_depart"
               :min="minDateDepart"
               @change="validateDates"
               type="datetime-local"
-              class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 outline-none focus:bg-white focus:ring-2 focus:ring-[#074C72]/20"
+              class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 dark:text-slate-100 outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-[#074C72]/20"
             />
-            <span class="text-[11px] text-gray-400">Date obligatoire (Aujourd'hui ou future)</span>
+            <span class="text-[11px] text-gray-400 dark:text-slate-400">Date obligatoire (Aujourd'hui ou future)</span>
           </div>
 
           <div class="space-y-1.5">
-            <label class="block text-xs font-bold text-gray-700">Date et heure d'arrivée prévues</label>
+            <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Date et heure d'arrivée prévues</label>
             <input
               v-model="form.date_arrivee"
               :min="form.date_depart || minDateDepart"
               @change="validateDates"
               type="datetime-local"
-              class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 outline-none focus:bg-white focus:ring-2 focus:ring-[#074C72]/20"
+              class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 dark:text-slate-100 outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-[#074C72]/20"
             />
-            <span class="text-[11px] text-gray-400">Strictement supérieure à la date de départ</span>
+            <span class="text-[11px] text-gray-400 dark:text-slate-400">Strictement supérieure à la date de départ</span>
           </div>
         </div>
 
-        <p v-if="dateError" class="text-xs text-red-600 font-extrabold mt-2 bg-red-50 p-3.5 rounded-xl border border-red-200 flex items-center gap-2">
+        <p v-if="dateError" class="text-xs text-red-600 dark:text-rose-400 font-extrabold mt-2 bg-red-50 dark:bg-rose-950/40 p-3.5 rounded-xl border border-red-200 dark:border-rose-900 flex items-center gap-2">
           <span>⚠️</span> {{ dateError }}
         </p>
       </div>
 
       <!-- STEP 3: CAPACITÉ & TARIFS -->
       <div v-else-if="currentStep === 3" class="space-y-4">
-        <h3 class="text-base font-extrabold text-[#053754] border-b border-gray-100 pb-2">3. Capacité bagages & Tarification</h3>
+        <h3 class="text-base font-extrabold text-[#053754] dark:text-sky-300 border-b border-gray-100 dark:border-slate-800 pb-2">3. Capacité bagages & Tarification</h3>
 
         <div class="space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="space-y-1.5">
-              <label class="block text-xs font-bold text-gray-700">Capacité totale disponible (en Kg) *</label>
+              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Capacité totale disponible (en Kg) *</label>
               <input
                 v-model.number="form.capacite_totale"
                 type="number"
                 placeholder="ex: 25"
-                class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 outline-none focus:bg-white focus:ring-2 focus:ring-[#074C72]/20"
+                class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 dark:text-slate-100 outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-[#074C72]/20"
               />
             </div>
 
             <div class="space-y-1.5">
-              <label class="block text-xs font-bold text-gray-700">Devise du tarif *</label>
+              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Devise du tarif *</label>
               <select
                 v-model="form.devise"
-                class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 font-bold outline-none focus:bg-white focus:ring-2 focus:ring-[#074C72]/20"
+                class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 dark:text-slate-100 font-bold outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-[#074C72]/20"
               >
-                <option value="XOF">FCFA (XOF) - Franc CFA</option>
-                <option value="EUR">EUR (€) - Euro</option>
-                <option value="USD">USD ($) - Dollar US</option>
+                <option value="XOF" class="dark:bg-slate-800">FCFA (XOF) - Franc CFA</option>
+                <option value="EUR" class="dark:bg-slate-800">EUR (€) - Euro</option>
+                <option value="USD" class="dark:bg-slate-800">USD ($) - Dollar US</option>
               </select>
             </div>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="space-y-1.5">
-              <label class="block text-xs font-bold text-gray-700">Prix au Kg ({{ form.devise }}) *</label>
+              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Prix au Kg ({{ form.devise }}) *</label>
               <input
                 v-model.number="form.prix_kg"
                 type="number"
                 placeholder="ex: 8500"
-                class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 outline-none focus:bg-white focus:ring-2 focus:ring-[#074C72]/20"
+                class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 dark:text-slate-100 outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-[#074C72]/20"
               />
             </div>
 
             <div class="space-y-1.5">
-              <label class="block text-xs font-bold text-gray-700">Prix par objet spécifique ({{ form.devise }})</label>
+              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Prix par objet spécifique ({{ form.devise }})</label>
               <input
                 v-model.number="form.prix_objet"
                 type="number"
                 placeholder="ex: 15000"
-                class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 outline-none focus:bg-white focus:ring-2 focus:ring-[#074C72]/20"
+                class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 dark:text-slate-100 outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-[#074C72]/20"
               />
             </div>
           </div>
 
           <div class="space-y-1.5">
-            <label class="block text-xs font-bold text-gray-700">Description du voyage</label>
+            <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Description du voyage</label>
             <textarea
               v-model="form.description"
               rows="3"
               placeholder="Fournissez des détails sur votre vol, vos consignes et disponibilités..."
-              class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 outline-none focus:bg-white focus:ring-2 focus:ring-[#074C72]/20"
+              class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 dark:text-slate-100 outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-[#074C72]/20"
             ></textarea>
           </div>
         </div>
@@ -497,32 +497,32 @@ const handleSaveVoyage = async (targetStatut) => {
 
       <!-- STEP 4: ADRESSES DÉPÔT ET RÉCUPÉRATION -->
       <div v-else-if="currentStep === 4" class="space-y-6">
-        <h3 class="text-base font-extrabold text-[#053754] border-b border-gray-100 pb-2">4. Lieux de Dépôt & Récupération</h3>
+        <h3 class="text-base font-extrabold text-[#053754] dark:text-sky-300 border-b border-gray-100 dark:border-slate-800 pb-2">4. Lieux de Dépôt & Récupération</h3>
 
         <div class="space-y-5">
           <!-- Adresse Dépôt Selector Card -->
-          <div class="bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200 space-y-3">
+          <div class="bg-slate-50 dark:bg-slate-800/70 p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3">
             <div class="flex items-center justify-between flex-wrap gap-2">
-              <h4 class="text-xs font-extrabold text-[#053754] flex items-center gap-1.5 uppercase tracking-wider">
+              <h4 class="text-xs font-extrabold text-[#053754] dark:text-sky-300 flex items-center gap-1.5 uppercase tracking-wider">
                 <span>📍</span> Adresse de Dépôt (Départ)
               </h4>
               <button
                 @click="showDepotModal = true"
                 type="button"
-                class="text-xs font-extrabold text-[#B50302] hover:underline flex items-center gap-1 cursor-pointer"
+                class="text-xs font-extrabold text-[#B50302] dark:text-rose-400 hover:underline flex items-center gap-1 cursor-pointer"
               >
                 <span>+ Nouvelle adresse de dépôt</span>
               </button>
             </div>
 
             <div class="space-y-2">
-              <label class="block text-[11px] font-bold text-gray-600">Sélectionnez le lieu de remise du colis :</label>
+              <label class="block text-[11px] font-bold text-gray-600 dark:text-slate-400">Sélectionnez le lieu de remise du colis :</label>
               <select
                 v-model="form.adresse_depot_id"
-                class="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 font-bold outline-none focus:ring-2 focus:ring-[#074C72]/20"
+                class="w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 dark:text-slate-100 font-bold outline-none focus:ring-2 focus:ring-[#074C72]/20"
               >
-                <option value="" disabled>-- Sélectionner une adresse de dépôt --</option>
-                <option v-for="addr in adressesDepot" :key="addr.id" :value="addr.id">
+                <option value="" disabled class="dark:bg-slate-800">-- Sélectionner une adresse de dépôt --</option>
+                <option v-for="addr in adressesDepot" :key="addr.id" :value="addr.id" class="dark:bg-slate-800">
                   {{ addr.adresse }} ({{ addr.ville }}, {{ addr.pays }})
                 </option>
               </select>
@@ -530,28 +530,28 @@ const handleSaveVoyage = async (targetStatut) => {
           </div>
 
           <!-- Adresse Récupération Selector Card -->
-          <div class="bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200 space-y-3">
+          <div class="bg-slate-50 dark:bg-slate-800/70 p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3">
             <div class="flex items-center justify-between flex-wrap gap-2">
-              <h4 class="text-xs font-extrabold text-[#053754] flex items-center gap-1.5 uppercase tracking-wider">
+              <h4 class="text-xs font-extrabold text-[#053754] dark:text-sky-300 flex items-center gap-1.5 uppercase tracking-wider">
                 <span>📍</span> Adresse de Récupération (Arrivée)
               </h4>
               <button
                 @click="showRecupModal = true"
                 type="button"
-                class="text-xs font-extrabold text-[#B50302] hover:underline flex items-center gap-1 cursor-pointer"
+                class="text-xs font-extrabold text-[#B50302] dark:text-rose-400 hover:underline flex items-center gap-1 cursor-pointer"
               >
                 <span>+ Nouvelle adresse de récupération</span>
               </button>
             </div>
 
             <div class="space-y-2">
-              <label class="block text-[11px] font-bold text-gray-600">Sélectionnez le lieu de retrait du colis :</label>
+              <label class="block text-[11px] font-bold text-gray-600 dark:text-slate-400">Sélectionnez le lieu de retrait du colis :</label>
               <select
                 v-model="form.adresse_recuperation_id"
-                class="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 font-bold outline-none focus:ring-2 focus:ring-[#074C72]/20"
+                class="w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 dark:text-slate-100 font-bold outline-none focus:ring-2 focus:ring-[#074C72]/20"
               >
-                <option value="" disabled>-- Sélectionner une adresse de récupération --</option>
-                <option v-for="addr in adressesRecuperation" :key="addr.id" :value="addr.id">
+                <option value="" disabled class="dark:bg-slate-800">-- Sélectionner une adresse de récupération --</option>
+                <option v-for="addr in adressesRecuperation" :key="addr.id" :value="addr.id" class="dark:bg-slate-800">
                   {{ addr.adresse }} ({{ addr.ville }}, {{ addr.pays }})
                 </option>
               </select>
@@ -562,11 +562,11 @@ const handleSaveVoyage = async (targetStatut) => {
 
       <!-- STEP 5: CATÉGORIES ACCEPTÉES / REFUSÉES -->
       <div v-else-if="currentStep === 5" class="space-y-6">
-        <h3 class="text-base font-extrabold text-[#053754] border-b border-gray-100 pb-2">5. Catégories d'objets autorisées & interdites</h3>
+        <h3 class="text-base font-extrabold text-[#053754] dark:text-sky-300 border-b border-gray-100 dark:border-slate-800 pb-2">5. Catégories d'objets autorisées & interdites</h3>
 
         <!-- SECTION A: AUTORISÉES -->
         <div class="space-y-3">
-          <label class="block text-xs font-extrabold text-emerald-800">✅ Catégories d'objets ACCEPTÉES dans vos bagages</label>
+          <label class="block text-xs font-extrabold text-emerald-800 dark:text-emerald-300">✅ Catégories d'objets ACCEPTÉES dans vos bagages</label>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div
@@ -574,10 +574,10 @@ const handleSaveVoyage = async (targetStatut) => {
               :key="cat"
               @click="toggleAutorise(cat)"
               class="p-3 rounded-xl border text-xs font-bold flex items-center justify-between cursor-pointer transition-all"
-              :class="form.objets_autorises.includes(cat) ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'"
+              :class="form.objets_autorises.includes(cat) ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300' : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700'"
             >
               <span>{{ cat }}</span>
-              <span v-if="form.objets_autorises.includes(cat)" class="text-emerald-600 text-sm">✓</span>
+              <span v-if="form.objets_autorises.includes(cat)" class="text-emerald-600 dark:text-emerald-400 text-sm">✓</span>
             </div>
           </div>
 
@@ -587,7 +587,7 @@ const handleSaveVoyage = async (targetStatut) => {
               v-model="customAutorise"
               type="text"
               placeholder="✍️ Autre objet accepté (ex: Épices scellées)"
-              class="flex-1 bg-[#F3F4F6] border border-gray-200 rounded-xl px-4 py-2.5 text-xs text-gray-800 outline-none"
+              class="flex-1 bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none"
               @keyup.enter.prevent="addCustomAutorise"
             />
             <button
@@ -601,8 +601,8 @@ const handleSaveVoyage = async (targetStatut) => {
         </div>
 
         <!-- SECTION B: INTERDITES / REFUSÉES -->
-        <div class="space-y-3 pt-4 border-t border-gray-100">
-          <label class="block text-xs font-extrabold text-red-800">🚫 Catégories d'objets STRICTEMENT REFUSÉES</label>
+        <div class="space-y-3 pt-4 border-t border-gray-100 dark:border-slate-800">
+          <label class="block text-xs font-extrabold text-red-800 dark:text-rose-300">🚫 Catégories d'objets STRICTEMENT REFUSÉES</label>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div
@@ -610,10 +610,10 @@ const handleSaveVoyage = async (targetStatut) => {
               :key="cat"
               @click="toggleInterdit(cat)"
               class="p-3 rounded-xl border text-xs font-bold flex items-center justify-between cursor-pointer transition-all"
-              :class="form.objets_interdits.includes(cat) ? 'bg-red-50 border-red-300 text-red-800' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'"
+              :class="form.objets_interdits.includes(cat) ? 'bg-red-50 dark:bg-rose-950/60 border-red-300 dark:border-rose-800 text-red-800 dark:text-rose-300' : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700'"
             >
               <span>{{ cat }}</span>
-              <span v-if="form.objets_interdits.includes(cat)" class="text-red-600 text-sm">✕</span>
+              <span v-if="form.objets_interdits.includes(cat)" class="text-red-600 dark:text-rose-400 text-sm">✕</span>
             </div>
           </div>
 
@@ -623,7 +623,7 @@ const handleSaveVoyage = async (targetStatut) => {
               v-model="customInterdit"
               type="text"
               placeholder="✍️ Autre objet interdit (ex: Produits corrosifs)"
-              class="flex-1 bg-[#F3F4F6] border border-gray-200 rounded-xl px-4 py-2.5 text-xs text-gray-800 outline-none"
+              class="flex-1 bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none"
               @keyup.enter.prevent="addCustomInterdit"
             />
             <button
@@ -638,12 +638,12 @@ const handleSaveVoyage = async (targetStatut) => {
       </div>
 
       <!-- Navigation Buttons -->
-      <div class="border-t border-gray-100 pt-4 flex items-center justify-between gap-3 flex-wrap">
+      <div class="border-t border-gray-100 dark:border-slate-800 pt-4 flex items-center justify-between gap-3 flex-wrap">
         <button
           v-if="currentStep > 1"
           @click="prevStep"
           type="button"
-          class="px-5 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs sm:text-sm transition-colors cursor-pointer"
+          class="px-5 py-3 rounded-xl bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 font-bold text-xs sm:text-sm transition-colors cursor-pointer"
         >
           Précédent
         </button>
@@ -653,7 +653,7 @@ const handleSaveVoyage = async (targetStatut) => {
             v-if="currentStep < 5"
             @click="nextStep"
             type="button"
-            class="bg-[#053754] hover:bg-[#074C72] text-white font-extrabold text-xs sm:text-sm py-3.5 px-6 rounded-xl shadow-md transition-all cursor-pointer uppercase tracking-wider"
+            class="bg-[#053754] dark:bg-sky-600 hover:bg-[#074C72] dark:hover:bg-sky-500 text-white font-extrabold text-xs sm:text-sm py-3.5 px-6 rounded-xl shadow-md transition-all cursor-pointer uppercase tracking-wider"
           >
             Suivant
           </button>
@@ -663,7 +663,7 @@ const handleSaveVoyage = async (targetStatut) => {
               @click="handleSaveVoyage('brouillon')"
               :disabled="isLoading"
               type="button"
-              class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-extrabold text-xs py-3.5 px-5 rounded-xl transition-all cursor-pointer uppercase tracking-wider"
+              class="bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-800 dark:text-slate-200 font-extrabold text-xs py-3.5 px-5 rounded-xl transition-all cursor-pointer uppercase tracking-wider"
             >
               Brouillon
             </button>
@@ -684,42 +684,42 @@ const handleSaveVoyage = async (targetStatut) => {
 
     <!-- MODAL: NOUVELLE ADRESSE DE DÉPÔT -->
     <div v-if="showDepotModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 font-sans">
-        <div class="flex items-center justify-between border-b border-gray-100 pb-3">
-          <h3 class="text-base font-bold text-[#053754] font-serif">Créer une adresse de dépôt</h3>
-          <button @click="showDepotModal = false" class="text-gray-400 hover:text-gray-600">✕</button>
+      <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 font-sans">
+        <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3">
+          <h3 class="text-base font-bold text-[#053754] dark:text-sky-300 font-serif">Créer une adresse de dépôt</h3>
+          <button @click="showDepotModal = false" class="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 font-bold cursor-pointer">✕</button>
         </div>
 
         <form @submit.prevent="submitNewDepotAddress" class="space-y-3 text-xs">
           <div>
-            <label class="block font-bold text-gray-700 mb-1">Adresse complète *</label>
-            <input v-model="newDepotForm.adresse" type="text" placeholder="ex: 15 Rue de Rivoli, Agence Relais Rahma" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none" />
+            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Adresse complète *</label>
+            <input v-model="newDepotForm.adresse" type="text" placeholder="ex: 15 Rue de Rivoli, Agence Relais Rahma" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-gray-800 dark:text-slate-100 outline-none" />
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block font-bold text-gray-700 mb-1">Ville *</label>
-              <input v-model="newDepotForm.ville" type="text" placeholder="Dakar" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none" />
+              <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Ville *</label>
+              <input v-model="newDepotForm.ville" type="text" placeholder="Dakar" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-gray-800 dark:text-slate-100 outline-none" />
             </div>
             <div>
-              <label class="block font-bold text-gray-700 mb-1">Pays *</label>
-              <input v-model="newDepotForm.pays" type="text" placeholder="Sénégal" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none" />
+              <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Pays *</label>
+              <input v-model="newDepotForm.pays" type="text" placeholder="Sénégal" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-gray-800 dark:text-slate-100 outline-none" />
             </div>
           </div>
 
           <div>
-            <label class="block font-bold text-gray-700 mb-1">Horaire d'ouverture</label>
-            <input v-model="newDepotForm.horaire_ouverture" type="text" placeholder="Du Lundi au Samedi de 08h30 à 19h00" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none" />
+            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Horaire d'ouverture</label>
+            <input v-model="newDepotForm.horaire_ouverture" type="text" placeholder="Du Lundi au Samedi de 08h30 à 19h00" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-gray-800 dark:text-slate-100 outline-none" />
           </div>
 
           <div>
-            <label class="block font-bold text-gray-700 mb-1">Instructions de dépôt</label>
-            <textarea v-model="newDepotForm.instructions" rows="2" placeholder="Consignes particulières pour le client..." class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none"></textarea>
+            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Instructions de dépôt</label>
+            <textarea v-model="newDepotForm.instructions" rows="2" placeholder="Consignes particulières pour le client..." class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-gray-800 dark:text-slate-100 outline-none"></textarea>
           </div>
 
           <div class="pt-2 flex justify-end gap-2">
-            <button type="button" @click="showDepotModal = false" class="px-4 py-2 text-gray-600 font-bold">Annuler</button>
-            <button type="submit" :disabled="isLoading" class="bg-[#053754] text-white font-bold px-5 py-2 rounded-xl">Enregistrer</button>
+            <button type="button" @click="showDepotModal = false" class="px-4 py-2 text-gray-600 dark:text-slate-400 font-bold cursor-pointer">Annuler</button>
+            <button type="submit" :disabled="isLoading" class="bg-[#053754] text-white font-bold px-5 py-2 rounded-xl cursor-pointer">Enregistrer</button>
           </div>
         </form>
       </div>
@@ -727,42 +727,42 @@ const handleSaveVoyage = async (targetStatut) => {
 
     <!-- MODAL: NOUVELLE ADRESSE DE RÉCUPÉRATION -->
     <div v-if="showRecupModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 font-sans">
-        <div class="flex items-center justify-between border-b border-gray-100 pb-3">
-          <h3 class="text-base font-bold text-[#053754] font-serif">Créer une adresse de récupération</h3>
-          <button @click="showRecupModal = false" class="text-gray-400 hover:text-gray-600">✕</button>
+      <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 font-sans">
+        <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3">
+          <h3 class="text-base font-bold text-[#053754] dark:text-sky-300 font-serif">Créer une adresse de récupération</h3>
+          <button @click="showRecupModal = false" class="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 font-bold cursor-pointer">✕</button>
         </div>
 
         <form @submit.prevent="submitNewRecupAddress" class="space-y-3 text-xs">
           <div>
-            <label class="block font-bold text-gray-700 mb-1">Adresse complète *</label>
-            <input v-model="newRecupForm.adresse" type="text" placeholder="ex: Agence Rahma Paris 10ème (Gare du Nord)" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none" />
+            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Adresse complète *</label>
+            <input v-model="newRecupForm.adresse" type="text" placeholder="ex: Agence Rahma Paris 10ème (Gare du Nord)" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-gray-800 dark:text-slate-100 outline-none" />
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block font-bold text-gray-700 mb-1">Ville *</label>
-              <input v-model="newRecupForm.ville" type="text" placeholder="Paris" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none" />
+              <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Ville *</label>
+              <input v-model="newRecupForm.ville" type="text" placeholder="Paris" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-gray-800 dark:text-slate-100 outline-none" />
             </div>
             <div>
-              <label class="block font-bold text-gray-700 mb-1">Pays *</label>
-              <input v-model="newRecupForm.pays" type="text" placeholder="France" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none" />
+              <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Pays *</label>
+              <input v-model="newRecupForm.pays" type="text" placeholder="France" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-gray-800 dark:text-slate-100 outline-none" />
             </div>
           </div>
 
           <div>
-            <label class="block font-bold text-gray-700 mb-1">Horaire d'ouverture</label>
-            <input v-model="newRecupForm.horaire_ouverture" type="text" placeholder="Du Lundi au Samedi de 09h00 à 19h00" class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none" />
+            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Horaire d'ouverture</label>
+            <input v-model="newRecupForm.horaire_ouverture" type="text" placeholder="Du Lundi au Samedi de 09h00 à 19h00" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-gray-800 dark:text-slate-100 outline-none" />
           </div>
 
           <div>
-            <label class="block font-bold text-gray-700 mb-1">Instructions de récupération</label>
-            <textarea v-model="newRecupForm.instructions" rows="2" placeholder="Consignes particulières pour le destinataire..." class="w-full bg-[#F3F4F6] border border-gray-200 rounded-xl px-3.5 py-2.5 outline-none"></textarea>
+            <label class="block font-bold text-gray-700 dark:text-slate-300 mb-1">Instructions de récupération</label>
+            <textarea v-model="newRecupForm.instructions" rows="2" placeholder="Consignes particulières pour le destinataire..." class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-gray-800 dark:text-slate-100 outline-none"></textarea>
           </div>
 
           <div class="pt-2 flex justify-end gap-2">
-            <button type="button" @click="showRecupModal = false" class="px-4 py-2 text-gray-600 font-bold">Annuler</button>
-            <button type="submit" :disabled="isLoading" class="bg-[#053754] text-white font-bold px-5 py-2 rounded-xl">Enregistrer</button>
+            <button type="button" @click="showRecupModal = false" class="px-4 py-2 text-gray-600 dark:text-slate-400 font-bold cursor-pointer">Annuler</button>
+            <button type="submit" :disabled="isLoading" class="bg-[#053754] text-white font-bold px-5 py-2 rounded-xl cursor-pointer">Enregistrer</button>
           </div>
         </form>
       </div>

@@ -378,7 +378,7 @@ const handleLogout = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#FAF7F2] font-sans pb-24">
+  <div class="min-h-screen bg-[#FAF7F2] dark:bg-slate-950 font-sans pb-24 transition-colors duration-300">
     <!-- Top Client Header (Identical to all other pages) -->
     <ClientHeader />
 
@@ -386,49 +386,49 @@ const handleLogout = async () => {
     <main class="max-w-5xl mx-auto px-4 sm:px-6 pt-6">
       
       <!-- Global Messages -->
-      <div v-if="successMessage" class="mb-4 p-4 bg-green-50 border border-green-200 text-green-800 text-sm rounded-2xl flex items-center justify-between shadow-xs">
+      <div v-if="successMessage" class="mb-4 p-4 bg-green-50 dark:bg-green-950/80 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-300 text-sm rounded-2xl flex items-center justify-between shadow-xs">
         <div class="flex items-center gap-2">
-          <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
           </svg>
           <span>{{ successMessage }}</span>
         </div>
       </div>
 
-      <div v-if="error" class="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-2xl flex items-center gap-2 shadow-xs">
-        <svg class="w-5 h-5 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div v-if="error" class="mb-4 p-4 bg-red-50 dark:bg-red-950/80 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 text-sm rounded-2xl flex items-center gap-2 shadow-xs">
+        <svg class="w-5 h-5 text-red-500 dark:text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <span>{{ error }}</span>
       </div>
 
       <!-- Top Profile Overview Banner Card -->
-      <div v-if="user" class="bg-white rounded-3xl p-6 sm:p-8 shadow-md border border-gray-100 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div v-if="user" class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-md border border-gray-100 dark:border-slate-800 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div class="flex items-center gap-4 sm:gap-6">
           <!-- Avatar Circle -->
-          <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-principal text-white font-serif font-bold text-xl sm:text-2xl flex items-center justify-center border-4 border-white shadow-md shrink-0">
+          <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-principal dark:bg-sky-600 text-white font-serif font-bold text-xl sm:text-2xl flex items-center justify-center border-4 border-white dark:border-slate-800 shadow-md shrink-0">
             {{ userInitials }}
           </div>
 
           <div>
             <div class="flex items-center gap-2 flex-wrap">
-              <h1 class="text-xl sm:text-2xl font-bold text-principal-dark font-serif">
+              <h1 class="text-xl sm:text-2xl font-bold text-principal-dark dark:text-sky-300 font-serif">
                 {{ user.prenom }} {{ user.nom }}
               </h1>
               <span :class="[
                 'text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full font-extrabold uppercase tracking-wide',
-                modeActuel === 'voyageur' ? 'bg-tertiaire text-principal-dark' : 'bg-principal-light/10 text-principal'
+                modeActuel === 'voyageur' ? 'bg-tertiaire text-principal-dark' : 'bg-principal-light/10 dark:bg-sky-950 text-principal dark:text-sky-300'
               ]">
                 Mode {{ modeActuel }}
               </span>
             </div>
 
-            <p class="text-xs sm:text-sm text-gray-500 mt-1 flex items-center gap-2">
-              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400 mt-1 flex items-center gap-2">
+              <svg class="w-4 h-4 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
               {{ user.email }}
             </p>
-            <p class="text-xs sm:text-sm text-gray-500 mt-0.5 flex items-center gap-2">
-              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+            <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400 mt-0.5 flex items-center gap-2">
+              <svg class="w-4 h-4 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
               {{ user.telephone }}
             </p>
           </div>
@@ -440,7 +440,7 @@ const handleLogout = async () => {
             v-if="user.roles?.includes('voyageur') || user.voyageur"
             @click="handleToggleMode"
             :disabled="isLoading"
-            class="px-5 py-3 rounded-2xl bg-principal text-white font-semibold text-xs sm:text-sm shadow-md hover:bg-principal-dark transition-all flex items-center justify-center gap-2 cursor-pointer"
+            class="px-5 py-3 rounded-2xl bg-principal dark:bg-sky-600 text-white font-semibold text-xs sm:text-sm shadow-md hover:bg-principal-dark dark:hover:bg-sky-500 transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
@@ -462,9 +462,9 @@ const handleLogout = async () => {
           <!-- Déconnexion Button -->
           <button
             @click="handleLogout"
-            class="px-5 py-3 rounded-2xl bg-red-50 hover:bg-red-100 border border-red-200 text-[#B50302] font-bold text-xs sm:text-sm shadow-2xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+            class="px-5 py-3 rounded-2xl bg-red-50 dark:bg-red-950/80 hover:bg-red-100 dark:hover:bg-red-900 border border-red-200 dark:border-red-900 text-[#B50302] dark:text-red-300 font-bold text-xs sm:text-sm shadow-2xs transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
-            <svg class="w-4 h-4 text-[#B50302]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 text-[#B50302] dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
             <span>Déconnexion</span>
@@ -473,12 +473,12 @@ const handleLogout = async () => {
       </div>
 
       <!-- Navigation Tabs (Horizontally scrollable on mobile) -->
-      <div class="flex border-b border-gray-200 mb-6 text-xs sm:text-sm font-semibold gap-4 sm:gap-6 overflow-x-auto no-scrollbar whitespace-nowrap py-1">
+      <div class="flex border-b border-gray-200 dark:border-slate-800 mb-6 text-xs sm:text-sm font-semibold gap-4 sm:gap-6 overflow-x-auto no-scrollbar whitespace-nowrap py-1">
         <button
           @click="activeTab = 'info'"
           :class="[
             'pb-3 border-b-2 transition-colors cursor-pointer shrink-0',
-            activeTab === 'info' ? 'border-principal text-principal-dark font-bold' : 'border-transparent text-gray-500 hover:text-gray-800'
+            activeTab === 'info' ? 'border-principal dark:border-sky-400 text-principal-dark dark:text-sky-300 font-bold' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200'
           ]"
         >
           Informations du Compte
@@ -487,7 +487,7 @@ const handleLogout = async () => {
           @click="activeTab = 'voyageur'"
           :class="[
             'pb-3 border-b-2 transition-colors cursor-pointer shrink-0',
-            activeTab === 'voyageur' ? 'border-principal text-principal-dark font-bold' : 'border-transparent text-gray-500 hover:text-gray-800'
+            activeTab === 'voyageur' ? 'border-principal dark:border-sky-400 text-principal-dark dark:text-sky-300 font-bold' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200'
           ]"
         >
           Statut & Profil Voyageur
@@ -497,7 +497,7 @@ const handleLogout = async () => {
           @click="activeTab = 'revenus'"
           :class="[
             'pb-3 border-b-2 transition-colors cursor-pointer shrink-0',
-            activeTab === 'revenus' ? 'border-principal text-principal-dark font-bold' : 'border-transparent text-gray-500 hover:text-gray-800'
+            activeTab === 'revenus' ? 'border-principal dark:border-sky-400 text-principal-dark dark:text-sky-300 font-bold' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200'
           ]"
         >
           Mes Revenus GP
@@ -506,7 +506,7 @@ const handleLogout = async () => {
           @click="activeTab = 'edit'"
           :class="[
             'pb-3 border-b-2 transition-colors cursor-pointer shrink-0',
-            activeTab === 'edit' ? 'border-principal text-principal-dark font-bold' : 'border-transparent text-gray-500 hover:text-gray-800'
+            activeTab === 'edit' ? 'border-principal dark:border-sky-400 text-principal-dark dark:text-sky-300 font-bold' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200'
           ]"
         >
           Modifier mes données
@@ -515,43 +515,43 @@ const handleLogout = async () => {
 
       <!-- Tab 1: Info Utilisateur -->
       <div v-if="activeTab === 'info'" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 space-y-4">
-          <h3 class="text-base font-bold text-principal-dark flex items-center gap-2">
-            <svg class="w-5 h-5 text-principal" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-800 space-y-4">
+          <h3 class="text-base font-bold text-principal-dark dark:text-sky-300 flex items-center gap-2">
+            <svg class="w-5 h-5 text-principal dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
             Identité
           </h3>
-          <div class="text-xs sm:text-sm space-y-2 text-gray-600 divide-y divide-gray-100">
-            <div class="pt-2 flex justify-between"><span class="font-medium text-gray-400">Prénom:</span> <span class="font-bold text-gray-800">{{ user?.prenom }}</span></div>
-            <div class="pt-2 flex justify-between"><span class="font-medium text-gray-400">Nom:</span> <span class="font-bold text-gray-800">{{ user?.nom }}</span></div>
-            <div class="pt-2 flex justify-between"><span class="font-medium text-gray-400">Email:</span> <span class="font-bold text-gray-800">{{ user?.email }}</span></div>
-            <div class="pt-2 flex justify-between"><span class="font-medium text-gray-400">Téléphone:</span> <span class="font-bold text-gray-800">{{ user?.telephone }}</span></div>
-            <div class="pt-2 flex justify-between"><span class="font-medium text-gray-400">Adresse:</span> <span class="font-bold text-gray-800">{{ user?.adresse || 'Non renseignée' }}</span></div>
+          <div class="text-xs sm:text-sm space-y-2 text-gray-600 dark:text-slate-300 divide-y divide-gray-100 dark:divide-slate-800">
+            <div class="pt-2 flex justify-between"><span class="font-medium text-gray-400 dark:text-slate-400">Prénom:</span> <span class="font-bold text-gray-800 dark:text-slate-100">{{ user?.prenom }}</span></div>
+            <div class="pt-2 flex justify-between"><span class="font-medium text-gray-400 dark:text-slate-400">Nom:</span> <span class="font-bold text-gray-800 dark:text-slate-100">{{ user?.nom }}</span></div>
+            <div class="pt-2 flex justify-between"><span class="font-medium text-gray-400 dark:text-slate-400">Email:</span> <span class="font-bold text-gray-800 dark:text-slate-100">{{ user?.email }}</span></div>
+            <div class="pt-2 flex justify-between"><span class="font-medium text-gray-400 dark:text-slate-400">Téléphone:</span> <span class="font-bold text-gray-800 dark:text-slate-100">{{ user?.telephone }}</span></div>
+            <div class="pt-2 flex justify-between"><span class="font-medium text-gray-400 dark:text-slate-400">Adresse:</span> <span class="font-bold text-gray-800 dark:text-slate-100">{{ user?.adresse || 'Non renseignée' }}</span></div>
           </div>
         </div>
 
-        <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 space-y-4">
-          <h3 class="text-base font-bold text-principal-dark flex items-center gap-2">
-            <svg class="w-5 h-5 text-principal" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-800 space-y-4">
+          <h3 class="text-base font-bold text-principal-dark dark:text-sky-300 flex items-center gap-2">
+            <svg class="w-5 h-5 text-principal dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
             Statut & Rôles
           </h3>
           <div class="text-xs sm:text-sm space-y-3">
             <div class="flex items-center justify-between">
-              <span class="text-gray-400 font-medium">Statut du compte:</span>
-              <span class="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full capitalize">
+              <span class="text-gray-400 dark:text-slate-400 font-medium">Statut du compte:</span>
+              <span class="bg-green-100 dark:bg-emerald-950/80 text-green-800 dark:text-emerald-300 text-xs font-bold px-3 py-1 rounded-full capitalize">
                 {{ user?.statut || 'actif' }}
               </span>
             </div>
             <div class="flex items-center justify-between">
-              <span class="text-gray-400 font-medium">Rôles attribués:</span>
+              <span class="text-gray-400 dark:text-slate-400 font-medium">Rôles attribués:</span>
               <div class="flex gap-1.5">
-                <span v-for="role in user?.roles" :key="role" class="bg-gray-100 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded-md capitalize">
+                <span v-for="role in user?.roles" :key="role" class="bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-200 text-xs font-bold px-2.5 py-0.5 rounded-md capitalize">
                   {{ role }}
                 </span>
               </div>
             </div>
-            <div class="flex items-center justify-between pt-2 border-t border-gray-100">
-              <span class="text-gray-400 font-medium">Dernière connexion:</span>
-              <span class="text-gray-600 font-medium">
+            <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-slate-800">
+              <span class="text-gray-400 dark:text-slate-400 font-medium">Dernière connexion:</span>
+              <span class="text-gray-600 dark:text-slate-300 font-medium">
                 {{ user?.dernier_connexion ? new Date(user.dernier_connexion).toLocaleString() : 'Récemment' }}
               </span>
             </div>
@@ -560,36 +560,36 @@ const handleLogout = async () => {
       </div>
 
       <!-- Tab 2: Voyageur Details -->
-      <div v-else-if="activeTab === 'voyageur'" class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100">
+      <div v-else-if="activeTab === 'voyageur'" class="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-800">
         <div v-if="user?.voyageur" class="space-y-6">
-          <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+          <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-4">
             <div>
-              <h3 class="text-lg font-bold text-principal-dark font-serif">Profil Voyageur Enregistré</h3>
-              <p class="text-xs text-gray-500">Informations de vérification d'identité pour le transport de colis</p>
+              <h3 class="text-lg font-bold text-principal-dark dark:text-sky-300 font-serif">Profil Voyageur Enregistré</h3>
+              <p class="text-xs text-gray-500 dark:text-slate-400">Informations de vérification d'identité pour le transport de colis</p>
             </div>
             <span :class="[
               'px-3 py-1 text-xs font-bold rounded-full uppercase',
-              user.voyageur.statut === 'en_attente' ? 'bg-orange-100 text-orange-800' : 'bg-green-100 text-green-800'
+              user.voyageur.statut === 'en_attente' ? 'bg-orange-100 dark:bg-amber-950/80 text-orange-800 dark:text-amber-300' : 'bg-green-100 dark:bg-emerald-950/80 text-green-800 dark:text-emerald-300'
             ]">
               {{ user.voyageur.statut === 'en_attente' ? 'En attente de validation' : 'Vérifié' }}
             </span>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
-            <div class="bg-gray-50 p-4 rounded-2xl">
-              <span class="text-gray-400 font-medium block mb-1">Type de pièce d'identité</span>
-              <span class="font-bold text-gray-800 uppercase">{{ user.voyageur.type_piece }}</span>
+            <div class="bg-gray-50 dark:bg-slate-800/80 p-4 rounded-2xl">
+              <span class="text-gray-400 dark:text-slate-400 font-medium block mb-1">Type de pièce d'identité</span>
+              <span class="font-bold text-gray-800 dark:text-slate-100 uppercase">{{ user.voyageur.type_piece }}</span>
             </div>
-            <div class="bg-gray-50 p-4 rounded-2xl">
-              <span class="text-gray-400 font-medium block mb-1">Numéro de la pièce</span>
-              <span class="font-bold text-gray-800">{{ user.voyageur.numero_piece }}</span>
+            <div class="bg-gray-50 dark:bg-slate-800/80 p-4 rounded-2xl">
+              <span class="text-gray-400 dark:text-slate-400 font-medium block mb-1">Numéro de la pièce</span>
+              <span class="font-bold text-gray-800 dark:text-slate-100">{{ user.voyageur.numero_piece }}</span>
             </div>
           </div>
 
           <!-- Documents previews section -->
           <div class="space-y-3 pt-2">
-            <h4 class="text-xs sm:text-sm font-bold text-principal-dark flex items-center gap-2">
-              <svg class="w-4 h-4 text-principal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <h4 class="text-xs sm:text-sm font-bold text-principal-dark dark:text-sky-300 flex items-center gap-2">
+              <svg class="w-4 h-4 text-principal dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
               <span>Pièces d'identité téléversées</span>
@@ -597,17 +597,17 @@ const handleLogout = async () => {
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <!-- Recto Card -->
-              <div class="border border-gray-200 rounded-2xl p-4 bg-gray-50 flex flex-col justify-between space-y-3 hover:border-principal/30 transition-all shadow-xs">
+              <div class="border border-gray-200 dark:border-slate-700 rounded-2xl p-4 bg-gray-50 dark:bg-slate-800/80 flex flex-col justify-between space-y-3 hover:border-principal/30 dark:hover:border-sky-500/30 transition-all shadow-xs">
                 <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-gray-700 uppercase tracking-wide flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-principal"></span>
+                  <span class="text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wide flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-principal dark:bg-sky-400"></span>
                     Recto ({{ user.voyageur.type_piece?.toUpperCase() || 'CNI' }})
                   </span>
-                  <span v-if="rectoUrl" class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-100">Fourni</span>
-                  <span v-else class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-100">Non fourni</span>
+                  <span v-if="rectoUrl" class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-2.5 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-800">Fourni</span>
+                  <span v-else class="text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950 px-2.5 py-0.5 rounded-full border border-amber-100 dark:border-amber-800">Non fourni</span>
                 </div>
 
-                <div class="relative h-44 sm:h-52 bg-gray-100 rounded-xl overflow-hidden group flex items-center justify-center border border-gray-200">
+                <div class="relative h-44 sm:h-52 bg-gray-100 dark:bg-slate-900 rounded-xl overflow-hidden group flex items-center justify-center border border-gray-200 dark:border-slate-700">
                   <template v-if="rectoUrl">
                     <img 
                       :src="formatImageUrl(rectoUrl)" 
@@ -627,10 +627,10 @@ const handleLogout = async () => {
                   </template>
                   <template v-else>
                     <div class="text-center p-4 space-y-1">
-                      <svg class="w-10 h-10 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg class="w-10 h-10 mx-auto text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0" />
                       </svg>
-                      <p class="text-xs font-medium text-gray-400">Aucune image disponible</p>
+                      <p class="text-xs font-medium text-gray-400 dark:text-slate-500">Aucune image disponible</p>
                     </div>
                   </template>
                 </div>
@@ -639,7 +639,7 @@ const handleLogout = async () => {
                   <button 
                     type="button"
                     @click="openImagePreview(rectoUrl, `Pièce d'identité - Recto (${user.voyageur.numero_piece})`)"
-                    class="text-xs font-bold text-principal hover:text-principal-dark flex items-center gap-1 cursor-pointer"
+                    class="text-xs font-bold text-principal dark:text-sky-300 hover:text-principal-dark dark:hover:text-sky-200 flex items-center gap-1 cursor-pointer"
                   >
                     <span>Agrandir l'image</span>
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -650,17 +650,17 @@ const handleLogout = async () => {
               </div>
 
               <!-- Verso Card -->
-              <div class="border border-gray-200 rounded-2xl p-4 bg-gray-50 flex flex-col justify-between space-y-3 hover:border-principal/30 transition-all shadow-xs">
+              <div class="border border-gray-200 dark:border-slate-700 rounded-2xl p-4 bg-gray-50 dark:bg-slate-800/80 flex flex-col justify-between space-y-3 hover:border-principal/30 dark:hover:border-sky-500/30 transition-all shadow-xs">
                 <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-gray-700 uppercase tracking-wide flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-principal"></span>
+                  <span class="text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wide flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-principal dark:bg-sky-400"></span>
                     Verso ({{ user.voyageur.type_piece?.toUpperCase() || 'CNI' }})
                   </span>
-                  <span v-if="versoUrl" class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-100">Fourni</span>
-                  <span v-else class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-100">Non fourni</span>
+                  <span v-if="versoUrl" class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-2.5 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-800">Fourni</span>
+                  <span v-else class="text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950 px-2.5 py-0.5 rounded-full border border-amber-100 dark:border-amber-800">Non fourni</span>
                 </div>
 
-                <div class="relative h-44 sm:h-52 bg-gray-100 rounded-xl overflow-hidden group flex items-center justify-center border border-gray-200">
+                <div class="relative h-44 sm:h-52 bg-gray-100 dark:bg-slate-900 rounded-xl overflow-hidden group flex items-center justify-center border border-gray-200 dark:border-slate-700">
                   <template v-if="versoUrl">
                     <img 
                       :src="formatImageUrl(versoUrl)" 
@@ -680,10 +680,10 @@ const handleLogout = async () => {
                   </template>
                   <template v-else>
                     <div class="text-center p-4 space-y-1">
-                      <svg class="w-10 h-10 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg class="w-10 h-10 mx-auto text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0" />
                       </svg>
-                      <p class="text-xs font-medium text-gray-400">Aucune image disponible</p>
+                      <p class="text-xs font-medium text-gray-400 dark:text-slate-500">Aucune image disponible</p>
                     </div>
                   </template>
                 </div>
@@ -692,7 +692,7 @@ const handleLogout = async () => {
                   <button 
                     type="button"
                     @click="openImagePreview(versoUrl, `Pièce d'identité - Verso (${user.voyageur.numero_piece})`)"
-                    class="text-xs font-bold text-principal hover:text-principal-dark flex items-center gap-1 cursor-pointer"
+                    class="text-xs font-bold text-principal dark:text-sky-300 hover:text-principal-dark dark:hover:text-sky-200 flex items-center gap-1 cursor-pointer"
                   >
                     <span>Agrandir l'image</span>
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -706,11 +706,11 @@ const handleLogout = async () => {
         </div>
 
         <div v-else class="text-center py-8">
-          <div class="w-16 h-16 bg-tertiaire/20 text-tertiaire-dark rounded-full flex items-center justify-center mx-auto mb-4">
+          <div class="w-16 h-16 bg-tertiaire/20 text-tertiaire-dark dark:text-amber-300 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
           </div>
-          <h3 class="text-lg font-bold text-principal-dark font-serif mb-2">Vous n'avez pas encore de profil Voyageur</h3>
-          <p class="text-xs sm:text-sm text-gray-500 max-w-md mx-auto mb-6">
+          <h3 class="text-lg font-bold text-principal-dark dark:text-sky-300 font-serif mb-2">Vous n'avez pas encore de profil Voyageur</h3>
+          <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400 max-w-md mx-auto mb-6">
             Devenez un voyageur vérifié pour rentabiliser vos trajets (Dakar ✈️ Paris, etc.) et transporter des colis en toute sécurité.
           </p>
           <button
@@ -726,64 +726,64 @@ const handleLogout = async () => {
       <div v-else-if="activeTab === 'revenus'" class="space-y-6">
         <!-- Revenue Summary Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-          <div class="bg-[#053754] text-white rounded-3xl p-4 sm:p-5 shadow-md space-y-1 relative overflow-hidden">
+          <div class="bg-[#053754] dark:bg-slate-900 border border-transparent dark:border-slate-800 text-white rounded-3xl p-4 sm:p-5 shadow-md space-y-1 relative overflow-hidden">
             <span class="text-[11px] sm:text-xs font-bold text-sky-200 uppercase tracking-wider block">Total Revenus Générés</span>
             <div class="text-xl sm:text-2xl font-black text-white">{{ formatPrice(totalRevenusProfileConverted, currentCurrency) }}</div>
             <p class="text-[10px] sm:text-[11px] text-sky-300">Sur {{ paidReservationsProfileCount }} {{ paidReservationsProfileCount > 1 ? 'réservations transportées' : 'réservation transportée' }}</p>
           </div>
 
-          <div class="bg-white rounded-3xl p-4 sm:p-5 border border-emerald-200 shadow-2xs space-y-1">
-            <span class="text-[11px] sm:text-xs font-bold text-emerald-600 uppercase tracking-wider block">Revenus Disponibles</span>
-            <div class="text-xl sm:text-2xl font-black text-emerald-800">{{ formatPrice(revenusDisponiblesProfileConverted, currentCurrency) }}</div>
-            <p class="text-[10px] sm:text-[11px] text-emerald-600 font-semibold">Paiements validés & reçus</p>
+          <div class="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-5 border border-emerald-200 dark:border-emerald-900 shadow-2xs space-y-1">
+            <span class="text-[11px] sm:text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">Revenus Disponibles</span>
+            <div class="text-xl sm:text-2xl font-black text-emerald-800 dark:text-emerald-300">{{ formatPrice(revenusDisponiblesProfileConverted, currentCurrency) }}</div>
+            <p class="text-[10px] sm:text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">Paiements validés & reçus</p>
           </div>
 
-          <div class="bg-white rounded-3xl p-4 sm:p-5 border border-amber-200 shadow-2xs space-y-1">
-            <span class="text-[11px] sm:text-xs font-bold text-amber-600 uppercase tracking-wider block">Revenus en Attente</span>
-            <div class="text-xl sm:text-2xl font-black text-amber-800">{{ formatPrice(revenusEnAttenteProfileConverted, currentCurrency) }}</div>
-            <p class="text-[10px] sm:text-[11px] text-amber-600 font-semibold">Colis en cours de livraison</p>
+          <div class="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-5 border border-amber-200 dark:border-amber-900 shadow-2xs space-y-1">
+            <span class="text-[11px] sm:text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider block">Revenus en Attente</span>
+            <div class="text-xl sm:text-2xl font-black text-amber-800 dark:text-amber-300">{{ formatPrice(revenusEnAttenteProfileConverted, currentCurrency) }}</div>
+            <p class="text-[10px] sm:text-[11px] text-amber-600 dark:text-amber-400 font-semibold">Colis en cours de livraison</p>
           </div>
         </div>
 
         <!-- Recent Transactions Preview -->
-        <div class="bg-white p-5 sm:p-6 rounded-3xl shadow-sm border border-gray-100 space-y-4">
+        <div class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-800 space-y-4">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <h3 class="text-base font-extrabold text-[#053754]">Derniers revenus perçus</h3>
-              <p class="text-xs text-gray-400 font-medium sm:hidden">Cliquez sur un reçu pour voir l'historique complet</p>
+              <h3 class="text-base font-extrabold text-[#053754] dark:text-sky-300">Derniers revenus perçus</h3>
+              <p class="text-xs text-gray-400 dark:text-slate-400 font-medium sm:hidden">Cliquez sur un reçu pour voir l'historique complet</p>
             </div>
             <button
               @click="router.push('/voyageur/revenus')"
-              class="text-xs font-bold text-principal hover:text-principal-dark flex items-center gap-1 cursor-pointer self-start sm:self-auto"
+              class="text-xs font-bold text-principal dark:text-sky-300 hover:text-principal-dark dark:hover:text-sky-200 flex items-center gap-1 cursor-pointer self-start sm:self-auto"
             >
               <span>Voir tout l'historique</span>
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </button>
           </div>
 
-          <div v-if="recentTransactionsProfile.length === 0" class="py-6 text-center text-xs text-gray-400">
+          <div v-if="recentTransactionsProfile.length === 0" class="py-6 text-center text-xs text-gray-400 dark:text-slate-400">
             Aucun revenu enregistré pour le moment.
           </div>
 
-          <div v-else class="divide-y divide-gray-100 text-xs">
+          <div v-else class="divide-y divide-gray-100 dark:divide-slate-800 text-xs">
             <div
               v-for="tx in recentTransactionsProfile"
               :key="tx.id"
               @click="router.push('/voyageur/revenus')"
-              class="py-3 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50 -mx-1 px-2 rounded-xl transition-all"
+              class="py-3 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 -mx-1 px-2 rounded-xl transition-all"
             >
               <div class="min-w-0 space-y-0.5">
                 <div class="flex items-center gap-1.5 flex-wrap">
-                  <span class="font-extrabold text-[#053754] text-xs">{{ tx.code }}</span>
-                  <span class="text-xs text-gray-500 font-medium truncate">• {{ tx.client }}</span>
+                  <span class="font-extrabold text-[#053754] dark:text-sky-300 text-xs">{{ tx.code }}</span>
+                  <span class="text-xs text-gray-500 dark:text-slate-400 font-medium truncate">• {{ tx.client }}</span>
                 </div>
-                <p class="text-[11px] text-gray-400 font-medium truncate">{{ tx.route }}</p>
+                <p class="text-[11px] text-gray-400 dark:text-slate-400 font-medium truncate">{{ tx.route }}</p>
               </div>
               <div class="text-right shrink-0">
-                <div class="font-black text-xs sm:text-sm text-gray-900">{{ tx.montant }}</div>
+                <div class="font-black text-xs sm:text-sm text-gray-900 dark:text-slate-100">{{ tx.montant }}</div>
                 <span
                   class="inline-block text-[9px] font-bold px-2 py-0.5 rounded-full uppercase"
-                  :class="tx.isDisponible ? 'text-emerald-700 bg-emerald-100' : 'text-amber-700 bg-amber-100'"
+                  :class="tx.isDisponible ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950' : 'text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-950'"
                 >
                   {{ tx.isDisponible ? '✓ DISPONIBLE' : '⏳ EN ATTENTE' }}
                 </span>
@@ -794,37 +794,37 @@ const handleLogout = async () => {
       </div>
 
       <!-- Tab 3: Edit Profile Form -->
-      <div v-else-if="activeTab === 'edit'" class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100">
-        <h3 class="text-lg font-bold text-principal-dark font-serif mb-4">Modifier mes informations personnelles</h3>
+      <div v-else-if="activeTab === 'edit'" class="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-800">
+        <h3 class="text-lg font-bold text-principal-dark dark:text-sky-300 font-serif mb-4">Modifier mes informations personnelles</h3>
         <form @submit.prevent="handleUpdateProfile" class="space-y-4" novalidate>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-semibold text-gray-700 mb-1">
-                Prénom <span class="text-gray-400 font-normal">(non modifiable)</span>
+              <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200 mb-1">
+                Prénom <span class="text-gray-400 dark:text-slate-400 font-normal">(non modifiable)</span>
               </label>
               <input 
                 v-model="editForm.prenom" 
                 type="text" 
                 disabled 
-                class="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-gray-200 bg-gray-100 text-gray-500 rounded-xl outline-none cursor-not-allowed font-medium" 
+                class="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-gray-200 dark:border-slate-700 bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 rounded-xl outline-none cursor-not-allowed font-medium" 
               />
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-700 mb-1">
-                Nom <span class="text-gray-400 font-normal">(non modifiable)</span>
+              <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200 mb-1">
+                Nom <span class="text-gray-400 dark:text-slate-400 font-normal">(non modifiable)</span>
               </label>
               <input 
                 v-model="editForm.nom" 
                 type="text" 
                 disabled 
-                class="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-gray-200 bg-gray-100 text-gray-500 rounded-xl outline-none cursor-not-allowed font-medium" 
+                class="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-gray-200 dark:border-slate-700 bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 rounded-xl outline-none cursor-not-allowed font-medium" 
               />
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-gray-700 mb-1">
-              Adresse email <span v-if="user?.email" class="text-gray-400 font-normal">(non modifiable)</span>
+            <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200 mb-1">
+              Adresse email <span v-if="user?.email" class="text-gray-400 dark:text-slate-400 font-normal">(non modifiable)</span>
             </label>
             <input
               v-model="editForm.email"
@@ -833,48 +833,48 @@ const handleLogout = async () => {
               :class="[
                 'w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl outline-none transition-all font-medium',
                 user?.email 
-                  ? 'border border-gray-200 bg-gray-100 text-gray-500 cursor-not-allowed' 
-                  : 'border border-gray-300 focus:border-principal text-gray-900 bg-white'
+                  ? 'border border-gray-200 dark:border-slate-700 bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 cursor-not-allowed' 
+                  : 'border border-gray-300 dark:border-slate-700 focus:border-principal dark:focus:border-sky-400 text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800'
               ]"
             />
-            <p v-if="editErrors.email" class="text-[11px] text-red-600 mt-1 font-medium">{{ editErrors.email }}</p>
+            <p v-if="editErrors.email" class="text-[11px] text-red-600 dark:text-red-400 mt-1 font-medium">{{ editErrors.email }}</p>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-gray-700 mb-1">
-              Téléphone <span class="text-gray-400 font-normal">(non modifiable)</span>
+            <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200 mb-1">
+              Téléphone <span class="text-gray-400 dark:text-slate-400 font-normal">(non modifiable)</span>
             </label>
             <input
               v-model="editForm.telephone"
               type="tel"
               disabled
-              class="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-gray-200 bg-gray-100 text-gray-500 rounded-xl outline-none cursor-not-allowed font-medium"
+              class="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-gray-200 dark:border-slate-700 bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 rounded-xl outline-none cursor-not-allowed font-medium"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-gray-700 mb-1">Adresse physique</label>
-            <input v-model="editForm.adresse" type="text" class="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-gray-300 rounded-xl focus:border-principal outline-none" />
+            <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200 mb-1">Adresse physique</label>
+            <input v-model="editForm.adresse" type="text" class="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 rounded-xl focus:border-principal dark:focus:border-sky-400 outline-none font-medium" />
           </div>
 
-          <div class="border-t border-gray-100 pt-4 space-y-4">
-            <h4 class="font-extrabold text-sm text-principal-dark">Changer le mot de passe (optionnel)</h4>
+          <div class="border-t border-gray-100 dark:border-slate-800 pt-4 space-y-4">
+            <h4 class="font-extrabold text-sm text-principal-dark dark:text-sky-300">Changer le mot de passe (optionnel)</h4>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <!-- Mot de passe actuel -->
               <div>
-                <label class="block text-xs font-semibold text-gray-700 mb-1">Mot de passe actuel</label>
+                <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200 mb-1">Mot de passe actuel</label>
                 <div class="relative">
                   <input
                     v-model="editForm.mot_de_passe_actuel"
                     :type="showCurrentPassword ? 'text' : 'password'"
                     placeholder="••••••••"
-                    class="w-full px-3.5 py-2.5 pr-10 text-xs sm:text-sm border border-gray-300 rounded-xl focus:border-principal outline-none"
+                    class="w-full px-3.5 py-2.5 pr-10 text-xs sm:text-sm border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 rounded-xl focus:border-principal dark:focus:border-sky-400 outline-none font-medium"
                   />
                   <button
                     type="button"
                     @click="showCurrentPassword = !showCurrentPassword"
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1 cursor-pointer"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200 transition-colors p-1 cursor-pointer"
                   >
                     <svg v-if="!showCurrentPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -889,18 +889,18 @@ const handleLogout = async () => {
 
               <!-- Nouveau mot de passe -->
               <div>
-                <label class="block text-xs font-semibold text-gray-700 mb-1">Nouveau mot de passe</label>
+                <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200 mb-1">Nouveau mot de passe</label>
                 <div class="relative">
                   <input
                     v-model="editForm.password"
                     :type="showNewPassword ? 'text' : 'password'"
                     placeholder="••••••••"
-                    class="w-full px-3.5 py-2.5 pr-10 text-xs sm:text-sm border border-gray-300 rounded-xl focus:border-principal outline-none"
+                    class="w-full px-3.5 py-2.5 pr-10 text-xs sm:text-sm border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 rounded-xl focus:border-principal dark:focus:border-sky-400 outline-none font-medium"
                   />
                   <button
                     type="button"
                     @click="showNewPassword = !showNewPassword"
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1 cursor-pointer"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200 transition-colors p-1 cursor-pointer"
                   >
                     <svg v-if="!showNewPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -915,18 +915,18 @@ const handleLogout = async () => {
 
               <!-- Confirmer le mot de passe -->
               <div>
-                <label class="block text-xs font-semibold text-gray-700 mb-1">Confirmer mot de passe</label>
+                <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200 mb-1">Confirmer mot de passe</label>
                 <div class="relative">
                   <input
                     v-model="editForm.password_confirmation"
                     :type="showConfirmPassword ? 'text' : 'password'"
                     placeholder="••••••••"
-                    class="w-full px-3.5 py-2.5 pr-10 text-xs sm:text-sm border border-gray-300 rounded-xl focus:border-principal outline-none"
+                    class="w-full px-3.5 py-2.5 pr-10 text-xs sm:text-sm border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 rounded-xl focus:border-principal dark:focus:border-sky-400 outline-none font-medium"
                   />
                   <button
                     type="button"
                     @click="showConfirmPassword = !showConfirmPassword"
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1 cursor-pointer"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200 transition-colors p-1 cursor-pointer"
                   >
                     <svg v-if="!showConfirmPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -939,17 +939,17 @@ const handleLogout = async () => {
                 </div>
               </div>
             </div>
-            <p v-if="editErrors.password" class="text-[11px] text-red-600 font-medium">{{ editErrors.password }}</p>
+            <p v-if="editErrors.password" class="text-[11px] text-red-600 dark:text-red-400 font-medium">{{ editErrors.password }}</p>
           </div>
 
           <div class="pt-2 flex justify-end gap-3">
-            <button type="button" @click="activeTab = 'info'" class="px-5 py-2.5 text-xs sm:text-sm font-semibold text-gray-600 hover:text-gray-800">
+            <button type="button" @click="activeTab = 'info'" class="px-5 py-2.5 text-xs sm:text-sm font-semibold text-gray-600 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200">
               Annuler
             </button>
             <button
               type="submit"
               :disabled="isLoading"
-              class="bg-principal-dark hover:bg-principal text-white text-xs sm:text-sm font-bold px-6 py-2.5 rounded-xl shadow-md transition-all cursor-pointer"
+              class="bg-principal-dark hover:bg-principal dark:bg-sky-600 dark:hover:bg-sky-500 text-white text-xs sm:text-sm font-bold px-6 py-2.5 rounded-xl shadow-md transition-all cursor-pointer"
             >
               Enregistrer les modifications
             </button>
@@ -961,67 +961,67 @@ const handleLogout = async () => {
 
     <!-- Modal Form: Création de Profil Voyageur -->
     <div v-if="showVoyageurModal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-      <div class="bg-white w-full max-w-lg rounded-3xl p-6 sm:p-8 shadow-2xl space-y-5 animate-in fade-in zoom-in duration-200">
-        <div class="flex items-center justify-between border-b border-gray-100 pb-3">
-          <h3 class="text-lg font-bold text-principal-dark font-serif">Devenir un Voyageur GP</h3>
-          <button @click="showVoyageurModal = false" class="text-gray-400 hover:text-gray-600 p-1">
+      <div class="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl p-6 sm:p-8 shadow-2xl space-y-5 animate-in fade-in zoom-in duration-200 border border-transparent dark:border-slate-800">
+        <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3">
+          <h3 class="text-lg font-bold text-principal-dark dark:text-sky-300 font-serif">Devenir un Voyageur GP</h3>
+          <button @click="showVoyageurModal = false" class="text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200 p-1">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
           </button>
         </div>
 
         <form @submit.prevent="handleCreateVoyageur" class="space-y-4" novalidate>
           <div>
-            <label class="block text-xs font-semibold text-gray-700 mb-1">Type de pièce d'identité</label>
-            <select v-model="voyageurForm.type_piece" class="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-gray-300 rounded-xl outline-none">
+            <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200 mb-1">Type de pièce d'identité</label>
+            <select v-model="voyageurForm.type_piece" class="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 rounded-xl outline-none">
               <option value="cni">Carte Nationale d'Identité (CNI)</option>
               <option value="passeport">Passeport</option>
             </select>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-gray-700 mb-1">Numéro de la pièce</label>
+            <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200 mb-1">Numéro de la pièce</label>
             <input
               v-model="voyageurForm.numero_piece"
               type="text"
               placeholder="1342199800123"
-              class="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-gray-300 rounded-xl outline-none"
+              class="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 rounded-xl outline-none font-medium placeholder-gray-400 dark:placeholder-slate-500"
             />
-            <p v-if="voyageurErrors.numero_piece" class="text-[11px] text-red-600 mt-1 font-medium">{{ voyageurErrors.numero_piece }}</p>
+            <p v-if="voyageurErrors.numero_piece" class="text-[11px] text-red-600 dark:text-red-400 mt-1 font-medium">{{ voyageurErrors.numero_piece }}</p>
           </div>
 
           <!-- File upload CNI Recto -->
           <div>
-            <label class="block text-xs font-semibold text-gray-700 mb-1">CNI Recto (Image)</label>
+            <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200 mb-1">CNI Recto (Image)</label>
             <input
               type="file"
               accept="image/*"
               @change="(e) => handleFileChange(e, 'cni_recto')"
-              class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-principal/10 file:text-principal hover:file:bg-principal/20"
+              class="w-full text-xs text-gray-500 dark:text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-principal/10 dark:file:bg-sky-950 file:text-principal dark:file:text-sky-300 hover:file:bg-principal/20 dark:hover:file:bg-sky-900"
             />
-            <p v-if="rectoFileName" class="text-[11px] text-gray-500 mt-1">Sélectionné: {{ rectoFileName }}</p>
-            <p v-if="voyageurErrors.cni_recto" class="text-[11px] text-red-600 mt-1 font-medium">{{ voyageurErrors.cni_recto }}</p>
+            <p v-if="rectoFileName" class="text-[11px] text-gray-500 dark:text-slate-400 mt-1">Sélectionné: {{ rectoFileName }}</p>
+            <p v-if="voyageurErrors.cni_recto" class="text-[11px] text-red-600 dark:text-red-400 mt-1 font-medium">{{ voyageurErrors.cni_recto }}</p>
           </div>
 
           <!-- File upload CNI Verso -->
           <div>
-            <label class="block text-xs font-semibold text-gray-700 mb-1">CNI Verso (Image)</label>
+            <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200 mb-1">CNI Verso (Image)</label>
             <input
               type="file"
               accept="image/*"
               @change="(e) => handleFileChange(e, 'cni_verso')"
-              class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-principal/10 file:text-principal hover:file:bg-principal/20"
+              class="w-full text-xs text-gray-500 dark:text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-principal/10 dark:file:bg-sky-950 file:text-principal dark:file:text-sky-300 hover:file:bg-principal/20 dark:hover:file:bg-sky-900"
             />
-            <p v-if="versoFileName" class="text-[11px] text-gray-500 mt-1">Sélectionné: {{ versoFileName }}</p>
-            <p v-if="voyageurErrors.cni_verso" class="text-[11px] text-red-600 mt-1 font-medium">{{ voyageurErrors.cni_verso }}</p>
+            <p v-if="versoFileName" class="text-[11px] text-gray-500 dark:text-slate-400 mt-1">Sélectionné: {{ versoFileName }}</p>
+            <p v-if="voyageurErrors.cni_verso" class="text-[11px] text-red-600 dark:text-red-400 mt-1 font-medium">{{ voyageurErrors.cni_verso }}</p>
           </div>
 
           <div class="flex items-center gap-2 pt-2">
-            <input id="mode_client" type="checkbox" v-model="voyageurForm.mode_client" class="rounded text-principal" />
-            <label for="mode_client" class="text-xs text-gray-600 font-medium">Rester en mode client pour le moment</label>
+            <input id="mode_client" type="checkbox" v-model="voyageurForm.mode_client" class="rounded text-principal border-gray-300 dark:border-slate-700 dark:bg-slate-800" />
+            <label for="mode_client" class="text-xs text-gray-600 dark:text-slate-300 font-medium">Rester en mode client pour le moment</label>
           </div>
 
           <div class="pt-3 flex justify-end gap-3">
-            <button type="button" @click="showVoyageurModal = false" class="px-4 py-2 text-xs font-semibold text-gray-600">
+            <button type="button" @click="showVoyageurModal = false" class="px-4 py-2 text-xs font-semibold text-gray-600 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200">
               Annuler
             </button>
             <button

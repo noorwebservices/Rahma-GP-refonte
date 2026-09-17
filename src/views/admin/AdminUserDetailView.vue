@@ -5,7 +5,7 @@
     <div class="flex items-center justify-between">
       <button 
         @click="router.push('/admin/users')"
-        class="inline-flex items-center gap-2 text-xs font-extrabold text-[#074C72] bg-white border border-gray-200 px-4 py-2 rounded-2xl hover:bg-gray-50 transition-colors shadow-2xs cursor-pointer"
+        class="inline-flex items-center gap-2 text-xs font-extrabold text-[#074C72] dark:text-sky-300 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 px-4 py-2 rounded-2xl hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors shadow-2xs cursor-pointer"
       >
         <span>←</span>
         <span>Retour à la liste des utilisateurs</span>
@@ -13,21 +13,21 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="bg-white rounded-3xl p-16 text-center border border-gray-200 shadow-2xs space-y-3">
-      <div class="w-10 h-10 border-4 border-[#053754] border-t-transparent rounded-full animate-spin mx-auto"></div>
-      <p class="text-xs font-bold text-[#074C72]">Chargement de la fiche complète de l'utilisateur...</p>
+    <div v-if="loading" class="bg-white dark:bg-slate-900 rounded-3xl p-16 text-center border border-gray-200 dark:border-slate-800 shadow-2xs space-y-3">
+      <div class="w-10 h-10 border-4 border-[#053754] dark:border-sky-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
+      <p class="text-xs font-bold text-[#074C72] dark:text-sky-300">Chargement de la fiche complète de l'utilisateur...</p>
     </div>
 
     <!-- Error State -->
-    <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-3xl p-8 text-center space-y-3">
-      <p class="text-sm font-bold text-[#B50302]">{{ error }}</p>
+    <div v-else-if="error" class="bg-red-50 dark:bg-red-950/80 border border-red-200 dark:border-red-900 rounded-3xl p-8 text-center space-y-3">
+      <p class="text-sm font-bold text-[#B50302] dark:text-red-400">{{ error }}</p>
       <button @click="router.push('/admin/users')" class="px-4 py-2 bg-[#053754] text-white font-bold text-xs rounded-xl">Retour à la liste</button>
     </div>
 
     <template v-else-if="user">
       
       <!-- Top Profile Overview Banner Card -->
-      <div class="bg-[#053754] text-white rounded-3xl p-6 sm:p-8 shadow-xl space-y-6 relative overflow-hidden">
+      <div class="bg-[#053754] dark:bg-slate-900 border border-transparent dark:border-slate-800 text-white rounded-3xl p-6 sm:p-8 shadow-xl space-y-6 relative overflow-hidden">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
           
           <div class="flex items-center gap-4">
@@ -73,32 +73,32 @@
       <!-- Account Info Grid -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         
-        <div class="bg-white p-5 rounded-3xl border border-gray-200 shadow-2xs space-y-1">
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-gray-200 dark:border-slate-800 shadow-2xs space-y-1">
           <span class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Dernière Connexion</span>
-          <p class="text-sm font-black text-[#053754] font-mono">{{ user.dernier_connexion ? formatDate(user.dernier_connexion) : 'Jamais' }}</p>
+          <p class="text-sm font-black text-[#053754] dark:text-sky-300 font-mono">{{ user.dernier_connexion ? formatDate(user.dernier_connexion) : 'Jamais' }}</p>
         </div>
 
-        <div class="bg-white p-5 rounded-3xl border border-gray-200 shadow-2xs space-y-1">
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-gray-200 dark:border-slate-800 shadow-2xs space-y-1">
           <span class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Membre Depuis</span>
-          <p class="text-sm font-black text-[#053754] font-mono">{{ formatDate(user.created_at) }}</p>
+          <p class="text-sm font-black text-[#053754] dark:text-sky-300 font-mono">{{ formatDate(user.created_at) }}</p>
         </div>
 
-        <div class="bg-white p-5 rounded-3xl border border-gray-200 shadow-2xs space-y-1">
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-gray-200 dark:border-slate-800 shadow-2xs space-y-1">
           <span class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Adresse Résidence</span>
-          <p class="text-sm font-extrabold text-[#053754] truncate">{{ user.adresse || 'Non renseignée' }}</p>
+          <p class="text-sm font-extrabold text-[#053754] dark:text-slate-100 truncate">{{ user.adresse || 'Non renseignée' }}</p>
         </div>
 
-        <div class="bg-indigo-50 p-5 rounded-3xl border border-indigo-200 shadow-2xs space-y-1">
-          <span class="text-[10px] font-extrabold text-indigo-700 uppercase tracking-wider">Capacité Données BD</span>
-          <p class="text-sm font-black text-indigo-950 font-mono">{{ user.capacite_donnees?.formatted || '0 Ko' }} ({{ user.capacite_donnees?.octets || 0 }} octets)</p>
+        <div class="bg-indigo-50 dark:bg-indigo-950/80 p-5 rounded-3xl border border-indigo-200 dark:border-indigo-900 shadow-2xs space-y-1">
+          <span class="text-[10px] font-extrabold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">Capacité Données BD</span>
+          <p class="text-sm font-black text-indigo-950 dark:text-white font-mono">{{ user.capacite_donnees?.formatted || '0 Ko' }} ({{ user.capacite_donnees?.octets || 0 }} octets)</p>
         </div>
 
       </div>
 
       <!-- Section Profil Voyageur / KYC Verification (If Voyageur) -->
-      <div v-if="user.voyageur" class="bg-white border border-gray-200 rounded-3xl p-6 shadow-2xs space-y-5">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-3">
-          <h3 class="font-extrabold text-base text-[#053754] flex items-center gap-2">
+      <div v-if="user.voyageur" class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xs space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 dark:border-slate-800 pb-3">
+          <h3 class="font-extrabold text-base text-[#053754] dark:text-sky-300 flex items-center gap-2">
             <span>Profil & Vérification Voyageur</span>
           </h3>
 
@@ -107,14 +107,14 @@
           </span>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-medium text-gray-700">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-medium text-gray-700 dark:text-gray-300">
           <div>
             <span class="text-gray-400 font-bold block uppercase text-[10px]">Type Pièce Identité:</span>
-            <span class="font-bold text-[#053754] text-sm uppercase">{{ user.voyageur.type_piece || 'Passeport / CNI' }}</span>
+            <span class="font-bold text-[#053754] dark:text-slate-100 text-sm uppercase">{{ user.voyageur.type_piece || 'Passeport / CNI' }}</span>
           </div>
           <div>
             <span class="text-gray-400 font-bold block uppercase text-[10px]">Numéro de Pièce:</span>
-            <span class="font-bold font-mono text-[#053754] text-sm">{{ user.voyageur.numero_piece || 'Non renseigné' }}</span>
+            <span class="font-bold font-mono text-[#053754] dark:text-slate-100 text-sm">{{ user.voyageur.numero_piece || 'Non renseigné' }}</span>
           </div>
           <div>
             <span class="text-gray-400 font-bold block uppercase text-[10px]">Note Moyenne Avis:</span>
@@ -126,44 +126,44 @@
         </div>
 
         <!-- CNI Identity Photos Display -->
-        <div class="space-y-2 pt-2 border-t border-gray-100">
-          <span class="text-xs font-extrabold text-[#053754] uppercase tracking-wider block">
+        <div class="space-y-2 pt-2 border-t border-gray-100 dark:border-slate-800">
+          <span class="text-xs font-extrabold text-[#053754] dark:text-sky-300 uppercase tracking-wider block">
             Document d'Identité Fourni (CNI / Passeport)
           </span>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <!-- Recto -->
-            <div class="p-4 bg-[#FAF7F2] border border-gray-200 rounded-2xl space-y-2">
+            <div class="p-4 bg-[#FAF7F2] dark:bg-slate-800/80 border border-gray-200 dark:border-slate-700 rounded-2xl space-y-2">
               <div class="flex items-center justify-between">
-                <span class="text-[10px] font-extrabold text-gray-500 uppercase tracking-wider block">Face Recto</span>
-                <span v-if="rectoUrl" class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">Fourni</span>
+                <span class="text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-wider block">Face Recto</span>
+                <span v-if="rectoUrl" class="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">Fourni</span>
               </div>
               
-              <div v-if="rectoUrl" class="relative h-48 rounded-xl overflow-hidden border border-gray-200 bg-white group cursor-pointer" @click="openImagePreview(rectoUrl, 'CNI Recto')">
+              <div v-if="rectoUrl" class="relative h-48 rounded-xl overflow-hidden border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 group cursor-pointer" @click="openImagePreview(rectoUrl, 'CNI Recto')">
                 <img :src="formatImageUrl(rectoUrl)" class="w-full h-full object-contain p-2 transition-transform duration-300 group-hover:scale-105" />
                 <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold">
                   🔍 Clic pour agrandir
                 </div>
               </div>
-              <div v-else class="h-40 rounded-xl border border-dashed border-gray-300 bg-white flex flex-col items-center justify-center text-gray-400 text-xs font-semibold p-4 text-center">
+              <div v-else class="h-40 rounded-xl border border-dashed border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 flex flex-col items-center justify-center text-gray-400 text-xs font-semibold p-4 text-center">
                 <span>Aucune photo recto téléchargée</span>
               </div>
             </div>
 
             <!-- Verso -->
-            <div class="p-4 bg-[#FAF7F2] border border-gray-200 rounded-2xl space-y-2">
+            <div class="p-4 bg-[#FAF7F2] dark:bg-slate-800/80 border border-gray-200 dark:border-slate-700 rounded-2xl space-y-2">
               <div class="flex items-center justify-between">
-                <span class="text-[10px] font-extrabold text-gray-500 uppercase tracking-wider block">Face Verso</span>
-                <span v-if="versoUrl" class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">Fourni</span>
+                <span class="text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-wider block">Face Verso</span>
+                <span v-if="versoUrl" class="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">Fourni</span>
               </div>
 
-              <div v-if="versoUrl" class="relative h-48 rounded-xl overflow-hidden border border-gray-200 bg-white group cursor-pointer" @click="openImagePreview(versoUrl, 'CNI Verso')">
+              <div v-if="versoUrl" class="relative h-48 rounded-xl overflow-hidden border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 group cursor-pointer" @click="openImagePreview(versoUrl, 'CNI Verso')">
                 <img :src="formatImageUrl(versoUrl)" class="w-full h-full object-contain p-2 transition-transform duration-300 group-hover:scale-105" />
                 <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold">
                   🔍 Clic pour agrandir
                 </div>
               </div>
-              <div v-else class="h-40 rounded-xl border border-dashed border-gray-300 bg-white flex flex-col items-center justify-center text-gray-400 text-xs font-semibold p-4 text-center">
+              <div v-else class="h-40 rounded-xl border border-dashed border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 flex flex-col items-center justify-center text-gray-400 text-xs font-semibold p-4 text-center">
                 <span>Aucune photo verso téléchargée</span>
               </div>
             </div>
@@ -202,13 +202,13 @@
       </div>
 
       <!-- Section Avis & Évaluations Reçus -->
-      <div class="bg-white border border-gray-200 rounded-3xl p-6 shadow-2xs space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-3">
-          <h3 class="font-extrabold text-base text-[#053754] flex items-center gap-2 flex-wrap">
+      <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xs space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 dark:border-slate-800 pb-3">
+          <h3 class="font-extrabold text-base text-[#053754] dark:text-sky-300 flex items-center gap-2 flex-wrap">
             <span>⭐ Avis & Évaluations Reçus par {{ user.prenom }}</span>
-            <span class="text-gray-400 text-xs font-semibold">({{ user.evaluations_recues ? user.evaluations_recues.length : 0 }})</span>
+            <span class="text-gray-400 dark:text-gray-400 text-xs font-semibold">({{ user.evaluations_recues ? user.evaluations_recues.length : 0 }})</span>
           </h3>
-          <span class="text-xs font-black text-amber-500 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full self-start sm:self-auto">
+          <span class="text-xs font-black text-amber-500 bg-amber-50 dark:bg-amber-950/80 border border-amber-200 dark:border-amber-800 px-3 py-1 rounded-full self-start sm:self-auto">
             Note Moyenne : ★ {{ Number(user.note_moyenne ?? 5.0).toFixed(1) }} / 5
           </span>
         </div>
@@ -219,55 +219,55 @@
 
         <template v-else>
           <div class="space-y-3">
-            <div v-for="evalItem in paginatedEvaluations" :key="evalItem.id" class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-2">
-              <div class="flex items-center justify-between border-b border-gray-200/60 pb-2">
+            <div v-for="evalItem in paginatedEvaluations" :key="evalItem.id" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs space-y-2">
+              <div class="flex items-center justify-between border-b border-gray-200/60 dark:border-slate-700 pb-2">
                 <div class="flex items-center gap-2">
                   <div class="w-7 h-7 rounded-full bg-[#053754] text-white text-[10px] font-black flex items-center justify-center">
                     {{ getInitials(evalItem.evaluateur?.prenom, evalItem.evaluateur?.nom) }}
                   </div>
                   <div>
-                    <span class="font-extrabold text-[#053754] text-xs sm:text-sm">
+                    <span class="font-extrabold text-[#053754] dark:text-sky-300 text-xs sm:text-sm">
                       {{ evalItem.evaluateur?.prenom }} {{ evalItem.evaluateur?.nom }}
                     </span>
                     <span class="text-gray-400 text-[10px] ml-2">({{ evalItem.evaluateur?.email || evalItem.evaluateur?.telephone }})</span>
                   </div>
                 </div>
 
-                <div class="flex items-center gap-1 bg-amber-100/80 text-amber-800 font-extrabold px-2.5 py-0.5 rounded-full text-xs border border-amber-300">
+                <div class="flex items-center gap-1 bg-amber-100/80 dark:bg-amber-950 text-amber-800 dark:text-amber-300 font-extrabold px-2.5 py-0.5 rounded-full text-xs border border-amber-300 dark:border-amber-700">
                   <span>★</span>
                   <span>{{ evalItem.note }} / 5</span>
                 </div>
               </div>
 
-              <p class="text-gray-700 font-medium text-xs sm:text-sm italic pl-1">
+              <p class="text-gray-700 dark:text-slate-200 font-medium text-xs sm:text-sm italic pl-1">
                 "{{ evalItem.commentaire || 'Aucun commentaire rédigé.' }}"
               </p>
 
-              <div class="flex items-center justify-between text-[11px] text-gray-400 font-medium pt-1 border-t border-gray-100">
+              <div class="flex items-center justify-between text-[11px] text-gray-400 font-medium pt-1 border-t border-gray-100 dark:border-slate-700">
                 <span v-if="evalItem.reservation?.voyage">
-                  Trajet concerné : <strong class="text-[#074C72]">{{ evalItem.reservation.voyage.ville_depart }} ➔ {{ evalItem.reservation.voyage.ville_destination }}</strong>
+                  Trajet concerné : <strong class="text-[#074C72] dark:text-sky-300">{{ evalItem.reservation.voyage.ville_depart }} ➔ {{ evalItem.reservation.voyage.ville_destination }}</strong>
                 </span>
                 <span v-else>Évaluation directe</span>
-                <span class="font-mono text-gray-500">{{ formatDate(evalItem.created_at) }}</span>
+                <span class="font-mono text-gray-500 dark:text-gray-400">{{ formatDate(evalItem.created_at) }}</span>
               </div>
             </div>
           </div>
 
           <!-- Pagination Avis (5 items per page) -->
-          <div v-if="totalEvaluationsPages > 1" class="pt-3 flex items-center justify-between text-xs font-bold text-gray-600 border-t border-gray-100">
+          <div v-if="totalEvaluationsPages > 1" class="pt-3 flex items-center justify-between text-xs font-bold text-gray-600 dark:text-gray-300 border-t border-gray-100 dark:border-slate-800">
             <span>Page {{ evaluationsPage }} sur {{ totalEvaluationsPages }}</span>
             <div class="flex items-center gap-1.5">
-              <button @click="evaluationsPage > 1 && evaluationsPage--" :disabled="evaluationsPage === 1" class="px-3 py-1 rounded-lg border bg-white disabled:opacity-40">← Préc.</button>
-              <button @click="evaluationsPage < totalEvaluationsPages && evaluationsPage++" :disabled="evaluationsPage === totalEvaluationsPages" class="px-3 py-1 rounded-lg border bg-white disabled:opacity-40">Suiv. →</button>
+              <button @click="evaluationsPage > 1 && evaluationsPage--" :disabled="evaluationsPage === 1" class="px-3 py-1 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 disabled:opacity-40">← Préc.</button>
+              <button @click="evaluationsPage < totalEvaluationsPages && evaluationsPage++" :disabled="evaluationsPage === totalEvaluationsPages" class="px-3 py-1 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 disabled:opacity-40">Suiv. →</button>
             </div>
           </div>
         </template>
       </div>
 
       <!-- Section Voyages Créés (If Voyageur) -->
-      <div v-if="user.voyageur && user.voyageur.voyages" class="bg-white border border-gray-200 rounded-3xl p-6 shadow-2xs space-y-4">
-        <div class="flex items-center justify-between border-b border-gray-100 pb-3">
-          <h3 class="font-extrabold text-base text-[#053754]">
+      <div v-if="user.voyageur && user.voyageur.voyages" class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xs space-y-4">
+        <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3">
+          <h3 class="font-extrabold text-base text-[#053754] dark:text-sky-300">
             ✈️ Voyages Publiés par {{ user.prenom }} ({{ user.voyageur.voyages.length }})
           </h3>
         </div>
@@ -278,35 +278,35 @@
 
         <template v-else>
           <div class="space-y-3">
-            <div v-for="voyage in paginatedVoyages" :key="voyage.id" class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-3">
-              <div class="flex items-center justify-between border-b border-gray-200 pb-2">
-                <span class="font-black text-[#053754] text-sm sm:text-base">{{ voyage.ville_depart }} ➔ {{ voyage.ville_destination || voyage.ville_arrivee }}</span>
-                <span class="px-2.5 py-0.5 rounded-full font-bold bg-white text-emerald-700 border border-emerald-200 text-[10px] sm:text-xs">{{ voyage.statut }}</span>
+            <div v-for="voyage in paginatedVoyages" :key="voyage.id" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs space-y-3">
+              <div class="flex items-center justify-between border-b border-gray-200 dark:border-slate-700 pb-2">
+                <span class="font-black text-[#053754] dark:text-sky-300 text-sm sm:text-base">{{ voyage.ville_depart }} ➔ {{ voyage.ville_destination || voyage.ville_arrivee }}</span>
+                <span class="px-2.5 py-0.5 rounded-full font-bold bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 text-[10px] sm:text-xs">{{ voyage.statut }}</span>
               </div>
               <!-- Each element on its own line on mobile -->
-              <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-6 text-gray-600 font-medium">
-                <div><span>Date départ :</span> <strong class="text-[#053754]">{{ formatDate(voyage.date_depart) }}</strong></div>
-                <div><span>Kilos dispos :</span> <strong class="text-[#B50302] font-black">{{ voyage.capacite_dispo ?? voyage.capacite_totale }} kg</strong></div>
-                <div><span>Réservations :</span> <strong class="text-[#074C72]">{{ voyage.reservations ? voyage.reservations.length : 0 }}</strong></div>
+              <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-6 text-gray-600 dark:text-gray-300 font-medium">
+                <div><span>Date départ :</span> <strong class="text-[#053754] dark:text-slate-100">{{ formatDate(voyage.date_depart) }}</strong></div>
+                <div><span>Kilos dispos :</span> <strong class="text-[#B50302] dark:text-red-400 font-black">{{ voyage.capacite_dispo ?? voyage.capacite_totale }} kg</strong></div>
+                <div><span>Réservations :</span> <strong class="text-[#074C72] dark:text-sky-300">{{ voyage.reservations ? voyage.reservations.length : 0 }}</strong></div>
               </div>
             </div>
           </div>
 
           <!-- Pagination Voyages (5 items per page) -->
-          <div v-if="totalVoyagesPages > 1" class="pt-3 flex items-center justify-between text-xs font-bold text-gray-600 border-t border-gray-100">
+          <div v-if="totalVoyagesPages > 1" class="pt-3 flex items-center justify-between text-xs font-bold text-gray-600 dark:text-gray-300 border-t border-gray-100 dark:border-slate-800">
             <span>Page {{ voyagesPage }} sur {{ totalVoyagesPages }}</span>
             <div class="flex items-center gap-1.5">
-              <button @click="voyagesPage > 1 && voyagesPage--" :disabled="voyagesPage === 1" class="px-3 py-1 rounded-lg border bg-white disabled:opacity-40">← Préc.</button>
-              <button @click="voyagesPage < totalVoyagesPages && voyagesPage++" :disabled="voyagesPage === totalVoyagesPages" class="px-3 py-1 rounded-lg border bg-white disabled:opacity-40">Suiv. →</button>
+              <button @click="voyagesPage > 1 && voyagesPage--" :disabled="voyagesPage === 1" class="px-3 py-1 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 disabled:opacity-40">← Préc.</button>
+              <button @click="voyagesPage < totalVoyagesPages && voyagesPage++" :disabled="voyagesPage === totalVoyagesPages" class="px-3 py-1 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 disabled:opacity-40">Suiv. →</button>
             </div>
           </div>
         </template>
       </div>
 
       <!-- Section Réservations faites par cet utilisateur (If Client) -->
-      <div class="bg-white border border-gray-200 rounded-3xl p-6 shadow-2xs space-y-4">
-        <div class="flex items-center justify-between border-b border-gray-100 pb-3">
-          <h3 class="font-extrabold text-base text-[#053754]">
+      <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xs space-y-4">
+        <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3">
+          <h3 class="font-extrabold text-base text-[#053754] dark:text-sky-300">
             📦 Réservations effectuées par {{ user.prenom }} ({{ user.reservations_client ? user.reservations_client.length : 0 }})
           </h3>
         </div>
@@ -317,26 +317,26 @@
 
         <template v-else>
           <div class="space-y-3">
-            <div v-for="res in paginatedReservations" :key="res.id" class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-3">
-              <div class="flex items-center justify-between border-b border-gray-200 pb-2">
-                <span class="font-mono font-black text-[#053754] text-sm">#{{ res.numero || res.id.substring(0, 8) }}</span>
-                <span class="px-2.5 py-0.5 rounded-full font-bold bg-white text-[#074C72] border border-sky-200 text-[10px] sm:text-xs">{{ res.statut }}</span>
+            <div v-for="res in paginatedReservations" :key="res.id" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs space-y-3">
+              <div class="flex items-center justify-between border-b border-gray-200 dark:border-slate-700 pb-2">
+                <span class="font-mono font-black text-[#053754] dark:text-sky-300 text-sm">#{{ res.numero || res.id.substring(0, 8) }}</span>
+                <span class="px-2.5 py-0.5 rounded-full font-bold bg-white dark:bg-slate-900 text-[#074C72] dark:text-sky-300 border border-sky-200 dark:border-slate-700 text-[10px] sm:text-xs">{{ res.statut }}</span>
               </div>
               <!-- Each element on its own line on mobile -->
-              <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-6 text-gray-600 font-medium">
-                <div><span>Trajet :</span> <strong>{{ res.voyage ? `${res.voyage.ville_depart} ➔ ${res.voyage.ville_destination}` : 'N/A' }}</strong></div>
-                <div><span>Poids réservé :</span> <strong class="text-[#B50302] font-black">{{ res.colis?.poids ?? res.poids_kg ?? 0 }} kg</strong></div>
-                <div><span>Messages échangés :</span> <strong class="text-[#074C72]">{{ res.messages ? res.messages.length : 0 }}</strong></div>
+              <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-6 text-gray-600 dark:text-gray-300 font-medium">
+                <div><span>Trajet :</span> <strong class="dark:text-slate-100">{{ res.voyage ? `${res.voyage.ville_depart} ➔ ${res.voyage.ville_destination}` : 'N/A' }}</strong></div>
+                <div><span>Poids réservé :</span> <strong class="text-[#B50302] dark:text-red-400 font-black">{{ res.colis?.poids ?? res.poids_kg ?? 0 }} kg</strong></div>
+                <div><span>Messages échangés :</span> <strong class="text-[#074C72] dark:text-sky-300">{{ res.messages ? res.messages.length : 0 }}</strong></div>
               </div>
             </div>
           </div>
 
           <!-- Pagination Reservations (5 items per page) -->
-          <div v-if="totalReservationsPages > 1" class="pt-3 flex items-center justify-between text-xs font-bold text-gray-600 border-t border-gray-100">
+          <div v-if="totalReservationsPages > 1" class="pt-3 flex items-center justify-between text-xs font-bold text-gray-600 dark:text-gray-300 border-t border-gray-100 dark:border-slate-800">
             <span>Page {{ reservationsPage }} sur {{ totalReservationsPages }}</span>
             <div class="flex items-center gap-1.5">
-              <button @click="reservationsPage > 1 && reservationsPage--" :disabled="reservationsPage === 1" class="px-3 py-1 rounded-lg border bg-white disabled:opacity-40">← Préc.</button>
-              <button @click="reservationsPage < totalReservationsPages && reservationsPage++" :disabled="reservationsPage === totalReservationsPages" class="px-3 py-1 rounded-lg border bg-white disabled:opacity-40">Suiv. →</button>
+              <button @click="reservationsPage > 1 && reservationsPage--" :disabled="reservationsPage === 1" class="px-3 py-1 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 disabled:opacity-40">← Préc.</button>
+              <button @click="reservationsPage < totalReservationsPages && reservationsPage++" :disabled="reservationsPage === totalReservationsPages" class="px-3 py-1 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 disabled:opacity-40">Suiv. →</button>
             </div>
           </div>
         </template>
