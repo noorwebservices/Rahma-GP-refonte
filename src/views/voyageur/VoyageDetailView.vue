@@ -22,6 +22,23 @@ const voyage = ref(null)
 const reservations = ref([])
 const isUpdatingStatus = ref(false)
 
+const searchQuery = ref('')
+
+const filteredReservations = computed(() => {
+  if (!searchQuery.value.trim()) return reservations.value
+  const q = searchQuery.value.toLowerCase().trim()
+  return reservations.value.filter(r => {
+    return (
+      (r.clientNom && r.clientNom.toLowerCase().includes(q)) ||
+      (r.numero && r.numero.toLowerCase().includes(q)) ||
+      (r.codeTracking && r.codeTracking.toLowerCase().includes(q)) ||
+      (r.colisType && r.colisType.toLowerCase().includes(q)) ||
+      (r.statut && r.statut.toLowerCase().includes(q)) ||
+      (r.clientPhone && r.clientPhone.toLowerCase().includes(q))
+    )
+  })
+})
+
 const totalRevenuVolEstime = computed(() => {
   if (!reservations.value || reservations.value.length === 0) return formatPrice(0, 'XOF')
   const totalRaw = reservations.value.reduce((acc, r) => {
@@ -488,108 +505,223 @@ const goBack = () => {
 
       <!-- Reservations Section (Premium Redesigned Cards) -->
       <div class="space-y-4 pt-4 border-t border-gray-200 dark:border-slate-800">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <h2 class="text-base sm:text-lg font-bold text-principal-dark dark:text-sky-300 flex items-center gap-2">
             <span>{{ t('voyageur.voyageDetail.reservationsTitle') }}</span>
-            <span class="bg-sky-100 dark:bg-sky-950 text-[#074C72] dark:text-sky-300 text-xs px-2.5 py-0.5 rounded-full font-black">{{ reservations.length }}</span>
+            <span class="bg-sky-100 dark:bg-sky-950 text-[#074C72] dark:text-sky-300 text-xs px-2.5 py-0.5 rounded-full font-black">{{ filteredReservations.length }}</span>
           </h2>
-          <span class="text-xs text-gray-500 dark:text-slate-400 font-medium hidden sm:inline">
-            {{ t('voyageur.voyageDetail.clickSub') }}
-          </span>
+          
+          <!-- Search Bar Input -->
+          <div class="relative w-full sm:w-72">
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Rechercher (nom client, N° suivi, type...)"
+              class="w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl pl-9 pr-8 py-2 text-xs font-medium text-gray-900 dark:text-slate-100 outline-none focus:border-[#074C72] dark:focus:border-sky-400 shadow-2xs"
+            />
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">🔍</span>
+            <button
+              v-if="searchQuery"
+              @click="searchQuery = ''"
+              type="button"
+              class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs font-bold p-1 cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
-        <div v-if="reservations.length > 0" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div
-            v-for="res in reservations"
-            :key="res.id"
-            @click="goToDemandeDetail(res.id)"
-            class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-gray-200 dark:border-slate-800 shadow-sm space-y-4 hover:border-[#074C72] dark:hover:border-sky-400 hover:shadow-md transition-all flex flex-col justify-between cursor-pointer group"
-          >
-            <!-- Card Header: Client Avatar + Name + Status Badge -->
-            <div class="flex items-center justify-between gap-3">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-[#053754] dark:bg-slate-800 text-white font-extrabold text-xs flex items-center justify-center shrink-0 shadow-xs group-hover:bg-[#B50302] transition-colors">
-                  {{ res.clientNom.slice(0, 2).toUpperCase() }}
-                </div>
-                <div>
-                  <h4 class="text-sm font-extrabold text-gray-900 dark:text-slate-100 group-hover:text-[#074C72] dark:group-hover:text-sky-300 transition-colors flex items-center gap-2">
-                    <span>{{ res.clientNom }}</span>
-                  </h4>
-                  <span class="text-[10px] text-gray-400 dark:text-slate-400 font-medium">{{ t('voyageur.voyageDetail.clientLabel') }}</span>
-                </div>
-              </div>
-
-              <span
-                class="text-[11px] font-extrabold px-3 py-1 rounded-full border shrink-0"
-                :class="getReservationStatusBadge(res.statut).cls"
-              >
-                {{ getReservationStatusBadge(res.statut).text }}
-              </span>
-            </div>
-
-            <!-- Main Info Box -->
-            <div class="bg-slate-50 dark:bg-slate-800/80 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-2.5">
-              <div class="flex items-center justify-between text-xs">
-                <span class="text-gray-400 dark:text-slate-400 font-medium">{{ t('voyageur.voyageDetail.resNo') }}</span>
-                <span class="font-extrabold text-[#053754] dark:text-sky-300 font-mono bg-white dark:bg-slate-900 px-2 py-0.5 rounded-md border border-gray-200 dark:border-slate-700">{{ res.numero }}</span>
-              </div>
-
-              <div class="grid grid-cols-2 gap-2 text-xs">
-                <div>
-                  <span class="text-gray-400 dark:text-slate-400 font-medium block">{{ t('voyageur.voyageDetail.contentType') }}</span>
-                  <span class="font-extrabold text-gray-900 dark:text-slate-100 block truncate">{{ res.colisType }}</span>
-                </div>
-                <div class="text-right">
-                  <span class="text-gray-400 dark:text-slate-400 font-medium block">{{ t('voyageur.voyageDetail.weight') }}</span>
-                  <span class="font-extrabold text-[#B50302] dark:text-rose-400 block">{{ res.colisPoids }}</span>
-                </div>
-              </div>
-
-              <div v-if="res.colisEstFragile" class="bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-[11px] font-bold px-2.5 py-1 rounded-lg border border-amber-200/80 dark:border-amber-800 flex items-center gap-1.5">
-                <span>⚠️</span> {{ t('voyageur.voyageDetail.fragile') }}
-              </div>
-            </div>
-
-            <!-- Footer Action & Price Row -->
-            <div class="border-t border-gray-100 dark:border-slate-800 pt-3 flex items-center justify-between gap-3">
-              <div>
-                <span class="text-[10px] text-gray-400 dark:text-slate-400 font-bold uppercase block">{{ t('voyageur.voyageDetail.totalAmount') }}</span>
-                <span class="font-black text-[#053754] dark:text-sky-300 text-base sm:text-lg">{{ res.montantTotal }}</span>
-              </div>
-
-              <div class="flex items-center gap-2" @click.stop>
-                <button
-                  v-if="res.statut === 'en_attente'"
-                  @click="handleAccepter(res.id)"
-                  :disabled="isUpdatingStatus"
-                  type="button"
-                  class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-3.5 py-2 rounded-xl transition-colors cursor-pointer shadow-2xs"
-                >
-                  {{ t('voyageur.voyageDetail.acceptBtn') }}
-                </button>
-
-                <button
-                  v-if="res.statut === 'en_attente'"
-                  @click="handleRefuser(res.id)"
-                  :disabled="isUpdatingStatus"
-                  type="button"
-                  class="bg-red-50 dark:bg-rose-950/50 hover:bg-red-100 dark:hover:bg-rose-900/60 text-[#B50302] dark:text-rose-300 border border-red-200 dark:border-rose-900 font-extrabold text-xs px-3 py-2 rounded-xl transition-colors cursor-pointer"
-                >
-                  {{ t('voyageur.voyageDetail.refuseBtn') }}
-                </button>
-
-                <button
+        <template v-if="filteredReservations.length > 0">
+          <!-- Desktop Table View -->
+          <div class="hidden md:block overflow-x-auto bg-white dark:bg-slate-900 rounded-3xl border border-gray-200 dark:border-slate-800 shadow-sm p-4">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-gray-100 dark:border-slate-800 text-[11px] font-extrabold text-gray-400 dark:text-slate-400 uppercase tracking-wider">
+                  <th class="pb-3 px-3">Tracking / Code</th>
+                  <th class="pb-3 px-3">Client</th>
+                  <th class="pb-3 px-3">Contenu / Fragile</th>
+                  <th class="pb-3 px-3">Poids</th>
+                  <th class="pb-3 px-3">Montant Total</th>
+                  <th class="pb-3 px-3">Statut</th>
+                  <th class="pb-3 px-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100 dark:divide-slate-800/60 text-xs">
+                <tr
+                  v-for="res in filteredReservations"
+                  :key="res.id"
                   @click="goToDemandeDetail(res.id)"
-                  type="button"
-                  class="bg-[#053754] dark:bg-sky-600 hover:bg-[#074C72] dark:hover:bg-sky-500 text-white font-extrabold text-xs px-3.5 py-2 rounded-xl transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
+                  class="hover:bg-sky-50/50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group"
                 >
-                  <span>{{ t('voyageur.voyageDetail.detailsBtn') }}</span>
-                  <span>➔</span>
-                </button>
+                  <td class="py-3.5 px-3">
+                    <span class="font-extrabold text-[#053754] dark:text-sky-300 font-mono bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700">
+                      {{ res.codeTracking }}
+                    </span>
+                    <span class="block text-[10px] text-gray-400 dark:text-slate-400 font-mono mt-0.5">{{ res.numero }}</span>
+                  </td>
+                  <td class="py-3.5 px-3 font-extrabold text-gray-900 dark:text-slate-100">
+                    <div class="flex items-center gap-2">
+                      <div class="w-7 h-7 rounded-full bg-[#053754] text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+                        {{ res.clientNom.slice(0, 2).toUpperCase() }}
+                      </div>
+                      <div>
+                        <div>{{ res.clientNom }}</div>
+                        <div class="text-[10px] text-gray-400 font-normal">{{ res.clientPhone }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="py-3.5 px-3">
+                    <span class="font-bold text-gray-800 dark:text-slate-200 block">{{ res.colisType }}</span>
+                    <span v-if="res.colisEstFragile" class="inline-block text-[10px] font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800">
+                      ⚠️ Fragile
+                    </span>
+                  </td>
+                  <td class="py-3.5 px-3 font-extrabold text-[#B50302] dark:text-rose-400">
+                    {{ res.colisPoids }}
+                  </td>
+                  <td class="py-3.5 px-3 font-black text-[#053754] dark:text-sky-300 text-sm">
+                    {{ res.montantTotal }}
+                  </td>
+                  <td class="py-3.5 px-3">
+                    <span
+                      class="text-[10px] font-extrabold px-2.5 py-1 rounded-full border whitespace-nowrap"
+                      :class="getReservationStatusBadge(res.statut).cls"
+                    >
+                      {{ getReservationStatusBadge(res.statut).text }}
+                    </span>
+                  </td>
+                  <td class="py-3.5 px-3 text-right" @click.stop>
+                    <div class="flex items-center justify-end gap-1.5">
+                      <button
+                        v-if="res.statut === 'en_attente'"
+                        @click="handleAccepter(res.id)"
+                        :disabled="isUpdatingStatus"
+                        type="button"
+                        class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[11px] px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer shadow-2xs"
+                      >
+                        Accepter
+                      </button>
+                      <button
+                        v-if="res.statut === 'en_attente'"
+                        @click="handleRefuser(res.id)"
+                        :disabled="isUpdatingStatus"
+                        type="button"
+                        class="bg-red-50 dark:bg-rose-950/50 hover:bg-red-100 text-[#B50302] dark:text-rose-300 border border-red-200 dark:border-rose-900 font-extrabold text-[11px] px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
+                      >
+                        Refuser
+                      </button>
+                      <button
+                        @click="goToDemandeDetail(res.id)"
+                        type="button"
+                        class="bg-[#053754] dark:bg-sky-600 hover:bg-[#074C72] text-white font-extrabold text-[11px] px-3 py-1.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                      >
+                        <span>Détails</span>
+                        <span>➔</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Mobile Cards View -->
+          <div class="grid grid-cols-1 gap-4 md:hidden">
+            <div
+              v-for="res in filteredReservations"
+              :key="res.id"
+              @click="goToDemandeDetail(res.id)"
+              class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-gray-200 dark:border-slate-800 shadow-sm space-y-4 hover:border-[#074C72] dark:hover:border-sky-400 hover:shadow-md transition-all flex flex-col justify-between cursor-pointer group"
+            >
+              <!-- Card Header: Client Avatar + Name + Status Badge -->
+              <div class="flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-[#053754] dark:bg-slate-800 text-white font-extrabold text-xs flex items-center justify-center shrink-0 shadow-xs group-hover:bg-[#B50302] transition-colors">
+                    {{ res.clientNom.slice(0, 2).toUpperCase() }}
+                  </div>
+                  <div>
+                    <h4 class="text-sm font-extrabold text-gray-900 dark:text-slate-100 group-hover:text-[#074C72] dark:group-hover:text-sky-300 transition-colors flex items-center gap-2">
+                      <span>{{ res.clientNom }}</span>
+                    </h4>
+                    <span class="text-[10px] text-gray-400 dark:text-slate-400 font-medium">{{ t('voyageur.voyageDetail.clientLabel') }}</span>
+                  </div>
+                </div>
+
+                <span
+                  class="text-[11px] font-extrabold px-3 py-1 rounded-full border shrink-0"
+                  :class="getReservationStatusBadge(res.statut).cls"
+                >
+                  {{ getReservationStatusBadge(res.statut).text }}
+                </span>
+              </div>
+
+              <!-- Main Info Box -->
+              <div class="bg-slate-50 dark:bg-slate-800/80 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-2.5">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-gray-400 dark:text-slate-400 font-medium">{{ t('voyageur.voyageDetail.resNo') }}</span>
+                  <span class="font-extrabold text-[#053754] dark:text-sky-300 font-mono bg-white dark:bg-slate-900 px-2 py-0.5 rounded-md border border-gray-200 dark:border-slate-700">{{ res.numero }}</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <span class="text-gray-400 dark:text-slate-400 font-medium block">{{ t('voyageur.voyageDetail.contentType') }}</span>
+                    <span class="font-extrabold text-gray-900 dark:text-slate-100 block truncate">{{ res.colisType }}</span>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-gray-400 dark:text-slate-400 font-medium block">{{ t('voyageur.voyageDetail.weight') }}</span>
+                    <span class="font-extrabold text-[#B50302] dark:text-rose-400 block">{{ res.colisPoids }}</span>
+                  </div>
+                </div>
+
+                <div v-if="res.colisEstFragile" class="bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-[11px] font-bold px-2.5 py-1 rounded-lg border border-amber-200/80 dark:border-amber-800 flex items-center gap-1.5">
+                  <span>⚠️</span> {{ t('voyageur.voyageDetail.fragile') }}
+                </div>
+              </div>
+
+              <!-- Footer Action & Price Row with Icons on Mobile -->
+              <div class="border-t border-gray-100 dark:border-slate-800 pt-3 flex items-center justify-between gap-2">
+                <div>
+                  <span class="text-[10px] text-gray-400 dark:text-slate-400 font-bold uppercase block">{{ t('voyageur.voyageDetail.totalAmount') }}</span>
+                  <span class="font-black text-[#053754] dark:text-sky-300 text-base sm:text-lg">{{ res.montantTotal }}</span>
+                </div>
+
+                <div class="flex items-center gap-1.5" @click.stop>
+                  <button
+                    v-if="res.statut === 'en_attente'"
+                    @click="handleAccepter(res.id)"
+                    :disabled="isUpdatingStatus"
+                    type="button"
+                    title="Accepter"
+                    class="w-9 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm flex items-center justify-center transition-all cursor-pointer shadow-2xs active:scale-95 shrink-0"
+                  >
+                    ✓
+                  </button>
+
+                  <button
+                    v-if="res.statut === 'en_attente'"
+                    @click="handleRefuser(res.id)"
+                    :disabled="isUpdatingStatus"
+                    type="button"
+                    title="Refuser"
+                    class="w-9 h-9 rounded-xl bg-red-50 dark:bg-rose-950/50 hover:bg-red-100 dark:hover:bg-rose-900/60 text-[#B50302] dark:text-rose-300 border border-red-200 dark:border-rose-900 font-black text-sm flex items-center justify-center transition-all cursor-pointer active:scale-95 shrink-0"
+                  >
+                    ✕
+                  </button>
+
+                  <button
+                    @click="goToDemandeDetail(res.id)"
+                    type="button"
+                    title="Détails"
+                    class="h-9 px-3 rounded-xl bg-[#053754] dark:bg-sky-600 hover:bg-[#074C72] dark:hover:bg-sky-500 text-white font-extrabold text-xs flex items-center justify-center gap-1 transition-all cursor-pointer shadow-xs active:scale-95 shrink-0"
+                  >
+                    <span>👁️</span>
+                    <span class="text-[11px]">Détails</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </template>
 
         <!-- Empty state if no reservations -->
         <div v-else class="bg-white dark:bg-slate-900 rounded-3xl p-10 text-center border border-gray-200 dark:border-slate-800 space-y-2">

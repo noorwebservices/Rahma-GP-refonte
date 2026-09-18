@@ -63,6 +63,14 @@ onMounted(async () => {
     try {
       const parsed = JSON.parse(savedDraft)
       if (parsed.voyage_id) voyageId.value = parsed.voyage_id
+      if (parsed.voyage) {
+        setHeaderRoute({
+          routeFrom: parsed.voyage.ville_depart || parsed.voyage.depart || 'Dakar',
+          countryFrom: parsed.voyage.pays_depart || parsed.voyage.paysDepart || '',
+          routeTo: parsed.voyage.ville_destination || parsed.voyage.destination || 'Paris',
+          countryTo: parsed.voyage.pays_destination || parsed.voyage.paysDest || ''
+        })
+      }
       if (parsed.colis) {
         selectedType.value = parsed.colis.type || selectedType.value
         description.value = parsed.colis.description ?? description.value
@@ -122,23 +130,40 @@ const totalPrice = computed(() => {
   if (isElectronic.value) {
     return Math.round(unitPriceObjet.value)
   }
-  return Math.round(weightKg.value * unitPriceKg.value)
+  return Math.round(Math.ceil(Number(weightKg.value || 1)) * unitPriceKg.value)
 })
 
 const formattedUnitPriceKg = computed(() => formatPrice(unitPriceKg.value, devise.value))
 const formattedUnitPriceObjet = computed(() => formatPrice(unitPriceObjet.value, devise.value))
 const formattedTotalPrice = computed(() => formatPrice(totalPrice.value, devise.value))
 
-const handleFileChange = (e) => {
+import { compressImage } from '@/utils/imageCompressor'
+
+const handleFileChange = async (e) => {
   const file = e.target.files[0]
   if (file) {
     fileName.value = file.name
-    const reader = new FileReader()
-    reader.onload = (event) => {
-      previewImage.value = event.target.result
-      photoUrl.value = event.target.result
+    try {
+      const compressed = await compressImage(file, 800, 800, 0.7)
+      if (compressed) {
+        previewImage.value = compressed
+        photoUrl.value = compressed
+      } else {
+        const reader = new FileReader()
+        reader.onload = (event) => {
+          previewImage.value = event.target.result
+          photoUrl.value = event.target.result
+        }
+        reader.readAsDataURL(file)
+      }
+    } catch (err) {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        previewImage.value = event.target.result
+        photoUrl.value = event.target.result
+      }
+      reader.readAsDataURL(file)
     }
-    reader.readAsDataURL(file)
   }
 }
 
@@ -178,7 +203,24 @@ const goToStep2 = () => {
       photo: photoUrl.value || null
     }
   }
-  sessionStorage.setItem('rahma_booking_draft', JSON.stringify(updatedDraft))
+
+  try {
+    sessionStorage.setItem('rahma_booking_draft', JSON.stringify(updatedDraft))
+  } catch (err) {
+    // If quota exceeded, save draft without large photo in sessionStorage
+    console.warn('Quota exceeded when saving to sessionStorage, fallback without photo string')
+    const fallbackDraft = {
+      ...updatedDraft,
+      colis: {
+        ...updatedDraft.colis,
+        photo: photoUrl.value && photoUrl.value.length < 500000 ? photoUrl.value : null
+      }
+    }
+    try {
+      sessionStorage.setItem('rahma_booking_draft', JSON.stringify(fallbackDraft))
+    } catch (e) {}
+  }
+
   if (voyageId.value) {
     sessionStorage.setItem('rahma_active_voyage_id', voyageId.value)
   }

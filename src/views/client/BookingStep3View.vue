@@ -3,6 +3,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import BookingProgressBar from '@/components/client/BookingProgressBar.vue'
 import { getCategoryIcon, isElectronicType } from '@/utils/flagHelper'
+import { setHeaderRoute } from '@/utils/headerState'
+import { fetchVoyage } from '@/services/voyageService'
 import { useI18n } from '@/composables/useI18n'
 
 const route = useRoute()
@@ -12,13 +14,35 @@ const { t } = useI18n()
 const voyageId = ref(sessionStorage.getItem('rahma_active_voyage_id') || route.query.voyage_id || '')
 const draft = ref(null)
 
-onMounted(() => {
+onMounted(async () => {
   const savedDraft = sessionStorage.getItem('rahma_booking_draft')
   if (savedDraft) {
     try {
       draft.value = JSON.parse(savedDraft)
       if (draft.value?.voyage_id) voyageId.value = draft.value.voyage_id
+      if (draft.value?.voyage) {
+        setHeaderRoute({
+          routeFrom: draft.value.voyage.ville_depart || draft.value.voyage.depart || 'Dakar',
+          countryFrom: draft.value.voyage.pays_depart || draft.value.voyage.paysDepart || '',
+          routeTo: draft.value.voyage.ville_destination || draft.value.voyage.destination || 'Paris',
+          countryTo: draft.value.voyage.pays_destination || draft.value.voyage.paysDest || ''
+        })
+      }
     } catch (e) {}
+  }
+
+  if (voyageId.value) {
+    try {
+      const res = await fetchVoyage(voyageId.value)
+      if (res && res.data) {
+        setHeaderRoute({
+          routeFrom: res.data.ville_depart,
+          countryFrom: res.data.pays_depart,
+          routeTo: res.data.ville_destination,
+          countryTo: res.data.pays_destination
+        })
+      }
+    } catch (err) {}
   }
 })
 
@@ -38,7 +62,7 @@ const totalPrice = computed(() => {
   if (isElectronic.value) {
     return Math.round(unitPriceObjet.value)
   }
-  return Math.round(weightKg.value * unitPriceKg.value)
+  return Math.round(Math.ceil(Number(weightKg.value || 1)) * unitPriceKg.value)
 })
 
 const destinataireNom = computed(() => {

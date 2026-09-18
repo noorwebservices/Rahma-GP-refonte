@@ -504,10 +504,12 @@ const goBackToVoyage = () => {
     <template v-else-if="demande">
       <!-- Header Info Banner -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-2xs">
-        <div class="space-y-0.5">
-          <div class="flex items-center gap-2">
-            <h1 class="text-lg sm:text-xl font-serif font-bold text-principal-dark dark:text-sky-300">{{ t('voyageur.demandeDetail.title', 'Détails de la demande') }}</h1>
-            <span class="font-extrabold text-[#074C72] dark:text-sky-300 text-xs bg-sky-50 dark:bg-sky-950/50 px-2.5 py-0.5 rounded-full border border-sky-100 dark:border-sky-800 font-mono">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-lg sm:text-xl font-serif font-bold text-principal-dark dark:text-sky-300 flex items-center leading-none">
+              {{ t('voyageur.demandeDetail.title', 'Détails de la demande') }}
+            </h1>
+            <span class="font-extrabold text-[#074C72] dark:text-sky-300 text-xs bg-sky-50 dark:bg-sky-950/50 px-2.5 py-1 rounded-full border border-sky-100 dark:border-sky-800 font-mono inline-flex items-center leading-none">
               {{ demande.code }}
             </span>
           </div>

@@ -2,6 +2,8 @@
 import { reactive, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import BookingProgressBar from '@/components/client/BookingProgressBar.vue'
+import { setHeaderRoute } from '@/utils/headerState'
+import { fetchVoyage } from '@/services/voyageService'
 import { useI18n } from '@/composables/useI18n'
 
 const route = useRoute()
@@ -17,12 +19,20 @@ const form = reactive({
   destinataire_adresse: ''
 })
 
-onMounted(() => {
+onMounted(async () => {
   const savedDraft = sessionStorage.getItem('rahma_booking_draft')
   if (savedDraft) {
     try {
       const parsed = JSON.parse(savedDraft)
       if (parsed.voyage_id) voyageId.value = parsed.voyage_id
+      if (parsed.voyage) {
+        setHeaderRoute({
+          routeFrom: parsed.voyage.ville_depart || parsed.voyage.depart || 'Dakar',
+          countryFrom: parsed.voyage.pays_depart || parsed.voyage.paysDepart || '',
+          routeTo: parsed.voyage.ville_destination || parsed.voyage.destination || 'Paris',
+          countryTo: parsed.voyage.pays_destination || parsed.voyage.paysDest || ''
+        })
+      }
       if (parsed.colis) {
         form.destinataire_prenom = parsed.colis.destinataire_prenom ?? ''
         form.destinataire_nom = parsed.colis.destinataire_nom ?? ''
@@ -30,6 +40,20 @@ onMounted(() => {
         form.destinataire_adresse = parsed.colis.destinataire_adresse ?? ''
       }
     } catch (e) {}
+  }
+
+  if (voyageId.value) {
+    try {
+      const res = await fetchVoyage(voyageId.value)
+      if (res && res.data) {
+        setHeaderRoute({
+          routeFrom: res.data.ville_depart,
+          countryFrom: res.data.pays_depart,
+          routeTo: res.data.ville_destination,
+          countryTo: res.data.pays_destination
+        })
+      }
+    } catch (err) {}
   }
 })
 

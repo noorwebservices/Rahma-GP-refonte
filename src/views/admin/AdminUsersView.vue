@@ -162,7 +162,7 @@
                   
                   <!-- Dedicated User Details Page Button -->
                   <router-link 
-                    :to="`/admin/users/${user.id}`" 
+                    :to="`/admin/users/${encodeId(user.id)}`" 
                     class="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-[#053754] hover:bg-[#074C72] text-white transition-all shadow-xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
                   >
                     <span>👁️ Fiche Complète</span>
@@ -228,6 +228,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { adminService } from '@/services/adminService'
+import { encodeId } from '@/utils/idMasker'
 import Swal from 'sweetalert2'
 
 const activeTab = ref('client') // 'client' | 'voyageur'

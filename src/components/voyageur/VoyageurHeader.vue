@@ -5,6 +5,7 @@ import { headerState } from '@/utils/headerState'
 import CountryFlag from '@/components/common/CountryFlag.vue'
 import NotificationModal from '@/components/common/NotificationModal.vue'
 import { fetchUnreadNotificationsCount } from '@/services/notificationService'
+import { fetchUnreadMessagesCount } from '@/services/messageService'
 import { currentCurrency, availableCurrencies, setCurrency } from '@/utils/currencyState'
 import ThemeToggle from '@/components/common/ThemeToggle.vue'
 import LanguageToggle from '@/components/common/LanguageToggle.vue'
@@ -44,13 +45,15 @@ const props = defineProps({
 const router = useRouter()
 const route = useRoute()
 const unreadNotifCount = ref(0)
+const unreadMsgCount = ref(0)
 const showNotifModal = ref(false)
 let notifTimer = null
 
 const loadUnreadCount = async () => {
-  const token = localStorage.getItem('rahma_token')
+  const token = localStorage.getItem('rahma_token') || localStorage.getItem('token')
   if (!token) {
     unreadNotifCount.value = 0
+    unreadMsgCount.value = 0
     return
   }
   try {
@@ -58,9 +61,13 @@ const loadUnreadCount = async () => {
     if (res && (res.unread_count !== undefined || res.data?.unread_count !== undefined)) {
       unreadNotifCount.value = Number(res.unread_count ?? res.data?.unread_count ?? 0)
     }
-  } catch (e) {
-    // silent
-  }
+  } catch (e) {}
+
+  try {
+    const msgRes = await fetchUnreadMessagesCount()
+    const count = msgRes?.unread_count ?? msgRes?.data?.unread_count ?? 0
+    unreadMsgCount.value = Number(count)
+  } catch (e) {}
 }
 
 onMounted(() => {

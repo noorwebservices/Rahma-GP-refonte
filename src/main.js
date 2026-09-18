@@ -8,3 +8,11 @@ const app = createApp(App)
 
 app.use(router)
 app.mount('#app')
+
+// Register Service Worker for Push Notifications
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(err => {
+    console.warn('SW registration failed:', err)
+  })
+}
+

@@ -6,6 +6,8 @@ import BookingProgressBar from '@/components/client/BookingProgressBar.vue'
 import CountryFlag from '@/components/common/CountryFlag.vue'
 import { createReservation } from '@/services/reservationService'
 import { initiateWavePayment } from '@/services/paiementService'
+import { fetchVoyage } from '@/services/voyageService'
+import { setHeaderRoute } from '@/utils/headerState'
 import { formatVoyageDate, isElectronicType } from '@/utils/flagHelper'
 import { decodeId, encodeId } from '@/utils/idMasker'
 import { useI18n } from '@/composables/useI18n'
@@ -22,12 +24,36 @@ const createdReservationId = ref(null)
 
 const draft = ref(null)
 
-onMounted(() => {
+onMounted(async () => {
   const savedDraft = sessionStorage.getItem('rahma_booking_draft')
   if (savedDraft) {
     try {
       draft.value = JSON.parse(savedDraft)
+      if (draft.value?.voyage) {
+        setHeaderRoute({
+          routeFrom: draft.value.voyage.ville_depart || draft.value.voyage.depart || 'Dakar',
+          countryFrom: draft.value.voyage.pays_depart || draft.value.voyage.paysDepart || '',
+          routeTo: draft.value.voyage.ville_destination || draft.value.voyage.destination || 'Paris',
+          countryTo: draft.value.voyage.pays_destination || draft.value.voyage.paysDest || ''
+        })
+      }
     } catch (e) {}
+  }
+
+  const rawVoyageId = draft.value?.voyage_id || sessionStorage.getItem('rahma_active_voyage_id') || route.query.voyage_id
+  if (rawVoyageId) {
+    const activeVoyageId = decodeId(rawVoyageId) || rawVoyageId
+    try {
+      const res = await fetchVoyage(activeVoyageId)
+      if (res && res.data) {
+        setHeaderRoute({
+          routeFrom: res.data.ville_depart,
+          countryFrom: res.data.pays_depart,
+          routeTo: res.data.ville_destination,
+          countryTo: res.data.pays_destination
+        })
+      }
+    } catch (err) {}
   }
 })
 
@@ -52,7 +78,7 @@ const totalPrice = computed(() => {
   if (isElectronic.value) {
     return Math.round(unitPriceObjet.value)
   }
-  return Math.round(weightKg.value * unitPriceKg.value)
+  return Math.round(Math.ceil(Number(weightKg.value || 1)) * unitPriceKg.value)
 })
 
 const formattedUnitPriceKg = computed(() => formatPrice(unitPriceKg.value, devise.value))

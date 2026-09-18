@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { City, Country } from 'country-state-city'
 
 const props = defineProps({
@@ -26,6 +26,8 @@ const emit = defineEmits(['update:modelValue', 'change'])
 const isOpen = ref(false)
 const searchQuery = ref('')
 const containerRef = ref(null)
+const dropdownRef = ref(null)
+const dropdownStyle = ref({})
 
 // Priority frequent cities list
 const priorityCities = [
@@ -54,6 +56,33 @@ const priorityCities = [
 
 const allCitiesData = ref([])
 
+const updateDropdownPosition = () => {
+  if (!containerRef.value) return
+  const rect = containerRef.value.getBoundingClientRect()
+  dropdownStyle.value = {
+    position: 'fixed',
+    top: `${rect.bottom + 6}px`,
+    left: `${rect.left}px`,
+    width: `${rect.width}px`,
+    zIndex: 9999
+  }
+}
+
+const toggleOpen = () => {
+  isOpen.value = !isOpen.value
+  if (isOpen.value) {
+    nextTick(() => {
+      updateDropdownPosition()
+    })
+  }
+}
+
+const handleScrollOrResize = () => {
+  if (isOpen.value) {
+    updateDropdownPosition()
+  }
+}
+
 onMounted(() => {
   try {
     const rawCities = City.getAllCities()
@@ -73,10 +102,14 @@ onMounted(() => {
     allCitiesData.value = priorityCities
   }
   document.addEventListener('click', handleClickOutside)
+  window.addEventListener('scroll', handleScrollOrResize, true)
+  window.addEventListener('resize', handleScrollOrResize)
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
+  window.removeEventListener('scroll', handleScrollOrResize, true)
+  window.removeEventListener('resize', handleScrollOrResize)
 })
 
 const selectedCityObj = computed(() => {
@@ -99,7 +132,7 @@ const filteredCities = computed(() => {
   const matched = allCitiesData.value.filter(
     c => c.city.toLowerCase().includes(q) || c.country.toLowerCase().includes(q)
   )
-  return matched.slice(0, 60) // cap to 60 for performance
+  return matched.slice(0, 60)
 })
 
 const selectCity = (cityObj) => {
@@ -110,7 +143,10 @@ const selectCity = (cityObj) => {
 }
 
 const handleClickOutside = (e) => {
-  if (containerRef.value && !containerRef.value.contains(e.target)) {
+  if (
+    containerRef.value && !containerRef.value.contains(e.target) &&
+    dropdownRef.value && !dropdownRef.value.contains(e.target)
+  ) {
     isOpen.value = false
     searchQuery.value = ''
   }
@@ -126,7 +162,7 @@ const handleClickOutside = (e) => {
     <!-- Select Trigger Input Button -->
     <button
       type="button"
-      @click="isOpen = !isOpen"
+      @click="toggleOpen"
       class="w-full bg-[#EAEFF4] dark:bg-slate-700/80 hover:bg-gray-200/80 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl px-3.5 py-3 flex items-center justify-between text-xs sm:text-sm font-bold transition-colors cursor-pointer outline-none shadow-2xs"
     >
       <div class="flex items-center gap-2.5 truncate">
@@ -153,77 +189,81 @@ const handleClickOutside = (e) => {
       </svg>
     </button>
 
-    <!-- Dropdown with Search Input & Full City List from country-state-city -->
-    <transition
-      enter-active-class="transition duration-150 ease-out"
-      enter-from-class="opacity-0 scale-95 -translate-y-1"
-      enter-to-class="opacity-100 scale-100 translate-y-0"
-      leave-active-class="transition duration-100 ease-in"
-      leave-from-class="opacity-100 scale-100 translate-y-0"
-      leave-to-class="opacity-0 scale-95 -translate-y-1"
-    >
-      <div
-        v-if="isOpen"
-        class="absolute left-0 top-full mt-1.5 w-full bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-700 z-[300] overflow-hidden text-gray-800 dark:text-slate-100"
+    <!-- Teleported Floating Dropdown with highest Z-Index -->
+    <Teleport to="body">
+      <transition
+        enter-active-class="transition duration-150 ease-out"
+        enter-from-class="opacity-0 scale-95 -translate-y-1"
+        enter-to-class="opacity-100 scale-100 translate-y-0"
+        leave-active-class="transition duration-100 ease-in"
+        leave-from-class="opacity-100 scale-100 translate-y-0"
+        leave-to-class="opacity-0 scale-95 -translate-y-1"
       >
-        <!-- Search Input Header -->
-        <div class="p-2.5 border-b border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-900">
-          <div class="relative">
-            <input
-              v-model="searchQuery"
-              type="text"
-              placeholder="Rechercher une ville ou un pays..."
-              class="w-full pl-9 pr-3 py-2 text-xs text-gray-800 dark:text-slate-100 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl outline-none focus:border-[#074C72] dark:focus:border-sky-400 font-medium placeholder-gray-400 dark:placeholder-slate-500"
-              @click.stop
-            />
-            <svg class="w-4 h-4 text-gray-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+        <div
+          v-if="isOpen"
+          ref="dropdownRef"
+          :style="dropdownStyle"
+          class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-700 overflow-hidden text-gray-800 dark:text-slate-100"
+        >
+          <!-- Search Input Header -->
+          <div class="p-2.5 border-b border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-900">
+            <div class="relative">
+              <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Rechercher une ville ou un pays..."
+                class="w-full pl-9 pr-3 py-2 text-xs text-gray-800 dark:text-slate-100 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl outline-none focus:border-[#074C72] dark:focus:border-sky-400 font-medium placeholder-gray-400 dark:placeholder-slate-500"
+                @click.stop
+              />
+              <svg class="w-4 h-4 text-gray-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+          </div>
+
+          <div v-if="!searchQuery" class="px-3.5 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-slate-400">
+            Villes fréquentes
+          </div>
+
+          <!-- Scrollable Cities List -->
+          <div class="max-h-60 overflow-y-auto divide-y divide-gray-50 dark:divide-slate-700/50 no-scrollbar">
+            <!-- Reset / Choisir la ville option -->
+            <button
+              type="button"
+              @click="selectCity({ city: '', country: '', flag: '📍' })"
+              class="w-full px-4 py-2 flex items-center justify-between text-left hover:bg-[#074C72]/5 dark:hover:bg-slate-700 transition-colors cursor-pointer text-gray-400 dark:text-slate-400 italic bg-gray-50/50 dark:bg-slate-900/50"
+            >
+              <div class="flex items-center gap-2.5 truncate">
+                <span class="text-base leading-none">📍</span>
+                <span class="text-xs sm:text-sm font-semibold">{{ placeholder || 'Choisir la ville' }}</span>
+              </div>
+            </button>
+
+            <button
+              v-for="item in filteredCities"
+              :key="item.city + '-' + item.iso"
+              type="button"
+              @click="selectCity(item)"
+              :class="[
+                'w-full px-4 py-2.5 flex items-center justify-between text-left hover:bg-[#074C72]/5 dark:hover:bg-slate-700 transition-colors cursor-pointer',
+                modelValue && modelValue.toLowerCase() === item.city.toLowerCase() ? 'bg-[#074C72]/10 dark:bg-sky-950/80 font-bold text-[#074C72] dark:text-sky-300' : 'text-gray-700 dark:text-slate-200'
+              ]"
+            >
+              <div class="flex items-center gap-2.5 truncate">
+                <span class="text-base leading-none">{{ item.flag }}</span>
+                <span class="text-xs sm:text-sm font-bold">{{ item.city }}</span>
+              </div>
+              <span class="text-[11px] text-gray-400 dark:text-slate-400 font-medium shrink-0 ml-2">
+                {{ item.country }}
+              </span>
+            </button>
+
+            <div v-if="filteredCities.length === 0" class="p-4 text-center text-xs text-gray-400 dark:text-slate-400">
+              Aucune ville trouvée
+            </div>
           </div>
         </div>
-
-        <div v-if="!searchQuery" class="px-3.5 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-slate-400">
-          Villes fréquentes
-        </div>
-
-        <!-- Scrollable Cities List -->
-        <div class="max-h-60 overflow-y-auto divide-y divide-gray-50 dark:divide-slate-700/50 no-scrollbar">
-          <!-- Reset / Choisir la ville option -->
-          <button
-            type="button"
-            @click="selectCity({ city: '', country: '', flag: '📍' })"
-            class="w-full px-4 py-2 flex items-center justify-between text-left hover:bg-[#074C72]/5 dark:hover:bg-slate-700 transition-colors cursor-pointer text-gray-400 dark:text-slate-400 italic bg-gray-50/50 dark:bg-slate-900/50"
-          >
-            <div class="flex items-center gap-2.5 truncate">
-              <span class="text-base leading-none">📍</span>
-              <span class="text-xs sm:text-sm font-semibold">{{ placeholder || 'Choisir la ville' }}</span>
-            </div>
-          </button>
-
-          <button
-            v-for="item in filteredCities"
-            :key="item.city + '-' + item.iso"
-            type="button"
-            @click="selectCity(item)"
-            :class="[
-              'w-full px-4 py-2.5 flex items-center justify-between text-left hover:bg-[#074C72]/5 dark:hover:bg-slate-700 transition-colors cursor-pointer',
-              modelValue && modelValue.toLowerCase() === item.city.toLowerCase() ? 'bg-[#074C72]/10 dark:bg-sky-950/80 font-bold text-[#074C72] dark:text-sky-300' : 'text-gray-700 dark:text-slate-200'
-            ]"
-          >
-            <div class="flex items-center gap-2.5 truncate">
-              <span class="text-base leading-none">{{ item.flag }}</span>
-              <span class="text-xs sm:text-sm font-bold">{{ item.city }}</span>
-            </div>
-            <span class="text-[11px] text-gray-400 dark:text-slate-400 font-medium shrink-0 ml-2">
-              {{ item.country }}
-            </span>
-          </button>
-
-          <div v-if="filteredCities.length === 0" class="p-4 text-center text-xs text-gray-400 dark:text-slate-400">
-            Aucune ville trouvée
-          </div>
-        </div>
-      </div>
-    </transition>
+      </transition>
+    </Teleport>
   </div>
 </template>

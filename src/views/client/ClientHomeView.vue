@@ -94,7 +94,7 @@ const resetSearch = () => {
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
       
       <!-- Search Card (Full width on mobile, 5 cols on Desktop) -->
-      <div class="lg:col-span-5 bg-[#053754] dark:bg-slate-900 text-white rounded-3xl p-6 sm:p-7 shadow-xl border border-transparent dark:border-slate-800 relative overflow-hidden space-y-5 lg:sticky lg:top-20">
+      <div class="lg:col-span-5 bg-[#053754] dark:bg-slate-900 text-white rounded-3xl p-6 sm:p-7 shadow-xl border border-transparent dark:border-slate-800 relative overflow-visible z-20 space-y-5 lg:sticky lg:top-20">
         <!-- Background texture overlay -->
         <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none"></div>
 

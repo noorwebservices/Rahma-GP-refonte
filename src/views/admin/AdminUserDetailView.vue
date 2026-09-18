@@ -122,8 +122,8 @@
           <div>
             <span class="text-gray-400 font-bold block uppercase text-[10px]">Note Moyenne Avis:</span>
             <span class="font-black text-amber-500 text-sm flex items-center gap-1">
-              ★ {{ Number(user.note_moyenne ?? user.voyageur?.note_moyenne ?? 5.0).toFixed(1) }}
-              <span class="text-gray-400 font-normal text-xs">({{ user.total_evaluations ?? user.evaluations_recues?.length ?? 0 }} avis)</span>
+              ★ {{ noteMoyenneVoyageur }}
+              <span class="text-gray-400 font-normal text-xs">({{ evaluationsList.length }} avis)</span>
             </span>
           </div>
         </div>
@@ -221,19 +221,19 @@
       </div>
 
 
-      <!-- Section Avis & Évaluations Reçus -->
-      <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xs space-y-4">
+      <!-- Section Avis & Évaluations Reçus (Uniquement pour les voyageurs) -->
+      <div v-if="user.voyageur" class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xs space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 dark:border-slate-800 pb-3">
           <h3 class="font-extrabold text-base text-[#053754] dark:text-sky-300 flex items-center gap-2 flex-wrap">
             <span>⭐ Avis & Évaluations Reçus par {{ user.prenom }}</span>
-            <span class="text-gray-400 dark:text-gray-400 text-xs font-semibold">({{ user.evaluations_recues ? user.evaluations_recues.length : 0 }})</span>
+            <span class="text-gray-400 dark:text-gray-400 text-xs font-semibold">({{ evaluationsList.length }})</span>
           </h3>
           <span class="text-xs font-black text-amber-500 bg-amber-50 dark:bg-amber-950/80 border border-amber-200 dark:border-amber-800 px-3 py-1 rounded-full self-start sm:self-auto">
-            Note Moyenne : ★ {{ Number(user.note_moyenne ?? 5.0).toFixed(1) }} / 5
+            Note Moyenne : ★ {{ noteMoyenneVoyageur }} / 5
           </span>
         </div>
 
-        <div v-if="!user.evaluations_recues || user.evaluations_recues.length === 0" class="text-xs text-gray-400 italic py-2">
+        <div v-if="evaluationsList.length === 0" class="text-xs text-gray-400 italic py-2">
           Aucun avis ou évaluation reçu pour le moment.
         </div>
 
@@ -386,11 +386,12 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { adminService } from '@/services/adminService'
+import { decodeId } from '@/utils/idMasker'
 import Swal from 'sweetalert2'
 
 const route = useRoute()
 const router = useRouter()
-const userId = route.params.id
+const userId = decodeId(route.params.id) || route.params.id
 
 const user = ref(null)
 const loading = ref(true)
@@ -482,14 +483,38 @@ const totalReservationsPages = computed(() => {
   return Math.ceil(total / perPage) || 1
 })
 
+const evaluationsList = computed(() => {
+  return user.value?.evaluations_recues || user.value?.voyageur?.evaluations || []
+})
+
+const noteMoyenneVoyageur = computed(() => {
+  if (!user.value) return '5.0'
+  const v = user.value.voyageur
+  if (v?.moyenne_notes !== undefined && v?.moyenne_notes !== null && !isNaN(Number(v.moyenne_notes))) {
+    return Number(v.moyenne_notes).toFixed(1)
+  }
+  if (v?.note_moyenne !== undefined && v?.note_moyenne !== null && !isNaN(Number(v.note_moyenne))) {
+    return Number(v.note_moyenne).toFixed(1)
+  }
+  if (user.value.note_moyenne !== undefined && user.value.note_moyenne !== null && !isNaN(Number(user.value.note_moyenne))) {
+    return Number(user.value.note_moyenne).toFixed(1)
+  }
+  const evals = evaluationsList.value
+  if (Array.isArray(evals) && evals.length > 0) {
+    const sum = evals.reduce((acc, curr) => acc + (Number(curr.note) || 0), 0)
+    return (sum / evals.length).toFixed(1)
+  }
+  return '5.0'
+})
+
 const paginatedEvaluations = computed(() => {
-  if (!user.value?.evaluations_recues) return []
+  const list = evaluationsList.value
   const start = (evaluationsPage.value - 1) * perPage
-  return user.value.evaluations_recues.slice(start, start + perPage)
+  return list.slice(start, start + perPage)
 })
 
 const totalEvaluationsPages = computed(() => {
-  const total = user.value?.evaluations_recues?.length || 0
+  const total = evaluationsList.value.length
   return Math.ceil(total / perPage) || 1
 })
 

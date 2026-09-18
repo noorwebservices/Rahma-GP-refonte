@@ -1,11 +1,41 @@
 <script setup>
-import { computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from '@/composables/useI18n'
+import { fetchUnreadMessagesCount } from '@/services/messageService'
 
 const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
+
+const unreadMsgCount = ref(0)
+let timer = null
+
+const loadUnreadMsgCount = async () => {
+  const token = localStorage.getItem('rahma_token') || localStorage.getItem('token')
+  if (!token) {
+    unreadMsgCount.value = 0
+    return
+  }
+  try {
+    const res = await fetchUnreadMessagesCount()
+    const count = res?.unread_count ?? res?.data?.unread_count ?? 0
+    unreadMsgCount.value = Number(count)
+  } catch (e) {
+    // silent
+  }
+}
+
+onMounted(() => {
+  loadUnreadMsgCount()
+  timer = setInterval(loadUnreadMsgCount, 15000)
+})
+
+onUnmounted(() => {
+  if (timer) clearInterval(timer)
+})
+
+watch(() => route.path, loadUnreadMsgCount)
 
 const activeTab = computed(() => {
   const path = route.path
@@ -59,7 +89,7 @@ const navigateTo = (path) => {
         <!-- Elevated circle for active tab -->
         <div
           :class="[
-            'w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 shrink-0',
+            'w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 shrink-0 relative',
             activeTab === tab.id
               ? 'bg-[#053754] dark:bg-slate-900 ring-[6px] ring-[#FAF7F2] dark:ring-slate-950 -translate-y-7 text-white shadow-2xl scale-110'
               : 'text-white/70 hover:text-white'
@@ -68,6 +98,14 @@ const navigateTo = (path) => {
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="tab.icon" />
           </svg>
+
+          <!-- Unread Messages Badge -->
+          <span
+            v-if="tab.id === 'messages' && unreadMsgCount > 0"
+            class="absolute -top-1 -right-1 bg-[#B50302] text-white text-[10px] font-black rounded-full min-w-4.5 h-4.5 px-1 flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-sm"
+          >
+            {{ unreadMsgCount > 99 ? '99+' : unreadMsgCount }}
+          </span>
         </div>
 
         <span
