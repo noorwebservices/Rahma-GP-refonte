@@ -10,12 +10,30 @@ export const authService = {
   },
 
   /**
-   * Inscription nouvel utilisateur
-   * @param {Object} userData - { nom, prenom, email, telephone, password, password_confirmation, adresse }
+   * Inscription nouvel utilisateur (Client ou Voyageur)
+   * @param {FormData|Object} userData
    */
   async register(userData) {
-    return await api.post('/auth/register', userData)
+    const isFormData = userData instanceof FormData
+    const config = isFormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {}
+    return await api.post('/auth/register', userData, config)
   },
+
+  /**
+   * Confirmer et vérifier le compte voyageur via le jeton de vérification
+   * @param {string} token
+   */
+  async verifyVoyageur(token) {
+    return await api.get(`/auth/verify-voyageur/${token}`)
+  },
+
+  /**
+   * Renvoyer l'email de confirmation du compte voyageur
+   */
+  async resendVoyageurVerification() {
+    return await api.post('/auth/resend-voyageur-verification')
+  },
+
 
   /**
    * Obtenir les informations de l'utilisateur connecté

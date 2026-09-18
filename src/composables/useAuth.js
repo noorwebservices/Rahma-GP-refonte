@@ -70,14 +70,22 @@ export function useAuth() {
     error.value = null
     successMessage.value = null
     try {
-      const payload = {
-        ...userData,
-        password: userData.password,
-        password_confirmation: userData.password_confirmation,
-        mot_de_passe: userData.password,
-        mot_de_passe_confirmation: userData.password_confirmation
+      let payload = userData
+      if (!(userData instanceof FormData)) {
+        payload = {
+          ...userData,
+          password: userData.password,
+          password_confirmation: userData.password_confirmation,
+          mot_de_passe: userData.password,
+          mot_de_passe_confirmation: userData.password_confirmation
+        }
       }
       const res = await authService.register(payload)
+      if (res.require_verification) {
+        clearAuthData()
+        successMessage.value = res.message || 'Inscription réussie. Veuillez vérifier vos emails.'
+        return res
+      }
       if (res.access_token && res.user) {
         setAuthData(res.access_token, res.user)
         successMessage.value = res.message || 'Inscription réussie'
@@ -85,6 +93,44 @@ export function useAuth() {
       } else {
         throw new Error(res.message || "Échec de l'inscription")
       }
+
+    } catch (err) {
+      error.value = translateErrorMessage(err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const verifyVoyageurAccount = async (tokenStr) => {
+    isLoading.value = true
+    error.value = null
+    successMessage.value = null
+    try {
+      const res = await authService.verifyVoyageur(tokenStr)
+      if (res.user) {
+        user.value = res.user
+        localStorage.setItem('rahma_user', JSON.stringify(res.user))
+      }
+      successMessage.value = res.message || 'Compte voyageur vérifié avec succès'
+      return res
+    } catch (err) {
+      error.value = translateErrorMessage(err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+
+  const resendVoyageurVerification = async () => {
+    isLoading.value = true
+    error.value = null
+    successMessage.value = null
+    try {
+      const res = await authService.resendVoyageurVerification()
+      successMessage.value = res.message || 'Email de confirmation renvoyé avec succès.'
+      return res
     } catch (err) {
       error.value = translateErrorMessage(err)
       throw err
@@ -94,6 +140,7 @@ export function useAuth() {
   }
 
   const fetchUser = async () => {
+
     if (!token.value) return null
     isLoading.value = true
     try {
@@ -193,6 +240,9 @@ export function useAuth() {
     updateProfile,
     createVoyageurProfile,
     toggleMode,
+    verifyVoyageurAccount,
+    resendVoyageurVerification,
     logout
+
   }
 }

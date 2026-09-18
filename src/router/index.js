@@ -35,6 +35,11 @@ const router = createRouter({
           component: RegisterView,
           meta: { guestOnly: true }
         },
+        {
+          path: 'verify-voyageur',
+          name: 'verify-voyageur',
+          component: () => import('../views/auth/VerifyVoyageurView.vue')
+        },
       ],
     },
     {
@@ -263,6 +268,9 @@ router.beforeEach((to, from) => {
     !!user.voyageur
   )
 
+  const isVoyageurVerifie = isVoyageur && user?.voyageur && user.voyageur.statut === 'verifie' && !!user.voyageur.email_verifie_at
+
+
   // 1. Unauthenticated users trying to access protected routes
   if (requiresAuth && !isAuthenticated) {
     return { name: 'login', query: { redirect: to.fullPath } }
@@ -271,19 +279,24 @@ router.beforeEach((to, from) => {
   // 2. Authenticated users trying to access guest-only routes (login/register)
   if (guestOnly && isAuthenticated) {
     if (isAdmin) return { name: 'admin-dashboard' }
-    if (isVoyageur && user?.mode_actuel === 'voyageur') return { name: 'voyageur-dashboard' }
+    if (isVoyageurVerifie && user?.mode_actuel === 'voyageur') return { name: 'voyageur-dashboard' }
     return { name: 'client-home' }
   }
 
   // 3. Non-admin users trying to access admin routes
   if (requiresAdmin && !isAdmin) {
-    if (isVoyageur && user?.mode_actuel === 'voyageur') return { name: 'voyageur-dashboard' }
+    if (isVoyageurVerifie && user?.mode_actuel === 'voyageur') return { name: 'voyageur-dashboard' }
     return { name: 'client-home' }
   }
 
-  // 4. Non-voyageur users trying to access voyageur routes
-  if (requiresVoyageur && !isVoyageur) {
-    return { name: 'profile', query: { registerVoyageur: 'true' } }
+  // 4. Non-voyageur or UNVERIFIED voyageur trying to access voyageur routes
+  if (to.path.startsWith('/voyageur') || requiresVoyageur) {
+    if (!isVoyageur) {
+      return { name: 'profile', query: { registerVoyageur: 'true' } }
+    }
+    if (!isVoyageurVerifie) {
+      return { name: 'profile', query: { voyageurUnverified: 'true' } }
+    }
   }
 })
 

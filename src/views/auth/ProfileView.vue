@@ -18,8 +18,33 @@ const {
   updateProfile,
   createVoyageurProfile,
   toggleMode,
+  resendVoyageurVerification,
   logout
 } = useAuth()
+
+const isResendingEmail = ref(false)
+const handleResendEmail = async () => {
+  isResendingEmail.value = true
+  try {
+    const res = await resendVoyageurVerification()
+    Swal.fire({
+      title: 'Email Envoyé !',
+      text: res.message || 'Un nouvel email de confirmation a été envoyé à votre adresse.',
+      icon: 'success',
+      confirmButtonColor: '#053754'
+    })
+  } catch (err) {
+    Swal.fire({
+      title: 'Erreur',
+      text: err.message || 'Erreur lors de l\'envoi de l\'email',
+      icon: 'error',
+      confirmButtonColor: '#053754'
+    })
+  } finally {
+    isResendingEmail.value = false
+  }
+}
+
 
 const activeTab = ref('info') // 'info' | 'voyageur' | 'revenus' | 'edit'
 
@@ -381,12 +406,39 @@ const handleLogout = async () => {
 
 <template>
   <div class="min-h-screen bg-[#FAF7F2] dark:bg-slate-950 font-sans pb-24 transition-colors duration-300">
-    <!-- Top Client Header (Identical to all other pages) -->
+    <!-- Top Client Header -->
     <ClientHeader />
 
     <!-- Main Container -->
     <main class="max-w-5xl mx-auto px-4 sm:px-6 pt-6">
-      
+      <!-- Unverified Voyageur Warning Banner -->
+      <div v-if="user?.voyageur && (!user.is_voyageur_verifie || user.voyageur.statut !== 'verifie' || !user.voyageur.email_verifie_at)" class="mb-4 p-4 bg-amber-50 dark:bg-amber-950/80 border border-amber-200 dark:border-amber-900 text-amber-900 dark:text-amber-200 text-sm rounded-2xl flex items-start gap-3 shadow-xs">
+        <svg class="w-6 h-6 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <div>
+          <h4 class="font-bold text-sm">Compte Voyageur non activé</h4>
+          <p v-if="user.voyageur.statut === 'en_attente'" class="text-xs text-amber-800 dark:text-amber-300 mt-0.5">
+            Votre profil voyageur est actuellement en cours d'examen par notre équipe administrative.
+          </p>
+          <div v-else-if="user.voyageur.statut === 'verifie' && !user.voyageur.email_verifie_at" class="text-xs text-amber-800 dark:text-amber-300 mt-0.5 space-y-2">
+            <p>Votre dossier voyageur a été validé par l'administration ! <strong>Veuillez consulter votre boîte mail ({{ user.email }}) et cliquer sur le lien de vérification</strong> pour activer définitivement votre compte voyageur.</p>
+            <button 
+              @click="handleResendEmail" 
+              :disabled="isResendingEmail" 
+              class="px-3.5 py-2 bg-[#053754] hover:bg-[#074C72] text-white font-extrabold text-xs rounded-xl shadow-xs transition cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+            >
+              <span v-if="isResendingEmail" class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              <span>✉️ Renvoyer l'email de vérification (Port 5173)</span>
+            </button>
+          </div>
+
+          <p v-else-if="user.voyageur.statut === 'refuse'" class="text-xs text-red-700 dark:text-red-300 mt-0.5">
+            Votre demande de compte voyageur a été refusée par l'administration.
+          </p>
+        </div>
+      </div>
+
       <!-- Global Messages -->
       <div v-if="successMessage" class="mb-4 p-4 bg-green-50 dark:bg-green-950/80 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-300 text-sm rounded-2xl flex items-center justify-between shadow-xs">
         <div class="flex items-center gap-2">
@@ -441,13 +493,20 @@ const handleLogout = async () => {
           <button
             v-if="user.roles?.includes('voyageur') || user.voyageur"
             @click="handleToggleMode"
-            :disabled="isLoading"
-            class="px-5 py-3 rounded-2xl bg-principal dark:bg-sky-600 text-white font-semibold text-xs sm:text-sm shadow-md hover:bg-principal-dark dark:hover:bg-sky-500 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            :disabled="isLoading || (user.voyageur && user.voyageur.statut !== 'verifie')"
+            :class="[
+              'px-5 py-3 rounded-2xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2',
+              user.voyageur && user.voyageur.statut !== 'verifie'
+                ? 'bg-gray-200 dark:bg-slate-800 text-gray-400 cursor-not-allowed border border-gray-300 dark:border-slate-700'
+                : 'bg-principal dark:bg-sky-600 text-white shadow-md hover:bg-principal-dark dark:hover:bg-sky-500 cursor-pointer'
+            ]"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
             </svg>
-            <span>{{ t('profile.switchModeTo') }} {{ modeActuel === 'client' ? t('profile.modeVoyageur') : t('profile.modeClient') }}</span>
+            <span>
+              {{ user.voyageur && user.voyageur.statut !== 'verifie' ? 'Voyageur (En attente de vérification)' : `${t('profile.switchModeTo')} ${modeActuel === 'client' ? t('profile.modeVoyageur') : t('profile.modeClient')}` }}
+            </span>
           </button>
 
           <button

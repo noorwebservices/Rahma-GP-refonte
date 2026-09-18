@@ -132,10 +132,10 @@
           <div class="bg-[#FAF7F2] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-5 flex items-center justify-between">
             <div>
               <span class="text-xs font-extrabold uppercase tracking-wider text-[#074C72] dark:text-sky-300">Volume Total de Paiements Enregistrés</span>
-              <h3 class="text-2xl sm:text-3xl font-black text-[#053754] dark:text-white mt-1">{{ formatMoney(stats.activite?.volume_paiements || 0) }} FCFA</h3>
+              <h3 class="text-2xl sm:text-3xl font-black text-[#053754] dark:text-white mt-1">{{ formatPrice(stats.activite?.volume_paiements || 0, 'XOF') }}</h3>
             </div>
-            <div class="w-12 h-12 rounded-2xl bg-[#053754] dark:bg-sky-600 text-white font-black text-lg flex items-center justify-center shadow-md">
-              FCFA
+            <div class="w-12 h-12 rounded-2xl bg-[#053754] dark:bg-sky-600 text-white font-black text-xs flex items-center justify-center shadow-md uppercase px-1 text-center">
+              {{ currentCurrency }}
             </div>
           </div>
         </div>
@@ -181,6 +181,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { adminService } from '@/services/adminService'
+import { currentCurrency, formatPrice } from '@/utils/currencyState'
 
 const stats = ref({})
 const loading = ref(true)
@@ -197,8 +198,5 @@ onMounted(async () => {
     loading.value = false
   }
 })
-
-const formatMoney = (val) => {
-  return new Intl.NumberFormat('fr-FR').format(val || 0)
-}
 </script>
+

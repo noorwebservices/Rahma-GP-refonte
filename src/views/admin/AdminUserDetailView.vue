@@ -60,15 +60,18 @@
           <div class="flex items-center gap-3 shrink-0">
             <button 
               @click="toggleBlock"
-              class="px-5 py-3 rounded-2xl text-xs font-extrabold shadow-lg transition-all cursor-pointer flex items-center gap-2"
+              :disabled="!!actionLoading"
+              class="px-5 py-3 rounded-2xl text-xs font-extrabold shadow-lg transition-all cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               :class="user.statut === 'suspendu' ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950' : 'bg-[#B50302] hover:bg-[#870202] text-white'"
             >
+              <span v-if="actionLoading === 'block'" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
               <span>{{ user.statut === 'suspendu' ? '✓ Débloquer le compte' : '🔒 Bloquer le compte' }}</span>
             </button>
           </div>
 
         </div>
       </div>
+
 
       <!-- Account Info Grid -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -178,28 +181,45 @@
             </div>
             <button 
               @click="toggleBlock"
-              class="px-5 py-2.5 bg-[#B50302] hover:bg-[#870202] text-white rounded-xl text-xs font-extrabold shadow-md transition-all cursor-pointer w-full sm:w-auto sm:ml-auto text-center"
+              :disabled="!!actionLoading"
+              class="px-5 py-2.5 bg-[#B50302] hover:bg-[#870202] text-white rounded-xl text-xs font-extrabold shadow-md transition-all cursor-pointer w-full sm:w-auto sm:ml-auto text-center flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              🔒 Bloquer l'utilisateur
+              <span v-if="actionLoading === 'block'" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              <span>🔒 Bloquer l'utilisateur</span>
             </button>
           </template>
 
           <template v-else>
-            <button @click="verifyVoyageur('verifie')" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-extrabold shadow-md transition-all cursor-pointer w-full sm:w-auto text-center">
-              ✓ Valider le compte Voyageur
+            <button 
+              @click="verifyVoyageur('verifie')" 
+              :disabled="!!actionLoading" 
+              class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-extrabold shadow-md transition-all cursor-pointer w-full sm:w-auto text-center flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span v-if="actionLoading === 'verifie'" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              <span>✓ Valider le compte Voyageur</span>
             </button>
-            <button @click="verifyVoyageur('refuse')" class="px-5 py-2.5 bg-red-100 text-[#B50302] hover:bg-red-200 border border-red-200 rounded-xl text-xs font-extrabold transition-all cursor-pointer w-full sm:w-auto text-center">
-              ✕ Refuser le compte Voyageur
+
+            <button 
+              @click="verifyVoyageur('refuse')" 
+              :disabled="!!actionLoading" 
+              class="px-5 py-2.5 bg-red-100 text-[#B50302] hover:bg-red-200 border border-red-200 rounded-xl text-xs font-extrabold transition-all cursor-pointer w-full sm:w-auto text-center flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span v-if="actionLoading === 'refuse'" class="w-4 h-4 border-2 border-[#B50302] border-t-transparent rounded-full animate-spin"></span>
+              <span>✕ Refuser le compte Voyageur</span>
             </button>
+
             <button 
               @click="toggleBlock"
-              class="px-5 py-2.5 bg-[#B50302] hover:bg-[#870202] text-white rounded-xl text-xs font-extrabold shadow-md transition-all cursor-pointer w-full sm:w-auto sm:ml-auto text-center"
+              :disabled="!!actionLoading"
+              class="px-5 py-2.5 bg-[#B50302] hover:bg-[#870202] text-white rounded-xl text-xs font-extrabold shadow-md transition-all cursor-pointer w-full sm:w-auto sm:ml-auto text-center flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              🔒 Bloquer l'utilisateur
+              <span v-if="actionLoading === 'block'" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              <span>🔒 Bloquer l'utilisateur</span>
             </button>
           </template>
         </div>
       </div>
+
 
       <!-- Section Avis & Évaluations Reçus -->
       <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xs space-y-4">
@@ -374,6 +394,7 @@ const userId = route.params.id
 
 const user = ref(null)
 const loading = ref(true)
+const actionLoading = ref(null)
 const error = ref('')
 
 const voyagesPage = ref(1)
@@ -479,7 +500,7 @@ const getInitials = (prenom, nom) => {
 }
 
 const toggleBlock = async () => {
-  if (!user.value) return
+  if (!user.value || actionLoading.value) return
   const nextStatut = user.value.statut === 'suspendu' ? 'actif' : 'suspendu'
   
   const result = await Swal.fire({
@@ -495,25 +516,32 @@ const toggleBlock = async () => {
 
   if (!result.isConfirmed) return
 
+  actionLoading.value = 'block'
   try {
     await adminService.toggleBlockUser(user.value.id, nextStatut)
     user.value.statut = nextStatut
     Swal.fire('Succès !', `Statut mis à jour en "${nextStatut}".`, 'success')
   } catch (err) {
     Swal.fire('Erreur', err.message || 'Erreur lors du blocage', 'error')
+  } finally {
+    actionLoading.value = null
   }
 }
 
 const verifyVoyageur = async (statut) => {
-  if (!user.value || !user.value.voyageur) return
+  if (!user.value || !user.value.voyageur || actionLoading.value) return
+  actionLoading.value = statut
   try {
     await adminService.updateStatutVoyageur(user.value.voyageur.id, statut)
     user.value.voyageur.statut = statut
     Swal.fire('Statut mis à jour', `Le statut voyageur a été mis à jour en '${statut}'`, 'success')
   } catch (err) {
     Swal.fire('Erreur', err.message || 'Erreur lors de la vérification voyageur', 'error')
+  } finally {
+    actionLoading.value = null
   }
 }
+
 
 const getVoyageurStatutBadge = (statut) => {
   if (statut === 'verifie') return 'bg-emerald-50 text-emerald-700 border-emerald-200'

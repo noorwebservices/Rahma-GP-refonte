@@ -171,10 +171,12 @@
                   <!-- Block / Unblock Button -->
                   <button 
                     @click="toggleBlock(user)" 
-                    class="px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer border whitespace-nowrap"
+                    :disabled="actionLoadingId === user.id"
+                    class="px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer border whitespace-nowrap flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
                     :class="user.statut === 'suspendu' ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' : 'bg-red-50 text-[#B50302] border-red-200 hover:bg-red-100'"
                   >
-                    {{ user.statut === 'suspendu' ? 'Débloquer' : 'Bloquer' }}
+                    <span v-if="actionLoadingId === user.id" class="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
+                    <span>{{ user.statut === 'suspendu' ? 'Débloquer' : 'Bloquer' }}</span>
                   </button>
 
                 </div>
@@ -231,6 +233,7 @@ import Swal from 'sweetalert2'
 const activeTab = ref('client') // 'client' | 'voyageur'
 const users = ref([])
 const loading = ref(true)
+const actionLoadingId = ref(null)
 const currentPage = ref(1)
 const perPage = 5
 
@@ -306,6 +309,7 @@ const getInitials = (prenom, nom) => {
 }
 
 const toggleBlock = async (user) => {
+  if (actionLoadingId.value) return
   const isBlocking = user.statut !== 'suspendu'
   const nextStatut = isBlocking ? 'suspendu' : 'actif'
 
@@ -322,6 +326,7 @@ const toggleBlock = async (user) => {
 
   if (!result.isConfirmed) return
 
+  actionLoadingId.value = user.id
   try {
     await adminService.toggleBlockUser(user.id, nextStatut)
     await Swal.fire({
@@ -338,8 +343,11 @@ const toggleBlock = async (user) => {
       icon: 'error',
       confirmButtonColor: '#053754'
     })
+  } finally {
+    actionLoadingId.value = null
   }
 }
+
 
 const getVoyageurStatutBadge = (statut) => {
   if (statut === 'verifie') return 'bg-emerald-50 text-emerald-700 border-emerald-200'

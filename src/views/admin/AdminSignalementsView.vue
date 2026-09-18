@@ -96,26 +96,32 @@
                   <button 
                     v-if="sig.signale?.statut !== 'suspendu'"
                     @click="processSignalement(sig, 'traite', 'bloque')" 
-                    class="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-[#B50302] hover:bg-[#870202] text-white transition-all shadow-xs cursor-pointer whitespace-nowrap"
+                    :disabled="actionLoadingId === sig.id"
+                    class="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-[#B50302] hover:bg-[#870202] text-white transition-all shadow-xs cursor-pointer whitespace-nowrap flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
                     title="Bloquer immédiatement le compte signalé"
                   >
-                    Bloquer le Compte
+                    <span v-if="actionLoadingId === sig.id" class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    <span>Bloquer le Compte</span>
                   </button>
 
                   <button 
                     v-if="sig.statut === 'en_attente'"
                     @click="processSignalement(sig, 'traite', 'avertissement')" 
-                    class="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-[#053754] hover:bg-[#074C72] dark:bg-sky-600 dark:hover:bg-sky-500 text-white transition-all shadow-xs cursor-pointer whitespace-nowrap"
+                    :disabled="actionLoadingId === sig.id"
+                    class="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-[#053754] hover:bg-[#074C72] dark:bg-sky-600 dark:hover:bg-sky-500 text-white transition-all shadow-xs cursor-pointer whitespace-nowrap flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Marquer Traité
+                    <span v-if="actionLoadingId === sig.id" class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    <span>Marquer Traité</span>
                   </button>
 
                   <button 
                     v-if="sig.statut === 'en_attente'"
                     @click="processSignalement(sig, 'rejete', 'sans_suite')" 
-                    class="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 transition-all border border-gray-200 dark:border-slate-700 cursor-pointer whitespace-nowrap"
+                    :disabled="actionLoadingId === sig.id"
+                    class="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 transition-all border border-gray-200 dark:border-slate-700 cursor-pointer whitespace-nowrap flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Rejeter
+                    <span v-if="actionLoadingId === sig.id" class="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
+                    <span>Rejeter</span>
                   </button>
 
                   <span v-if="sig.statut !== 'en_attente' && sig.signale?.statut === 'suspendu'" class="text-[11px] font-extrabold text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-950/80 border border-red-200 dark:border-red-900 px-3 py-1 rounded-full whitespace-nowrap">
@@ -129,6 +135,7 @@
                   </span>
                 </div>
               </td>
+
 
             </tr>
           </tbody>
@@ -180,6 +187,7 @@ import Swal from 'sweetalert2'
 
 const signalements = ref([])
 const loading = ref(true)
+const actionLoadingId = ref(null)
 const filterStatut = ref('')
 const currentPage = ref(1)
 const perPage = 5
@@ -219,6 +227,7 @@ const getInitials = (prenom, nom) => {
 }
 
 const processSignalement = async (sig, statut, decision) => {
+  if (actionLoadingId.value) return
   let title = 'Traitement du signalement'
   let text = 'Que souhaitez-vous faire pour ce signalement ?'
   let icon = 'question'
@@ -250,14 +259,18 @@ const processSignalement = async (sig, statut, decision) => {
 
   if (!result.isConfirmed) return
 
+  actionLoadingId.value = sig.id
   try {
     await adminService.updateSignalementStatut(sig.id, statut, decision)
     await Swal.fire('Succès !', 'Le signalement a été mis à jour avec succès.', 'success')
     fetchSignalements()
   } catch (err) {
     Swal.fire('Erreur', err.message || 'Erreur lors de la mise à jour', 'error')
+  } finally {
+    actionLoadingId.value = null
   }
 }
+
 
 const getStatutBadge = (statut) => {
   if (statut === 'traite') return 'bg-emerald-50 text-emerald-700 border-emerald-200'
