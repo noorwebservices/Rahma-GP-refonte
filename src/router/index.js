@@ -218,6 +218,31 @@ const router = createRouter({
           path: 'profile',
           name: 'admin-profile',
           component: () => import('../views/admin/AdminProfileView.vue')
+        },
+        {
+          path: 'monitoring',
+          name: 'admin-monitoring',
+          component: () => import('../views/admin/AdminMonitoringView.vue')
+        },
+        {
+          path: 'monitoring/countries',
+          name: 'admin-monitoring-countries',
+          component: () => import('../views/admin/AdminMonitoringCountriesView.vue')
+        },
+        {
+          path: 'monitoring/countries/:code',
+          name: 'admin-monitoring-country-detail',
+          component: () => import('../views/admin/AdminMonitoringCountryDetailView.vue')
+        },
+        {
+          path: 'monitoring/active-users',
+          name: 'admin-monitoring-active-users',
+          component: () => import('../views/admin/AdminMonitoringActiveUsersView.vue')
+        },
+        {
+          path: 'monitoring/users/:id',
+          name: 'admin-monitoring-user-detail',
+          component: () => import('../views/admin/AdminMonitoringUserDetailView.vue')
         }
       ]
     },
@@ -298,6 +323,13 @@ router.beforeEach((to, from) => {
       return { name: 'profile', query: { voyageurUnverified: 'true' } }
     }
   }
+})
+
+// Tracking des pages vues (analytics maison). Après chaque navigation réussie.
+import { trackPageView } from '@/services/trackService'
+
+router.afterEach((to) => {
+  trackPageView(to.fullPath)
 })
 
 export default router

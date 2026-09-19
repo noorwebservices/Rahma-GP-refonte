@@ -10,6 +10,7 @@
     "format": "oxfmt src/"
   },
   "dependencies": {
+    "apexcharts": "^7.4.0",
     "axios": "^1.20.0",
     "country-emoji": "^2.0.1",
     "country-state-city": "^3.2.1",
@@ -20,7 +21,8 @@
     "sweetalert2": "^11.26.25",
     "vue": "^3.5.40",
     "vue-router": "^5.3.0",
-    "vue-tel-input": "^9.8.0"
+    "vue-tel-input": "^9.8.0",
+    "vue3-apexcharts": "^1.11.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",

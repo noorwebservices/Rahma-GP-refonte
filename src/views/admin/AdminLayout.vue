@@ -79,8 +79,17 @@
             <span>Voyages & Stockage BD</span>
           </router-link>
 
-          <router-link 
-            to="/admin/profile" 
+          <router-link
+            to="/admin/monitoring"
+            @click="isMobileMenuOpen = false"
+            class="flex items-center px-4 py-3 rounded-2xl text-xs font-extrabold transition-all duration-200 cursor-pointer"
+            :class="$route.path.startsWith('/admin/monitoring') ? 'bg-[#053754] text-white shadow-md' : 'text-gray-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#053754] dark:hover:text-sky-400'"
+          >
+            <span>Supervision & Monitoring</span>
+          </router-link>
+
+          <router-link
+            to="/admin/profile"
             @click="isMobileMenuOpen = false"
             class="flex items-center px-4 py-3 rounded-2xl text-xs font-extrabold transition-all duration-200 cursor-pointer"
             :class="$route.path.startsWith('/admin/profile') ? 'bg-[#053754] text-white shadow-md' : 'text-gray-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#053754] dark:hover:text-sky-400'"
@@ -193,6 +202,7 @@ const headerTitle = computed(() => {
   if (route.path.startsWith('/admin/signalements')) return 'Signalements de Comptes'
   if (route.path.startsWith('/admin/partenariats')) return 'Demandes de Partenariat'
   if (route.path.startsWith('/admin/voyages')) return 'Voyages & Stockage BD'
+  if (route.path.startsWith('/admin/monitoring')) return 'Supervision & Monitoring'
   if (route.path.startsWith('/admin/profile')) return 'Profil Administrateur'
   return 'Administration Rahma GP'
 })
