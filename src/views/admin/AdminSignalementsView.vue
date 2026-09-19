@@ -49,7 +49,7 @@
               <td class="px-6 py-4 whitespace-nowrap">
                 <div v-if="sig.signale" class="flex items-center gap-3">
                   <div v-if="sig.signale.avatar" class="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-red-300">
-                    <img :src="sig.signale.avatar" class="w-full h-full object-cover" />
+                    <img :src="formatImageUrl(sig.signale.avatar)" class="w-full h-full object-cover" />
                   </div>
                   <div v-else class="w-10 h-10 rounded-full bg-[#B50302] text-white font-extrabold text-xs flex items-center justify-center shrink-0 border border-red-300 shadow-2xs">
                     {{ getInitials(sig.signale.prenom, sig.signale.nom) }}
@@ -184,6 +184,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { adminService } from '@/services/adminService'
 import Swal from 'sweetalert2'
+import { formatImageUrl } from '@/utils/imageUrl'
 
 const signalements = ref([])
 const loading = ref(true)

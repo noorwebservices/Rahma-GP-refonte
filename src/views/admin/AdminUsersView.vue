@@ -114,7 +114,7 @@
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center gap-3">
                   <div v-if="user.avatar" class="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-gray-200 dark:border-slate-700">
-                    <img :src="user.avatar" class="w-full h-full object-cover" />
+                    <img :src="formatImageUrl(user.avatar)" class="w-full h-full object-cover" />
                   </div>
                   <div v-else class="w-10 h-10 rounded-full bg-[#053754] text-white font-extrabold text-xs flex items-center justify-center shrink-0 border border-gray-200 dark:border-slate-700 shadow-2xs">
                     {{ getInitials(user.prenom, user.nom) }}
@@ -230,6 +230,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { adminService } from '@/services/adminService'
 import { encodeId } from '@/utils/idMasker'
 import Swal from 'sweetalert2'
+import { formatImageUrl } from '@/utils/imageUrl'
 
 const activeTab = ref('client') // 'client' | 'voyageur'
 const users = ref([])

@@ -44,7 +44,7 @@
           <div class="flex items-center justify-between md:justify-start gap-3 sm:gap-4 w-full md:w-auto">
             <div class="flex items-center gap-3 sm:gap-4">
               <div v-if="v.user?.avatar" class="w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden shrink-0 border-2 border-[#053754] dark:border-sky-400">
-                <img :src="v.user.avatar" class="w-full h-full object-cover" />
+                <img :src="formatImageUrl(v.user.avatar)" class="w-full h-full object-cover" />
               </div>
               <div v-else class="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#053754] text-white font-extrabold text-xs sm:text-sm flex items-center justify-center shrink-0 border-2 border-[#053754] dark:border-sky-400 shadow-2xs">
                 {{ getInitials(v.user?.prenom, v.user?.nom) }}
@@ -254,6 +254,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { adminService } from '@/services/adminService'
+import { formatImageUrl } from '@/utils/imageUrl'
 
 const voyageurs = ref([])
 const loading = ref(true)

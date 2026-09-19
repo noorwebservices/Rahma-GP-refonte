@@ -32,7 +32,7 @@
           
           <div class="flex items-center gap-4">
             <div v-if="user.avatar" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden shrink-0 border-4 border-white/20 shadow-md">
-              <img :src="user.avatar" class="w-full h-full object-cover" />
+              <img :src="formatImageUrl(user.avatar)" class="w-full h-full object-cover" />
             </div>
             <div v-else class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/20 text-white font-black text-2xl flex items-center justify-center shrink-0 border-4 border-white/20 shadow-md">
               {{ getInitials(user.prenom, user.nom) }}
@@ -388,6 +388,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { adminService } from '@/services/adminService'
 import { decodeId } from '@/utils/idMasker'
 import Swal from 'sweetalert2'
+import { formatImageUrl } from '@/utils/imageUrl'
 
 const route = useRoute()
 const router = useRouter()
@@ -408,18 +409,6 @@ const previewModal = reactive({
   url: '',
   title: ''
 })
-
-const formatImageUrl = (url) => {
-  if (!url) return null
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
-    return url
-  }
-  const cleanUrl = url.replace(/^\//, '')
-  if (cleanUrl.startsWith('storage/')) {
-    return `http://localhost:8000/${cleanUrl}`
-  }
-  return `http://localhost:8000/storage/${cleanUrl}`
-}
 
 const openImagePreview = (url, title) => {
   if (!url) return

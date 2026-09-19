@@ -5,6 +5,7 @@ import { useAuth } from '@/composables/useAuth'
 import { fetchRevenus } from '@/services/revenuService'
 import { currentCurrency, formatPrice, convertAmount } from '@/utils/currencyState'
 import { useI18n } from '@/composables/useI18n'
+import { formatImageUrl } from '@/utils/imageUrl'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -98,18 +99,6 @@ const voyageurErrors = reactive({
 
 const rectoFileName = ref('')
 const versoFileName = ref('')
-
-const formatImageUrl = (url) => {
-  if (!url) return null
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
-    return url
-  }
-  const cleanUrl = url.replace(/^\//, '')
-  if (cleanUrl.startsWith('storage/')) {
-    return `http://localhost:8000/${cleanUrl}`
-  }
-  return `http://localhost:8000/storage/${cleanUrl}`
-}
 
 const rectoUrl = computed(() => {
   if (!user.value?.voyageur) return null
