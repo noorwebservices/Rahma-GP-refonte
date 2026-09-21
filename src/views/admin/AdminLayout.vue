@@ -145,6 +145,23 @@
         </div>
 
         <div class="flex items-center gap-2 sm:gap-3">
+          <!-- Notification Bell -->
+          <button
+            @click="showNotifModal = true"
+            type="button"
+            class="w-9 h-9 rounded-full bg-[#F3F4F6] dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 flex items-center justify-center text-gray-600 dark:text-gray-300 relative transition-colors cursor-pointer"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            <span
+              v-if="unreadNotifCount > 0"
+              class="absolute -top-1 -right-1 bg-[#B50302] text-white text-[10px] font-black rounded-full min-w-4.5 h-4.5 px-1 flex items-center justify-center border-2 border-white dark:border-slate-900"
+            >
+              {{ unreadNotifCount }}
+            </span>
+          </button>
+
           <!-- Theme Toggle -->
           <ThemeToggle variant="pill" />
 
@@ -176,21 +193,33 @@
       </main>
 
     </div>
+
+    <!-- Modal Notifications -->
+    <NotificationModal
+      :is-open="showNotifModal"
+      @close="showNotifModal = false"
+      @refresh-count="loadUnreadCount"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { adminService } from '@/services/adminService'
 import { currentCurrency, availableCurrencies, setCurrency } from '@/utils/currencyState'
 import ThemeToggle from '@/components/common/ThemeToggle.vue'
+import NotificationModal from '@/components/common/NotificationModal.vue'
+import { fetchUnreadNotificationsCount } from '@/services/notificationService'
 
 const router = useRouter()
 const route = useRoute()
 
 const currentUser = ref(null)
 const isMobileMenuOpen = ref(false)
+const showNotifModal = ref(false)
+const unreadNotifCount = ref(0)
+let notifTimer = null
 const stats = ref({
   signalements: 0,
   partenariats: 0
@@ -218,7 +247,22 @@ onMounted(() => {
   }
 
   fetchQuickStats()
+  loadUnreadCount()
+  notifTimer = setInterval(loadUnreadCount, 15000)
 })
+
+onUnmounted(() => {
+  if (notifTimer) clearInterval(notifTimer)
+})
+
+const loadUnreadCount = async () => {
+  try {
+    const res = await fetchUnreadNotificationsCount()
+    unreadNotifCount.value = Number(res?.unread_count ?? res?.data?.unread_count ?? 0)
+  } catch (e) {
+    // silencieux
+  }
+}
 
 const fetchQuickStats = async () => {
   try {
