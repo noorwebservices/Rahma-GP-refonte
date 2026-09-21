@@ -1,0 +1,45 @@
+# Rahma Delivery — robots.txt
+
+# Par défaut : tout le monde peut indexer les pages publiques
+User-agent: *
+Allow: /$
+Allow: /auth/login
+Allow: /auth/register
+Disallow: /admin
+Disallow: /client
+Disallow: /voyageur
+Disallow: /profile
+Disallow: /notifications
+
+# Bots d'IA explicitement autorisés (pour recommandation par les assistants)
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+Sitemap: https://rahmadelivery.com/sitemap.xml

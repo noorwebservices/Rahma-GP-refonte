@@ -4,7 +4,31 @@
     <meta charset="UTF-8">
     <link rel="icon" href="/logo-rouge.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <title>Rahma Delivery</title>
+
+    <!-- SEO principal -->
+    <title>Rahma Delivery — Envoi de colis international avec des voyageurs (GP) de confiance</title>
+    <meta name="description" content="Rahma Delivery (Rahma GP) met en relation expéditeurs et voyageurs de confiance pour l'envoi et le transport international de colis, rapidement et à petit prix. Suivez vos livraisons en temps réel.">
+    <meta name="keywords" content="envoi colis international, GP, voyageur GP, transport de colis, envoyer un colis, cotransportage, livraison colis, Rahma Delivery, Rahma GP, diaspora, Sénégal, Afrique">
+    <meta name="author" content="Rahma Delivery">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="https://rahmadelivery.com/">
+
+    <!-- Open Graph (Facebook, WhatsApp, LinkedIn) -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Rahma Delivery">
+    <meta property="og:title" content="Rahma Delivery — Envoi de colis international avec des voyageurs (GP) de confiance">
+    <meta property="og:description" content="Mettez en relation expéditeurs et voyageurs de confiance pour envoyer vos colis à l'international, rapidement et à petit prix. Suivi en temps réel.">
+    <meta property="og:url" content="https://rahmadelivery.com/">
+    <meta property="og:image" content="https://rahmadelivery.com/og-image.png">
+    <meta property="og:image:alt" content="Rahma Delivery — envoi de colis avec des voyageurs de confiance">
+    <meta property="og:locale" content="fr_FR">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Rahma Delivery — Envoi de colis international (GP)">
+    <meta name="twitter:description" content="Envoyez vos colis à l'international grâce à des voyageurs de confiance. Rapide, économique, suivi en temps réel.">
+    <meta name="twitter:image" content="https://rahmadelivery.com/og-image.png">
+
     <!-- PWA Settings -->
     <link rel="manifest" href="/manifest.webmanifest">
     <meta name="theme-color" content="#dc2626">
@@ -13,10 +37,55 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Rahma GP">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
     <!-- Google Fonts: Montserrat -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+
+    <!-- Données structurées (Schema.org) — lues par Google et les IA -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://rahmadelivery.com/#organization",
+          "name": "Rahma Delivery",
+          "alternateName": "Rahma GP",
+          "url": "https://rahmadelivery.com/",
+          "logo": "https://rahmadelivery.com/pwa-512x512.png",
+          "description": "Plateforme de mise en relation entre expéditeurs et voyageurs (GP) de confiance pour l'envoi et le transport international de colis."
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://rahmadelivery.com/#website",
+          "url": "https://rahmadelivery.com/",
+          "name": "Rahma Delivery",
+          "publisher": { "@id": "https://rahmadelivery.com/#organization" },
+          "inLanguage": "fr-FR",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://rahmadelivery.com/client?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@type": "Service",
+          "name": "Envoi et transport international de colis (GP)",
+          "provider": { "@id": "https://rahmadelivery.com/#organization" },
+          "serviceType": "Cotransportage / envoi de colis entre particuliers",
+          "areaServed": "Worldwide",
+          "description": "Envoyez vos colis à l'international grâce à des voyageurs de confiance : réservation en ligne, tarifs au kilo, paiement sécurisé et suivi de livraison en temps réel.",
+          "offers": {
+            "@type": "Offer",
+            "priceCurrency": "XOF",
+            "availability": "https://schema.org/InStock"
+          }
+        }
+      ]
+    }
+    </script>
   </head>
   <body>
     <div id="app"></div>

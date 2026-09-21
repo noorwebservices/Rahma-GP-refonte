@@ -327,9 +327,18 @@ router.beforeEach((to, from) => {
 
 // Tracking des pages vues (analytics maison). Après chaque navigation réussie.
 import { trackPageView } from '@/services/trackService'
+import { applySeo, ROUTE_SEO } from '@/utils/seo'
 
 router.afterEach((to) => {
   trackPageView(to.fullPath)
+
+  // SEO : pages publiques indexables, zones privées en noindex.
+  const publicMeta = ROUTE_SEO[to.name]
+  if (publicMeta) {
+    applySeo({ ...publicMeta, path: to.path })
+  } else {
+    applySeo({ path: to.path, noindex: true, title: 'Espace membre' })
+  }
 })
 
 export default router
