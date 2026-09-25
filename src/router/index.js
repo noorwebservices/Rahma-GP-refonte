@@ -28,11 +28,6 @@ const router = createRouter({
       component: () => import('../views/PublicHowItWorksView.vue'),
     },
     {
-      path: '/faq',
-      name: 'faq',
-      component: () => import('../views/PublicFaqView.vue'),
-    },
-    {
       path: '/auth',
       component: AuthLayout,
       redirect: '/auth/login',

@@ -5,7 +5,6 @@ import logoRouge from '@/assets/images/logo-rouge.svg'
 const links = [
   { name: 'Voyages', to: '/voyages' },
   { name: 'Comment ça marche', to: '/comment-ca-marche' },
-  { name: 'FAQ', to: '/faq' },
 ]
 </script>
 

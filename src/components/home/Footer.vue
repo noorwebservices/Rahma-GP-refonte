@@ -13,7 +13,6 @@ const navLinks = [
 const pageLinks = [
   { name: 'Voyages', to: '/voyages' },
   { name: 'Comment ça marche', to: '/comment-ca-marche' },
-  { name: 'FAQ', to: '/faq' },
 ]
 </script>
 

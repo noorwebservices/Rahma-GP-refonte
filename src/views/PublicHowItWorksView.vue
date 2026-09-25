@@ -64,9 +64,6 @@ const etapesGp = [
         </div>
       </section>
 
-      <p class="text-center text-sm text-gray-500 dark:text-slate-400">
-        Une question ? Consultez la <RouterLink to="/faq" class="text-[#B50302] font-bold hover:underline">FAQ</RouterLink>.
-      </p>
     </main>
   </div>
 </template>
