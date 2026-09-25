@@ -1,5 +1,5 @@
 <script setup>
-import bannerHero from '@/assets/images/banner-hero.png'
+import bannerHero from '@/assets/images/banner-hero.webp'
 </script>
 
 <template>
@@ -8,7 +8,7 @@ import bannerHero from '@/assets/images/banner-hero.png'
 
     <!-- Background Image & Subtle Figma Overlay -->
     <div class="absolute inset-0 z-0">
-      <img :src="bannerHero" alt="Rahma Delivery Hero Banner" class="w-full h-full object-cover object-center opacity-90 dark:opacity-40" />
+      <img :src="bannerHero" alt="Rahma Delivery Hero Banner" fetchpriority="high" decoding="async" width="1536" height="1024" class="w-full h-full object-cover object-center opacity-90 dark:opacity-40" />
 
       <!-- Subtle Linear Gradient Overlay matching Figma mockup specs -->
       <div class="absolute inset-0 pointer-events-none"

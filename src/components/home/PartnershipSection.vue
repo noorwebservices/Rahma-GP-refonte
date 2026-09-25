@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import bannerContact from '@/assets/images/banner-contact.jpeg'
+import bannerContact from '@/assets/images/banner-contact.webp'
 import { partenariatService } from '@/services/partenariatService'
 
 const form = ref({
@@ -95,7 +95,7 @@ const handleSubmit = async () => {
       
       <!-- Background Image & Overlay Noir à 68% d'opacité -->
       <div class="absolute inset-0 z-0">
-        <img 
+        <img loading="lazy" decoding="async" 
           :src="bannerContact" 
           alt="Business Partnership Background" 
           class="w-full h-full object-cover"

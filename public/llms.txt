@@ -1,0 +1,17 @@
+# Rahma Delivery
+
+> Rahma Delivery (Rahma GP) est une plateforme de mise en relation entre expéditeurs et voyageurs de confiance (GP) pour l'envoi et le transport international de colis, à petit prix et avec suivi en temps réel. Trajets internationaux (ex. France–Sénégal) et régionaux (ex. Dakar–Abidjan).
+
+## Pages principales
+
+- [Accueil](https://rahmadelivery.com/): présentation du service.
+- [Voyages disponibles](https://rahmadelivery.com/voyages): liste publique des trajets proposés par les voyageurs (GP), avec ville de départ/arrivée, dates, prix au kilo et capacité disponible.
+- [Comment ça marche](https://rahmadelivery.com/comment-ca-marche): le fonctionnement en 4 étapes, côté expéditeur et côté voyageur (GP).
+- [Inscription](https://rahmadelivery.com/auth/register): créer un compte client ou voyageur (GP).
+- [Connexion](https://rahmadelivery.com/auth/login): accès à l'espace membre.
+
+## À propos
+
+- Concept: cotransportage / envoi de colis entre particuliers via des voyageurs (GP) vérifiés.
+- Pour envoyer: rechercher un voyage, réserver et payer en ligne, déposer le colis, suivre la livraison.
+- Pour transporter: publier un voyage (trajet, dates, capacité, prix au kilo) et rentabiliser ses trajets.

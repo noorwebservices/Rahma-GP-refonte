@@ -1,10 +1,10 @@
 <script setup>
-import image1Coupe from '@/assets/images/image-1-coupé.png'
-import image2Coupe from '@/assets/images/image-2-coupé.png'
-import image3Coupe from '@/assets/images/image-3-coupé.png'
-import bannerAPropos from '@/assets/images/banner-a-propos.png'
-import bateauTrain from '@/assets/images/bateau-train.png'
-import packageImg from '@/assets/images/package.png'
+import image1Coupe from '@/assets/images/image-1-coupé.webp'
+import image2Coupe from '@/assets/images/image-2-coupé.webp'
+import image3Coupe from '@/assets/images/image-3-coupé.webp'
+import bannerAPropos from '@/assets/images/banner-a-propos.webp'
+import bateauTrain from '@/assets/images/bateau-train.webp'
+import packageImg from '@/assets/images/package.webp'
 </script>
 
 <template>
@@ -12,13 +12,13 @@ import packageImg from '@/assets/images/package.png'
 
     <!-- Background Decorative Banner Image (Masqué complètement sur mobile pour ne pas surcharger) -->
     <div class="hidden absolute inset-0 pointer-events-none z-0">
-      <img :src="bannerAPropos" alt="Decorative Banner Accents"
+      <img loading="lazy" decoding="async" :src="bannerAPropos" alt="Decorative Banner Accents"
         class="w-full h-full lg:object-fill object-contain object-right opacity-100 dark:opacity-20" />
     </div>
 
     <!-- Package Accent Image (Positionné en haut à droite) -->
     <div class="absolute top-4 right-4 sm:right-12 w-42 sm:w-98 pointer-events-none z-10 opacity-80 sm:opacity-100 dark:opacity-60 block">  
-      <img :src="packageImg" alt="3D Packages Accent" class="w-full h-auto object-contain" />
+      <img loading="lazy" decoding="async" :src="packageImg" alt="3D Packages Accent" class="w-full h-auto object-contain" />
     </div>
 
     <div class="relative z-10 max-w-7xl 2xl:max-w-384 mx-auto px-4 sm:px-6 lg:px-8 pt-4">
@@ -33,13 +33,13 @@ import packageImg from '@/assets/images/package.png'
 
               <!-- Image 1 Coupé -->
               <div class="relative">
-                <img :src="image1Coupe" alt="Rahma Delivery Client sur canapé"
+                <img loading="lazy" decoding="async" :src="image1Coupe" alt="Rahma Delivery Client sur canapé"
                   class="w-full h-auto object-contain block" />
               </div>
 
               <!-- Image 2 Coupé -->
               <div class="relative">
-                <img :src="image2Coupe" alt="Rahma Delivery Client préparation bagages"
+                <img loading="lazy" decoding="async" :src="image2Coupe" alt="Rahma Delivery Client préparation bagages"
                   class="w-full h-auto object-contain block" />
               </div>
 
@@ -60,7 +60,7 @@ import packageImg from '@/assets/images/package.png'
 
               <!-- Image 3 Coupé -->
               <div class="relative">
-                <img :src="image3Coupe" alt="Rahma Delivery au bureau GP" class="w-full h-auto object-contain block" />
+                <img loading="lazy" decoding="async" :src="image3Coupe" alt="Rahma Delivery au bureau GP" class="w-full h-auto object-contain block" />
 
                 <!-- Text ONLY overlay positioned cleanly inside top-right speech bubble cutout -->
                 <div
@@ -78,7 +78,7 @@ import packageImg from '@/assets/images/package.png'
           </div>
            <!-- Bateau Train 3D Illustration Image -->
            <div class="shrink-0 w-40 sm:w-72 absolute -bottom-2 sm:bottom-2 right-0 sm:right-4 lg:right-8 z-10 pointer-events-none block lg:hidden">
-              <img :src="bateauTrain" alt="Transport Maritime & Ferroviaire" class="w-full h-auto object-contain" />
+              <img loading="lazy" decoding="async" :src="bateauTrain" alt="Transport Maritime & Ferroviaire" class="w-full h-auto object-contain" />
             </div>
         </div>
 
@@ -123,7 +123,7 @@ import packageImg from '@/assets/images/package.png'
 
            <!-- Bateau Train 3D Illustration Image -->
            <div class="shrink-0 w-72 absolute -bottom-32 -right-24 z-10 pointer-events-none hidden lg:block">
-              <img :src="bateauTrain" alt="Transport Maritime & Ferroviaire" class="w-full h-auto object-contain" />
+              <img loading="lazy" decoding="async" :src="bateauTrain" alt="Transport Maritime & Ferroviaire" class="w-full h-auto object-contain" />
             </div>
         </div>
 

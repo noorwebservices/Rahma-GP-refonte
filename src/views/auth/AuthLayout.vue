@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute, useRouter, RouterView, RouterLink } from 'vue-router'
-import sansFond from '@/assets/images/sans-fond.png'
+import sansFond from '@/assets/images/sans-fond.webp'
 import ThemeToggle from '@/components/common/ThemeToggle.vue'
 
 const route = useRoute()

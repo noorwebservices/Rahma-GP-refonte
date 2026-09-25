@@ -1,6 +1,6 @@
 <script setup>
-import bannerCommentCaMarche from '@/assets/images/banner-comment-ça-marche.png'
-import sansFond from '@/assets/images/sans-fond.png'
+import bannerCommentCaMarche from '@/assets/images/banner-comment-ça-marche.webp'
+import sansFond from '@/assets/images/sans-fond.webp'
 
 const steps = [
   {
@@ -66,7 +66,7 @@ const steps = [
     
     <!-- Background Decorative Banner Image for Light Mode -->
     <div class="absolute inset-0 pointer-events-none z-0 dark:hidden">
-      <img 
+      <img loading="lazy" decoding="async" 
         :src="bannerCommentCaMarche" 
         alt="Background Comment Ça Marche Light" 
         class="w-full h-full sm:object-contain object-scale-down object-bottom opacity-100"
@@ -76,7 +76,7 @@ const steps = [
     <!-- Background Decorative Banner Image for Dark Mode (sans-fond.png scale and opacity reduced for perfect subtle alignment) -->
     <div class="absolute inset-0 pointer-events-none z-0 hidden dark:flex items-end justify-center overflow-hidden">
       <div class="w-full max-w-6xl 2xl:max-w-7xl h-full flex items-end justify-center px-6 sm:px-10">
-        <img 
+        <img loading="lazy" decoding="async" 
           :src="sansFond" 
           alt="Background Comment Ça Marche Dark" 
           class="w-full h-auto max-h-[80%] object-contain object-bottom opacity-20 transform scale-85 sm:scale-90 origin-bottom"

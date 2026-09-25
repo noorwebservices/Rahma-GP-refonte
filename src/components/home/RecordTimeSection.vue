@@ -1,5 +1,5 @@
 <script setup>
-import broImg from '@/assets/images/bro.png'
+import broImg from '@/assets/images/bro.webp'
 </script>
 
 <template>
@@ -17,7 +17,7 @@ import broImg from '@/assets/images/bro.png'
 
         <!-- Right Illustration Column (bro.png) -->
         <div class="lg:col-span-5 flex justify-center lg:justify-end">
-          <img 
+          <img loading="lazy" decoding="async" 
             :src="broImg" 
             alt="Rahma Delivery Temps Record" 
             class="w-full max-w-md sm:max-w-lg h-auto object-contain transform hover:scale-[1.02] transition-transform duration-300"
