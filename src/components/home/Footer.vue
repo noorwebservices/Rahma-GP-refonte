@@ -1,10 +1,19 @@
 <script setup>
+import { RouterLink } from 'vue-router'
+
 const navLinks = [
   { name: 'Accueil', href: '#accueil' },
   { name: 'A propos', href: '#a-propos' },
   { name: 'Les profils', href: '#les-profils' },
   { name: 'Comment ça marche', href: '#comment-ca-marche' },
   { name: 'Contact', href: '#devenir-partenaire' },
+]
+
+// Pages publiques (routes) — utiles pour le référencement (liens internes).
+const pageLinks = [
+  { name: 'Voyages', to: '/voyages' },
+  { name: 'Comment ça marche', to: '/comment-ca-marche' },
+  { name: 'FAQ', to: '/faq' },
 ]
 </script>
 
@@ -75,6 +84,13 @@ const navLinks = [
               <a :href="link.href" class="hover:text-white transition-colors">
                 {{ link.name }}
               </a>
+            </li>
+          </ul>
+          <ul class="flex flex-wrap md:justify-center items-center gap-x-5 gap-y-2 text-sm text-white/90 pt-1">
+            <li v-for="link in pageLinks" :key="link.to">
+              <RouterLink :to="link.to" class="hover:text-white transition-colors">
+                {{ link.name }}
+              </RouterLink>
             </li>
           </ul>
         </div>

@@ -71,4 +71,14 @@ export const ROUTE_SEO = {
     description:
       "Consultez les voyages disponibles sur Rahma Delivery et trouvez un voyageur (GP) de confiance pour acheminer votre colis à l'international. Prix au kilo, capacité et notes des voyageurs.",
   },
+  'comment-ca-marche': {
+    title: 'Comment ça marche — Envoyer un colis ou devenir GP',
+    description:
+      "Découvrez comment envoyer un colis avec un voyageur (GP) de confiance sur Rahma Delivery, ou comment devenir voyageur et rentabiliser vos trajets. Le fonctionnement en 4 étapes.",
+  },
+  faq: {
+    title: 'FAQ — Questions fréquentes sur l\'envoi de colis et les GP',
+    description:
+      "Réponses aux questions fréquentes sur Rahma Delivery : envoyer un colis, prix, paiement sécurisé, devenir voyageur (GP), suivi de colis, objets autorisés et pays desservis.",
+  },
 }
