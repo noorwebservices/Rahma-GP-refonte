@@ -132,6 +132,9 @@ export const formatPrice = (amount, fromCurrency = 'XOF', targetCurrency = curre
   return currency(value, { symbol: '', separator: ' ', precision: 0 }).format() + ' F CFA'
 }
 
+export const formatAmount = formatPrice
+export const formatCurrency = formatPrice
+
 /**
  * Helper for precise additions
  */

@@ -32,7 +32,7 @@
 
     <template v-else>
       <!-- KPI Stats Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         
         <!-- Total Utilisateurs -->
         <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-5 shadow-2xs space-y-3">
@@ -44,11 +44,29 @@
           </div>
           <div>
             <h3 class="text-3xl font-black text-[#053754] dark:text-sky-300">{{ stats.users?.total || 0 }}</h3>
-            <div class="flex items-center gap-2 mt-2 text-xs font-bold text-gray-500 dark:text-gray-400">
-              <span class="text-[#074C72] dark:text-sky-400">{{ stats.users?.clients || 0 }} Clients</span>
+            <div class="flex flex-wrap items-center gap-1.5 mt-2 text-[11px] font-bold text-gray-500 dark:text-gray-400">
+              <span class="text-[#074C72] dark:text-sky-400">{{ stats.users?.clients || 0 }} Client(s)</span>
               <span>•</span>
-              <span class="text-emerald-700 dark:text-emerald-400">{{ stats.users?.voyageurs || 0 }} Voyageurs</span>
+              <span class="text-emerald-700 dark:text-emerald-400">{{ stats.users?.voyageurs || 0 }} Voyageur(s)</span>
+              <span>•</span>
+              <span class="text-sky-600 dark:text-sky-300">{{ stats.users?.entreprises || 0 }} GP</span>
             </div>
+          </div>
+        </div>
+
+        <!-- Entreprises GP -->
+        <div class="bg-white dark:bg-slate-900 border border-sky-200 dark:border-sky-900/60 rounded-3xl p-5 shadow-2xs space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-[#053754] dark:text-sky-300">Entreprises GP</span>
+            <div class="w-10 h-10 rounded-2xl bg-sky-50 dark:bg-sky-950/80 text-[#053754] dark:text-sky-300 flex items-center justify-center font-bold">
+              🏢
+            </div>
+          </div>
+          <div>
+            <h3 class="text-3xl font-black text-[#053754] dark:text-sky-300">{{ stats.entreprises?.en_attente || 0 }}</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 font-semibold mt-2">
+              {{ stats.entreprises?.total || 0 }} entreprise(s) GP au total
+            </p>
           </div>
         </div>
 

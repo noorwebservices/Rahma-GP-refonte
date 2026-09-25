@@ -64,20 +64,20 @@ const showRecupModal = ref(false)
 
 const newDepotForm = reactive({
   adresse: '',
-  ville: 'Dakar',
-  pays: 'Sénégal',
-  horaire_ouverture: 'Du Lundi au Samedi de 08h30 à 18h30',
-  instructions: 'Remettre le colis au comptoir Rahma GP.',
+  ville: '',
+  pays: '',
+  horaire_ouverture: '',
+  instructions: '',
   latitude: null,
   longitude: null
 })
 
 const newRecupForm = reactive({
   adresse: '',
-  ville: 'Paris',
-  pays: 'France',
-  horaire_ouverture: 'Du Lundi au Samedi de 09h00 à 19h00',
-  instructions: 'Présenter le code de réservation au guichet.',
+  ville: '',
+  pays: '',
+  horaire_ouverture: '',
+  instructions: '',
   latitude: null,
   longitude: null
 })
@@ -97,14 +97,7 @@ const loadAddresses = async () => {
       }
     }
   } catch (err) {
-    // Fallback default list if API offline or empty
-    if (adressesDepot.value.length === 0) {
-      adressesDepot.value = [
-        { id: '01a0828c-8880-7190-be0a-5e3294225ecd', adresse: '15 Rue de Rivoli, Agence Relais Rahma', ville: 'Paris', pays: 'France' },
-        { id: '01a0828c-8880-7190-be0a-5e3294225ece', adresse: 'Point Relais Rahma - Parcelles Assainies Unité 15', ville: 'Dakar', pays: 'Sénégal' }
-      ]
-      form.adresse_depot_id = adressesDepot.value[0].id
-    }
+    adressesDepot.value = []
   }
 
   try {
@@ -116,14 +109,7 @@ const loadAddresses = async () => {
       }
     }
   } catch (err) {
-    // Fallback default list
-    if (adressesRecuperation.value.length === 0) {
-      adressesRecuperation.value = [
-        { id: '01a0828c-888a-724f-a324-ce1f1cdf2a6b', adresse: 'Agence Rahma Paris 10ème (Gare du Nord)', ville: 'Paris', pays: 'France' },
-        { id: '01a0828c-888a-724f-a324-ce1f1cdf2a6c', adresse: 'Aéroport Blaise Diagne (Zone Arrivée)', ville: 'Dakar', pays: 'Sénégal' }
-      ]
-      form.adresse_recuperation_id = adressesRecuperation.value[0].id
-    }
+    adressesRecuperation.value = []
   }
 }
 

@@ -163,7 +163,7 @@ const handleClickOutside = (e) => {
     <button
       type="button"
       @click="toggleOpen"
-      class="w-full bg-[#EAEFF4] dark:bg-slate-700/80 hover:bg-gray-200/80 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl px-3.5 py-3 flex items-center justify-between text-xs sm:text-sm font-bold transition-colors cursor-pointer outline-none shadow-2xs"
+      class="w-full h-11 bg-[#EAEFF4] dark:bg-slate-700/80 hover:bg-gray-200/80 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl px-3.5 flex items-center justify-between text-xs sm:text-sm font-bold transition-colors cursor-pointer outline-none shadow-2xs"
     >
       <div class="flex items-center gap-2.5 truncate">
         <span class="text-base leading-none">{{ selectedCityObj ? selectedCityObj.flag : '📍' }}</span>

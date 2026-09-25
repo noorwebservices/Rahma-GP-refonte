@@ -58,8 +58,15 @@ const loadReservationData = async () => {
       const v = data.voyage || {}
       const c = data.colis || {}
       const vUser = v.voyageur?.user || v.voyageur || {}
-      const vUserId = vUser.id || v.voyageur?.user_id || v.voyageur?.user?.id || null
-      const transporteurName = `${vUser.prenom || ''} ${vUser.nom || ''}`.trim() || 'Transporteur GP'
+      const vUserId = vUser.id || v.voyageur?.user_id || v.voyageur?.user?.id 
+        || data.agent_gp?.user?.id || v.agent_gp?.user?.id 
+        || data.entreprise?.gerant_user_id || v.entreprise?.gerant_user_id 
+        || null
+
+      const transporteurName = (vUser.prenom || vUser.nom)
+        ? `${vUser.prenom || ''} ${vUser.nom || ''}`.trim()
+        : (data.agent_gp?.user ? `${data.agent_gp.user.prenom || ''} ${data.agent_gp.user.nom || ''}`.trim()
+        : (data.entreprise?.nom_entreprise || v.entreprise?.nom_entreprise || 'Transporteur GP'))
 
       reservation.value = {
         id: data.id,

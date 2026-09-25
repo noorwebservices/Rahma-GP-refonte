@@ -1,21 +1,36 @@
 <script setup>
-import { ref, reactive, computed, watch } from 'vue'
-import { useRouter, RouterLink } from 'vue-router'
+import { ref, reactive, computed, watch, onMounted } from 'vue'
+import { useRouter, useRoute, RouterLink } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
+import { entrepriseService } from '@/services/entrepriseService'
 import CountryPhoneInput from '@/components/common/CountryPhoneInput.vue'
+import CitySelect from '@/components/client/CitySelect.vue'
+import Swal from 'sweetalert2'
 
 const router = useRouter()
+const route = useRoute()
 const { register, isLoading, error } = useAuth()
 
-// Profile selection: 'client' | 'voyageur'
+// Profile selection: 'client' | 'voyageur' | 'entreprise'
 const profileType = ref('client')
 
 // Voyageur step: 1 | 2
 const voyageurStep = ref(1)
 
-// Reset step if switching profile type
+// Entreprise step: 1 | 2 | 3
+const entrepriseStep = ref(1)
+
+// Auto-select tab if query parameter exists
+onMounted(() => {
+  if (route.query.type && ['client', 'voyageur', 'entreprise'].includes(route.query.type)) {
+    profileType.value = route.query.type
+  }
+})
+
+// Reset steps if switching profile type
 watch(profileType, () => {
   voyageurStep.value = 1
+  entrepriseStep.value = 1
 })
 
 const showPassword = ref(false)
@@ -33,7 +48,21 @@ const form = reactive({
   type_piece: 'cni',
   numero_piece: '',
   cni_recto: null,
-  cni_verso: null
+  cni_verso: null,
+  // Entreprise specific fields (Table `entreprises` complete mapping)
+  nom_entreprise: '',
+  description: '',
+  telephone_entreprise: '',
+  email_entreprise: '',
+  adresse_entreprise: '',
+  ville_entreprise: '',
+  pays_entreprise: '',
+  ninea: '',
+  registre_commerce: '',
+  moyen_paiement_prefere: 'wave',
+  ninea_doc: null,
+  registre_commerce_doc: null,
+  logo_entreprise: null
 })
 
 const errors = reactive({
@@ -45,7 +74,13 @@ const errors = reactive({
   password_confirmation: '',
   numero_piece: '',
   cni_recto: '',
-  cni_verso: ''
+  cni_verso: '',
+  nom_entreprise: '',
+  email_entreprise: '',
+  telephone_entreprise: '',
+  adresse_entreprise: '',
+  ville_entreprise: '',
+  pays_entreprise: ''
 })
 
 const touched = reactive({
@@ -57,11 +92,20 @@ const touched = reactive({
   password_confirmation: false,
   numero_piece: false,
   cni_recto: false,
-  cni_verso: false
+  cni_verso: false,
+  nom_entreprise: false,
+  email_entreprise: false,
+  telephone_entreprise: false,
+  adresse_entreprise: false,
+  ville_entreprise: false,
+  pays_entreprise: false
 })
 
 const rectoFileName = ref('')
 const versoFileName = ref('')
+const nineaDocName = ref('')
+const rcDocName = ref('')
+const logoFileName = ref('')
 
 const handleFileChange = (event, field) => {
   const file = event.target.files[0]
@@ -69,29 +113,42 @@ const handleFileChange = (event, field) => {
     form[field] = file
     if (field === 'cni_recto') rectoFileName.value = file.name
     if (field === 'cni_verso') versoFileName.value = file.name
+    if (field === 'ninea_doc') nineaDocName.value = file.name
+    if (field === 'registre_commerce_doc') rcDocName.value = file.name
+    if (field === 'logo_entreprise') logoFileName.value = file.name
   } else {
     form[field] = null
     if (field === 'cni_recto') rectoFileName.value = ''
     if (field === 'cni_verso') versoFileName.value = ''
+    if (field === 'ninea_doc') nineaDocName.value = ''
+    if (field === 'registre_commerce_doc') rcDocName.value = ''
+    if (field === 'logo_entreprise') logoFileName.value = ''
   }
   if (touched[field]) {
     validateField(field)
   }
 }
 
-// Step 1 Validation (Informations personnelles)
+// Automatic Country fill on CitySelect selection
+const handleEntrepriseCityChange = (cityObj) => {
+  if (cityObj && cityObj.country) {
+    form.pays_entreprise = cityObj.country
+  }
+}
+
+// Client / Voyageur Step 1 Validation
 const isStep1Valid = computed(() => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   const cleanPhone = form.telephone.replace(/\s+/g, '')
   const emailVal = form.email.trim()
   
-  const isEmailValid = profileType.value === 'voyageur'
+  const isEmailValid = (profileType.value === 'voyageur' || profileType.value === 'entreprise')
     ? (!!emailVal && emailRegex.test(emailVal))
     : (!emailVal || emailRegex.test(emailVal))
 
   return (
     form.nom.trim().length >= 2 &&
-    form.prenom.trim().length >= 3 &&
+    form.prenom.trim().length >= 2 &&
     isEmailValid &&
     cleanPhone.length >= 8 &&
     !!form.password &&
@@ -100,7 +157,7 @@ const isStep1Valid = computed(() => {
   )
 })
 
-// Step 2 Validation (Pièce d'identité)
+// Voyageur Step 2 Validation (Pièce d'identité)
 const isStep2Valid = computed(() => {
   return (
     form.numero_piece.trim().length >= 3 &&
@@ -109,10 +166,49 @@ const isStep2Valid = computed(() => {
   )
 })
 
+// Entreprise Step 1 Validation (Informations Gérant)
+const isEntrepriseStep1Valid = computed(() => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  const cleanPhone = form.telephone.replace(/\s+/g, '')
+  const emailVal = form.email.trim()
+
+  return (
+    form.nom.trim().length >= 2 &&
+    form.prenom.trim().length >= 2 &&
+    cleanPhone.length >= 8 &&
+    (!emailVal || emailRegex.test(emailVal)) &&
+    !!form.password &&
+    form.password.length >= 6 &&
+    form.password_confirmation === form.password
+  )
+})
+
+// Entreprise Step 2 Validation (Informations Entreprise)
+const isEntrepriseStep2Valid = computed(() => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  const emailEnt = (form.email_entreprise || form.email).trim()
+  const cleanPhoneEnt = (form.telephone_entreprise || form.telephone).replace(/\s+/g, '')
+  const adr = (form.adresse_entreprise || form.adresse).trim()
+  const ville = form.ville_entreprise.trim()
+  const pays = form.pays_entreprise.trim()
+
+  return (
+    form.nom_entreprise.trim().length >= 2 &&
+    !!emailEnt && emailRegex.test(emailEnt) &&
+    cleanPhoneEnt.length >= 8 &&
+    adr.length >= 2 &&
+    ville.length >= 2 &&
+    pays.length >= 2
+  )
+})
+
 // Total Form Validity
 const isFormValid = computed(() => {
   if (profileType.value === 'voyageur') {
     return isStep1Valid.value && isStep2Valid.value
+  }
+  if (profileType.value === 'entreprise') {
+    return isEntrepriseStep1Valid.value && isEntrepriseStep2Valid.value
   }
   return isStep1Valid.value
 })
@@ -124,8 +220,8 @@ const validateField = (field) => {
     const val = form.prenom.trim()
     if (!val) {
       errors.prenom = 'Le prénom est requis'
-    } else if (val.length < 3) {
-      errors.prenom = 'Le prénom doit contenir au moins 3 caractères'
+    } else if (val.length < 2) {
+      errors.prenom = 'Le prénom doit contenir au moins 2 caractères'
     } else {
       errors.prenom = ''
     }
@@ -187,6 +283,26 @@ const validateField = (field) => {
     }
   }
 
+  if (profileType.value === 'entreprise') {
+    if (field === 'nom_entreprise') {
+      if (!form.nom_entreprise.trim()) {
+        errors.nom_entreprise = "Le nom de l'entreprise est requis"
+      } else {
+        errors.nom_entreprise = ''
+      }
+    }
+    if (field === 'email_entreprise') {
+      const val = form.email_entreprise.trim()
+      if (!val) {
+        errors.email_entreprise = "L'email professionnel de l'entreprise est requis pour la vérification"
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+        errors.email_entreprise = 'Adresse email invalide'
+      } else {
+        errors.email_entreprise = ''
+      }
+    }
+  }
+
   if (profileType.value === 'voyageur') {
     if (field === 'numero_piece') {
       if (!form.numero_piece.trim()) {
@@ -219,11 +335,28 @@ const validateStep1 = () => {
   return isStep1Valid.value
 }
 
+const validateEntrepriseStep1 = () => {
+  ['prenom', 'nom', 'telephone', 'password', 'password_confirmation'].forEach(f => validateField(f))
+  return isEntrepriseStep1Valid.value
+}
+
+const validateEntrepriseStep2 = () => {
+  ['nom_entreprise', 'email_entreprise'].forEach(f => validateField(f))
+  return isEntrepriseStep2Valid.value
+}
+
 const goToStep2 = () => {
   if (validateStep1()) {
     voyageurStep.value = 2
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
+}
+
+const goToEntrepriseStep = (step) => {
+  if (step === 2 && !validateEntrepriseStep1()) return
+  if (step === 3 && (!validateEntrepriseStep1() || !validateEntrepriseStep2())) return
+  entrepriseStep.value = step
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 const validateForm = () => {
@@ -236,18 +369,78 @@ const validateForm = () => {
     validateField('cni_verso')
   }
 
+  if (profileType.value === 'entreprise') {
+    validateField('nom_entreprise')
+    validateField('email_entreprise')
+  }
+
   Object.keys(errors).forEach(key => {
     if (errors[key]) isValid = false
   })
   return isValid
 }
 
-import Swal from 'sweetalert2'
+const isSubmitting = ref(false)
+const submissionError = ref('')
 
 const handleSubmit = async () => {
   if (!isFormValid.value || !validateForm()) return
 
-  if (profileType.value === 'voyageur') {
+  isSubmitting.value = true
+  submissionError.value = ''
+
+  if (profileType.value === 'entreprise') {
+    try {
+      const formData = new FormData()
+      formData.append('nom_gerant', form.nom)
+      formData.append('prenom_gerant', form.prenom)
+      formData.append('telephone_gerant', form.telephone.replace(/\s+/g, ''))
+      if (form.email && form.email.trim()) formData.append('email_gerant', form.email.trim())
+      if (form.adresse) formData.append('adresse_gerant', form.adresse)
+      formData.append('mot_de_passe', form.password)
+
+      formData.append('nom_entreprise', form.nom_entreprise)
+      if (form.description) formData.append('description', form.description)
+      formData.append('telephone_entreprise', (form.telephone_entreprise || form.telephone).replace(/\s+/g, ''))
+      formData.append('email_entreprise', (form.email_entreprise || form.email).trim())
+      formData.append('adresse', form.adresse_entreprise || form.adresse || 'Dakar, Sénégal')
+      formData.append('ville', form.ville_entreprise || 'Dakar')
+      formData.append('pays', form.pays_entreprise || 'Sénégal')
+      if (form.ninea) formData.append('ninea', form.ninea)
+      if (form.registre_commerce) formData.append('registre_commerce', form.registre_commerce)
+      if (form.moyen_paiement_prefere) formData.append('moyen_paiement_prefere', form.moyen_paiement_prefere)
+
+      if (form.ninea_doc) formData.append('ninea_doc', form.ninea_doc)
+      if (form.registre_commerce_doc) formData.append('registre_commerce_doc', form.registre_commerce_doc)
+      if (form.logo_entreprise) formData.append('logo', form.logo_entreprise)
+
+      const res = await entrepriseService.register(formData)
+
+      await Swal.fire({
+        title: 'Demande d\'inscription transmise ! 🏢',
+        html: `
+          <div class="space-y-3 text-left text-xs sm:text-sm text-gray-700 font-sans">
+            <p>Le dossier de l'entreprise <strong>${form.nom_entreprise}</strong> a été transmis avec succès à l'administration.</p>
+            <div class="p-3 bg-sky-50 border border-sky-200 rounded-2xl text-sky-900 text-xs font-medium space-y-1">
+              <strong>📧 Prochaine étape obligatoire :</strong>
+              <p class="mt-1">Veuillez consulter régulièrement votre boîte e-mail (<strong>${form.email_entreprise || form.email}</strong>). Dès que l'administrateur aura validé votre compte, vous recevrez un e-mail contenant le lien d'activation pour vous connecter.</p>
+            </div>
+          </div>
+        `,
+        icon: 'success',
+        confirmButtonColor: '#053754',
+        confirmButtonText: 'J\'ai compris, aller à la connexion',
+        customClass: { popup: 'rounded-3xl font-sans' }
+      })
+
+      router.push('/auth/login')
+    } catch (err) {
+      console.error('Erreur inscription entreprise:', err)
+      submissionError.value = err.message || err.response?.data?.message || 'Erreur lors de l\'inscription de l\'entreprise.'
+    } finally {
+      isSubmitting.value = false
+    }
+  } else if (profileType.value === 'voyageur') {
     const formData = new FormData()
     formData.append('profile_type', 'voyageur')
     formData.append('nom', form.nom)
@@ -270,7 +463,7 @@ const handleSubmit = async () => {
       await Swal.fire({
         title: 'Inscription Voyageur Réussie ! ✈️',
         html: `
-          <div class="space-y-3 text-left text-xs sm:text-sm text-gray-700">
+          <div class="space-y-3 text-left text-xs sm:text-sm text-gray-700 font-sans">
             <p>Votre profil voyageur et vos pièces d'identité ont été transmis avec succès.</p>
             <div class="p-3 bg-amber-50 border border-amber-200 rounded-2xl text-amber-900 text-xs font-medium space-y-1">
               <strong>🔒 Ce que vous devez faire ensuite :</strong>
@@ -285,13 +478,13 @@ const handleSubmit = async () => {
         icon: 'success',
         confirmButtonColor: '#053754',
         confirmButtonText: 'J\'ai compris, aller à la connexion',
-        customClass: {
-          popup: 'rounded-3xl font-sans'
-        }
+        customClass: { popup: 'rounded-3xl font-sans' }
       })
       router.push('/auth/login')
     } catch (err) {
       // Handled in useAuth
+    } finally {
+      isSubmitting.value = false
     }
   } else {
     const payload = {
@@ -313,10 +506,11 @@ const handleSubmit = async () => {
       router.push('/client')
     } catch (err) {
       // Handled in useAuth
+    } finally {
+      isSubmitting.value = false
     }
   }
 }
-
 </script>
 
 <template>
@@ -334,45 +528,58 @@ const handleSubmit = async () => {
       </p>
     </div>
 
-    <!-- Profile Selector (Client vs Voyageur) -->
-    <div class="mb-6 p-1.5 bg-gray-100 dark:bg-slate-800 rounded-2xl grid grid-cols-2 gap-1 border border-gray-200 dark:border-slate-700">
+    <!-- Profile Selector Tabs (Client vs Voyageur vs Entreprise GP) -->
+    <div class="mb-6 p-1.5 bg-gray-100 dark:bg-slate-800 rounded-2xl grid grid-cols-3 gap-1 border border-gray-200 dark:border-slate-700">
       <button
         type="button"
         @click="profileType = 'client'"
         :class="[
-          'py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer',
+          'py-2.5 px-2 sm:px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer',
           profileType === 'client'
             ? 'bg-white dark:bg-slate-900 text-principal-dark dark:text-sky-300 shadow-md border border-gray-200/80 dark:border-slate-700'
             : 'text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200'
         ]"
       >
-        <svg class="w-4 h-4 text-principal dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-3.5 h-3.5 text-principal dark:text-sky-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
         </svg>
-        <span>Profil Client</span>
+        <span class="truncate">Client</span>
       </button>
 
       <button
         type="button"
         @click="profileType = 'voyageur'"
         :class="[
-          'py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer',
+          'py-2.5 px-2 sm:px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer',
           profileType === 'voyageur'
             ? 'bg-principal dark:bg-sky-600 text-white shadow-md'
             : 'text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200'
         ]"
       >
-        <svg class="w-4 h-4 text-tertiaire" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-3.5 h-3.5 text-tertiaire shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h1.5a2.5 2.5 0 002.5-2.5V7a2 2 0 00-2-2h-1.5A2.5 2.5 0 0113 2.5V2m0 0a9 9 0 11-9 9 9 9 0 019-9z" />
         </svg>
-        <span>Profil Voyageur (GP)</span>
+        <span class="truncate">Voyageur (GP)</span>
+      </button>
+
+      <button
+        type="button"
+        @click="profileType = 'entreprise'"
+        :class="[
+          'py-2.5 px-2 sm:px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer',
+          profileType === 'entreprise'
+            ? 'bg-[#053754] text-white shadow-md'
+            : 'text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200'
+        ]"
+      >
+        <span class="text-xs shrink-0">🏢</span>
+        <span class="truncate">Entreprise GP</span>
       </button>
     </div>
 
     <!-- Voyageur Multi-Step Indicator -->
     <div v-if="profileType === 'voyageur'" class="mb-6 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
       <div class="flex items-center justify-between gap-4">
-        <!-- Step 1 Button/Header -->
         <button 
           type="button" 
           @click="voyageurStep = 1"
@@ -400,7 +607,6 @@ const handleSubmit = async () => {
           </div>
         </button>
 
-        <!-- Divider bar -->
         <div class="flex-1 h-0.5 bg-gray-200 dark:bg-slate-700 rounded-full mx-2">
           <div :class="[
             'h-full bg-principal dark:bg-sky-500 transition-all duration-300',
@@ -408,7 +614,6 @@ const handleSubmit = async () => {
           ]"></div>
         </div>
 
-        <!-- Step 2 Button/Header -->
         <button 
           type="button" 
           @click="goToStep2"
@@ -437,18 +642,84 @@ const handleSubmit = async () => {
       </div>
     </div>
 
+    <!-- Entreprise GP Multi-Step Indicator (3 steps) -->
+    <div v-if="profileType === 'entreprise'" class="mb-6 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
+      <div class="grid grid-cols-3 gap-2 text-center">
+        <!-- Step 1: Gérant -->
+        <button
+          type="button"
+          @click="entrepriseStep = 1"
+          class="flex flex-col items-center gap-1 cursor-pointer focus:outline-none"
+        >
+          <div :class="[
+            'w-8 h-8 rounded-full font-bold text-xs flex items-center justify-center transition-all',
+            entrepriseStep === 1
+              ? 'bg-[#053754] text-white shadow-md ring-4 ring-[#053754]/20'
+              : isEntrepriseStep1Valid
+                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                : 'bg-gray-100 dark:bg-slate-800 text-gray-400'
+          ]">
+            <span v-if="isEntrepriseStep1Valid && entrepriseStep > 1">✓</span>
+            <span v-else>1</span>
+          </div>
+          <span class="text-[10px] font-bold" :class="entrepriseStep === 1 ? 'text-[#053754] dark:text-sky-300' : 'text-gray-500'">Gérant</span>
+        </button>
+
+        <!-- Step 2: Entreprise -->
+        <button
+          type="button"
+          @click="goToEntrepriseStep(2)"
+          :disabled="!isEntrepriseStep1Valid"
+          class="flex flex-col items-center gap-1 focus:outline-none"
+          :class="isEntrepriseStep1Valid ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'"
+        >
+          <div :class="[
+            'w-8 h-8 rounded-full font-bold text-xs flex items-center justify-center transition-all',
+            entrepriseStep === 2
+              ? 'bg-[#053754] text-white shadow-md ring-4 ring-[#053754]/20'
+              : isEntrepriseStep2Valid
+                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                : 'bg-gray-100 dark:bg-slate-800 text-gray-400'
+          ]">
+            <span v-if="isEntrepriseStep2Valid && entrepriseStep > 3">✓</span>
+            <span v-else>2</span>
+          </div>
+          <span class="text-[10px] font-bold" :class="entrepriseStep === 2 ? 'text-[#053754] dark:text-sky-300' : 'text-gray-500'">Profil GP</span>
+        </button>
+
+        <!-- Step 3: Conformité & Docs -->
+        <button
+          type="button"
+          @click="goToEntrepriseStep(3)"
+          :disabled="!isEntrepriseStep1Valid || !isEntrepriseStep2Valid"
+          class="flex flex-col items-center gap-1 focus:outline-none"
+          :class="isEntrepriseStep1Valid && isEntrepriseStep2Valid ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'"
+        >
+          <div :class="[
+            'w-8 h-8 rounded-full font-bold text-xs flex items-center justify-center transition-all',
+            entrepriseStep === 3
+              ? 'bg-[#053754] text-white shadow-md ring-4 ring-[#053754]/20'
+              : 'bg-gray-100 dark:bg-slate-800 text-gray-400'
+          ]">
+            3
+          </div>
+          <span class="text-[10px] font-bold" :class="entrepriseStep === 3 ? 'text-[#053754] dark:text-sky-300' : 'text-gray-500'">Legal & Docs</span>
+        </button>
+      </div>
+    </div>
+
     <!-- Alert Error -->
-    <div v-if="error" class="mb-4 p-3 bg-red-50 dark:bg-red-950/80 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 text-xs sm:text-sm rounded-xl flex items-center gap-2 shadow-2xs">
+    <div v-if="error || submissionError" class="mb-4 p-3 bg-red-50 dark:bg-red-950/80 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 text-xs sm:text-sm rounded-xl flex items-center gap-2 shadow-2xs">
       <svg class="w-5 h-5 text-red-500 dark:text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
-      <span>{{ error }}</span>
+      <span>{{ error || submissionError }}</span>
     </div>
 
     <!-- Form Container -->
     <form @submit.prevent="handleSubmit" class="space-y-3.5" novalidate>
       
-      <!-- ==================== ÉTAPE 1 : Client OU Voyageur Step 1 ==================== -->
+      <!-- ==================== CLIENT OU VOYAGEUR STEP 1 ==================== -->
       <div v-show="profileType === 'client' || (profileType === 'voyageur' && voyageurStep === 1)" class="space-y-3.5 animate-in fade-in duration-200">
         <!-- Grid Nom & Prénom -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -461,7 +732,7 @@ const handleSubmit = async () => {
               @input="touched.prenom && validateField('prenom')"
               type="text"
               placeholder="Zahra"
-              class="w-full px-3.5 py-2.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl focus:border-principal dark:focus:border-sky-400 focus:ring-2 focus:ring-principal/20 outline-none transition-all placeholder-gray-400 dark:placeholder-slate-500 font-medium"
+              class="w-full h-11 px-3.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl focus:border-principal dark:focus:border-sky-400 focus:ring-2 focus:ring-principal/20 outline-none transition-all placeholder-gray-400 dark:placeholder-slate-500 font-medium"
             />
             <p v-if="errors.prenom" class="text-[11px] text-red-600 dark:text-red-400 font-medium">{{ errors.prenom }}</p>
           </div>
@@ -475,7 +746,7 @@ const handleSubmit = async () => {
               @input="touched.nom && validateField('nom')"
               type="text"
               placeholder="Ndiaye"
-              class="w-full px-3.5 py-2.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl focus:border-principal dark:focus:border-sky-400 focus:ring-2 focus:ring-principal/20 outline-none transition-all placeholder-gray-400 dark:placeholder-slate-500 font-medium"
+              class="w-full h-11 px-3.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl focus:border-principal dark:focus:border-sky-400 focus:ring-2 focus:ring-principal/20 outline-none transition-all placeholder-gray-400 dark:placeholder-slate-500 font-medium"
             />
             <p v-if="errors.nom" class="text-[11px] text-red-600 dark:text-red-400 font-medium">{{ errors.nom }}</p>
           </div>
@@ -486,7 +757,7 @@ const handleSubmit = async () => {
           <label for="email" class="block text-xs font-semibold text-gray-700 dark:text-slate-200">
             Adresse email 
             <span v-if="profileType === 'client'" class="text-gray-400 dark:text-slate-400 font-normal">(Optionnel)</span>
-            <span v-else class="text-red-600 dark:text-red-400 font-bold">* (Requis pour la vérification du compte)</span>
+            <span v-else class="text-red-600 dark:text-red-400 font-bold">* (Requis pour la vérification)</span>
           </label>
           <input
             id="email"
@@ -495,7 +766,7 @@ const handleSubmit = async () => {
             @input="touched.email && validateField('email')"
             type="email"
             placeholder="zahra.ndiaye@example.com"
-            class="w-full px-3.5 py-2.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl focus:border-principal dark:focus:border-sky-400 focus:ring-2 focus:ring-principal/20 outline-none transition-all placeholder-gray-400 dark:placeholder-slate-500 font-medium"
+            class="w-full h-11 px-3.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl focus:border-principal dark:focus:border-sky-400 focus:ring-2 focus:ring-principal/20 outline-none transition-all placeholder-gray-400 dark:placeholder-slate-500 font-medium"
           />
           <p v-if="errors.email" class="text-[11px] text-red-600 dark:text-red-400 font-medium">{{ errors.email }}</p>
         </div>
@@ -521,7 +792,7 @@ const handleSubmit = async () => {
             v-model="form.adresse"
             type="text"
             placeholder="Thiès, Sénégal"
-            class="w-full px-3.5 py-2.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl focus:border-principal dark:focus:border-sky-400 focus:ring-2 focus:ring-principal/20 outline-none transition-all placeholder-gray-400 dark:placeholder-slate-500 font-medium"
+            class="w-full h-11 px-3.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl focus:border-principal dark:focus:border-sky-400 focus:ring-2 focus:ring-principal/20 outline-none transition-all placeholder-gray-400 dark:placeholder-slate-500 font-medium"
           />
         </div>
 
@@ -537,7 +808,7 @@ const handleSubmit = async () => {
                 @input="touched.password && validateField('password')"
                 :type="showPassword ? 'text' : 'password'"
                 placeholder="••••••••"
-                class="w-full px-3 py-2.5 pr-8 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl focus:border-principal dark:focus:border-sky-400 focus:ring-2 focus:ring-principal/20 outline-none font-medium placeholder-gray-400 dark:placeholder-slate-500"
+                class="w-full h-11 px-3.5 pr-8 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl focus:border-principal dark:focus:border-sky-400 focus:ring-2 focus:ring-principal/20 outline-none font-medium placeholder-gray-400 dark:placeholder-slate-500"
               />
               <button type="button" @click="showPassword = !showPassword" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200 p-1">
                 <svg v-if="!showPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
@@ -557,7 +828,7 @@ const handleSubmit = async () => {
                 @input="touched.password_confirmation && validateField('password_confirmation')"
                 :type="showConfirmPassword ? 'text' : 'password'"
                 placeholder="••••••••"
-                class="w-full px-3 py-2.5 pr-8 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl focus:border-principal dark:focus:border-sky-400 focus:ring-2 focus:ring-principal/20 outline-none font-medium placeholder-gray-400 dark:placeholder-slate-500"
+                class="w-full h-11 px-3.5 pr-8 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl focus:border-principal dark:focus:border-sky-400 focus:ring-2 focus:ring-principal/20 outline-none font-medium placeholder-gray-400 dark:placeholder-slate-500"
               />
               <button type="button" @click="showConfirmPassword = !showConfirmPassword" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200 p-1">
                 <svg v-if="!showConfirmPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
@@ -607,7 +878,7 @@ const handleSubmit = async () => {
               <select
                 id="type_piece"
                 v-model="form.type_piece"
-                class="w-full px-3.5 py-2.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl outline-none font-medium"
+                class="w-full h-11 px-3.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl outline-none font-medium"
               >
                 <option value="cni">Carte Nationale d'Identité (CNI)</option>
                 <option value="passeport">Passeport</option>
@@ -623,7 +894,7 @@ const handleSubmit = async () => {
                 @input="touched.numero_piece && validateField('numero_piece')"
                 type="text"
                 placeholder="1342199800123"
-                class="w-full px-3.5 py-2.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl outline-none font-medium placeholder-gray-400 dark:placeholder-slate-500"
+                class="w-full h-11 px-3.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl outline-none font-medium placeholder-gray-400 dark:placeholder-slate-500"
               />
               <p v-if="errors.numero_piece" class="text-[11px] text-red-600 dark:text-red-400 font-medium">{{ errors.numero_piece }}</p>
             </div>
@@ -671,19 +942,377 @@ const handleSubmit = async () => {
 
           <button
             type="submit"
-            :disabled="!isFormValid || isLoading"
+            :disabled="!isFormValid || isLoading || isSubmitting"
             :class="[
               'w-2/3 py-3.5 rounded-xl font-bold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer',
-              isFormValid && !isLoading
+              isFormValid && !isLoading && !isSubmitting
                 ? 'bg-principal-dark hover:bg-principal dark:bg-sky-600 dark:hover:bg-sky-500 text-white shadow-md hover:shadow-lg active:scale-[0.99]'
                 : 'bg-gray-200 dark:bg-slate-800 text-gray-400 dark:text-slate-600 cursor-not-allowed border border-gray-300 dark:border-slate-700 opacity-75'
             ]"
           >
-            <svg v-if="isLoading" class="w-5 h-5 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+            <svg v-if="isLoading || isSubmitting" class="w-5 h-5 animate-spin text-white" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            <span>{{ isLoading ? 'Création en cours...' : 'S\'inscrire comme Voyageur' }}</span>
+            <span>{{ (isLoading || isSubmitting) ? 'Création en cours...' : 'S\'inscrire comme Voyageur' }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ==================== ENTREPRISE GP STEP 1 : Gérant ==================== -->
+      <div v-show="profileType === 'entreprise' && entrepriseStep === 1" class="space-y-4 animate-in fade-in duration-200">
+        <div class="p-4 bg-gray-50 dark:bg-slate-800/60 rounded-2xl border border-gray-200 dark:border-slate-700 space-y-3">
+          <h3 class="text-xs font-extrabold uppercase tracking-wider text-[#053754] dark:text-sky-300 flex items-center gap-1.5">
+            <span>👤 Étape 1 : Informations du Gérant / Administrateur</span>
+          </h3>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="space-y-1">
+              <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200">Prénom du Gérant *</label>
+              <input
+                v-model="form.prenom"
+                @blur="validateField('prenom')"
+                type="text"
+                placeholder="Ousmane"
+                class="w-full h-11 px-3.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl outline-none font-medium"
+              />
+              <p v-if="errors.prenom" class="text-[11px] text-red-600 dark:text-red-400 font-medium">{{ errors.prenom }}</p>
+            </div>
+
+            <div class="space-y-1">
+              <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200">Nom du Gérant *</label>
+              <input
+                v-model="form.nom"
+                @blur="validateField('nom')"
+                type="text"
+                placeholder="Sow"
+                class="w-full h-11 px-3.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl outline-none font-medium"
+              />
+              <p v-if="errors.nom" class="text-[11px] text-red-600 dark:text-red-400 font-medium">{{ errors.nom }}</p>
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200">Téléphone du Gérant *</label>
+            <CountryPhoneInput
+              v-model="form.telephone"
+              @blur="validateField('telephone')"
+              placeholder="77 000 11 22"
+            />
+            <p v-if="errors.telephone" class="text-[11px] text-red-600 dark:text-red-400 font-medium">{{ errors.telephone }}</p>
+          </div>
+
+          <div class="space-y-1">
+            <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200">
+              Email personnel du Gérant <span class="text-gray-400 font-normal">(Optionnel)</span>
+            </label>
+            <input
+              v-model="form.email"
+              @blur="validateField('email')"
+              type="email"
+              placeholder="ousmane.sow@gmail.com"
+              class="w-full h-11 px-3.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl outline-none font-medium"
+            />
+            <p v-if="errors.email" class="text-[11px] text-red-600 dark:text-red-400 font-medium">{{ errors.email }}</p>
+          </div>
+
+          <div class="space-y-1">
+            <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200">
+              Adresse personnelle du Gérant <span class="text-gray-400 font-normal">(Optionnel)</span>
+            </label>
+            <input
+              v-model="form.adresse"
+              type="text"
+              placeholder="Ex: Sacré-Cœur 3, Dakar"
+              class="w-full h-11 px-3.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl outline-none font-medium"
+            />
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="space-y-1">
+              <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200">Mot de passe *</label>
+              <div class="relative">
+                <input
+                  v-model="form.password"
+                  @blur="validateField('password')"
+                  :type="showPassword ? 'text' : 'password'"
+                  placeholder="••••••••"
+                  class="w-full h-11 px-3.5 pr-8 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl outline-none font-medium"
+                />
+                <button type="button" @click="showPassword = !showPassword" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 p-1">
+                  <svg v-if="!showPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                  <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a10.016 10.016 0 014.122-.963c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l18 18"/></svg>
+                </button>
+              </div>
+              <p v-if="errors.password" class="text-[11px] text-red-600 dark:text-red-400 font-medium">{{ errors.password }}</p>
+            </div>
+
+            <div class="space-y-1">
+              <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200">Confirmation *</label>
+              <div class="relative">
+                <input
+                  v-model="form.password_confirmation"
+                  @blur="validateField('password_confirmation')"
+                  :type="showConfirmPassword ? 'text' : 'password'"
+                  placeholder="••••••••"
+                  class="w-full h-11 px-3.5 pr-8 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl outline-none font-medium"
+                />
+                <button type="button" @click="showConfirmPassword = !showConfirmPassword" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 p-1">
+                  <svg v-if="!showConfirmPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                  <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a10.016 10.016 0 014.122-.963c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l18 18"/></svg>
+                </button>
+              </div>
+              <p v-if="errors.password_confirmation" class="text-[11px] text-red-600 dark:text-red-400 font-medium">{{ errors.password_confirmation }}</p>
+            </div>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          @click="goToEntrepriseStep(2)"
+          :disabled="!isEntrepriseStep1Valid"
+          :class="[
+            'w-full py-3.5 rounded-xl font-bold transition-all duration-200 flex items-center justify-center gap-2 mt-4 cursor-pointer',
+            isEntrepriseStep1Valid
+              ? 'bg-[#053754] hover:bg-[#074C72] text-white shadow-md hover:shadow-lg active:scale-[0.99]'
+              : 'bg-gray-200 dark:bg-slate-800 text-gray-400 cursor-not-allowed border border-gray-300 dark:border-slate-700 opacity-75'
+          ]"
+        >
+          <span>Passer à l'Étape 2 (Profil Entreprise GP)</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- ==================== ENTREPRISE GP STEP 2 : Profil Entreprise ==================== -->
+      <div v-show="profileType === 'entreprise' && entrepriseStep === 2" class="space-y-4 animate-in fade-in duration-200">
+        <div class="p-4 bg-gray-50 dark:bg-slate-800/60 rounded-2xl border border-gray-200 dark:border-slate-700 space-y-3">
+          <h3 class="text-xs font-extrabold uppercase tracking-wider text-[#053754] dark:text-sky-300 flex items-center gap-1.5">
+            <span>🏢 Étape 2 : Informations Générales de l'Entreprise GP</span>
+          </h3>
+
+          <div class="space-y-1">
+            <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200">Nom commercial de l'Entreprise *</label>
+            <input
+              v-model="form.nom_entreprise"
+              @blur="validateField('nom_entreprise')"
+              type="text"
+              placeholder="Dakar Express Logistics GP"
+              class="w-full h-11 px-3.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl outline-none font-medium"
+            />
+            <p v-if="errors.nom_entreprise" class="text-[11px] text-red-600 dark:text-red-400 font-medium">{{ errors.nom_entreprise }}</p>
+          </div>
+
+          <div class="space-y-1">
+            <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200">Description / Présentation des activités</label>
+            <textarea
+              v-model="form.description"
+              rows="2"
+              placeholder="Entreprise de transport spécialisée dans le fret aérien et maritime entre Paris, Dakar et Abidjan..."
+              class="w-full px-3.5 py-2 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl outline-none font-medium"
+            ></textarea>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="space-y-1">
+              <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200">
+                Email professionnel * <span class="text-red-600 dark:text-red-400">(Vérification)</span>
+              </label>
+              <input
+                v-model="form.email_entreprise"
+                @blur="validateField('email_entreprise')"
+                type="email"
+                placeholder="contact@dakargp.sn"
+                class="w-full h-11 px-3.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl outline-none font-medium"
+              />
+              <p v-if="errors.email_entreprise" class="text-[11px] text-red-600 dark:text-red-400 font-medium">{{ errors.email_entreprise }}</p>
+            </div>
+
+            <div class="space-y-1">
+              <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200">Téléphone Entreprise *</label>
+              <CountryPhoneInput
+                v-model="form.telephone_entreprise"
+                placeholder="33 800 11 22"
+              />
+            </div>
+          </div>
+
+          <!-- Ville avec composant CitySelect et Pays auto-rempli -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="space-y-1">
+              <CitySelect
+                id="ville_entreprise"
+                label="VILLE SIÈGE SOCIAL *"
+                placeholder="Choisir la ville"
+                v-model="form.ville_entreprise"
+                @change="handleEntrepriseCityChange"
+              />
+              <p v-if="errors.ville_entreprise" class="text-[11px] text-red-600 dark:text-red-400 font-medium">{{ errors.ville_entreprise }}</p>
+            </div>
+
+            <div class="space-y-1">
+              <label class="block text-[10px] font-extrabold uppercase tracking-wider text-gray-500 dark:text-slate-400 mb-1">PAYS (PRÉREMPLI) *</label>
+              <input
+                v-model="form.pays_entreprise"
+                type="text"
+                placeholder="Sénégal"
+                class="w-full h-11 bg-[#EAEFF4] dark:bg-slate-700/80 border border-gray-200 dark:border-slate-600 rounded-xl px-3.5 text-xs sm:text-sm font-extrabold text-[#074C72] dark:text-sky-300 outline-none"
+              />
+            </div>
+          </div>
+
+          <!-- Adresse Siège Social -->
+          <div class="space-y-1">
+            <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200">Adresse Siège Social *</label>
+            <input
+              v-model="form.adresse_entreprise"
+              type="text"
+              placeholder="Avenue Cheikh Anta Diop, Fann"
+              class="w-full h-11 px-3.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl outline-none font-medium"
+            />
+          </div>
+
+          <!-- Moyen de paiement préféré -->
+          <div class="space-y-1">
+            <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200">Moyen de paiement préféré</label>
+            <select
+              v-model="form.moyen_paiement_prefere"
+              class="w-full h-11 px-3.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl outline-none font-medium"
+            >
+              <option value="wave">Wave Mobile Money</option>
+              <option value="orange_money">Orange Money</option>
+              <option value="virement">Virement Bancaire</option>
+              <option value="carte">Carte Bancaire / Stripe</option>
+              <option value="cash">Paiement au Comptant / Espèces</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 pt-2">
+          <button
+            type="button"
+            @click="entrepriseStep = 1"
+            class="w-1/3 py-3.5 bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1 cursor-pointer"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            <span>Précédent</span>
+          </button>
+
+          <button
+            type="button"
+            @click="goToEntrepriseStep(3)"
+            :disabled="!isEntrepriseStep2Valid"
+            :class="[
+              'w-2/3 py-3.5 rounded-xl font-bold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer',
+              isEntrepriseStep2Valid
+                ? 'bg-[#053754] hover:bg-[#074C72] text-white shadow-md hover:shadow-lg active:scale-[0.99]'
+                : 'bg-gray-200 dark:bg-slate-800 text-gray-400 dark:text-slate-600 cursor-not-allowed border border-gray-300 dark:border-slate-700 opacity-75'
+            ]"
+          >
+            <span>Passer à l'Étape 3 (Conformité & Docs)</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ==================== ENTREPRISE GP STEP 3 : Conformité Légale & Documents ==================== -->
+      <div v-show="profileType === 'entreprise' && entrepriseStep === 3" class="space-y-4 animate-in fade-in duration-200">
+        <div class="p-4 bg-gray-50 dark:bg-slate-800/60 rounded-2xl border border-gray-200 dark:border-slate-700 space-y-3">
+          <h3 class="text-xs font-extrabold uppercase tracking-wider text-[#053754] dark:text-sky-300 flex items-center gap-1.5">
+            <span>📄 Étape 3 : Conformité Légale & Pièces Justificatives</span>
+          </h3>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="space-y-1">
+              <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200">Numéro NINEA</label>
+              <input
+                v-model="form.ninea"
+                type="text"
+                placeholder="001234567"
+                class="w-full h-11 px-3.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl outline-none font-medium"
+              />
+            </div>
+
+            <div class="space-y-1">
+              <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200">Registre du Commerce (RC)</label>
+              <input
+                v-model="form.registre_commerce"
+                type="text"
+                placeholder="SN-DKR-2026-B-1234"
+                class="w-full h-11 px-3.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl outline-none font-medium"
+              />
+            </div>
+          </div>
+
+          <!-- Document NINEA File Upload -->
+          <div class="space-y-1">
+            <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200">Document NINEA (PDF/Image)</label>
+            <input
+              type="file"
+              accept="image/*,.pdf"
+              @change="(e) => handleFileChange(e, 'ninea_doc')"
+              class="w-full text-xs text-gray-500 dark:text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#053754]/10 file:text-[#053754] dark:file:text-sky-300 hover:file:bg-[#053754]/20 cursor-pointer"
+            />
+            <p v-if="nineaDocName" class="text-[11px] text-emerald-600 font-medium">✓ {{ nineaDocName }}</p>
+          </div>
+
+          <!-- Document Registre du Commerce File Upload -->
+          <div class="space-y-1">
+            <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200">Document Registre du Commerce (RC)</label>
+            <input
+              type="file"
+              accept="image/*,.pdf"
+              @change="(e) => handleFileChange(e, 'registre_commerce_doc')"
+              class="w-full text-xs text-gray-500 dark:text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#053754]/10 file:text-[#053754] dark:file:text-sky-300 hover:file:bg-[#053754]/20 cursor-pointer"
+            />
+            <p v-if="rcDocName" class="text-[11px] text-emerald-600 font-medium">✓ {{ rcDocName }}</p>
+          </div>
+
+          <!-- Logo Upload -->
+          <div class="space-y-1">
+            <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200">Logo de l'entreprise (PNG/JPG)</label>
+            <input
+              type="file"
+              accept="image/*"
+              @change="(e) => handleFileChange(e, 'logo_entreprise')"
+              class="w-full text-xs text-gray-500 dark:text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#053754]/10 file:text-[#053754] dark:file:text-sky-300 hover:file:bg-[#053754]/20 cursor-pointer"
+            />
+            <p v-if="logoFileName" class="text-[11px] text-emerald-600 font-medium">✓ {{ logoFileName }}</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 pt-2">
+          <button
+            type="button"
+            @click="entrepriseStep = 2"
+            class="w-1/3 py-3.5 bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1 cursor-pointer"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            <span>Précédent</span>
+          </button>
+
+          <button
+            type="submit"
+            :disabled="!isFormValid || isSubmitting"
+            :class="[
+              'w-2/3 py-3.5 rounded-xl font-bold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer',
+              isFormValid && !isSubmitting
+                ? 'bg-[#053754] hover:bg-[#074C72] text-white shadow-md hover:shadow-lg active:scale-[0.99]'
+                : 'bg-gray-200 dark:bg-slate-800 text-gray-400 dark:text-slate-600 cursor-not-allowed border border-gray-300 dark:border-slate-700 opacity-75'
+            ]"
+          >
+            <svg v-if="isSubmitting" class="w-5 h-5 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>{{ isSubmitting ? 'Création en cours...' : 'Inscrire mon Entreprise GP' }}</span>
           </button>
         </div>
       </div>
@@ -692,19 +1321,19 @@ const handleSubmit = async () => {
       <button
         v-if="profileType === 'client'"
         type="submit"
-        :disabled="!isFormValid || isLoading"
+        :disabled="!isFormValid || isLoading || isSubmitting"
         :class="[
           'w-full py-3.5 rounded-xl font-bold transition-all duration-200 flex items-center justify-center gap-2 mt-4',
-          isFormValid && !isLoading
+          isFormValid && !isLoading && !isSubmitting
             ? 'bg-principal-dark hover:bg-principal dark:bg-sky-600 dark:hover:bg-sky-500 text-white shadow-md hover:shadow-lg active:scale-[0.99] cursor-pointer'
             : 'bg-gray-200 dark:bg-slate-800 text-gray-400 dark:text-slate-600 cursor-not-allowed border border-gray-300 dark:border-slate-700 opacity-75'
         ]"
       >
-        <svg v-if="isLoading" class="w-5 h-5 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+        <svg v-if="isLoading || isSubmitting" class="w-5 h-5 animate-spin text-white" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
-        <span>{{ isLoading ? 'Création en cours...' : 'S\'inscrire' }}</span>
+        <span>{{ (isLoading || isSubmitting) ? 'Création en cours...' : 'S\'inscrire' }}</span>
       </button>
 
     </form>

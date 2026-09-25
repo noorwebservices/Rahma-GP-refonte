@@ -1,10 +1,11 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
-import { useRouter, RouterLink } from 'vue-router'
+import { useRouter, useRoute, RouterLink } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import CountryPhoneInput from '@/components/common/CountryPhoneInput.vue'
 
 const router = useRouter()
+const route = useRoute()
 const { login, isLoading, error } = useAuth()
 
 const loginType = ref('phone') // 'phone' | 'email'
@@ -109,12 +110,20 @@ const handleSubmit = async () => {
 
   try {
     const res = await login(payload)
-    const roles = res?.user?.roles || []
-    const isAdmin = (Array.isArray(roles) && roles.includes('admin')) || res?.user?.mode_actuel === 'admin'
-    const mode = res?.user?.mode_actuel
+    const user = res?.user
+    const roles = user?.roles || []
+    
+    const isAdmin = (Array.isArray(roles) && roles.some(r => typeof r === 'string' ? r === 'admin' : r.name === 'admin')) || user?.mode_actuel === 'admin'
+    const isEntreprise = (Array.isArray(roles) && roles.some(r => typeof r === 'string' ? (r === 'gerant_entreprise' || r === 'entreprise') : (r.name === 'gerant_entreprise' || r.name === 'entreprise'))) ||
+                         user?.mode_actuel === 'entreprise' ||
+                         !!user?.entreprise
+
+    const mode = user?.mode_actuel
 
     if (isAdmin) {
       router.push('/admin')
+    } else if (isEntreprise) {
+      router.push('/entreprise')
     } else if (mode === 'voyageur') {
       router.push('/voyageur')
     } else {
@@ -207,7 +216,7 @@ const handleSubmit = async () => {
             @input="touched.email && validateField('email')"
             type="email"
             placeholder="exemple@rahma.sn"
-            class="w-full px-3.5 py-3 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl focus:border-principal dark:focus:border-sky-400 focus:ring-2 focus:ring-principal/20 outline-none transition-all placeholder-gray-400 dark:placeholder-slate-500 font-medium"
+            class="w-full h-11 px-3.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl focus:border-principal dark:focus:border-sky-400 focus:ring-2 focus:ring-principal/20 outline-none transition-all placeholder-gray-400 dark:placeholder-slate-500 font-medium"
           />
         </div>
         <p v-if="errors.loginField" class="text-xs text-red-600 dark:text-red-400 mt-1 font-medium">{{ errors.loginField }}</p>
@@ -226,7 +235,7 @@ const handleSubmit = async () => {
             @input="touched.password && validateField('password')"
             :type="showPassword ? 'text' : 'password'"
             placeholder="••••••••"
-            class="w-full px-3.5 py-3 pr-10 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl focus:border-principal dark:focus:border-sky-400 focus:ring-2 focus:ring-principal/20 outline-none transition-all placeholder-gray-400 dark:placeholder-slate-500 font-medium"
+            class="w-full h-11 px-3.5 pr-10 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl focus:border-principal dark:focus:border-sky-400 focus:ring-2 focus:ring-principal/20 outline-none transition-all placeholder-gray-400 dark:placeholder-slate-500 font-medium"
           />
           <button
             type="button"

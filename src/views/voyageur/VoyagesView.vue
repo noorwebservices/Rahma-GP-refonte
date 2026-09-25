@@ -205,6 +205,13 @@ const filteredVoyages = computed(() => {
   }))
 })
 
+const truncateText = (str, maxLen = 30) => {
+  if (str === null || str === undefined) return ''
+  const s = String(str).trim()
+  if (s.length <= maxLen) return s
+  return s.substring(0, maxLen) + '...'
+}
+
 // Pagination logic: 10 items per page
 const currentPage = ref(1)
 const itemsPerPage = 10
@@ -225,6 +232,25 @@ const nextPage = () => {
 const prevPage = () => {
   if (currentPage.value > 1) currentPage.value--
 }
+
+const visiblePages = computed(() => {
+  const total = totalPages.value
+  const current = currentPage.value
+
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1)
+  }
+
+  if (current <= 4) {
+    return [1, 2, 3, 4, 5, '...', total]
+  }
+
+  if (current >= total - 3) {
+    return [1, '...', total - 4, total - 3, total - 2, total - 1, total]
+  }
+
+  return [1, '...', current - 1, current, current + 1, '...', total]
+})
 
 // -------------------------------------------------------------
 // MULTI-STEP WIZARD MODAL STATE (CREATE AND UPDATE MODE)
@@ -366,16 +392,16 @@ const showRecupAddressModal = ref(false)
 
 const newDepotForm = reactive({
   adresse: '',
-  ville: 'Dakar',
-  pays: 'Sénégal',
+  ville: '',
+  pays: '',
   horaire_ouverture: '',
   instructions: ''
 })
 
 const newRecupForm = reactive({
   adresse: '',
-  ville: 'Paris',
-  pays: 'France',
+  ville: '',
+  pays: '',
   horaire_ouverture: '',
   instructions: ''
 })
@@ -696,8 +722,91 @@ const goToDemandes = () => router.push('/voyageur/demandes')
       </div>
     </div>
 
-    <!-- Voyages Grid (2 Cards per line on Desktop: grid-cols-1 lg:grid-cols-2) -->
-    <div v-if="paginatedVoyages.length > 0" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <!-- Voyages Table View (Desktop & Tablet) -->
+    <div v-if="paginatedVoyages.length > 0" class="hidden md:block bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl shadow-2xs overflow-hidden">
+      <div class="overflow-x-auto min-w-full">
+        <table class="min-w-max w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 dark:bg-slate-800/80 border-b border-gray-200 dark:border-slate-800 text-[11px] font-extrabold text-gray-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
+              <th class="py-4 px-5">Trajet</th>
+              <th class="py-4 px-5">Date de départ</th>
+              <th class="py-4 px-5">Capacité Dispo</th>
+              <th class="py-4 px-5">Tarif Kg</th>
+              <th class="py-4 px-5">Statut</th>
+              <th class="py-4 px-5 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100 dark:divide-slate-800 text-xs font-medium whitespace-nowrap">
+            <tr
+              v-for="voyage in paginatedVoyages"
+              :key="voyage.id"
+              @click="goToVoyageDetail(voyage.id)"
+              class="hover:bg-sky-50/50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group"
+            >
+              <td class="py-4 px-5">
+                <div class="flex items-center gap-2 font-extrabold text-[#053754] dark:text-sky-300 text-sm">
+                  <span>{{ truncateText(voyage.routeFrom, 30) }}</span>
+                  <span class="text-gray-400 text-xs">➔</span>
+                  <span>{{ truncateText(voyage.routeTo, 30) }}</span>
+                </div>
+                <div class="text-[11px] text-gray-400 dark:text-slate-500 mt-0.5">
+                  {{ truncateText(`${voyage.countryFrom} ➔ ${voyage.countryTo}`, 30) }}
+                </div>
+              </td>
+              <td class="py-4 px-5 font-bold text-gray-800 dark:text-slate-200">
+                {{ formatVoyageDate(voyage.departureDate) }}
+              </td>
+              <td class="py-4 px-5 font-bold text-emerald-600 dark:text-emerald-400">
+                {{ voyage.capaciteDispo }} Kg / {{ voyage.capaciteTotale }} Kg
+              </td>
+              <td class="py-4 px-5 font-extrabold text-[#B50302] dark:text-rose-400">
+                {{ voyage.prixKg }}
+              </td>
+              <td class="py-4 px-5">
+                <span
+                  class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider border"
+                  :class="{
+                    'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800': voyage.statut === 'publie',
+                    'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800': voyage.statut === 'brouillon',
+                    'bg-purple-50 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border-purple-200 dark:border-purple-800': voyage.statut === 'complet',
+                    'bg-sky-50 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 border-sky-200 dark:border-sky-800': voyage.statut === 'en_cours',
+                    'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700': voyage.statut === 'termine',
+                    'bg-red-50 dark:bg-rose-950/60 text-red-800 dark:text-rose-300 border-red-200 dark:border-rose-800': voyage.statut === 'annule'
+                  }"
+                >
+                  {{ voyage.statut === 'publie' ? t('status.accepted') : (voyage.statut === 'brouillon' ? t('status.draft') : (voyage.statut === 'en_cours' ? t('status.in_transit') : (voyage.statut === 'termine' ? t('status.delivered') : (voyage.statut === 'annule' ? t('status.cancelled') : voyage.statut)))) }}
+                </span>
+              </td>
+              <td class="py-4 px-5 text-right" @click.stop>
+                <div class="flex items-center justify-end gap-2">
+                  <button
+                    v-if="voyage.statut === 'brouillon'"
+                    @click="openEditModal(voyage)"
+                    type="button"
+                    class="px-3 py-1.5 bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 font-extrabold text-xs rounded-xl transition cursor-pointer flex items-center gap-1 shadow-2xs"
+                  >
+                    <span>✏️</span>
+                    <span>Éditer</span>
+                  </button>
+
+                  <button
+                    @click="goToVoyageDetail(voyage.id)"
+                    type="button"
+                    class="px-3 py-1.5 bg-[#053754] hover:bg-[#074C72] text-white font-extrabold text-xs rounded-xl transition cursor-pointer flex items-center gap-1 shadow-2xs"
+                  >
+                    <span>👁️</span>
+                    <span>Détails</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Voyages Cards View (Mobile) -->
+    <div v-if="paginatedVoyages.length > 0" class="grid grid-cols-1 gap-4 md:hidden">
       <div
         v-for="voyage in paginatedVoyages"
         :key="voyage.id"
@@ -807,26 +916,46 @@ const goToDemandes = () => router.push('/voyageur/demandes')
     </div>
 
     <!-- Pagination Controls (10 items per page) -->
-    <div v-if="totalPages > 1" class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-slate-800 text-xs">
-      <button
-        @click="prevPage"
-        :disabled="currentPage === 1"
-        class="px-4 py-2 rounded-xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 font-bold text-gray-700 dark:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-slate-800"
-      >
-        ◄ {{ t('parcelDetail.prevBtn') }}
-      </button>
+    <div v-if="totalPages > 1" class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-gray-200 dark:border-slate-800 text-xs">
+      <div class="text-gray-500 dark:text-slate-400 font-medium">
+        Affichage de <span class="font-bold text-gray-800 dark:text-slate-200">{{ (currentPage - 1) * itemsPerPage + 1 }}</span>
+        à <span class="font-bold text-gray-800 dark:text-slate-200">{{ Math.min(currentPage * itemsPerPage, filteredVoyages.length) }}</span>
+        sur <span class="font-bold text-[#053754] dark:text-sky-300">{{ filteredVoyages.length }}</span> voyages
+      </div>
 
-      <span class="font-extrabold text-[#053754] dark:text-sky-300">
-        {{ t('parcelDetail.pageOf') }} {{ currentPage }} / {{ totalPages }}
-      </span>
+      <div class="flex items-center gap-2">
+        <button
+          @click="prevPage"
+          :disabled="currentPage === 1"
+          class="px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 font-bold text-gray-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-slate-800 transition cursor-pointer shadow-2xs"
+        >
+          ◄ {{ t('parcelDetail.prevBtn') }}
+        </button>
 
-      <button
-        @click="nextPage"
-        :disabled="currentPage === totalPages"
-        class="px-4 py-2 rounded-xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 font-bold text-gray-700 dark:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-slate-800"
-      >
-        {{ t('parcelDetail.nextBtn') }} ►
-      </button>
+        <div class="flex items-center gap-1">
+          <template v-for="(p, index) in visiblePages" :key="index">
+            <span v-if="p === '...'" class="px-2 py-1 text-gray-400 dark:text-slate-500 font-extrabold select-none text-xs">...</span>
+            <button
+              v-else
+              @click="currentPage = p"
+              :class="[
+                'w-8 h-8 rounded-xl font-extrabold text-xs transition cursor-pointer flex items-center justify-center',
+                currentPage === p ? 'bg-[#053754] dark:bg-sky-500 text-white shadow-xs' : 'bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-gray-600 dark:text-slate-300 hover:bg-gray-100'
+              ]"
+            >
+              {{ p }}
+            </button>
+          </template>
+        </div>
+
+        <button
+          @click="nextPage"
+          :disabled="currentPage === totalPages"
+          class="px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 font-bold text-gray-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-slate-800 transition cursor-pointer shadow-2xs"
+        >
+          {{ t('parcelDetail.nextBtn') }} ►
+        </button>
+      </div>
     </div>
 
     <!-- ========================================================================= -->

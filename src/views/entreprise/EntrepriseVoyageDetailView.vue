@@ -4,12 +4,12 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from '@/composables/useI18n'
 import Swal from 'sweetalert2'
 import { fetchVoyage } from '@/services/voyageService'
-import { accepterReservation, refuserReservation, annulerReservation } from '@/services/reservationService'
+import { accepterReservation, refuserReservation } from '@/services/reservationService'
 import { getCountryFlag, formatVoyageDate } from '@/utils/flagHelper'
 import CountryFlag from '@/components/common/CountryFlag.vue'
 import { decodeId, encodeId } from '@/utils/idMasker'
-import { setHeaderRoute, clearHeaderRoute } from '@/utils/headerState'
-import { currentCurrency, formatPrice, convertAmount } from '@/utils/currencyState'
+import { setHeaderRoute } from '@/utils/headerState'
+import { formatPrice } from '@/utils/currencyState'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -62,7 +62,7 @@ const getStatusBadge = (statut) => {
     case 'publie':
       return { text: t('voyageur.status.publie', 'Publié & Ouvert'), cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' }
     case 'brouillon':
-      return { text: t('voyageur.status.brouillon', 'Brouillon'), cls: 'bg-gray-100 text-gray-700 border-gray-300' }
+      return { text: t('voyageur.status.brouillon', 'Brouillon'), cls: 'bg-amber-50 text-amber-700 border-amber-200' }
     case 'complet':
       return { text: t('voyageur.status.complet', 'Vol Complet'), cls: 'bg-purple-50 text-purple-700 border-purple-200' }
     case 'en_cours':
@@ -90,13 +90,6 @@ const getReservationStatusBadge = (statut) => {
     default:
       return { text: statut || 'Inconnu', cls: 'bg-slate-100 text-slate-700 border-slate-200' }
   }
-}
-
-const truncateText = (text, maxLength = 30) => {
-  if (!text) return ''
-  const str = String(text)
-  if (str.length <= maxLength) return str
-  return str.slice(0, maxLength) + '...'
 }
 
 const loadVoyageData = async () => {
@@ -132,6 +125,7 @@ const loadVoyageData = async () => {
         devise: v.devise || 'XOF',
         description: v.description || '',
         statut: v.statut || 'publie',
+        agentGp: v.agent_gp || v.agentGp || null,
         adresseDepot: v.adresse_depot || null,
         adresseRetrait: v.adresse_recuperation || null,
         categoriesAutorisees: Array.isArray(v.objets_autorises) ? v.objets_autorises : [],
@@ -194,11 +188,6 @@ const loadVoyageData = async () => {
 
 onMounted(loadVoyageData)
 
-const goToDemandeDetail = (resId) => {
-  const masked = encodeId(resId)
-  router.push(`/voyageur/demandes/${masked}`)
-}
-
 const handleAccepter = async (resId) => {
   isUpdatingStatus.value = true
   try {
@@ -247,8 +236,19 @@ const handleRefuser = async (resId) => {
   }
 }
 
+const goToDemandeDetail = (resId) => {
+  router.push(`/entreprise/demandes/${encodeId(resId)}`)
+}
+
+const truncateText = (str, maxLen = 30) => {
+  if (str === null || str === undefined) return ''
+  const s = String(str).trim()
+  if (s.length <= maxLen) return s
+  return s.substring(0, maxLen) + '...'
+}
+
 const goBack = () => {
-  router.push('/voyageur')
+  router.push('/entreprise/voyages')
 }
 </script>
 
@@ -262,7 +262,7 @@ const goBack = () => {
         class="inline-flex items-center gap-1.5 text-xs font-bold text-gray-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 px-3 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors shadow-2xs cursor-pointer shrink"
       >
         <span>←</span>
-        <span>{{ t('voyageur.voyageDetail.backBtn') }}</span>
+        <span>{{ t('voyageur.voyageDetail.backBtn', 'Retour aux voyages') }}</span>
       </button>
 
       <span
@@ -277,25 +277,32 @@ const goBack = () => {
     <!-- Loading State -->
     <div v-if="isLoading" class="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center border border-gray-100 dark:border-slate-800 shadow-sm space-y-4">
       <div class="w-10 h-10 border-4 border-[#053754] dark:border-sky-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
-      <p class="text-sm font-bold text-gray-600 dark:text-slate-300">{{ t('voyageur.voyageDetail.loading') }}</p>
+      <p class="text-sm font-bold text-gray-600 dark:text-slate-300">{{ t('voyageur.voyageDetail.loading', 'Chargement du voyage...') }}</p>
     </div>
 
     <!-- Error State -->
     <div v-else-if="errorMsg" class="bg-red-50 dark:bg-rose-950/40 border border-red-200 dark:border-rose-900 rounded-3xl p-8 text-center space-y-3">
       <p class="text-sm font-bold text-red-800 dark:text-rose-300">{{ errorMsg }}</p>
-      <button @click="goBack" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-xl cursor-pointer">{{ t('voyageur.voyageDetail.backBtn') }}</button>
+      <button @click="goBack" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-xl cursor-pointer">Retour</button>
     </div>
 
     <!-- Main Content when loaded -->
     <template v-else-if="voyage">
       <!-- Title Header -->
-      <div>
-        <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark dark:text-sky-300">
-          {{ t('voyageur.voyageDetail.title') }} {{ voyage.routeFrom }} ➔ {{ voyage.routeTo }}
-        </h1>
-        <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400">
-          {{ t('voyageur.voyageDetail.subTitle') }}
-        </p>
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h1 class="text-xl sm:text-2xl font-serif font-bold text-principal-dark dark:text-sky-300">
+            Détails Voyage {{ voyage.routeFrom }} ➔ {{ voyage.routeTo }}
+          </h1>
+          <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400">
+            Vue détaillée du voyage entreprise et suivi des réservations
+          </p>
+        </div>
+
+        <div v-if="voyage.agentGp?.user" class="inline-flex items-center gap-2 bg-sky-50 dark:bg-slate-800 border border-sky-100 dark:border-slate-700 px-3.5 py-1.5 rounded-2xl text-xs font-extrabold text-[#053754] dark:text-sky-300">
+          <span>👤 Agent GP:</span>
+          <span>{{ voyage.agentGp.user.prenom }} {{ voyage.agentGp.user.nom }}</span>
+        </div>
       </div>
 
       <!-- Hero Summary Dark Blue Card -->
@@ -332,13 +339,13 @@ const goBack = () => {
         <!-- Dates Row -->
         <div class="grid grid-cols-2 gap-4 pt-4 border-t border-sky-800/80 text-xs">
           <div>
-            <span class="text-sky-200 font-medium block">{{ t('voyageur.voyageDetail.departureDate') }}</span>
+            <span class="text-sky-200 font-medium block">Date de départ</span>
             <span class="font-extrabold text-white text-xs sm:text-sm mt-0.5 block">
               {{ formatVoyageDate(voyage.departureDate) }}
             </span>
           </div>
           <div class="text-right">
-            <span class="text-sky-200 font-medium block">{{ t('voyageur.voyageDetail.arrivalDate') }}</span>
+            <span class="text-sky-200 font-medium block">Date d'arrivée</span>
             <span class="font-extrabold text-white text-xs sm:text-sm mt-0.5 block">
               {{ formatVoyageDate(voyage.arrivalDate) }}
             </span>
@@ -348,7 +355,7 @@ const goBack = () => {
         <!-- Capacity Progress Bar -->
         <div class="space-y-2 pt-2 border-t border-sky-800/80">
           <div class="flex items-center justify-between text-xs font-extrabold">
-            <span class="text-sky-200">{{ t('voyageur.voyageDetail.capacityUsed') }}</span>
+            <span class="text-sky-200">Capacité occupée</span>
             <span class="text-white">{{ voyage.capaciteTotale - voyage.capaciteDispo }} Kg / {{ voyage.capaciteTotale }} Kg</span>
           </div>
           <div class="w-full h-3 bg-sky-950/80 rounded-full overflow-hidden border border-sky-700/50">
@@ -358,21 +365,21 @@ const goBack = () => {
             ></div>
           </div>
           <div class="flex justify-between text-[11px] text-sky-300">
-            <span>{{ t('voyageur.voyageDetail.remCapacity') }} <strong class="text-white">{{ voyage.capaciteDispo }} Kg</strong></span>
-            <span>{{ t('voyageur.voyageDetail.rateKg') }} <strong class="text-white">{{ voyage.prixKg }}</strong> | {{ t('voyageur.voyageDetail.rateObjet') }} <strong class="text-white">{{ voyage.prixObjet }}</strong></span>
+            <span>Reste disponible : <strong class="text-white">{{ voyage.capaciteDispo }} Kg</strong></span>
+            <span>Tarif / Kg : <strong class="text-white">{{ voyage.prixKg }}</strong> | Tarif / Objet : <strong class="text-white">{{ voyage.prixObjet }}</strong></span>
           </div>
         </div>
 
         <!-- Dynamic Revenue Metrics for this Voyage -->
         <div class="pt-3 border-t border-sky-800/80 grid grid-cols-2 gap-4 text-xs">
           <div>
-            <span class="text-emerald-300 font-bold block">{{ t('voyageur.voyageDetail.confirmedRev') }}</span>
+            <span class="text-emerald-300 font-bold block">Revenus confirmés</span>
             <span class="text-lg sm:text-xl font-black text-emerald-400 block mt-0.5">
               {{ totalRevenuVolAccepte }}
             </span>
           </div>
           <div class="text-right">
-            <span class="text-amber-200 font-bold block">{{ t('voyageur.voyageDetail.totalRev') }}</span>
+            <span class="text-amber-200 font-bold block">Chiffre d'affaires estimé</span>
             <span class="text-lg sm:text-xl font-black text-amber-300 block mt-0.5">
               {{ totalRevenuVolEstime }}
             </span>
@@ -388,14 +395,14 @@ const goBack = () => {
           
           <!-- Tarifs Card -->
           <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-3">
-            <h3 class="text-xs font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider">{{ t('voyageur.voyageDetail.pricingApplied') }}</h3>
+            <h3 class="text-xs font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider">Tarifications appliquées</h3>
             <div class="grid grid-cols-2 gap-4">
               <div class="bg-slate-50 dark:bg-slate-800/80 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-1">
-                <span class="text-xs text-gray-500 dark:text-slate-400 block font-medium">{{ t('voyageur.voyageDetail.pricePerKg') }}</span>
+                <span class="text-xs text-gray-500 dark:text-slate-400 block font-medium">Prix par kilo (Kg)</span>
                 <span class="text-lg font-black text-[#B50302] dark:text-rose-400 block">{{ voyage.prixKg }}</span>
               </div>
               <div class="bg-slate-50 dark:bg-slate-800/80 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-1">
-                <span class="text-xs text-gray-500 dark:text-slate-400 block font-medium">{{ t('voyageur.voyageDetail.pricePerItem') }}</span>
+                <span class="text-xs text-gray-500 dark:text-slate-400 block font-medium">Prix par objet / pli</span>
                 <span class="text-lg font-black text-[#053754] dark:text-sky-300 block">{{ voyage.prixObjet }}</span>
               </div>
             </div>
@@ -405,7 +412,7 @@ const goBack = () => {
           <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-3">
             <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-2">
               <h3 class="text-xs font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <span>📍</span> {{ t('voyageur.voyageDetail.depositAddr') }}
+                <span>📍</span> Adresse de Dépôt
               </h3>
             </div>
             
@@ -416,23 +423,23 @@ const goBack = () => {
               </div>
               
               <div v-if="voyage.adresseDepot.horaire_ouverture" class="bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-800/60 p-3 rounded-2xl text-xs space-y-0.5">
-                <span class="text-amber-800 dark:text-amber-300 font-bold block">🕒 {{ t('voyageur.voyageDetail.openingHours') }}</span>
+                <span class="text-amber-800 dark:text-amber-300 font-bold block">🕒 Horaires d'ouverture</span>
                 <span class="text-amber-900 dark:text-amber-200 font-medium block">{{ voyage.adresseDepot.horaire_ouverture }}</span>
               </div>
 
               <div v-if="voyage.adresseDepot.instructions" class="bg-blue-50/60 dark:bg-sky-950/40 border border-blue-200/60 dark:border-sky-800/60 p-3 rounded-2xl text-xs space-y-0.5">
-                <span class="text-blue-800 dark:text-sky-300 font-bold block">💡 {{ t('voyageur.voyageDetail.instructions') }}</span>
+                <span class="text-blue-800 dark:text-sky-300 font-bold block">💡 Consignes de dépôt</span>
                 <span class="text-blue-900 dark:text-sky-200 font-medium block">{{ voyage.adresseDepot.instructions }}</span>
               </div>
             </template>
-            <p v-else class="text-xs text-gray-400 dark:text-slate-500 italic">{{ t('voyageur.voyageDetail.noDepositAddr') }}</p>
+            <p v-else class="text-xs text-gray-400 dark:text-slate-500 italic">Aucune adresse de dépôt renseignée</p>
           </div>
 
           <!-- Adresse de Récupération Card -->
           <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-3">
             <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-2">
               <h3 class="text-xs font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <span>📍</span> {{ t('voyageur.voyageDetail.pickupAddr') }}
+                <span>📍</span> Adresse de Récupération
               </h3>
             </div>
 
@@ -443,21 +450,21 @@ const goBack = () => {
               </div>
 
               <div v-if="voyage.adresseRetrait.horaire_ouverture" class="bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-800/60 p-3 rounded-2xl text-xs space-y-0.5">
-                <span class="text-amber-800 dark:text-amber-300 font-bold block">🕒 {{ t('voyageur.voyageDetail.pickupHours') }}</span>
+                <span class="text-amber-800 dark:text-amber-300 font-bold block">🕒 Horaires de retrait</span>
                 <span class="text-amber-900 dark:text-amber-200 font-medium block">{{ voyage.adresseRetrait.horaire_ouverture }}</span>
               </div>
 
               <div v-if="voyage.adresseRetrait.instructions" class="bg-blue-50/60 dark:bg-sky-950/40 border border-blue-200/60 dark:border-sky-800/60 p-3 rounded-2xl text-xs space-y-0.5">
-                <span class="text-blue-800 dark:text-sky-300 font-bold block">💡 {{ t('voyageur.voyageDetail.pickupInstructions') }}</span>
+                <span class="text-blue-800 dark:text-sky-300 font-bold block">💡 Consignes de retrait</span>
                 <span class="text-blue-900 dark:text-sky-200 font-medium block">{{ voyage.adresseRetrait.instructions }}</span>
               </div>
             </template>
-            <p v-else class="text-xs text-gray-400 dark:text-slate-500 italic">{{ t('voyageur.voyageDetail.noPickupAddr') }}</p>
+            <p v-else class="text-xs text-gray-400 dark:text-slate-500 italic">Aucune adresse de récupération renseignée</p>
           </div>
 
           <!-- Description / Notes -->
           <div v-if="voyage.description" class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-2">
-            <h3 class="text-xs font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider">{{ t('voyageur.voyageDetail.carrierNote') }}</h3>
+            <h3 class="text-xs font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider">Note & Consignes particulières</h3>
             <p class="text-xs text-gray-700 dark:text-slate-300 leading-relaxed font-medium bg-gray-50 dark:bg-slate-800/80 p-3.5 rounded-2xl border border-gray-100 dark:border-slate-700">
               {{ voyage.description }}
             </p>
@@ -471,7 +478,7 @@ const goBack = () => {
           <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-emerald-300 dark:border-emerald-800 shadow-2xs space-y-3">
             <div class="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-extrabold text-sm border-b border-emerald-100 dark:border-emerald-900/60 pb-2">
               <span class="text-base">✅</span>
-              <span>{{ t('voyageur.voyageDetail.allowedCategories') }}</span>
+              <span>Catégories d'objets autorisés</span>
             </div>
             
             <div v-if="voyage.categoriesAutorisees.length > 0" class="flex flex-wrap gap-2 pt-1">
@@ -484,14 +491,14 @@ const goBack = () => {
                 <span>{{ cat }}</span>
               </span>
             </div>
-            <p v-else class="text-xs text-gray-400 dark:text-slate-500 italic">{{ t('voyageur.voyageDetail.noCategory') }}</p>
+            <p v-else class="text-xs text-gray-400 dark:text-slate-500 italic">Aucune catégorie spécifique</p>
           </div>
 
           <!-- Objets interdits Card -->
           <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-red-300 dark:border-rose-900 shadow-2xs space-y-3">
             <div class="flex items-center gap-2 text-red-800 dark:text-rose-300 font-extrabold text-sm border-b border-red-100 dark:border-rose-950 pb-2">
               <span class="text-base">🚫</span>
-              <span>{{ t('voyageur.voyageDetail.forbiddenCategories') }}</span>
+              <span>Catégories d'objets interdits</span>
             </div>
 
             <div v-if="voyage.categoriesRefusees.length > 0" class="flex flex-wrap gap-2 pt-1">
@@ -504,17 +511,17 @@ const goBack = () => {
                 <span>{{ cat }}</span>
               </span>
             </div>
-            <p v-else class="text-xs text-gray-400 dark:text-slate-500 italic">{{ t('voyageur.voyageDetail.noRestriction') }}</p>
+            <p v-else class="text-xs text-gray-400 dark:text-slate-500 italic">Aucune restriction spécifique</p>
           </div>
         </div>
 
       </div>
 
-      <!-- Reservations Section (Premium Redesigned Cards) -->
+      <!-- Reservations Section -->
       <div class="space-y-4 pt-4 border-t border-gray-200 dark:border-slate-800">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <h2 class="text-base sm:text-lg font-bold text-principal-dark dark:text-sky-300 flex items-center gap-2">
-            <span>{{ t('voyageur.voyageDetail.reservationsTitle') }}</span>
+            <span>Réservations associées</span>
             <span class="bg-sky-100 dark:bg-sky-950 text-[#074C72] dark:text-sky-300 text-xs px-2.5 py-0.5 rounded-full font-black">{{ filteredReservations.length }}</span>
           </h2>
           
@@ -540,7 +547,7 @@ const goBack = () => {
 
         <template v-if="filteredReservations.length > 0">
           <!-- Desktop Table View -->
-          <div class="hidden md:block overflow-x-auto w-full bg-white dark:bg-slate-900 rounded-3xl border border-gray-200 dark:border-slate-800 shadow-sm p-4">
+          <div class="hidden md:block overflow-x-auto min-w-full bg-white dark:bg-slate-900 rounded-3xl border border-gray-200 dark:border-slate-800 shadow-sm p-4">
             <table class="min-w-max w-full text-left border-collapse">
               <thead>
                 <tr class="border-b border-gray-100 dark:border-slate-800 text-[11px] font-extrabold text-gray-400 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
@@ -553,31 +560,30 @@ const goBack = () => {
                   <th class="pb-3 px-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-gray-100 dark:divide-slate-800/60 text-xs">
+              <tbody class="divide-y divide-gray-100 dark:divide-slate-800/60 text-xs whitespace-nowrap">
                 <tr
                   v-for="res in filteredReservations"
                   :key="res.id"
-                  @click="goToDemandeDetail(res.id)"
-                  class="hover:bg-sky-50/50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group"
+                  class="hover:bg-sky-50/50 dark:hover:bg-slate-800/50 transition-colors"
                 >
-                  <td class="py-3.5 px-3 whitespace-nowrap">
+                  <td class="py-3.5 px-3">
                     <span class="font-extrabold text-[#053754] dark:text-sky-300 font-mono bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700">
-                      {{ res.codeTracking }}
+                      {{ truncateText(res.codeTracking, 30) }}
                     </span>
-                    <span class="block text-[10px] text-gray-400 dark:text-slate-400 font-mono mt-0.5">{{ res.numero }}</span>
+                    <span class="block text-[10px] text-gray-400 dark:text-slate-400 font-mono mt-0.5">{{ truncateText(res.numero, 30) }}</span>
                   </td>
-                  <td class="py-3.5 px-3 font-extrabold text-gray-900 dark:text-slate-100 whitespace-nowrap">
+                  <td class="py-3.5 px-3 font-extrabold text-gray-900 dark:text-slate-100">
                     <div class="flex items-center gap-2">
                       <div class="w-7 h-7 rounded-full bg-[#053754] text-white text-[10px] font-bold flex items-center justify-center shrink-0">
                         {{ res.clientNom.slice(0, 2).toUpperCase() }}
                       </div>
                       <div>
                         <div>{{ truncateText(res.clientNom, 30) }}</div>
-                        <div class="text-[10px] text-gray-400 font-normal">{{ res.clientPhone }}</div>
+                        <div class="text-[10px] text-gray-400 font-normal">{{ truncateText(res.clientPhone, 30) }}</div>
                       </div>
                     </div>
                   </td>
-                  <td class="py-3.5 px-3 whitespace-nowrap">
+                  <td class="py-3.5 px-3">
                     <span class="font-bold text-gray-800 dark:text-slate-200 block">{{ truncateText(res.colisType, 30) }}</span>
                     <span v-if="res.colisEstFragile" class="inline-block text-[10px] font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800">
                       ⚠️ Fragile
@@ -600,6 +606,14 @@ const goBack = () => {
                   <td class="py-3.5 px-3 text-right" @click.stop>
                     <div class="flex items-center justify-end gap-1.5">
                       <button
+                        @click="goToDemandeDetail(res.id)"
+                        type="button"
+                        class="bg-sky-50 dark:bg-sky-950/60 hover:bg-sky-100 dark:hover:bg-sky-900 text-[#074C72] dark:text-sky-300 border border-sky-200 dark:border-sky-800 font-extrabold text-[11px] px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
+                      >
+                        Détails
+                      </button>
+
+                      <button
                         v-if="res.statut === 'en_attente'"
                         @click="handleAccepter(res.id)"
                         :disabled="isUpdatingStatus"
@@ -617,14 +631,6 @@ const goBack = () => {
                       >
                         Refuser
                       </button>
-                      <button
-                        @click="goToDemandeDetail(res.id)"
-                        type="button"
-                        class="bg-[#053754] dark:bg-sky-600 hover:bg-[#074C72] text-white font-extrabold text-[11px] px-3 py-1.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
-                      >
-                        <span>Détails</span>
-                        <span>➔</span>
-                      </button>
                     </div>
                   </td>
                 </tr>
@@ -637,20 +643,19 @@ const goBack = () => {
             <div
               v-for="res in filteredReservations"
               :key="res.id"
-              @click="goToDemandeDetail(res.id)"
-              class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-gray-200 dark:border-slate-800 shadow-sm space-y-4 hover:border-[#074C72] dark:hover:border-sky-400 hover:shadow-md transition-all flex flex-col justify-between cursor-pointer group"
+              class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-gray-200 dark:border-slate-800 shadow-sm space-y-4 flex flex-col justify-between"
             >
-              <!-- Card Header: Client Avatar + Name + Status Badge -->
+              <!-- Card Header -->
               <div class="flex items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-full bg-[#053754] dark:bg-slate-800 text-white font-extrabold text-xs flex items-center justify-center shrink-0 shadow-xs group-hover:bg-[#B50302] transition-colors">
+                  <div class="w-10 h-10 rounded-full bg-[#053754] text-white font-extrabold text-xs flex items-center justify-center shrink-0 shadow-xs">
                     {{ res.clientNom.slice(0, 2).toUpperCase() }}
                   </div>
                   <div>
-                    <h4 class="text-sm font-extrabold text-gray-900 dark:text-slate-100 group-hover:text-[#074C72] dark:group-hover:text-sky-300 transition-colors flex items-center gap-2">
-                      <span>{{ res.clientNom }}</span>
+                    <h4 class="text-sm font-extrabold text-gray-900 dark:text-slate-100">
+                      {{ res.clientNom }}
                     </h4>
-                    <span class="text-[10px] text-gray-400 dark:text-slate-400 font-medium">{{ t('voyageur.voyageDetail.clientLabel') }}</span>
+                    <span class="text-[10px] text-gray-400 font-medium">Expéditeur</span>
                   </div>
                 </div>
 
@@ -665,43 +670,50 @@ const goBack = () => {
               <!-- Main Info Box -->
               <div class="bg-slate-50 dark:bg-slate-800/80 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-2.5">
                 <div class="flex items-center justify-between text-xs">
-                  <span class="text-gray-400 dark:text-slate-400 font-medium">{{ t('voyageur.voyageDetail.resNo') }}</span>
+                  <span class="text-gray-400 dark:text-slate-400 font-medium">Numéro</span>
                   <span class="font-extrabold text-[#053754] dark:text-sky-300 font-mono bg-white dark:bg-slate-900 px-2 py-0.5 rounded-md border border-gray-200 dark:border-slate-700">{{ res.numero }}</span>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2 text-xs">
                   <div>
-                    <span class="text-gray-400 dark:text-slate-400 font-medium block">{{ t('voyageur.voyageDetail.contentType') }}</span>
+                    <span class="text-gray-400 dark:text-slate-400 font-medium block">Contenu</span>
                     <span class="font-extrabold text-gray-900 dark:text-slate-100 block truncate">{{ res.colisType }}</span>
                   </div>
                   <div class="text-right">
-                    <span class="text-gray-400 dark:text-slate-400 font-medium block">{{ t('voyageur.voyageDetail.weight') }}</span>
+                    <span class="text-gray-400 dark:text-slate-400 font-medium block">Poids</span>
                     <span class="font-extrabold text-[#B50302] dark:text-rose-400 block">{{ res.colisPoids }}</span>
                   </div>
                 </div>
 
                 <div v-if="res.colisEstFragile" class="bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-[11px] font-bold px-2.5 py-1 rounded-lg border border-amber-200/80 dark:border-amber-800 flex items-center gap-1.5">
-                  <span>⚠️</span> {{ t('voyageur.voyageDetail.fragile') }}
+                  <span>⚠️</span> Fragile
                 </div>
               </div>
 
-              <!-- Footer Action & Price Row with Icons on Mobile -->
+              <!-- Footer Action & Price Row -->
               <div class="border-t border-gray-100 dark:border-slate-800 pt-3 flex items-center justify-between gap-2">
                 <div>
-                  <span class="text-[10px] text-gray-400 dark:text-slate-400 font-bold uppercase block">{{ t('voyageur.voyageDetail.totalAmount') }}</span>
+                  <span class="text-[10px] text-gray-400 dark:text-slate-400 font-bold uppercase block">Montant</span>
                   <span class="font-black text-[#053754] dark:text-sky-300 text-base sm:text-lg">{{ res.montantTotal }}</span>
                 </div>
 
                 <div class="flex items-center gap-1.5" @click.stop>
                   <button
+                    @click="goToDemandeDetail(res.id)"
+                    type="button"
+                    class="h-9 px-3 rounded-xl bg-sky-50 dark:bg-sky-950/60 hover:bg-sky-100 dark:hover:bg-sky-900 text-[#074C72] dark:text-sky-300 border border-sky-200 dark:border-sky-800 font-extrabold text-xs flex items-center justify-center transition-all cursor-pointer"
+                  >
+                    Détails
+                  </button>
+
+                  <button
                     v-if="res.statut === 'en_attente'"
                     @click="handleAccepter(res.id)"
                     :disabled="isUpdatingStatus"
                     type="button"
-                    title="Accepter"
-                    class="w-9 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm flex items-center justify-center transition-all cursor-pointer shadow-2xs active:scale-95 shrink-0"
+                    class="h-9 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs flex items-center justify-center transition-all cursor-pointer shadow-2xs"
                   >
-                    ✓
+                    Accepter
                   </button>
 
                   <button
@@ -709,20 +721,9 @@ const goBack = () => {
                     @click="handleRefuser(res.id)"
                     :disabled="isUpdatingStatus"
                     type="button"
-                    title="Refuser"
-                    class="w-9 h-9 rounded-xl bg-red-50 dark:bg-rose-950/50 hover:bg-red-100 dark:hover:bg-rose-900/60 text-[#B50302] dark:text-rose-300 border border-red-200 dark:border-rose-900 font-black text-sm flex items-center justify-center transition-all cursor-pointer active:scale-95 shrink-0"
+                    class="h-9 px-3 rounded-xl bg-red-50 dark:bg-rose-950/50 hover:bg-red-100 text-[#B50302] dark:text-rose-300 border border-red-200 dark:border-rose-900 font-extrabold text-xs flex items-center justify-center transition-all cursor-pointer"
                   >
-                    ✕
-                  </button>
-
-                  <button
-                    @click="goToDemandeDetail(res.id)"
-                    type="button"
-                    title="Détails"
-                    class="h-9 px-3 rounded-xl bg-[#053754] dark:bg-sky-600 hover:bg-[#074C72] dark:hover:bg-sky-500 text-white font-extrabold text-xs flex items-center justify-center gap-1 transition-all cursor-pointer shadow-xs active:scale-95 shrink-0"
-                  >
-                    <span>👁️</span>
-                    <span class="text-[11px]">Détails</span>
+                    Refuser
                   </button>
                 </div>
               </div>
@@ -735,8 +736,8 @@ const goBack = () => {
           <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 flex items-center justify-center text-xl mx-auto font-bold">
             📦
           </div>
-          <p class="text-sm font-bold text-gray-700 dark:text-slate-200">{{ t('voyageur.voyageDetail.noReservationsTitle') }}</p>
-          <p class="text-xs text-gray-400 dark:text-slate-400">{{ t('voyageur.voyageDetail.noReservationsSub') }}</p>
+          <p class="text-sm font-bold text-gray-700 dark:text-slate-200">Aucune réservation pour le moment</p>
+          <p class="text-xs text-gray-400 dark:text-slate-400">Les demandes de réservation de vos clients apparaîtront ici.</p>
         </div>
       </div>
     </template>

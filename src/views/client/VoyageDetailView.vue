@@ -54,9 +54,16 @@ onMounted(async () => {
     const res = await fetchVoyage(voyageId)
     if (res && res.data) {
       const v = res.data
-      const vId = v.voyageur_id || v.voyageur?.id
-      const vUserId = v.voyageur?.user_id || v.voyageur?.user?.id || (v.user ? v.user.id : null)
-      
+      const vId = v.voyageur_id || v.voyageur?.id || v.agent_gp_id || v.entreprise_id
+      const vUserId = v.voyageur?.user_id || v.voyageur?.user?.id 
+        || v.agent_gp?.user?.id || v.entreprise?.gerant_user_id 
+        || (v.user ? v.user.id : null)
+
+      const transporteurName = v.voyageur
+        ? `${v.voyageur.prenom || v.voyageur.user?.prenom || ''} ${v.voyageur.nom || v.voyageur.user?.nom || ''}`.trim()
+        : (v.agent_gp?.user ? `${v.agent_gp.user.prenom || ''} ${v.agent_gp.user.nom || ''}`.trim()
+        : (v.entreprise?.nom_entreprise || v.transporteur_nom || 'Transporteur GP'))
+
       voyage.value = {
         id: v.id,
         voyageurId: vId,
@@ -74,7 +81,7 @@ onMounted(async () => {
         devise: v.devise || 'XOF',
         prixKg: computed(() => v.prix_kg ? formatPrice(v.prix_kg, v.devise || 'XOF') : 'Non défini'),
         prixObjet: computed(() => v.prix_objet ? formatPrice(v.prix_objet, v.devise || 'XOF') : 'Non défini'),
-        transporteur: v.voyageur ? `${v.voyageur.prenom || v.voyageur.user?.prenom || ''} ${v.voyageur.nom || v.voyageur.user?.nom || ''}`.trim() || 'Transporteur GP' : (v.transporteur_nom || 'Transporteur GP'),
+        transporteur: transporteurName || 'Transporteur GP',
         adresseDepotObj: v.adresse_depot || null,
         adresseDepotText: v.adresse_depot ? `${v.adresse_depot.adresse} (${v.adresse_depot.ville}, ${v.adresse_depot.pays})` : 'Adresse non spécifiée',
         horaireDepot: v.adresse_depot?.horaire_ouverture || 'Non précisé',

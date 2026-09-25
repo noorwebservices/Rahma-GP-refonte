@@ -1,8 +1,8 @@
 <template>
   <div class="space-y-6">
 
-    <!-- 2 Summary Cards: Clients & Voyageurs -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <!-- 3 Summary Cards: Clients, Voyageurs & Entreprises GP -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <!-- Card Clients -->
       <div class="bg-white dark:bg-slate-900 border border-sky-200/70 dark:border-slate-800 rounded-3xl p-5 shadow-2xs flex items-center justify-between">
         <div>
@@ -26,18 +26,30 @@
           ✈️
         </div>
       </div>
+
+      <!-- Card Entreprises GP -->
+      <div class="bg-white dark:bg-slate-900 border border-indigo-200/70 dark:border-slate-800 rounded-3xl p-5 shadow-2xs flex items-center justify-between">
+        <div>
+          <span class="text-xs font-extrabold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider block">Entreprises GP</span>
+          <h3 class="text-2xl sm:text-3xl font-black text-[#053754] dark:text-white mt-1">{{ totalEntreprisesCount }}</h3>
+          <p class="text-[11px] font-medium text-gray-400 dark:text-gray-400">Comptes Gérants Entreprise GP</p>
+        </div>
+        <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-bold text-xl shrink-0 border border-indigo-100 dark:border-indigo-900">
+          🏢
+        </div>
+      </div>
     </div>
     
-    <!-- Header with 2 Tabs (Clients / Voyageurs) & Filters -->
+    <!-- Header with 3 Tabs (Clients / Voyageurs / Entreprises GP) & Filters -->
     <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-5 shadow-2xs space-y-4">
       
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         
-        <!-- Tab Selector: Clients / Voyageurs -->
-        <div class="bg-[#FAF7F2] dark:bg-slate-800 p-1 rounded-2xl flex items-center border border-gray-200 dark:border-slate-700">
+        <!-- Tab Selector: Clients / Voyageurs / Entreprises GP -->
+        <div class="bg-[#FAF7F2] dark:bg-slate-800 p-1 rounded-2xl flex items-center border border-gray-200 dark:border-slate-700 overflow-x-auto">
           <button
             @click="activeTab = 'client'; fetchUsers()"
-            class="px-5 py-2.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center gap-2"
+            class="px-5 py-2.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap"
             :class="activeTab === 'client' ? 'bg-[#053754] text-white shadow-2xs' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'"
           >
             <span>👤</span>
@@ -46,11 +58,20 @@
           
           <button
             @click="activeTab = 'voyageur'; fetchUsers()"
-            class="px-5 py-2.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center gap-2"
+            class="px-5 py-2.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap"
             :class="activeTab === 'voyageur' ? 'bg-[#053754] text-white shadow-2xs' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'"
           >
             <span>✈️</span>
             <span>Voyageurs</span>
+          </button>
+
+          <button
+            @click="activeTab = 'entreprise'; fetchUsers()"
+            class="px-5 py-2.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap"
+            :class="activeTab === 'entreprise' ? 'bg-[#053754] text-white shadow-2xs' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'"
+          >
+            <span>🏢</span>
+            <span>Entreprises GP</span>
           </button>
         </div>
 
@@ -86,23 +107,24 @@
       <!-- Loading State -->
       <div v-if="loading" class="p-12 text-center space-y-3">
         <div class="w-10 h-10 border-4 border-[#053754] dark:border-sky-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
-        <p class="text-xs font-bold text-[#074C72] dark:text-sky-300">Chargement de la liste des {{ activeTab === 'client' ? 'clients' : 'voyageurs' }}...</p>
+        <p class="text-xs font-bold text-[#074C72] dark:text-sky-300">Chargement de la liste des {{ activeTab === 'client' ? 'clients' : activeTab === 'voyageur' ? 'voyageurs' : 'entreprises GP' }}...</p>
       </div>
 
       <!-- Empty State -->
       <div v-else-if="filteredUsers.length === 0" class="text-center py-16 text-gray-400 font-semibold text-sm">
-        Aucun {{ activeTab === 'client' ? 'client' : 'voyageur' }} trouvé.
+        Aucun {{ activeTab === 'client' ? 'client' : activeTab === 'voyageur' ? 'voyageur' : 'gérant d\'entreprise GP' }} trouvé.
       </div>
 
       <div v-else class="overflow-x-auto">
         <table class="w-full min-w-[850px] text-left text-xs sm:text-sm">
           <thead class="bg-slate-50 dark:bg-slate-800/80 text-[#053754] dark:text-sky-300 uppercase tracking-wider font-extrabold border-b border-gray-200 dark:border-slate-800 text-[11px] whitespace-nowrap">
             <tr>
-              <th class="px-6 py-4">Utilisateur</th>
+              <th class="px-6 py-4">Utilisateur / Gérant</th>
               <th class="px-6 py-4">Contact</th>
               <th class="px-6 py-4">Dernière Connexion</th>
               <th class="px-6 py-4">Statut Compte</th>
               <th v-if="activeTab === 'voyageur'" class="px-6 py-4">Vérification KYC</th>
+              <th v-if="activeTab === 'entreprise'" class="px-6 py-4">Entreprise GP & Validation</th>
               <th class="px-6 py-4">Empreinte BD</th>
               <th class="px-6 py-4 text-right">Actions</th>
             </tr>
@@ -121,6 +143,7 @@
                   </div>
                   <div>
                     <p class="font-extrabold text-[#053754] dark:text-slate-100 text-xs sm:text-sm whitespace-nowrap">{{ user.prenom }} {{ user.nom }}</p>
+                    <span v-if="user.entreprise_geree" class="text-[10px] font-bold text-sky-700 dark:text-sky-300 block">Gérant de {{ user.entreprise_geree.nom }}</span>
                   </div>
                 </div>
               </td>
@@ -151,6 +174,17 @@
                 <span v-else class="text-xs text-gray-400">-</span>
               </td>
 
+              <!-- Entreprise GP & Validation (if entreprise tab) -->
+              <td v-if="activeTab === 'entreprise'" class="px-6 py-4 whitespace-nowrap">
+                <div v-if="user.entreprise_geree" class="space-y-1">
+                  <p class="font-extrabold text-[#053754] dark:text-sky-300 text-xs">{{ user.entreprise_geree.nom }}</p>
+                  <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold border uppercase tracking-wider" :class="getEntrepriseStatutBadge(user.entreprise_geree.statut_verification)">
+                    {{ user.entreprise_geree.statut_verification === 'verifiee' ? 'Validée' : user.entreprise_geree.statut_verification === 'en_attente' ? 'En Attente' : 'Refusée' }}
+                  </span>
+                </div>
+                <span v-else class="text-xs text-gray-400">-</span>
+              </td>
+
               <!-- Données BD -->
               <td class="px-6 py-4 text-xs font-extrabold text-[#074C72] dark:text-sky-300 whitespace-nowrap">
                 {{ user.capacite_donnees?.formatted || '0 Ko' }}
@@ -160,12 +194,21 @@
               <td class="px-6 py-4 text-right whitespace-nowrap">
                 <div class="flex items-center justify-end gap-2">
                   
+                  <!-- Quick Validate button for pending Entreprise GP -->
+                  <button 
+                    v-if="activeTab === 'entreprise' && user.entreprise_geree && user.entreprise_geree.statut_verification === 'en_attente'"
+                    @click="updateEntrepriseStatut(user.entreprise_geree.id, 'verifiee')"
+                    class="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-xs flex items-center gap-1 cursor-pointer whitespace-nowrap"
+                  >
+                    <span>✓ Valider</span>
+                  </button>
+
                   <!-- Dedicated User Details Page Button -->
                   <router-link 
                     :to="`/admin/users/${encodeId(user.id)}`" 
                     class="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-[#053754] hover:bg-[#074C72] text-white transition-all shadow-xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
                   >
-                    <span>👁️ Fiche Complète</span>
+                    <span>👁️ Fiche</span>
                   </router-link>
 
                   <!-- Block / Unblock Button -->
@@ -232,7 +275,7 @@ import { encodeId } from '@/utils/idMasker'
 import Swal from 'sweetalert2'
 import { formatImageUrl } from '@/utils/imageUrl'
 
-const activeTab = ref('client') // 'client' | 'voyageur'
+const activeTab = ref('client') // 'client' | 'voyageur' | 'entreprise'
 const users = ref([])
 const loading = ref(true)
 const actionLoadingId = ref(null)
@@ -241,6 +284,7 @@ const perPage = 5
 
 const totalClientsCount = ref(0)
 const totalVoyageursCount = ref(0)
+const totalEntreprisesCount = ref(0)
 
 const filters = reactive({
   search: '',
@@ -254,6 +298,7 @@ const fetchStats = async () => {
     if (d && d.users) {
       totalClientsCount.value = d.users.clients || 0
       totalVoyageursCount.value = d.users.voyageurs || 0
+      totalEntreprisesCount.value = d.users.entreprises || d.entreprises?.total || 0
     }
   } catch (e) {
     console.error('Erreur fetch stats users:', e)
@@ -350,11 +395,51 @@ const toggleBlock = async (user) => {
   }
 }
 
-
 const getVoyageurStatutBadge = (statut) => {
   if (statut === 'verifie') return 'bg-emerald-50 text-emerald-700 border-emerald-200'
   if (statut === 'refuse') return 'bg-red-50 text-[#B50302] border-red-200'
   return 'bg-amber-50 text-amber-700 border-amber-200'
+}
+
+const getEntrepriseStatutBadge = (statut) => {
+  if (statut === 'verifiee') return 'bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
+  if (statut === 'refusee') return 'bg-red-50 dark:bg-red-950/80 text-[#B50302] dark:text-red-400 border-red-200 dark:border-red-800'
+  return 'bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800'
+}
+
+const updateEntrepriseStatut = async (entrepriseId, newStatut) => {
+  const isValidating = newStatut === 'verifiee'
+  const result = await Swal.fire({
+    title: isValidating ? 'Valider l\'Entreprise GP' : 'Refuser l\'Entreprise GP',
+    text: `Voulez-vous vraiment ${isValidating ? 'valider' : 'refuser'} cette entreprise ?`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: isValidating ? '#059669' : '#B50302',
+    cancelButtonColor: '#6B7280',
+    confirmButtonText: 'Oui, confirmer',
+    cancelButtonText: 'Annuler'
+  })
+
+  if (!result.isConfirmed) return
+
+  try {
+    await adminService.updateStatutEntreprise(entrepriseId, newStatut)
+    await Swal.fire({
+      title: 'Succès !',
+      text: `L'entreprise GP a été ${isValidating ? 'validée' : 'refusée'} avec succès.`,
+      icon: 'success',
+      confirmButtonColor: '#053754'
+    })
+    fetchUsers()
+    fetchStats()
+  } catch (err) {
+    Swal.fire({
+      title: 'Erreur',
+      text: err.response?.data?.message || err.message || 'Erreur lors de la mise à jour du statut',
+      icon: 'error',
+      confirmButtonColor: '#053754'
+    })
+  }
 }
 
 const formatDate = (dateStr) => {

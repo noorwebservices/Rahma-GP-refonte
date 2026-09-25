@@ -21,6 +21,10 @@ export const adminService = {
     return api.patch(`/admin/voyageurs/${voyageurId}/statut`, { statut, motif_refus })
   },
 
+  updateStatutEntreprise(entrepriseId, statut, motif_refus = '') {
+    return api.patch(`/admin/entreprises/${entrepriseId}/statut`, { statut, motif_refus })
+  },
+
   getSignalements(params = {}) {
     return api.get('/admin/signalements', { params })
   },

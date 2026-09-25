@@ -24,6 +24,14 @@ const {
 } = useAuth()
 
 const isResendingEmail = ref(false)
+
+const isEntrepriseUser = computed(() => {
+  if (!user.value) return false
+  const roles = user.value.roles || []
+  const hasRole = Array.isArray(roles) && roles.some(r => typeof r === 'string' ? (r === 'gerant_entreprise' || r === 'entreprise') : (r.name === 'gerant_entreprise' || r.name === 'entreprise'))
+  return hasRole || !!user.value.entreprise || user.value.mode_actuel === 'entreprise'
+})
+
 const handleResendEmail = async () => {
   isResendingEmail.value = true
   try {
@@ -460,9 +468,9 @@ const handleLogout = async () => {
               </h1>
               <span :class="[
                 'text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full font-extrabold uppercase tracking-wide',
-                modeActuel === 'voyageur' ? 'bg-tertiaire text-principal-dark' : 'bg-principal-light/10 dark:bg-sky-950 text-principal dark:text-sky-300'
+                isEntrepriseUser ? 'bg-[#053754] dark:bg-sky-900 text-white dark:text-sky-200' : (modeActuel === 'voyageur' ? 'bg-tertiaire text-principal-dark' : 'bg-principal-light/10 dark:bg-sky-950 text-principal dark:text-sky-300')
               ]">
-                Mode {{ modeActuel === 'voyageur' ? t('profile.modeVoyageur') : t('profile.modeClient') }}
+                {{ isEntrepriseUser ? 'Gérant Entreprise GP 🏢' : (modeActuel === 'voyageur' ? `Mode ${t('profile.modeVoyageur')}` : `Mode ${t('profile.modeClient')}`) }}
               </span>
             </div>
 
@@ -479,8 +487,22 @@ const handleLogout = async () => {
 
         <!-- Action Buttons (Mode Switcher & Déconnexion) -->
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <!-- CAS 1: Gérant d'Entreprise GP -->
           <button
-            v-if="user.roles?.includes('voyageur') || user.voyageur"
+            v-if="isEntrepriseUser"
+            @click="router.push('/entreprise')"
+            type="button"
+            class="px-5 py-3 rounded-2xl bg-[#053754] hover:bg-[#074C72] dark:bg-sky-600 dark:hover:bg-sky-500 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+          >
+            <svg class="w-4 h-4 text-sky-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h4m-4 0V11m0 0V7m0 4h4" />
+            </svg>
+            <span>Basculer en tant que gérant 🏢</span>
+          </button>
+
+          <!-- CAS 2: Utilisateur Voyageur -->
+          <button
+            v-else-if="user.roles?.includes('voyageur') || user.voyageur"
             @click="handleToggleMode"
             :disabled="isLoading || (user.voyageur && user.voyageur.statut !== 'verifie')"
             :class="[
@@ -498,6 +520,7 @@ const handleLogout = async () => {
             </span>
           </button>
 
+          <!-- CAS 3: Client simple (Devenir un Voyageur GP) -->
           <button
             v-else
             @click="showVoyageurModal = true"
@@ -540,7 +563,7 @@ const handleLogout = async () => {
             activeTab === 'voyageur' ? 'border-principal dark:border-sky-400 text-principal-dark dark:text-sky-300 font-bold' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200'
           ]"
         >
-          {{ t('profile.voyageurStatus') }}
+          {{ isEntrepriseUser ? 'Statut & Profil Entreprise' : t('profile.voyageurStatus') }}
         </button>
         <button
           v-if="modeActuel === 'voyageur'"
@@ -609,9 +632,135 @@ const handleLogout = async () => {
         </div>
       </div>
 
-      <!-- Tab 2: Voyageur Details -->
+      <!-- Tab 2: Voyageur / Entreprise Details -->
       <div v-else-if="activeTab === 'voyageur'" class="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-800">
-        <div v-if="user?.voyageur" class="space-y-6">
+        
+        <!-- CAS A: L'utilisateur est une Entreprise GP -->
+        <div v-if="isEntrepriseUser && (user?.entreprise || user?.entrepriseGeree)" class="space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-5 gap-4">
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 rounded-2xl bg-[#053754] dark:bg-slate-800 text-white font-black text-xl flex items-center justify-center shadow-md overflow-hidden border border-gray-200 dark:border-slate-700 shrink-0">
+                <img 
+                  v-if="(user.entreprise || user.entrepriseGeree)?.logo" 
+                  :src="formatImageUrl((user.entreprise || user.entrepriseGeree).logo)" 
+                  alt="Logo Entreprise" 
+                  class="w-full h-full object-cover" 
+                />
+                <span v-else>🏢</span>
+              </div>
+              <div>
+                <h3 class="text-xl font-bold text-principal-dark dark:text-sky-300 font-serif">
+                  {{ (user.entreprise || user.entrepriseGeree)?.nom || 'Mon Entreprise GP' }}
+                </h3>
+                <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
+                  Profil Entreprise GP enregistré & vérifié par l'administration
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span :class="[
+                'px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wider',
+                (user.entreprise || user.entrepriseGeree)?.statut_verification === 'verifiee' 
+                  ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300' 
+                  : 'bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300'
+              ]">
+                {{ (user.entreprise || user.entrepriseGeree)?.statut_verification === 'verifiee' ? 'Entreprise Vérifiée ✓' : 'En attente de vérification' }}
+              </span>
+              <button
+                @click="router.push('/entreprise')"
+                class="px-4 py-2 bg-[#053754] hover:bg-[#074C72] text-white font-extrabold text-xs rounded-xl shadow-xs transition cursor-pointer flex items-center gap-1.5"
+              >
+                <span>Accéder au Dashboard</span>
+                <span>➔</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Informations Générales Entreprise -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs sm:text-sm">
+            <div class="bg-gray-50 dark:bg-slate-800/80 p-4 rounded-2xl border border-gray-100 dark:border-slate-800 space-y-1">
+              <span class="text-gray-400 dark:text-slate-400 font-medium block">NINEA</span>
+              <span class="font-black text-gray-800 dark:text-slate-100 font-mono">{{ (user.entreprise || user.entrepriseGeree)?.ninea || 'Non renseigné' }}</span>
+            </div>
+
+            <div class="bg-gray-50 dark:bg-slate-800/80 p-4 rounded-2xl border border-gray-100 dark:border-slate-800 space-y-1">
+              <span class="text-gray-400 dark:text-slate-400 font-medium block">Registre de Commerce (RCCM)</span>
+              <span class="font-black text-gray-800 dark:text-slate-100 font-mono">{{ (user.entreprise || user.entrepriseGeree)?.registre_commerce || 'Non renseigné' }}</span>
+            </div>
+
+            <div class="bg-gray-50 dark:bg-slate-800/80 p-4 rounded-2xl border border-gray-100 dark:border-slate-800 space-y-1">
+              <span class="text-gray-400 dark:text-slate-400 font-medium block">E-mail Professionnel</span>
+              <span class="font-bold text-gray-800 dark:text-slate-100 truncate block">{{ (user.entreprise || user.entrepriseGeree)?.email || user.email }}</span>
+            </div>
+
+            <div class="bg-gray-50 dark:bg-slate-800/80 p-4 rounded-2xl border border-gray-100 dark:border-slate-800 space-y-1">
+              <span class="text-gray-400 dark:text-slate-400 font-medium block">Téléphone / Contact Siège</span>
+              <span class="font-bold text-gray-800 dark:text-slate-100">{{ (user.entreprise || user.entrepriseGeree)?.telephone || user.telephone }}</span>
+            </div>
+
+            <div class="bg-gray-50 dark:bg-slate-800/80 p-4 rounded-2xl border border-gray-100 dark:border-slate-800 space-y-1 sm:col-span-2">
+              <span class="text-gray-400 dark:text-slate-400 font-medium block">Adresse Siège Social</span>
+              <span class="font-bold text-gray-800 dark:text-slate-100">
+                {{ (user.entreprise || user.entrepriseGeree)?.adresse || 'Non renseignée' }} 
+                <template v-if="(user.entreprise || user.entrepriseGeree)?.ville">({{ (user.entreprise || user.entrepriseGeree)?.ville }}, {{ (user.entreprise || user.entrepriseGeree)?.pays || '' }})</template>
+              </span>
+            </div>
+          </div>
+
+          <!-- Section Documents d'entreprise (NINEA / RCCM) si disponibles -->
+          <div v-if="(user.entreprise || user.entrepriseGeree)?.ninea_doc || (user.entreprise || user.entrepriseGeree)?.registre_commerce_doc" class="space-y-3 pt-2">
+            <h4 class="text-xs sm:text-sm font-bold text-principal-dark dark:text-sky-300 flex items-center gap-2">
+              <svg class="w-4 h-4 text-principal dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span>Documents légaux de l'entreprise</span>
+            </h4>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Doc NINEA Card -->
+              <div v-if="(user.entreprise || user.entrepriseGeree)?.ninea_doc" class="border border-gray-200 dark:border-slate-700 rounded-2xl p-4 bg-gray-50 dark:bg-slate-800/80 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-sky-100 dark:bg-sky-950 text-sky-600 dark:text-sky-300 flex items-center justify-center font-bold text-sm">📄</div>
+                  <div>
+                    <div class="text-xs font-bold text-gray-800 dark:text-slate-100">Document NINEA</div>
+                    <div class="text-[10px] text-gray-400">PDF / Image officielle</div>
+                  </div>
+                </div>
+                <a
+                  :href="formatImageUrl((user.entreprise || user.entrepriseGeree).ninea_doc)"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="px-3 py-1.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-gray-800 dark:text-slate-100 text-xs font-bold rounded-xl transition cursor-pointer"
+                >
+                  Voir
+                </a>
+              </div>
+
+              <!-- Doc RCCM Card -->
+              <div v-if="(user.entreprise || user.entrepriseGeree)?.registre_commerce_doc" class="border border-gray-200 dark:border-slate-700 rounded-2xl p-4 bg-gray-50 dark:bg-slate-800/80 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-300 flex items-center justify-center font-bold text-sm">📜</div>
+                  <div>
+                    <div class="text-xs font-bold text-gray-800 dark:text-slate-100">Registre de Commerce</div>
+                    <div class="text-[10px] text-gray-400">RCCM officiel</div>
+                  </div>
+                </div>
+                <a
+                  :href="formatImageUrl((user.entreprise || user.entrepriseGeree).registre_commerce_doc)"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="px-3 py-1.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-gray-800 dark:text-slate-100 text-xs font-bold rounded-xl transition cursor-pointer"
+                >
+                  Voir
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CAS B: Voyageur Classique -->
+        <div v-else-if="user?.voyageur" class="space-y-6">
           <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-4">
             <div>
               <h3 class="text-lg font-bold text-principal-dark dark:text-sky-300 font-serif">{{ t('profile.voyageurProfileRegistered') }}</h3>

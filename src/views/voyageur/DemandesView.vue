@@ -94,6 +94,13 @@ const filteredDemandes = computed(() => {
   }))
 })
 
+const truncateText = (str, maxLen = 30) => {
+  if (str === null || str === undefined) return ''
+  const s = String(str).trim()
+  if (s.length <= maxLen) return s
+  return s.substring(0, maxLen) + '...'
+}
+
 const goToDetail = (id) => {
   const masked = encodeId(id)
   router.push(`/voyageur/demandes/${masked}`)
@@ -158,8 +165,78 @@ const goToDetail = (id) => {
       <p class="text-sm font-bold text-gray-600 dark:text-slate-300">{{ t('voyageur.voyageDetail.loading', 'Chargement des demandes de réservation...') }}</p>
     </div>
 
-    <!-- Demandes Cards Grid -->
-    <div v-else-if="filteredDemandes.length > 0" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <!-- Demandes Table View (Desktop & Tablet) -->
+    <div v-else-if="filteredDemandes.length > 0" class="hidden md:block bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl shadow-2xs overflow-hidden">
+      <div class="overflow-x-auto min-w-full">
+        <table class="min-w-max w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 dark:bg-slate-800/80 border-b border-gray-200 dark:border-slate-800 text-[11px] font-extrabold text-gray-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
+              <th class="py-4 px-5">Code / Tracking</th>
+              <th class="py-4 px-5">Client</th>
+              <th class="py-4 px-5">Trajet</th>
+              <th class="py-4 px-5">Contenu / Poids</th>
+              <th class="py-4 px-5">Montant Total</th>
+              <th class="py-4 px-5">Statut</th>
+              <th class="py-4 px-5 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100 dark:divide-slate-800 text-xs font-medium whitespace-nowrap">
+            <tr
+              v-for="demande in filteredDemandes"
+              :key="demande.id"
+              @click="goToDetail(demande.id)"
+              class="hover:bg-sky-50/50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group"
+            >
+              <td class="py-4 px-5 font-mono font-extrabold text-[#053754] dark:text-sky-300">
+                {{ truncateText(demande.code, 30) }}
+              </td>
+              <td class="py-4 px-5 font-bold text-gray-900 dark:text-slate-100">
+                👤 {{ truncateText(demande.clientName, 30) }}
+              </td>
+              <td class="py-4 px-5">
+                <div class="flex items-center gap-1.5 font-bold text-gray-800 dark:text-slate-200">
+                  <span>{{ truncateText(demande.routeFrom, 30) }}</span>
+                  <span class="text-red-500 text-xs">➔</span>
+                  <span>{{ truncateText(demande.routeTo, 30) }}</span>
+                </div>
+              </td>
+              <td class="py-4 px-5 font-semibold text-gray-700 dark:text-slate-300">
+                {{ truncateText(demande.parcelType, 30) }} ({{ demande.weight }})
+              </td>
+              <td class="py-4 px-5 font-black text-[#053754] dark:text-sky-300 text-sm">
+                {{ demande.price }}
+              </td>
+              <td class="py-4 px-5">
+                <span
+                  class="text-[11px] font-extrabold px-3 py-1 rounded-full border"
+                  :class="{
+                    'bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800': demande.status === 'en_attente',
+                    'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800': demande.status === 'acceptee',
+                    'bg-red-50 dark:bg-red-950/50 text-red-800 dark:text-red-300 border-red-200 dark:border-red-800': demande.status === 'refusee',
+                    'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 border-gray-300 dark:border-slate-700': demande.status === 'annulee' || demande.status === 'annule'
+                  }"
+                >
+                  {{ demande.status === 'en_attente' ? t('voyageur.status.pending', '⏳ En attente') : demande.status === 'acceptee' ? t('voyageur.status.accepted', '✓ Acceptée') : demande.status === 'refusee' ? t('voyageur.status.refused', '✕ Refusée') : t('voyageur.status.cancelled', '🚫 Annulée') }}
+                </span>
+              </td>
+              <td class="py-4 px-5 text-right" @click.stop>
+                <button
+                  @click="goToDetail(demande.id)"
+                  type="button"
+                  class="bg-[#053754] dark:bg-sky-600 hover:bg-[#074C72] dark:hover:bg-sky-500 text-white px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all shadow-xs inline-flex items-center gap-1.5 cursor-pointer"
+                >
+                  <span>Détails</span>
+                  <span>➔</span>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Demandes Cards View (Mobile) -->
+    <div v-if="filteredDemandes.length > 0" class="grid grid-cols-1 gap-4 md:hidden">
       <div
         v-for="demande in filteredDemandes"
         :key="demande.id"

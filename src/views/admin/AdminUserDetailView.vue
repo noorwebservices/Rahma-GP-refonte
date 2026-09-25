@@ -72,7 +72,6 @@
         </div>
       </div>
 
-
       <!-- Account Info Grid -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         
@@ -87,7 +86,7 @@
         </div>
 
         <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-gray-200 dark:border-slate-800 shadow-2xs space-y-1">
-          <span class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Adresse Résidence</span>
+          <span class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Adresse Personnelle Gérant</span>
           <p class="text-sm font-extrabold text-[#053754] dark:text-slate-100 truncate">{{ user.adresse || 'Non renseignée' }}</p>
         </div>
 
@@ -96,6 +95,190 @@
           <p class="text-sm font-black text-indigo-950 dark:text-white font-mono">{{ user.capacite_donnees?.formatted || '0 Ko' }} ({{ user.capacite_donnees?.octets || 0 }} octets)</p>
         </div>
 
+      </div>
+
+      <!-- Section Profil Entreprise GP & Documents Légaux -->
+      <div v-if="entreprise" class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xs space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 dark:border-slate-800 pb-4">
+          <div class="flex items-center gap-4">
+            <div v-if="entreprise.logo" class="w-14 h-14 rounded-2xl overflow-hidden border border-gray-200 dark:border-slate-700 bg-white p-1 shrink-0">
+              <img :src="formatImageUrl(entreprise.logo)" class="w-full h-full object-contain" />
+            </div>
+            <div v-else class="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-black text-xl flex items-center justify-center shrink-0 border border-indigo-100 dark:border-indigo-900">
+              🏢
+            </div>
+            <div>
+              <h3 class="font-extrabold text-base text-[#053754] dark:text-sky-300 flex items-center gap-2">
+                {{ entreprise.nom }}
+                <span class="text-xs font-bold text-gray-400 dark:text-gray-400">
+                  ({{ user.entreprise_geree ? 'Gérant Propriétaire' : 'Agent Rattaché' }})
+                </span>
+              </h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                Raison Sociale / Entité GP • {{ entreprise.ville || '-' }}, {{ entreprise.pays || '-' }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Statut de Vérification & Action Badge -->
+          <div class="flex items-center gap-2 self-start sm:self-auto">
+            <span class="px-3.5 py-1.5 rounded-full text-xs font-extrabold border uppercase tracking-wider" :class="getEntrepriseStatutBadge(entreprise.statut_verification)">
+              Validation : {{ entreprise.statut_verification === 'verifiee' ? 'Validée' : (entreprise.statut_verification === 'refusee' ? 'Refusée' : 'En Attente') }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Grille d'Informations Clés de l'Entreprise (3 cartes par ligne) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs">
+          <!-- 1. NINEA -->
+          <div class="p-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-1">
+            <span class="text-[10px] font-extrabold text-gray-400 dark:text-gray-400 uppercase tracking-wider block">Numéro NINEA</span>
+            <p class="font-mono font-bold text-[#053754] dark:text-slate-100 text-sm">{{ entreprise.ninea || 'Non renseigné' }}</p>
+          </div>
+
+          <!-- 2. RCCM -->
+          <div class="p-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-1">
+            <span class="text-[10px] font-extrabold text-gray-400 dark:text-gray-400 uppercase tracking-wider block">Registre de Commerce (RCCM)</span>
+            <p class="font-mono font-bold text-[#053754] dark:text-slate-100 text-sm">{{ entreprise.registre_commerce || 'Non renseigné' }}</p>
+          </div>
+
+          <!-- 3. Email Professionnel -->
+          <div class="p-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-1">
+            <span class="text-[10px] font-extrabold text-gray-400 dark:text-gray-400 uppercase tracking-wider block">Email Professionnel</span>
+            <p class="font-bold text-[#074C72] dark:text-sky-300 text-sm truncate">{{ entreprise.email || user.email }}</p>
+          </div>
+
+          <!-- 4. Téléphone Entreprise -->
+          <div class="p-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-1">
+            <span class="text-[10px] font-extrabold text-gray-400 dark:text-gray-400 uppercase tracking-wider block">Téléphone Entreprise</span>
+            <p class="font-mono font-bold text-[#053754] dark:text-slate-100 text-sm">{{ entreprise.telephone || entreprise.telephone_fixe || user.telephone }}</p>
+          </div>
+
+          <!-- 5. Adresse Siège Social -->
+          <div class="p-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-1">
+            <span class="text-[10px] font-extrabold text-gray-400 dark:text-gray-400 uppercase tracking-wider block">Adresse Siège Social (Adresse, Ville, Pays)</span>
+            <p class="font-bold text-[#053754] dark:text-slate-100 truncate">
+              {{ entreprise.adresse || entreprise.adresse_siege || 'Non renseignée' }}<span v-if="entreprise.ville">, {{ entreprise.ville }}</span><span v-if="entreprise.pays"> ({{ entreprise.pays }})</span>
+            </p>
+          </div>
+
+          <!-- 6. Vérification Email Entreprise -->
+          <div class="p-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-1">
+            <span class="text-[10px] font-extrabold text-gray-400 dark:text-gray-400 uppercase tracking-wider block">Vérification Email Entreprise</span>
+            <p class="font-bold text-sm" :class="entreprise.email_verifie_at ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'">
+              {{ entreprise.email_verifie_at ? `Vérifié le ${formatDate(entreprise.email_verifie_at)}` : 'Non vérifié (En attente)' }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Documents Légaux Entreprise Display (NINEA & Registre du Commerce) -->
+        <div class="space-y-3 pt-2 border-t border-gray-100 dark:border-slate-800">
+          <span class="text-xs font-extrabold text-[#053754] dark:text-sky-300 uppercase tracking-wider block">
+            📄 Documents Juridiques & Légaux Fournis
+          </span>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- NINEA Doc -->
+            <div class="p-4 bg-[#FAF7F2] dark:bg-slate-800/80 border border-gray-200 dark:border-slate-700 rounded-2xl space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-wider block">Document NINEA</span>
+                <span v-if="entreprise.ninea_doc" class="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">Fourni</span>
+              </div>
+
+              <div v-if="entreprise.ninea_doc" class="relative h-48 rounded-xl overflow-hidden border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 group cursor-pointer" @click="openImagePreview(entreprise.ninea_doc, 'Document NINEA')">
+                <img :src="formatImageUrl(entreprise.ninea_doc)" class="w-full h-full object-contain p-2 transition-transform duration-300 group-hover:scale-105" />
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-2">
+                  🔍 Clic pour voir le document
+                </div>
+              </div>
+              <div v-else class="h-40 rounded-xl border border-dashed border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 flex flex-col items-center justify-center text-gray-400 text-xs font-semibold p-4 text-center">
+                <span>Aucun document NINEA joint</span>
+              </div>
+            </div>
+
+            <!-- Registre du commerce Doc -->
+            <div class="p-4 bg-[#FAF7F2] dark:bg-slate-800/80 border border-gray-200 dark:border-slate-700 rounded-2xl space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-wider block">Registre du Commerce (RCCM)</span>
+                <span v-if="entreprise.registre_commerce_doc" class="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">Fourni</span>
+              </div>
+
+              <div v-if="entreprise.registre_commerce_doc" class="relative h-48 rounded-xl overflow-hidden border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 group cursor-pointer" @click="openImagePreview(entreprise.registre_commerce_doc, 'Document Registre de Commerce')">
+                <img :src="formatImageUrl(entreprise.registre_commerce_doc)" class="w-full h-full object-contain p-2 transition-transform duration-300 group-hover:scale-105" />
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-2">
+                  🔍 Clic pour voir le document
+                </div>
+              </div>
+              <div v-else class="h-40 rounded-xl border border-dashed border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 flex flex-col items-center justify-center text-gray-400 text-xs font-semibold p-4 text-center">
+                <span>Aucun registre du commerce joint</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions de validation Administrateur pour l'Entreprise -->
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 pt-3 border-t border-gray-100 dark:border-slate-800">
+          <template v-if="entreprise.statut_verification === 'verifiee'">
+            <div class="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 font-extrabold text-xs w-full sm:w-auto text-center">
+              <span>✓ Entreprise GP officiellement validée par l'administration</span>
+            </div>
+            <button 
+              @click="updateEntrepriseStatut('refusee')"
+              :disabled="!!actionLoading"
+              class="px-5 py-2.5 bg-red-100 text-[#B50302] hover:bg-red-200 border border-red-200 rounded-xl text-xs font-extrabold transition-all cursor-pointer w-full sm:w-auto sm:ml-auto text-center flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span v-if="actionLoading === 'entreprise_refusee'" class="w-4 h-4 border-2 border-[#B50302] border-t-transparent rounded-full animate-spin"></span>
+              <span>✕ Révoquer / Refuser l'entreprise</span>
+            </button>
+          </template>
+
+          <template v-else>
+            <button 
+              @click="updateEntrepriseStatut('verifiee')" 
+              :disabled="!!actionLoading" 
+              class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-extrabold shadow-md transition-all cursor-pointer w-full sm:w-auto text-center flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span v-if="actionLoading === 'entreprise_verifiee'" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              <span>✓ Valider l'Entreprise GP</span>
+            </button>
+
+            <button 
+              @click="updateEntrepriseStatut('refusee')" 
+              :disabled="!!actionLoading" 
+              class="px-5 py-2.5 bg-red-100 text-[#B50302] hover:bg-red-200 border border-red-200 rounded-xl text-xs font-extrabold transition-all cursor-pointer w-full sm:w-auto text-center flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span v-if="actionLoading === 'entreprise_refusee'" class="w-4 h-4 border-2 border-[#B50302] border-t-transparent rounded-full animate-spin"></span>
+              <span>✕ Refuser l'Entreprise GP</span>
+            </button>
+          </template>
+        </div>
+      </div>
+
+      <!-- Section Agents Rattachés à l'Entreprise -->
+      <div v-if="entreprise && entreprise.agents && entreprise.agents.length > 0" class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xs space-y-4">
+        <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3">
+          <h3 class="font-extrabold text-base text-[#053754] dark:text-sky-300">
+            👥 Agents de l'Entreprise ({{ entreprise.agents.length }})
+          </h3>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <div v-for="agent in entreprise.agents" :key="agent.id" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs space-y-2">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-full bg-[#053754] text-white font-extrabold text-xs flex items-center justify-center">
+                {{ getInitials(agent.user?.prenom, agent.user?.nom) }}
+              </div>
+              <div>
+                <p class="font-extrabold text-[#053754] dark:text-slate-100">{{ agent.user?.prenom }} {{ agent.user?.nom }}</p>
+                <span class="text-[10px] font-bold text-sky-700 dark:text-sky-300">{{ agent.poste || 'Agent GP' }}</span>
+              </div>
+            </div>
+            <div class="text-[11px] text-gray-500 dark:text-gray-400 space-y-0.5 border-t border-gray-200/60 dark:border-slate-700 pt-2">
+              <p>{{ agent.user?.email || agent.email }}</p>
+              <p class="font-mono">{{ agent.user?.telephone || agent.telephone }}</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Section Profil Voyageur / KYC Verification (If Voyageur) -->
@@ -364,16 +547,20 @@
 
     </template>
 
-    <!-- Modal preview image -->
+    <!-- Modal preview image / document -->
     <Teleport to="body">
       <div v-if="previewModal.isOpen" class="fixed inset-0 z-[9999] bg-black/80 flex items-center justify-center p-4" @click.self="previewModal.isOpen = false">
-        <div class="max-w-3xl w-full bg-white rounded-3xl p-4 space-y-4 relative">
-          <div class="flex items-center justify-between border-b pb-2">
-            <h4 class="font-black text-[#053754] text-sm">{{ previewModal.title }}</h4>
-            <button @click="previewModal.isOpen = false" class="text-gray-500 hover:text-gray-800 font-bold p-1 text-base">✕</button>
+        <div class="max-w-4xl w-full bg-white dark:bg-slate-900 rounded-3xl p-5 space-y-4 relative border border-gray-200 dark:border-slate-800 shadow-2xl">
+          <div class="flex items-center justify-between border-b dark:border-slate-800 pb-3">
+            <h4 class="font-black text-[#053754] dark:text-sky-300 text-sm sm:text-base">{{ previewModal.title }}</h4>
+            <div class="flex items-center gap-2">
+              <a :href="previewModal.url" target="_blank" class="px-3 py-1 bg-[#053754] text-white rounded-lg text-xs font-bold hover:bg-[#074C72]">Ouvrir dans un nouvel onglet ↗</a>
+              <button @click="previewModal.isOpen = false" class="text-gray-500 hover:text-gray-800 dark:hover:text-white font-bold p-1 text-base">✕</button>
+            </div>
           </div>
           <div class="max-h-[75vh] flex items-center justify-center overflow-hidden">
-            <img :src="previewModal.url" class="max-h-[70vh] w-auto object-contain rounded-xl" />
+            <iframe v-if="previewModal.url.toLowerCase().endsWith('.pdf')" :src="previewModal.url" class="w-full h-[70vh] rounded-xl border"></iframe>
+            <img v-else :src="previewModal.url" class="max-h-[70vh] w-auto object-contain rounded-xl" />
           </div>
         </div>
       </div>
@@ -436,6 +623,10 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+})
+
+const entreprise = computed(() => {
+  return user.value?.entreprise_geree || user.value?.agent_gp?.entreprise || null
 })
 
 const rectoUrl = computed(() => {
@@ -556,11 +747,70 @@ const verifyVoyageur = async (statut) => {
   }
 }
 
+const updateEntrepriseStatut = async (newStatut) => {
+  if (!entreprise.value || actionLoading.value) return
+
+  let motifRefus = ''
+  if (newStatut === 'refusee') {
+    const { value: text, isConfirmed } = await Swal.fire({
+      title: 'Refuser l\'entreprise GP',
+      input: 'textarea',
+      inputLabel: 'Motif du refus (optionnel)',
+      inputPlaceholder: 'Expliquez la raison du refus...',
+      showCancelButton: true,
+      confirmButtonColor: '#B50302',
+      cancelButtonColor: '#6B7280',
+      confirmButtonText: 'Confirmer le refus',
+      cancelButtonText: 'Annuler'
+    })
+    if (!isConfirmed) return
+    motifRefus = text || ''
+  } else {
+    const result = await Swal.fire({
+      title: 'Valider l\'Entreprise GP',
+      text: `Voulez-vous vraiment valider l'entreprise "${entreprise.value.nom}" ?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#059669',
+      cancelButtonColor: '#6B7280',
+      confirmButtonText: 'Oui, valider',
+      cancelButtonText: 'Annuler'
+    })
+    if (!result.isConfirmed) return
+  }
+
+  actionLoading.value = `entreprise_${newStatut}`
+  try {
+    await adminService.updateStatutEntreprise(entreprise.value.id, newStatut, motifRefus)
+    entreprise.value.statut_verification = newStatut
+    Swal.fire({
+      title: 'Succès !',
+      text: `Statut de l'entreprise mis à jour avec succès en '${newStatut === 'verifiee' ? 'Validée' : 'Refusée'}'.`,
+      icon: 'success',
+      confirmButtonColor: '#053754'
+    })
+  } catch (err) {
+    Swal.fire({
+      title: 'Erreur',
+      text: err.response?.data?.message || err.message || 'Erreur lors de la mise à jour',
+      icon: 'error',
+      confirmButtonColor: '#053754'
+    })
+  } finally {
+    actionLoading.value = null
+  }
+}
 
 const getVoyageurStatutBadge = (statut) => {
   if (statut === 'verifie') return 'bg-emerald-50 text-emerald-700 border-emerald-200'
   if (statut === 'refuse') return 'bg-red-50 text-[#B50302] border-red-200'
   return 'bg-amber-50 text-amber-700 border-amber-200'
+}
+
+const getEntrepriseStatutBadge = (statut) => {
+  if (statut === 'verifiee') return 'bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
+  if (statut === 'refusee') return 'bg-red-50 dark:bg-red-950/80 text-[#B50302] dark:text-red-400 border-red-200 dark:border-red-800'
+  return 'bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800'
 }
 
 const formatDate = (dateStr) => {

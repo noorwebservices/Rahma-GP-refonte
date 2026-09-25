@@ -124,13 +124,13 @@ watch(() => props.modelValue, (val) => {
 <template>
   <div class="relative w-full" ref="dropdownRef">
     <!-- Input Row -->
-    <div class="flex rounded-xl overflow-visible border border-gray-300 dark:border-slate-700 focus-within:border-principal dark:focus-within:border-sky-400 focus-within:ring-2 focus-within:ring-principal/20 transition-all bg-white dark:bg-slate-800 shadow-2xs">
+    <div class="flex h-11 rounded-xl overflow-visible border border-gray-300 dark:border-slate-700 focus-within:border-principal dark:focus-within:border-sky-400 focus-within:ring-2 focus-within:ring-principal/20 transition-all bg-white dark:bg-slate-800 shadow-2xs">
 
       <!-- Country Trigger Button -->
       <button
         type="button"
         @click="isOpen = !isOpen"
-        class="bg-gray-100 dark:bg-slate-700 hover:bg-gray-200/80 dark:hover:bg-slate-600 px-3 py-3 text-xs sm:text-sm font-bold text-gray-700 dark:text-slate-200 flex items-center gap-1.5 border-r border-gray-300 dark:border-slate-700 cursor-pointer transition-colors shrink-0 rounded-l-xl"
+        class="h-full bg-gray-100 dark:bg-slate-700 hover:bg-gray-200/80 dark:hover:bg-slate-600 px-3 text-xs sm:text-sm font-bold text-gray-700 dark:text-slate-200 flex items-center gap-1.5 border-r border-gray-300 dark:border-slate-700 cursor-pointer transition-colors shrink-0 rounded-l-xl"
       >
         <span class="text-base leading-none">{{ selectedCountry.flag }}</span>
         <span class="font-mono">{{ selectedCountry.dialCode }}</span>
@@ -151,7 +151,7 @@ watch(() => props.modelValue, (val) => {
         @blur="emit('blur')"
         type="tel"
         :placeholder="placeholder"
-        class="w-full px-3.5 py-3 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-transparent outline-none placeholder-gray-400 dark:placeholder-slate-500 font-medium rounded-r-xl"
+        class="h-full w-full px-3.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-transparent outline-none placeholder-gray-400 dark:placeholder-slate-500 font-medium rounded-r-xl"
       />
     </div>
 
