@@ -9,6 +9,16 @@ export const fetchVoyages = async (params = {}) => {
   }
 }
 
+// Annonces publiques (consultables sans compte)
+export const fetchPublicVoyages = async (params = {}) => {
+  return await api.get('/voyages/publics', { params })
+}
+
+export const fetchPublicVoyage = async (id) => {
+  const rawId = decodeId(id)
+  return await api.get(`/voyages/publics/${rawId}`)
+}
+
 export const fetchVoyage = async (id) => {
   try {
     const rawId = decodeId(id)

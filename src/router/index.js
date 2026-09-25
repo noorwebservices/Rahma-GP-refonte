@@ -18,6 +18,11 @@ const router = createRouter({
       redirect: '/',
     },
     {
+      path: '/voyages',
+      name: 'voyages-publics',
+      component: () => import('../views/PublicVoyagesView.vue'),
+    },
+    {
       path: '/auth',
       component: AuthLayout,
       redirect: '/auth/login',

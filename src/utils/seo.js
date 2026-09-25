@@ -66,4 +66,9 @@ export const ROUTE_SEO = {
     title: 'Connexion',
     description: 'Connectez-vous à votre espace Rahma Delivery pour envoyer et suivre vos colis.',
   },
+  'voyages-publics': {
+    title: 'Voyages disponibles — Trouvez un GP pour votre colis',
+    description:
+      "Consultez les voyages disponibles sur Rahma Delivery et trouvez un voyageur (GP) de confiance pour acheminer votre colis à l'international. Prix au kilo, capacité et notes des voyageurs.",
+  },
 }
