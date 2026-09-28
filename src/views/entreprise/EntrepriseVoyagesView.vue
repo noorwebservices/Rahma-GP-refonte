@@ -67,7 +67,8 @@ const form = reactive({
   date_arrivee: '',
   capacite_totale: 50,
   prix_kg: 8500,
-  prix_objet: 15000,
+  prix_objet: 0,
+  tarifs_speciaux: [],
   devise: 'XOF',
   description: '',
   agent_gp_id: '',
@@ -75,6 +76,48 @@ const form = reactive({
   objets_interdits: [],
   statut: 'brouillon'
 })
+
+// Special Tariffs Management
+const customItemNom = ref('')
+const customItemPrix = ref(null)
+
+const presetTarifsSpeciaux = ref([
+  { nom: 'Baskets', prix: 25 },
+  { nom: 'Perruques', prix: 30 },
+  { nom: 'Enveloppe', prix: 20 },
+  { nom: 'Téléphone / Ordinateur', prix: 50 },
+  { nom: 'Sac à main', prix: 35 }
+])
+
+const addSpecialTarif = (nom, prix) => {
+  if (!nom || !nom.trim()) return
+  const nomClean = nom.trim()
+  const existingIndex = form.tarifs_speciaux.findIndex(t => t.nom.toLowerCase() === nomClean.toLowerCase())
+  if (existingIndex > -1) {
+    form.tarifs_speciaux[existingIndex].prix = Number(prix) || 0
+  } else {
+    form.tarifs_speciaux.push({
+      nom: nomClean,
+      prix: Number(prix) || 0
+    })
+  }
+  // Auto-accept in objets_autorises if not already present
+  if (!form.objets_autorises.includes(nomClean)) {
+    form.objets_autorises.push(nomClean)
+  }
+}
+
+const removeSpecialTarif = (index) => {
+  form.tarifs_speciaux.splice(index, 1)
+}
+
+const addCustomSpecialTarif = () => {
+  if (customItemNom.value.trim() && customItemPrix.value !== null && customItemPrix.value >= 0) {
+    addSpecialTarif(customItemNom.value, customItemPrix.value)
+    customItemNom.value = ''
+    customItemPrix.value = null
+  }
+}
 
 const resetForm = () => {
   form.adresse_depot_id = adressesDepot.value[0]?.id || ''
@@ -87,7 +130,8 @@ const resetForm = () => {
   form.date_arrivee = ''
   form.capacite_totale = 50
   form.prix_kg = 8500
-  form.prix_objet = 15000
+  form.prix_objet = 0
+  form.tarifs_speciaux = []
   form.devise = 'XOF'
   form.description = ''
   form.agent_gp_id = ''
@@ -235,6 +279,26 @@ const presetInterdits = ref([
   'Objets tranchants'
 ])
 
+const getSpecialTarifFor = (catName) => {
+  if (!catName || !form.tarifs_speciaux) return null
+  return form.tarifs_speciaux.find(t => t.nom.toLowerCase() === catName.toLowerCase()) || null
+}
+
+const allAutorisesList = computed(() => {
+  const specialTarifNames = (form.tarifs_speciaux || []).map(t => t.nom)
+  const presetSpecialNames = (presetTarifsSpeciaux.value || []).map(t => t.nom)
+  return Array.from(new Set([
+    ...presetAutorises.value,
+    ...presetSpecialNames,
+    ...specialTarifNames,
+    ...form.objets_autorises
+  ]))
+})
+
+const allInterditsList = computed(() => {
+  return Array.from(new Set([...presetInterdits.value, ...form.objets_interdits]))
+})
+
 const customAutorise = ref('')
 const customInterdit = ref('')
 
@@ -302,17 +366,17 @@ const validateStep = (step) => {
       return false
     }
   } else if (step === 3) {
-    if (!form.capacite_totale || form.capacite_totale <= 0) {
-      showToast('warning', 'La capacité totale (en Kg) doit être supérieure à 0.')
-      return false
-    }
-  } else if (step === 4) {
     if (!form.adresse_depot_id) {
       showToast('warning', 'Veuillez sélectionner une adresse de dépôt.')
       return false
     }
     if (!form.adresse_recuperation_id) {
       showToast('warning', 'Veuillez sélectionner une adresse de récupération.')
+      return false
+    }
+  } else if (step === 4) {
+    if (!form.capacite_totale || form.capacite_totale <= 0) {
+      showToast('warning', 'La capacité totale (en Kg) doit être supérieure à 0.')
       return false
     }
   }
@@ -356,7 +420,8 @@ const editVoyage = (voyage) => {
   form.date_arrivee = voyage.date_arrivee ? voyage.date_arrivee.replace(' ', 'T').slice(0, 16) : ''
   form.capacite_totale = voyage.capacite_totale || 50
   form.prix_kg = voyage.prix_kg || 8500
-  form.prix_objet = voyage.prix_objet || 15000
+  form.prix_objet = 0
+  form.tarifs_speciaux = Array.isArray(voyage.tarifs_speciaux) ? [...voyage.tarifs_speciaux] : []
   form.devise = voyage.devise || 'XOF'
   form.description = voyage.description || ''
   form.agent_gp_id = voyage.agent_gp_id || voyage.agent_gp?.id || ''
@@ -406,7 +471,8 @@ const handleSaveVoyage = async (targetStatut) => {
     date_arrivee: formatDateForApi(form.date_arrivee),
     capacite_totale: Number(form.capacite_totale),
     prix_kg: Number(form.prix_kg) || 0,
-    prix_objet: Number(form.prix_objet) || 0,
+    prix_objet: 0,
+    tarifs_speciaux: form.tarifs_speciaux,
     devise: form.devise,
     description: form.description,
     agent_gp_id: form.agent_gp_id || null,
@@ -791,84 +857,9 @@ const visiblePages = computed(() => {
             </p>
           </div>
 
-          <!-- STEP 3: CAPACITÉ, TARIFS & AGENT GP -->
-          <div v-else-if="currentStep === 3" class="space-y-4">
-            <h4 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">3. Capacité, Tarifs & Agent Responsable</h4>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Capacité Totale (Kg) *</label>
-                <input
-                  v-model.number="form.capacite_totale"
-                  type="number"
-                  placeholder="ex: 50"
-                  class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 dark:text-slate-100 outline-none"
-                />
-              </div>
-
-              <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Devise *</label>
-                <select
-                  v-model="form.devise"
-                  class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 dark:text-slate-100 font-bold outline-none"
-                >
-                  <option value="XOF">FCFA (XOF)</option>
-                  <option value="EUR">Euro (€)</option>
-                  <option value="USD">Dollar US ($)</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Prix / kg ({{ form.devise }}) *</label>
-                <input
-                  v-model.number="form.prix_kg"
-                  type="number"
-                  placeholder="ex: 8500"
-                  class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 dark:text-slate-100 outline-none"
-                />
-              </div>
-
-              <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Prix / Objet ou Document ({{ form.devise }})</label>
-                <input
-                  v-model.number="form.prix_objet"
-                  type="number"
-                  placeholder="ex: 15000"
-                  class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 dark:text-slate-100 outline-none"
-                />
-              </div>
-            </div>
-
-            <!-- Agent GP Responsable Selection -->
-            <div class="p-3 bg-sky-50 dark:bg-slate-800/80 rounded-2xl border border-sky-200 dark:border-slate-700 space-y-1.5">
-              <label class="block text-xs font-bold text-[#053754] dark:text-sky-300">👤 Agent GP Responsable du Trajet (Spécifique Entreprise)</label>
-              <select
-                v-model="form.agent_gp_id"
-                class="w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-gray-800 dark:text-slate-100 outline-none"
-              >
-                <option value="">-- Affecter un agent ultérieurement --</option>
-                <option v-for="agent in agents" :key="agent.id" :value="agent.id">
-                  👤 {{ agent.user?.prenom }} {{ agent.user?.nom }} ({{ agent.matricule }})
-                </option>
-              </select>
-            </div>
-
-            <div class="space-y-1.5">
-              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Conditions & Description</label>
-              <textarea
-                v-model="form.description"
-                rows="3"
-                placeholder="Fournissez des détails sur votre trajet, vos consignes et disponibilités..."
-                class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 dark:text-slate-100 outline-none"
-              ></textarea>
-            </div>
-          </div>
-
-          <!-- STEP 4: ADRESSES DÉPÔT ET RÉCUPÉRATION -->
-          <div v-else-if="currentStep === 4" class="space-y-6">
-            <h4 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">4. Adresses de Dépôt et Récupération</h4>
+          <!-- STEP 3: ADRESSES DÉPÔT ET RÉCUPÉRATION -->
+          <div v-else-if="currentStep === 3" class="space-y-6">
+            <h4 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">3. Adresses de Dépôt et Récupération</h4>
 
             <div class="space-y-5">
               <!-- Adresse Dépôt Card -->
@@ -925,23 +916,102 @@ const visiblePages = computed(() => {
             </div>
           </div>
 
+          <!-- STEP 4: CAPACITÉ, TARIFS & AGENT GP -->
+          <div v-else-if="currentStep === 4" class="space-y-4">
+            <h4 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">4. Capacité, Tarifs & Agent Responsable</h4>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Capacité Totale (Kg) *</label>
+                <input
+                  v-model.number="form.capacite_totale"
+                  type="number"
+                  placeholder="ex: 50"
+                  class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 dark:text-slate-100 outline-none"
+                />
+              </div>
+
+              <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Devise *</label>
+                <select
+                  v-model="form.devise"
+                  class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 dark:text-slate-100 font-bold outline-none"
+                >
+                  <option value="XOF">FCFA (XOF)</option>
+                  <option value="EUR">Euro (€)</option>
+                  <option value="USD">Dollar US ($)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Prix au Kilo par défaut -->
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Prix / kg ({{ form.devise }}) *</label>
+              <input
+                v-model.number="form.prix_kg"
+                type="number"
+                placeholder="ex: 8500"
+                class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 dark:text-slate-100 outline-none font-bold"
+              />
+              <p class="text-[11px] text-gray-500 dark:text-slate-400">Ce tarif au kilo est appliqué par défaut aux objets standards.</p>
+            </div>
+
+            <!-- Agent GP Responsable Selection -->
+            <div class="p-3 bg-sky-50 dark:bg-slate-800/80 rounded-2xl border border-sky-200 dark:border-slate-700 space-y-1.5">
+              <label class="block text-xs font-bold text-[#053754] dark:text-sky-300">👤 Agent GP Responsable du Trajet (Spécifique Entreprise)</label>
+              <select
+                v-model="form.agent_gp_id"
+                class="w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-gray-800 dark:text-slate-100 outline-none"
+              >
+                <option value="">-- Affecter un agent ultérieurement --</option>
+                <option v-for="agent in agents" :key="agent.id" :value="agent.id">
+                  👤 {{ agent.user?.prenom }} {{ agent.user?.nom }} ({{ agent.matricule }})
+                </option>
+              </select>
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">Conditions & Description</label>
+              <textarea
+                v-model="form.description"
+                rows="3"
+                placeholder="Fournissez des détails sur votre trajet, vos consignes et disponibilités..."
+                class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 dark:text-slate-100 outline-none"
+              ></textarea>
+            </div>
+          </div>
+
           <!-- STEP 5: CATÉGORIES ACCEPTÉES / REFUSÉES -->
           <div v-else-if="currentStep === 5" class="space-y-6">
             <h4 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">5. Catégories d'objets acceptés & interdits</h4>
 
             <!-- SECTION AUTORISÉES -->
             <div class="space-y-3">
-              <label class="block text-xs font-extrabold text-emerald-800 dark:text-emerald-300">✅ Objets & Colis Acceptés</label>
+              <div class="flex items-center justify-between">
+                <label class="block text-xs font-extrabold text-emerald-800 dark:text-emerald-300">✅ Objets & Colis Acceptés</label>
+                <span v-if="form.tarifs_speciaux.length > 0" class="text-[10px] text-sky-700 dark:text-sky-300 bg-sky-100 dark:bg-sky-950 px-2 py-0.5 rounded-full font-bold">
+                  🏷️ {{ form.tarifs_speciaux.length }} objet(s) avec Tarif Spécial
+                </span>
+              </div>
+
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div
-                  v-for="cat in presetAutorises"
+                  v-for="cat in allAutorisesList"
                   :key="cat"
                   @click="toggleAutorise(cat)"
-                  class="p-3 rounded-xl border text-xs font-bold flex items-center justify-between cursor-pointer transition-all"
-                  :class="form.objets_autorises.includes(cat) ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300' : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700'"
+                  class="p-3 rounded-xl border text-xs font-bold flex items-center justify-between cursor-pointer transition-all gap-2"
+                  :class="form.objets_autorises.includes(cat) ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 shadow-2xs' : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700'"
                 >
-                  <span>{{ cat }}</span>
-                  <span v-if="form.objets_autorises.includes(cat)" class="text-emerald-600 dark:text-emerald-400 text-sm">✓</span>
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <span>{{ cat }}</span>
+                    <span
+                      v-if="getSpecialTarifFor(cat)"
+                      class="text-[10px] bg-sky-100 dark:bg-sky-950 text-[#074C72] dark:text-sky-300 px-2 py-0.5 rounded-full font-extrabold border border-sky-200 dark:border-sky-800 shrink-0"
+                    >
+                      🏷️ {{ getSpecialTarifFor(cat).prix }} {{ form.devise }}
+                    </span>
+                  </div>
+                  <span v-if="form.objets_autorises.includes(cat)" class="text-emerald-600 dark:text-emerald-400 text-sm font-black shrink-0">✓</span>
                 </div>
               </div>
 
@@ -957,10 +1027,106 @@ const visiblePages = computed(() => {
                 <button
                   @click="addCustomAutorise"
                   type="button"
-                  class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
+                  class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-2xs transition-all cursor-pointer"
                 >
                   Ajouter
                 </button>
+              </div>
+            </div>
+
+            <!-- SECTION DÉDIÉE TARIFS SPÉCIAUX PAR OBJET -->
+            <div class="p-4 bg-sky-50/70 dark:bg-slate-800/80 border-2 border-sky-200 dark:border-slate-700 rounded-2xl space-y-3">
+              <div>
+                <div class="flex items-center justify-between">
+                  <label class="block text-xs font-extrabold text-[#053754] dark:text-sky-300 uppercase tracking-wider">
+                    🏷️ Tarifs Spéciaux par Objet (Forfaits spécifiques)
+                  </label>
+                  <span class="text-[10px] font-bold text-sky-700 dark:text-sky-300 bg-sky-100 dark:bg-sky-950 px-2 py-0.5 rounded-full">Optionnel</span>
+                </div>
+                <p class="text-[11px] text-gray-600 dark:text-slate-300 mt-1">
+                  Définissez des prix fixes pour des objets spécifiques (ex: <strong>Baskets: 25 {{ form.devise }}</strong>, <strong>Perruque: 30 {{ form.devise }}</strong>, <strong>Enveloppe: 20 {{ form.devise }}</strong>). Les autres objets utiliseront le prix au kilo par défaut.
+                </p>
+              </div>
+
+              <!-- Presets d'objets rapides -->
+              <div class="space-y-1">
+                <span class="text-[10px] font-extrabold text-gray-500 uppercase tracking-wider block">Suggestions de tarifs rapides :</span>
+                <div class="flex flex-wrap gap-2">
+                  <button
+                    v-for="preset in presetTarifsSpeciaux"
+                    :key="preset.nom"
+                    @click="addSpecialTarif(preset.nom, preset.prix)"
+                    type="button"
+                    class="px-3 py-1.5 rounded-xl border border-sky-300 dark:border-sky-700 bg-white dark:bg-slate-900 text-[#074C72] dark:text-sky-300 text-xs font-extrabold hover:bg-sky-100 dark:hover:bg-slate-800 transition cursor-pointer flex items-center gap-1 shadow-2xs"
+                  >
+                    <span>+ {{ preset.nom }} ({{ preset.prix }} {{ form.devise }})</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Formulaire ajout d'un tarif personnalisé -->
+              <div class="p-3 bg-white dark:bg-slate-900 rounded-xl border border-sky-100 dark:border-slate-800 space-y-2">
+                <span class="text-[10px] font-extrabold text-gray-500 uppercase tracking-wider block">+ Ajouter un tarif spécifique :</span>
+                <div class="flex flex-col sm:flex-row gap-2">
+                  <input
+                    v-model="customItemNom"
+                    type="text"
+                    placeholder="Nom de l'objet (ex: Télévision 43 pouces)"
+                    class="flex-1 bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-gray-800 dark:text-slate-100 outline-none"
+                  />
+                  <div class="flex items-center gap-2">
+                    <input
+                      v-model.number="customItemPrix"
+                      type="number"
+                      placeholder="Prix"
+                      class="w-24 bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-gray-800 dark:text-slate-100 outline-none font-bold"
+                    />
+                    <span class="text-xs font-bold text-gray-500">{{ form.devise }}</span>
+                    <button
+                      @click="addCustomSpecialTarif"
+                      type="button"
+                      class="px-4 py-2 bg-[#053754] hover:bg-[#074C72] text-white text-xs font-extrabold rounded-xl transition cursor-pointer shrink-0"
+                    >
+                      Ajouter
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Liste des tarifs spéciaux enregistrés -->
+              <div v-if="form.tarifs_speciaux.length > 0" class="space-y-2 pt-1">
+                <span class="text-[10px] font-extrabold text-[#053754] dark:text-sky-300 uppercase tracking-wider block">
+                  Tarifs spéciaux configurés ({{ form.tarifs_speciaux.length }}) :
+                </span>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div
+                    v-for="(item, idx) in form.tarifs_speciaux"
+                    :key="idx"
+                    class="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-sky-200 dark:border-slate-700 flex items-center justify-between shadow-2xs"
+                  >
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm">🏷️</span>
+                      <span class="text-xs font-extrabold text-[#053754] dark:text-slate-100">{{ item.nom }}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <input
+                        v-model.number="item.prix"
+                        type="number"
+                        min="0"
+                        class="w-16 bg-gray-50 dark:bg-slate-800 text-right outline-none font-bold text-xs px-2 py-1 rounded-lg border border-gray-200 dark:border-slate-700 text-emerald-600 dark:text-emerald-400"
+                      />
+                      <span class="text-xs font-bold text-gray-500">{{ form.devise }}</span>
+                      <button
+                        @click="removeSpecialTarif(idx)"
+                        type="button"
+                        class="text-red-500 hover:text-red-700 dark:text-rose-400 font-bold p-1 text-xs cursor-pointer ml-1"
+                        title="Supprimer ce tarif spécial"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -969,14 +1135,14 @@ const visiblePages = computed(() => {
               <label class="block text-xs font-extrabold text-red-800 dark:text-rose-300">🚫 Objets Interdits</label>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div
-                  v-for="cat in presetInterdits"
+                  v-for="cat in allInterditsList"
                   :key="cat"
                   @click="toggleInterdit(cat)"
                   class="p-3 rounded-xl border text-xs font-bold flex items-center justify-between cursor-pointer transition-all"
-                  :class="form.objets_interdits.includes(cat) ? 'bg-red-50 dark:bg-rose-950/60 border-red-300 dark:border-rose-800 text-red-800 dark:text-rose-300' : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700'"
+                  :class="form.objets_interdits.includes(cat) ? 'bg-red-50 dark:bg-rose-950/60 border-red-300 dark:border-rose-800 text-red-800 dark:text-rose-300 shadow-2xs' : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700'"
                 >
                   <span>{{ cat }}</span>
-                  <span v-if="form.objets_interdits.includes(cat)" class="text-red-600 dark:text-rose-400 text-sm">✕</span>
+                  <span v-if="form.objets_interdits.includes(cat)" class="text-red-600 dark:text-rose-400 text-sm font-black">✕</span>
                 </div>
               </div>
 
@@ -992,7 +1158,7 @@ const visiblePages = computed(() => {
                 <button
                   @click="addCustomInterdit"
                   type="button"
-                  class="px-4 py-2 bg-[#B50302] hover:bg-[#870202] text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
+                  class="px-4 py-2 bg-[#B50302] hover:bg-[#870202] text-white rounded-xl text-xs font-bold shadow-2xs transition-all cursor-pointer"
                 >
                   Ajouter
                 </button>

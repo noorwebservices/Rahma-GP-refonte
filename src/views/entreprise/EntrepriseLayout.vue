@@ -83,14 +83,6 @@
             <span>Journal d'Audit</span>
           </router-link>
 
-          <router-link 
-            to="/entreprise/trash" 
-            @click="isMobileMenuOpen = false"
-            class="flex items-center px-4 py-3 rounded-2xl text-xs font-extrabold transition-all duration-200 cursor-pointer"
-            :class="$route.path.startsWith('/entreprise/trash') ? 'bg-[#053754] text-white shadow-md' : 'text-gray-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#053754] dark:hover:text-sky-400'"
-          >
-            <span>Corbeille (Archives)</span>
-          </router-link>
 
           <router-link 
             to="/entreprise/profile" 

@@ -12,17 +12,29 @@
         </p>
       </div>
 
-      <!-- Quick Search & Filters -->
-      <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Rechercher action, agent..."
-          class="px-4 py-2 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#053754]"
-        />
+      <div class="flex items-center gap-2 text-xs font-extrabold text-[#053754] dark:text-sky-300 bg-indigo-50 dark:bg-slate-800 px-4 py-2 rounded-2xl border border-indigo-100 dark:border-slate-700">
+        <span>⚡ Audit en direct</span>
+      </div>
+    </div>
+
+    <!-- Single Row Filter Bar (Placed directly above the activity list) -->
+    <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-wrap items-center justify-between gap-3">
+      <div class="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
+        <!-- Search Input -->
+        <div class="relative min-w-[200px] flex-1">
+          <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">🔍</span>
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Rechercher action, agent..."
+            class="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#053754]"
+          />
+        </div>
+
+        <!-- Category Dropdown -->
         <select
           v-model="selectedCategory"
-          class="px-4 py-2 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#053754]"
+          class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#053754] shrink-0 cursor-pointer"
         >
           <option value="tous">Toutes les catégories</option>
           <option value="agent">Agents GP</option>
@@ -30,13 +42,63 @@
           <option value="auth">Connexions</option>
           <option value="modification">Modifications</option>
         </select>
+
+        <!-- Date Filter Dropdown -->
+        <select
+          v-model="selectedDateFilter"
+          class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#053754] shrink-0 cursor-pointer"
+        >
+          <option value="tous">📅 Toutes les dates</option>
+          <option value="aujourdhui">Aujourd'hui</option>
+          <option value="hier">Hier</option>
+          <option value="avant_hier">Avant-hier</option>
+          <option value="semaine">Cette semaine</option>
+          <option value="mois">Ce mois-ci</option>
+          <option value="custom">📆 Période personnalisée</option>
+        </select>
+
+        <!-- Inline Custom Date Range Inputs -->
+        <template v-if="selectedDateFilter === 'custom'">
+          <div class="flex items-center gap-1.5 shrink-0">
+            <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400">De:</span>
+            <input
+              v-model="dateDebut"
+              type="date"
+              class="px-2.5 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#053754]"
+            />
+          </div>
+
+          <div class="flex items-center gap-1.5 shrink-0">
+            <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400">À:</span>
+            <input
+              v-model="dateFin"
+              type="date"
+              class="px-2.5 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#053754]"
+            />
+          </div>
+
+          <button
+            @click="resetDateFilter"
+            title="Réinitialiser la date"
+            class="px-2.5 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-xs font-bold text-slate-700 dark:text-slate-200 transition cursor-pointer shrink-0"
+          >
+            🔄
+          </button>
+        </template>
+      </div>
+
+      <!-- Result Count -->
+      <div class="shrink-0 text-xs font-bold text-slate-500 dark:text-slate-400">
+        <span class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-[#053754] dark:text-sky-300">
+          {{ filteredActivites.length }} résultat(s)
+        </span>
       </div>
     </div>
 
     <!-- Loading State -->
     <div v-if="loading" class="py-16 text-center">
       <div class="w-10 h-10 border-4 border-[#053754] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-      <p class="text-xs font-bold text-slate-500">Chargement de l'historique d'activités...</p>
+      <p class="text-xs font-bold text-slate-500 dark:text-slate-400">Chargement de l'historique d'activités...</p>
     </div>
 
     <!-- Empty State -->
@@ -44,9 +106,9 @@
       <div class="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center mx-auto mb-4 text-2xl">
         🔍
       </div>
-      <h3 class="text-base font-bold text-slate-800 dark:text-slate-200">Aucune activité enregistrée</h3>
-      <p class="text-xs text-slate-500 max-w-md mx-auto mt-1">
-        Les actions réalisées sur votre compte entreprise apparaîtront automatiquement ici dans le fil d'audit.
+      <h3 class="text-base font-bold text-slate-800 dark:text-slate-200">Aucune activité trouvée</h3>
+      <p class="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto mt-1">
+        Aucune activité ne correspond à vos critères de recherche et de filtres par date.
       </p>
     </div>
 
@@ -151,15 +213,24 @@ import { entrepriseService } from '@/services/entrepriseService'
 const loading = ref(true)
 const searchQuery = ref('')
 const selectedCategory = ref('tous')
+const selectedDateFilter = ref('tous')
+const dateDebut = ref('')
+const dateFin = ref('')
 const activites = ref([])
 
 // Pagination state
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
 
-watch([searchQuery, selectedCategory], () => {
+watch([searchQuery, selectedCategory, selectedDateFilter, dateDebut, dateFin], () => {
   currentPage.value = 1
 })
+
+const resetDateFilter = () => {
+  selectedDateFilter.value = 'tous'
+  dateDebut.value = ''
+  dateFin.value = ''
+}
 
 const loadActivites = async () => {
   loading.value = true
@@ -173,6 +244,69 @@ const loadActivites = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const isDateInFilter = (dateStr) => {
+  if (selectedDateFilter.value === 'tous') return true
+  if (!dateStr) return false
+
+  const targetDate = new Date(dateStr)
+  if (isNaN(targetDate.getTime())) return false
+
+  const now = new Date()
+
+  if (selectedDateFilter.value === 'aujourdhui') {
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0)
+    const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)
+    return targetDate >= start && targetDate <= end
+  }
+
+  if (selectedDateFilter.value === 'hier') {
+    const yesterday = new Date(now)
+    yesterday.setDate(now.getDate() - 1)
+    const start = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 0, 0, 0, 0)
+    const end = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 23, 59, 59, 999)
+    return targetDate >= start && targetDate <= end
+  }
+
+  if (selectedDateFilter.value === 'avant_hier') {
+    const dayBefore = new Date(now)
+    dayBefore.setDate(now.getDate() - 2)
+    const start = new Date(dayBefore.getFullYear(), dayBefore.getMonth(), dayBefore.getDate(), 0, 0, 0, 0)
+    const end = new Date(dayBefore.getFullYear(), dayBefore.getMonth(), dayBefore.getDate(), 23, 59, 59, 999)
+    return targetDate >= start && targetDate <= end
+  }
+
+  if (selectedDateFilter.value === 'semaine') {
+    const dayOfWeek = now.getDay()
+    const diffToMonday = (dayOfWeek + 6) % 7
+    const monday = new Date(now)
+    monday.setDate(now.getDate() - diffToMonday)
+    const start = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate(), 0, 0, 0, 0)
+    const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)
+    return targetDate >= start && targetDate <= end
+  }
+
+  if (selectedDateFilter.value === 'mois') {
+    const start = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0)
+    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999)
+    return targetDate >= start && targetDate <= end
+  }
+
+  if (selectedDateFilter.value === 'custom') {
+    let match = true
+    if (dateDebut.value) {
+      const start = new Date(dateDebut.value + 'T00:00:00')
+      match = match && targetDate >= start
+    }
+    if (dateFin.value) {
+      const end = new Date(dateFin.value + 'T23:59:59')
+      match = match && targetDate <= end
+    }
+    return match
+  }
+
+  return true
 }
 
 const filteredActivites = computed(() => {
@@ -190,7 +324,9 @@ const filteredActivites = computed(() => {
       act.categorie?.toLowerCase() === selectedCategory.value ||
       act.action?.toLowerCase().includes(selectedCategory.value)
 
-    return matchSearch && matchCat
+    const matchDate = isDateInFilter(act.created_at)
+
+    return matchSearch && matchCat && matchDate
   })
 })
 
@@ -259,3 +395,4 @@ onMounted(() => {
   loadActivites()
 })
 </script>
+

@@ -259,18 +259,10 @@ const startBooking = () => {
         <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-3">
           <div class="text-xs font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider">{{ t('voyageDetail.pricingTitle') }}</div>
           
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div class="bg-slate-50 dark:bg-slate-800/80 p-3 rounded-xl border border-slate-100 dark:border-slate-700 space-y-1">
-              <span class="text-xs text-gray-400 dark:text-slate-400 font-bold block">Prix au Kg (par défaut)</span>
-              <span class="text-base sm:text-lg font-black text-[#B50302] dark:text-red-400 block">{{ voyage.prixKg }}</span>
-              <span class="text-[10px] text-gray-400 dark:text-slate-400 block font-medium">Pour les objets au poids</span>
-            </div>
-
-            <div v-if="voyage.rawPrixObjet" class="bg-slate-50 dark:bg-slate-800/80 p-3 rounded-xl border border-slate-100 dark:border-slate-700 space-y-1">
-              <span class="text-xs text-gray-400 dark:text-slate-400 font-bold block">Prix Objet Standard</span>
-              <span class="text-base sm:text-lg font-black text-[#053754] dark:text-sky-300 block">{{ voyage.prixObjet }}</span>
-              <span class="text-[10px] text-gray-400 dark:text-slate-400 block font-medium">Par pièce</span>
-            </div>
+          <div class="bg-slate-50 dark:bg-slate-800/80 p-3 rounded-xl border border-slate-100 dark:border-slate-700 space-y-1">
+            <span class="text-xs text-gray-400 dark:text-slate-400 font-bold block">Prix au Kg (par défaut)</span>
+            <span class="text-base sm:text-lg font-black text-[#B50302] dark:text-red-400 block">{{ voyage.prixKg }}</span>
+            <span class="text-[10px] text-gray-400 dark:text-slate-400 block font-medium">Pour les objets tarifés au poids</span>
           </div>
 
           <!-- Tarifs Spéciaux par Objet -->

@@ -79,6 +79,10 @@ const addSpecialTarif = (nom, prix) => {
       prix: Number(prix) || 0
     })
   }
+  // Auto-accept in objets_autorises if not already present
+  if (!form.objets_autorises.includes(nomClean)) {
+    form.objets_autorises.push(nomClean)
+  }
 }
 
 const removeSpecialTarif = (index) => {
@@ -220,8 +224,20 @@ const presetInterdits = ref([
   'Objets tranchants'
 ])
 
+const getSpecialTarifFor = (catName) => {
+  if (!catName || !form.tarifs_speciaux) return null
+  return form.tarifs_speciaux.find(t => t.nom.toLowerCase() === catName.toLowerCase()) || null
+}
+
 const allAutorisesList = computed(() => {
-  return Array.from(new Set([...presetAutorises.value, ...form.objets_autorises]))
+  const specialTarifNames = (form.tarifs_speciaux || []).map(t => t.nom)
+  const presetSpecialNames = (presetTarifsSpeciaux.value || []).map(t => t.nom)
+  return Array.from(new Set([
+    ...presetAutorises.value,
+    ...presetSpecialNames,
+    ...specialTarifNames,
+    ...form.objets_autorises
+  ]))
 })
 
 const allInterditsList = computed(() => {
@@ -268,17 +284,17 @@ const validateStep = (step) => {
       return false
     }
   } else if (step === 3) {
-    if (!form.capacite_totale || form.capacite_totale <= 0) {
-      showToast('warning', 'La capacité totale (en Kg) doit être supérieure à 0.')
-      return false
-    }
-  } else if (step === 4) {
     if (!form.adresse_depot_id) {
       showToast('warning', 'Veuillez sélectionner une adresse de dépôt.')
       return false
     }
     if (!form.adresse_recuperation_id) {
       showToast('warning', 'Veuillez sélectionner une adresse de récupération.')
+      return false
+    }
+  } else if (step === 4) {
+    if (!form.capacite_totale || form.capacite_totale <= 0) {
+      showToast('warning', 'La capacité totale (en Kg) doit être supérieure à 0.')
       return false
     }
   }
@@ -383,10 +399,10 @@ const handleSaveVoyage = async (targetStatut) => {
 
       <div class="text-xs font-semibold text-gray-500 dark:text-slate-400">
         <span v-if="currentStep === 1">1. {{ t('voyageur.createVoyage.step1') }}</span>
-        <span v-else-if="currentStep === 2">2. {{ t('voyageur.createVoyage.step2') }}</span>
+        <span v-else-if="currentStep === 2">2. {{ t('voyageur.createVoyage.departureDate') }}</span>
         <span v-else-if="currentStep === 3">3. {{ t('voyageur.createVoyage.step3') }}</span>
-        <span v-else-if="currentStep === 4">4. {{ t('voyageur.createVoyage.step4') }}</span>
-        <span v-else>5. {{ t('voyageur.createVoyage.acceptedItems') }}</span>
+        <span v-else-if="currentStep === 4">4. {{ t('voyageur.createVoyage.step2') }}</span>
+        <span v-else>5. {{ t('voyageur.createVoyage.step4') }}</span>
       </div>
 
       <div class="w-full bg-gray-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden flex">
@@ -458,154 +474,9 @@ const handleSaveVoyage = async (targetStatut) => {
         </p>
       </div>
 
-      <!-- STEP 3: CAPACITÉ & TARIFS -->
-      <div v-else-if="currentStep === 3" class="space-y-4">
-        <h3 class="text-base font-extrabold text-[#053754] dark:text-sky-300 border-b border-gray-100 dark:border-slate-800 pb-2">3. {{ t('voyageur.createVoyage.step2') }}</h3>
-
-        <div class="space-y-4">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="space-y-1.5">
-              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">{{ t('voyageur.createVoyage.totalCapacityKg') }} *</label>
-              <input
-                v-model.number="form.capacite_totale"
-                type="number"
-                placeholder="ex: 25"
-                class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 dark:text-slate-100 outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-[#074C72]/20"
-              />
-            </div>
-
-            <div class="space-y-1.5">
-              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">{{ t('voyageur.createVoyage.currency') }} *</label>
-              <select
-                v-model="form.devise"
-                class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 dark:text-slate-100 font-bold outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-[#074C72]/20"
-              >
-                <option value="XOF" class="dark:bg-slate-800">FCFA (XOF) - Franc CFA</option>
-                <option value="EUR" class="dark:bg-slate-800">EUR (€) - Euro</option>
-                <option value="USD" class="dark:bg-slate-800">USD ($) - Dollar US</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="space-y-1.5">
-              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">{{ t('voyageur.createVoyage.pricePerKg') }} ({{ form.devise }}) *</label>
-              <input
-                v-model.number="form.prix_kg"
-                type="number"
-                placeholder="ex: 8500"
-                class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 dark:text-slate-100 outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-[#074C72]/20"
-              />
-            </div>
-
-            <div class="space-y-1.5">
-              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">{{ t('voyageur.createVoyage.pricePerObject') }} ({{ form.devise }})</label>
-              <input
-                v-model.number="form.prix_objet"
-                type="number"
-                placeholder="ex: 15000"
-                class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 dark:text-slate-100 outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-[#074C72]/20"
-              />
-            </div>
-          </div>
-
-          <div class="space-y-1.5">
-            <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">{{ t('voyageur.createVoyage.conditions') }}</label>
-            <textarea
-              v-model="form.description"
-              rows="3"
-              placeholder="Fournissez des détails sur votre vol, vos consignes et disponibilités..."
-              class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 dark:text-slate-100 outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-[#074C72]/20"
-            ></textarea>
-          </div>
-
-          <!-- SECTION TARIFS SPÉCIAUX PAR OBJET -->
-          <div class="pt-4 border-t border-gray-100 dark:border-slate-800 space-y-3">
-            <div>
-              <label class="block text-xs font-extrabold text-[#053754] dark:text-sky-300">
-                🏷️ Tarifs Spéciaux par Objet (Optionnel)
-              </label>
-              <p class="text-[11px] text-gray-500 dark:text-slate-400 mt-0.5">
-                Définissez des tarifs spécifiques par objet (ex: Baskets: 25€, Perruque: 30€, Enveloppe: 20€). Les autres objets sans tarif spécifique utiliseront le prix au kilo par défaut.
-              </p>
-            </div>
-
-            <!-- Presets d'objets rapides -->
-            <div class="flex flex-wrap gap-2 pt-1">
-              <button
-                v-for="preset in presetTarifsSpeciaux"
-                :key="preset.nom"
-                @click="addSpecialTarif(preset.nom, preset.prix)"
-                type="button"
-                class="px-3 py-1.5 rounded-xl border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 text-xs font-bold hover:bg-sky-100 dark:hover:bg-sky-900 transition cursor-pointer flex items-center gap-1"
-              >
-                <span>+ {{ preset.nom }} ({{ preset.prix }} {{ form.devise }})</span>
-              </button>
-            </div>
-
-            <!-- Liste des tarifs spéciaux enregistrés -->
-            <div v-if="form.tarifs_speciaux.length > 0" class="space-y-2 pt-2">
-              <div
-                v-for="(item, idx) in form.tarifs_speciaux"
-                :key="idx"
-                class="flex items-center justify-between bg-gray-50 dark:bg-slate-800/80 p-3 rounded-xl border border-gray-200 dark:border-slate-700 text-xs"
-              >
-                <div class="flex items-center gap-2">
-                  <span class="font-extrabold text-gray-800 dark:text-slate-100">📦 {{ item.nom }}</span>
-                </div>
-                <div class="flex items-center gap-3">
-                  <div class="flex items-center gap-1 bg-white dark:bg-slate-900 px-3 py-1 rounded-lg border border-gray-200 dark:border-slate-700 font-bold text-emerald-600 dark:text-emerald-400">
-                    <input
-                      v-model.number="item.prix"
-                      type="number"
-                      min="0"
-                      class="w-16 bg-transparent text-right outline-none font-bold text-xs"
-                    />
-                    <span>{{ form.devise }}</span>
-                  </div>
-                  <button
-                    @click="removeSpecialTarif(idx)"
-                    type="button"
-                    class="text-red-500 hover:text-red-700 dark:text-rose-400 font-bold px-2 py-1 rounded-lg hover:bg-red-50 dark:hover:bg-rose-950 cursor-pointer"
-                  >
-                    ✕
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Formulaire ajout d'un tarif personnalisé -->
-            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-1">
-              <input
-                v-model="customItemNom"
-                type="text"
-                placeholder="Nom de l'objet (ex: Sac à main, Téléphone...)"
-                class="sm:col-span-6 bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none"
-              />
-              <div class="sm:col-span-4 flex items-center bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs">
-                <input
-                  v-model.number="customItemPrix"
-                  type="number"
-                  placeholder="Prix"
-                  class="w-full bg-transparent outline-none text-gray-800 dark:text-slate-100 font-bold"
-                />
-                <span class="text-gray-400 dark:text-slate-500 font-bold ml-1">{{ form.devise }}</span>
-              </div>
-              <button
-                @click="addCustomSpecialTarif"
-                type="button"
-                class="sm:col-span-2 bg-[#053754] dark:bg-sky-600 hover:bg-[#074C72] text-white font-bold text-xs py-2.5 px-3 rounded-xl cursor-pointer"
-              >
-                Ajouter
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- STEP 4: ADRESSES DÉPÔT ET RÉCUPÉRATION -->
-      <div v-else-if="currentStep === 4" class="space-y-6">
-        <h3 class="text-base font-extrabold text-[#053754] dark:text-sky-300 border-b border-gray-100 dark:border-slate-800 pb-2">4. {{ t('voyageur.createVoyage.step3') }}</h3>
+      <!-- STEP 3: ADRESSES DÉPÔT ET RÉCUPÉRATION -->
+      <div v-else-if="currentStep === 3" class="space-y-6">
+        <h3 class="text-base font-extrabold text-[#053754] dark:text-sky-300 border-b border-gray-100 dark:border-slate-800 pb-2">3. {{ t('voyageur.createVoyage.step3') }}</h3>
 
         <div class="space-y-5">
           <!-- Adresse Dépôt Selector Card -->
@@ -666,24 +537,204 @@ const handleSaveVoyage = async (targetStatut) => {
         </div>
       </div>
 
+      <!-- STEP 4: CAPACITÉ & TARIFS -->
+      <div v-else-if="currentStep === 4" class="space-y-4">
+        <h3 class="text-base font-extrabold text-[#053754] dark:text-sky-300 border-b border-gray-100 dark:border-slate-800 pb-2">4. {{ t('voyageur.createVoyage.step2') }}</h3>
+
+        <div class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">{{ t('voyageur.createVoyage.totalCapacityKg') }} *</label>
+              <input
+                v-model.number="form.capacite_totale"
+                type="number"
+                placeholder="ex: 25"
+                class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 dark:text-slate-100 outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-[#074C72]/20"
+              />
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">{{ t('voyageur.createVoyage.currency') }} *</label>
+              <select
+                v-model="form.devise"
+                class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 dark:text-slate-100 font-bold outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-[#074C72]/20"
+              >
+                <option value="XOF" class="dark:bg-slate-800">FCFA (XOF) - Franc CFA</option>
+                <option value="EUR" class="dark:bg-slate-800">EUR (€) - Euro</option>
+                <option value="USD" class="dark:bg-slate-800">USD ($) - Dollar US</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Prix au kilo par défaut -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">{{ t('voyageur.createVoyage.pricePerKg') }} ({{ form.devise }}) *</label>
+            <input
+              v-model.number="form.prix_kg"
+              type="number"
+              placeholder="ex: 8500"
+              class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 dark:text-slate-100 outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-[#074C72]/20 font-bold"
+            />
+            <p class="text-[11px] text-gray-500 dark:text-slate-400">Ce tarif au kilo est appliqué par défaut aux objets standards.</p>
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-gray-700 dark:text-slate-300">{{ t('voyageur.createVoyage.conditions') }}</label>
+            <textarea
+              v-model="form.description"
+              rows="3"
+              placeholder="Fournissez des détails sur votre vol, vos consignes et disponibilités..."
+              class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 dark:text-slate-100 outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-[#074C72]/20"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
       <!-- STEP 5: CATÉGORIES ACCEPTÉES / REFUSÉES -->
       <div v-else-if="currentStep === 5" class="space-y-6">
         <h3 class="text-base font-extrabold text-[#053754] dark:text-sky-300 border-b border-gray-100 dark:border-slate-800 pb-2">5. {{ t('voyageur.createVoyage.step4') }}</h3>
 
         <!-- SECTION A: AUTORISÉES -->
         <div class="space-y-3">
-          <label class="block text-xs font-extrabold text-emerald-800 dark:text-emerald-300">✅ {{ t('voyageur.createVoyage.acceptedItems') }}</label>
+          <div class="flex items-center justify-between">
+            <label class="block text-xs font-extrabold text-emerald-800 dark:text-emerald-300">✅ {{ t('voyageur.createVoyage.acceptedItems') }}</label>
+            <span v-if="form.tarifs_speciaux.length > 0" class="text-[10px] text-sky-700 dark:text-sky-300 bg-sky-100 dark:bg-sky-950 px-2 py-0.5 rounded-full font-bold">
+              🏷️ {{ form.tarifs_speciaux.length }} objet(s) avec Tarif Spécial
+            </span>
+          </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div
               v-for="cat in allAutorisesList"
               :key="cat"
               @click="toggleAutorise(cat)"
-              class="p-3 rounded-xl border text-xs font-bold flex items-center justify-between cursor-pointer transition-all"
-              :class="form.objets_autorises.includes(cat) ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300' : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700'"
+              class="p-3 rounded-xl border text-xs font-bold flex items-center justify-between cursor-pointer transition-all gap-2"
+              :class="form.objets_autorises.includes(cat) ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 shadow-2xs' : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700'"
             >
-              <span>{{ cat }}</span>
-              <span v-if="form.objets_autorises.includes(cat)" class="text-emerald-600 dark:text-emerald-400 text-sm">✓</span>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span>{{ cat }}</span>
+                <span
+                  v-if="getSpecialTarifFor(cat)"
+                  class="text-[10px] bg-sky-100 dark:bg-sky-950 text-[#074C72] dark:text-sky-300 px-2 py-0.5 rounded-full font-extrabold border border-sky-200 dark:border-sky-800 shrink-0"
+                >
+                  🏷️ {{ getSpecialTarifFor(cat).prix }} {{ form.devise }}
+                </span>
+              </div>
+              <span v-if="form.objets_autorises.includes(cat)" class="text-emerald-600 dark:text-emerald-400 text-sm font-black shrink-0">✓</span>
+            </div>
+          </div>
+
+          <!-- Champ d'ajout personnalisé Autorisé -->
+          <div class="flex gap-2 pt-2">
+            <input
+              v-model="customAutorise"
+              @keyup.enter="addCustomAutorise"
+              type="text"
+              placeholder="Ajouter un autre type d'objet autorisé..."
+              class="flex-1 bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs text-gray-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+            <button
+              @click="addCustomAutorise"
+              type="button"
+              class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-extrabold shadow-2xs transition-all cursor-pointer"
+            >
+              Ajouter
+            </button>
+          </div>
+        </div>
+
+        <!-- SECTION TARIFS SPÉCIAUX PAR OBJET -->
+        <div class="p-4 bg-sky-50/70 dark:bg-slate-800/80 border-2 border-sky-200 dark:border-slate-700 rounded-2xl space-y-3">
+          <div>
+            <div class="flex items-center justify-between">
+              <label class="block text-xs font-extrabold text-[#053754] dark:text-sky-300 uppercase tracking-wider">
+                🏷️ Tarifs Spéciaux par Objet (Forfaits spécifiques)
+              </label>
+              <span class="text-[10px] font-bold text-sky-700 dark:text-sky-300 bg-sky-100 dark:bg-sky-950 px-2 py-0.5 rounded-full">Optionnel</span>
+            </div>
+            <p class="text-[11px] text-gray-600 dark:text-slate-300 mt-1">
+              Définissez des prix fixes pour des objets spécifiques (ex: <strong>Baskets: 25 {{ form.devise }}</strong>, <strong>Perruque: 30 {{ form.devise }}</strong>, <strong>Enveloppe: 20 {{ form.devise }}</strong>). Les autres objets utiliseront le prix au kilo par défaut.
+            </p>
+          </div>
+
+          <!-- Presets d'objets rapides -->
+          <div class="space-y-1">
+            <span class="text-[10px] font-extrabold text-gray-500 uppercase tracking-wider block">Suggestions de tarifs rapides :</span>
+            <div class="flex flex-wrap gap-2">
+              <button
+                v-for="preset in presetTarifsSpeciaux"
+                :key="preset.nom"
+                @click="addSpecialTarif(preset.nom, preset.prix)"
+                type="button"
+                class="px-3 py-1.5 rounded-xl border border-sky-300 dark:border-sky-700 bg-white dark:bg-slate-900 text-[#074C72] dark:text-sky-300 text-xs font-extrabold hover:bg-sky-100 dark:hover:bg-slate-800 transition cursor-pointer flex items-center gap-1 shadow-2xs"
+              >
+                <span>+ {{ preset.nom }} ({{ preset.prix }} {{ form.devise }})</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Formulaire ajout d'un tarif personnalisé -->
+          <div class="p-3 bg-white dark:bg-slate-900 rounded-xl border border-sky-100 dark:border-slate-800 space-y-2">
+            <span class="text-[10px] font-extrabold text-gray-500 uppercase tracking-wider block">+ Ajouter un tarif spécifique :</span>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input
+                v-model="customItemNom"
+                type="text"
+                placeholder="Nom de l'objet (ex: Télévision 43 pouces)"
+                class="flex-1 bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-gray-800 dark:text-slate-100 outline-none"
+              />
+              <div class="flex items-center gap-2">
+                <input
+                  v-model.number="customItemPrix"
+                  type="number"
+                  placeholder="Prix"
+                  class="w-24 bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-gray-800 dark:text-slate-100 outline-none font-bold"
+                />
+                <span class="text-xs font-bold text-gray-500">{{ form.devise }}</span>
+                <button
+                  @click="addCustomSpecialTarif"
+                  type="button"
+                  class="px-4 py-2 bg-[#053754] hover:bg-[#074C72] text-white text-xs font-extrabold rounded-xl transition cursor-pointer shrink-0"
+                >
+                  Ajouter
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Liste des tarifs spéciaux enregistrés -->
+          <div v-if="form.tarifs_speciaux.length > 0" class="space-y-2 pt-1">
+            <span class="text-[10px] font-extrabold text-[#053754] dark:text-sky-300 uppercase tracking-wider block">
+              Tarifs spéciaux configurés ({{ form.tarifs_speciaux.length }}) :
+            </span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div
+                v-for="(item, idx) in form.tarifs_speciaux"
+                :key="idx"
+                class="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-sky-200 dark:border-slate-700 flex items-center justify-between shadow-2xs"
+              >
+                <div class="flex items-center gap-2">
+                  <span class="text-sm">🏷️</span>
+                  <span class="text-xs font-extrabold text-[#053754] dark:text-slate-100">{{ item.nom }}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <input
+                    v-model.number="item.prix"
+                    type="number"
+                    min="0"
+                    class="w-16 bg-gray-50 dark:bg-slate-800 text-right outline-none font-bold text-xs px-2 py-1 rounded-lg border border-gray-200 dark:border-slate-700 text-emerald-600 dark:text-emerald-400"
+                  />
+                  <span class="text-xs font-bold text-gray-500">{{ form.devise }}</span>
+                  <button
+                    @click="removeSpecialTarif(idx)"
+                    type="button"
+                    class="text-red-500 hover:text-red-700 dark:text-rose-400 font-bold p-1 text-xs cursor-pointer ml-1"
+                    title="Supprimer ce tarif spécial"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -698,11 +749,29 @@ const handleSaveVoyage = async (targetStatut) => {
               :key="cat"
               @click="toggleInterdit(cat)"
               class="p-3 rounded-xl border text-xs font-bold flex items-center justify-between cursor-pointer transition-all"
-              :class="form.objets_interdits.includes(cat) ? 'bg-red-50 dark:bg-rose-950/60 border-red-300 dark:border-rose-800 text-red-800 dark:text-rose-300' : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700'"
+              :class="form.objets_interdits.includes(cat) ? 'bg-red-50 dark:bg-rose-950/60 border-red-300 dark:border-rose-800 text-red-800 dark:text-rose-300 shadow-2xs' : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700'"
             >
               <span>{{ cat }}</span>
-              <span v-if="form.objets_interdits.includes(cat)" class="text-red-600 dark:text-rose-400 text-sm">✕</span>
+              <span v-if="form.objets_interdits.includes(cat)" class="text-red-600 dark:text-rose-400 text-sm font-black">✕</span>
             </div>
+          </div>
+
+          <!-- Champ d'ajout personnalisé Interdit -->
+          <div class="flex gap-2 pt-2">
+            <input
+              v-model="customInterdit"
+              @keyup.enter="addCustomInterdit"
+              type="text"
+              placeholder="Ajouter une autre catégorie interdite..."
+              class="flex-1 bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs text-gray-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-rose-500"
+            />
+            <button
+              @click="addCustomInterdit"
+              type="button"
+              class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-extrabold shadow-2xs transition-all cursor-pointer"
+            >
+              Ajouter
+            </button>
           </div>
         </div>
       </div>
