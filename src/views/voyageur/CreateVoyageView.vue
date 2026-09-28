@@ -47,12 +47,51 @@ const form = reactive({
   capacite_totale: null,
   prix_kg: null,
   prix_objet: null,
+  tarifs_speciaux: [],
   devise: 'XOF',
   description: '',
   objets_autorises: [],
   objets_interdits: [],
   statut: 'brouillon'
 })
+
+// Special Tariffs Management
+const customItemNom = ref('')
+const customItemPrix = ref(null)
+
+const presetTarifsSpeciaux = ref([
+  { nom: 'Baskets', prix: 25 },
+  { nom: 'Perruques', prix: 30 },
+  { nom: 'Enveloppe', prix: 20 },
+  { nom: 'Téléphone / Ordinateur', prix: 50 },
+  { nom: 'Sac à main', prix: 35 }
+])
+
+const addSpecialTarif = (nom, prix) => {
+  if (!nom || !nom.trim()) return
+  const nomClean = nom.trim()
+  const existingIndex = form.tarifs_speciaux.findIndex(t => t.nom.toLowerCase() === nomClean.toLowerCase())
+  if (existingIndex > -1) {
+    form.tarifs_speciaux[existingIndex].prix = Number(prix) || 0
+  } else {
+    form.tarifs_speciaux.push({
+      nom: nomClean,
+      prix: Number(prix) || 0
+    })
+  }
+}
+
+const removeSpecialTarif = (index) => {
+  form.tarifs_speciaux.splice(index, 1)
+}
+
+const addCustomSpecialTarif = () => {
+  if (customItemNom.value.trim() && customItemPrix.value !== null && customItemPrix.value >= 0) {
+    addSpecialTarif(customItemNom.value, customItemPrix.value)
+    customItemNom.value = ''
+    customItemPrix.value = null
+  }
+}
 
 // Addresses lists fetched from backend
 const adressesDepot = ref([])
@@ -310,6 +349,7 @@ const handleSaveVoyage = async (targetStatut) => {
     capacite_totale: Number(form.capacite_totale),
     prix_kg: Number(form.prix_kg) || 0,
     prix_objet: Number(form.prix_objet) || 0,
+    tarifs_speciaux: form.tarifs_speciaux,
     devise: form.devise,
     description: form.description,
     objets_autorises: form.objets_autorises,
@@ -477,6 +517,88 @@ const handleSaveVoyage = async (targetStatut) => {
               placeholder="Fournissez des détails sur votre vol, vos consignes et disponibilités..."
               class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-800 dark:text-slate-100 outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-[#074C72]/20"
             ></textarea>
+          </div>
+
+          <!-- SECTION TARIFS SPÉCIAUX PAR OBJET -->
+          <div class="pt-4 border-t border-gray-100 dark:border-slate-800 space-y-3">
+            <div>
+              <label class="block text-xs font-extrabold text-[#053754] dark:text-sky-300">
+                🏷️ Tarifs Spéciaux par Objet (Optionnel)
+              </label>
+              <p class="text-[11px] text-gray-500 dark:text-slate-400 mt-0.5">
+                Définissez des tarifs spécifiques par objet (ex: Baskets: 25€, Perruque: 30€, Enveloppe: 20€). Les autres objets sans tarif spécifique utiliseront le prix au kilo par défaut.
+              </p>
+            </div>
+
+            <!-- Presets d'objets rapides -->
+            <div class="flex flex-wrap gap-2 pt-1">
+              <button
+                v-for="preset in presetTarifsSpeciaux"
+                :key="preset.nom"
+                @click="addSpecialTarif(preset.nom, preset.prix)"
+                type="button"
+                class="px-3 py-1.5 rounded-xl border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 text-xs font-bold hover:bg-sky-100 dark:hover:bg-sky-900 transition cursor-pointer flex items-center gap-1"
+              >
+                <span>+ {{ preset.nom }} ({{ preset.prix }} {{ form.devise }})</span>
+              </button>
+            </div>
+
+            <!-- Liste des tarifs spéciaux enregistrés -->
+            <div v-if="form.tarifs_speciaux.length > 0" class="space-y-2 pt-2">
+              <div
+                v-for="(item, idx) in form.tarifs_speciaux"
+                :key="idx"
+                class="flex items-center justify-between bg-gray-50 dark:bg-slate-800/80 p-3 rounded-xl border border-gray-200 dark:border-slate-700 text-xs"
+              >
+                <div class="flex items-center gap-2">
+                  <span class="font-extrabold text-gray-800 dark:text-slate-100">📦 {{ item.nom }}</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <div class="flex items-center gap-1 bg-white dark:bg-slate-900 px-3 py-1 rounded-lg border border-gray-200 dark:border-slate-700 font-bold text-emerald-600 dark:text-emerald-400">
+                    <input
+                      v-model.number="item.prix"
+                      type="number"
+                      min="0"
+                      class="w-16 bg-transparent text-right outline-none font-bold text-xs"
+                    />
+                    <span>{{ form.devise }}</span>
+                  </div>
+                  <button
+                    @click="removeSpecialTarif(idx)"
+                    type="button"
+                    class="text-red-500 hover:text-red-700 dark:text-rose-400 font-bold px-2 py-1 rounded-lg hover:bg-red-50 dark:hover:bg-rose-950 cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Formulaire ajout d'un tarif personnalisé -->
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-1">
+              <input
+                v-model="customItemNom"
+                type="text"
+                placeholder="Nom de l'objet (ex: Sac à main, Téléphone...)"
+                class="sm:col-span-6 bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none"
+              />
+              <div class="sm:col-span-4 flex items-center bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs">
+                <input
+                  v-model.number="customItemPrix"
+                  type="number"
+                  placeholder="Prix"
+                  class="w-full bg-transparent outline-none text-gray-800 dark:text-slate-100 font-bold"
+                />
+                <span class="text-gray-400 dark:text-slate-500 font-bold ml-1">{{ form.devise }}</span>
+              </div>
+              <button
+                @click="addCustomSpecialTarif"
+                type="button"
+                class="sm:col-span-2 bg-[#053754] dark:bg-sky-600 hover:bg-[#074C72] text-white font-bold text-xs py-2.5 px-3 rounded-xl cursor-pointer"
+              >
+                Ajouter
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -78,6 +78,7 @@ onMounted(async () => {
         poidsTotal: Number(v.capacite_totale) || 0,
         rawPrixKg: v.prix_kg,
         rawPrixObjet: v.prix_objet,
+        tarifsSpeciaux: Array.isArray(v.tarifs_speciaux) ? v.tarifs_speciaux : [],
         devise: v.devise || 'XOF',
         prixKg: computed(() => v.prix_kg ? formatPrice(v.prix_kg, v.devise || 'XOF') : 'Non défini'),
         prixObjet: computed(() => v.prix_objet ? formatPrice(v.prix_objet, v.devise || 'XOF') : 'Non défini'),
@@ -254,21 +255,36 @@ const startBooking = () => {
           </div>
         </div>
 
-        <!-- Tarif Card displaying BOTH Tariffs -->
+        <!-- Tarif Card displaying Default Price per Kg + Special Item Tariffs -->
         <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-3">
           <div class="text-xs font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider">{{ t('voyageDetail.pricingTitle') }}</div>
           
-          <div class="grid grid-cols-2 gap-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div class="bg-slate-50 dark:bg-slate-800/80 p-3 rounded-xl border border-slate-100 dark:border-slate-700 space-y-1">
-              <span class="text-xs text-gray-400 dark:text-slate-400 font-bold block">{{ t('voyageDetail.perKg') }}</span>
+              <span class="text-xs text-gray-400 dark:text-slate-400 font-bold block">Prix au Kg (par défaut)</span>
               <span class="text-base sm:text-lg font-black text-[#B50302] dark:text-red-400 block">{{ voyage.prixKg }}</span>
-              <span class="text-[10px] text-gray-400 dark:text-slate-400 block font-medium">{{ t('voyageDetail.perKgSub') }}</span>
+              <span class="text-[10px] text-gray-400 dark:text-slate-400 block font-medium">Pour les objets au poids</span>
             </div>
 
-            <div class="bg-slate-50 dark:bg-slate-800/80 p-3 rounded-xl border border-slate-100 dark:border-slate-700 space-y-1">
-              <span class="text-xs text-gray-400 dark:text-slate-400 font-bold block">{{ t('voyageDetail.perObject') }}</span>
+            <div v-if="voyage.rawPrixObjet" class="bg-slate-50 dark:bg-slate-800/80 p-3 rounded-xl border border-slate-100 dark:border-slate-700 space-y-1">
+              <span class="text-xs text-gray-400 dark:text-slate-400 font-bold block">Prix Objet Standard</span>
               <span class="text-base sm:text-lg font-black text-[#053754] dark:text-sky-300 block">{{ voyage.prixObjet }}</span>
-              <span class="text-[10px] text-gray-400 dark:text-slate-400 block font-medium">{{ t('voyageDetail.perObjectSub') }}</span>
+              <span class="text-[10px] text-gray-400 dark:text-slate-400 block font-medium">Par pièce</span>
+            </div>
+          </div>
+
+          <!-- Tarifs Spéciaux par Objet -->
+          <div v-if="voyage.tarifsSpeciaux.length > 0" class="pt-3 border-t border-gray-100 dark:border-slate-800 space-y-2">
+            <span class="text-xs font-bold text-[#053754] dark:text-sky-300 block">🏷️ Tarifs Spéciaux par Objet</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div
+                v-for="(tItem, idx) in voyage.tarifsSpeciaux"
+                :key="idx"
+                class="flex items-center justify-between bg-sky-50/50 dark:bg-slate-800/50 p-2.5 rounded-xl border border-sky-100 dark:border-slate-700 text-xs"
+              >
+                <span class="font-bold text-gray-700 dark:text-slate-200">📦 {{ tItem.nom }}</span>
+                <span class="font-black text-[#053754] dark:text-sky-400">{{ formatPrice(tItem.prix, voyage.devise) }}</span>
+              </div>
             </div>
           </div>
         </div>

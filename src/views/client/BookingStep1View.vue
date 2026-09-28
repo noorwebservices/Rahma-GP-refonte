@@ -126,7 +126,20 @@ const unitPriceKg = computed(() => voyageData.value?.prix_kg || 8500)
 const unitPriceObjet = computed(() => voyageData.value?.prix_objet || 15000)
 const devise = computed(() => voyageData.value?.devise || 'XOF')
 
+const specialTarifForType = computed(() => {
+  if (!voyageData.value?.tarifs_speciaux || !Array.isArray(voyageData.value.tarifs_speciaux)) return null
+  const selLower = selectedType.value.toLowerCase().trim()
+  const found = voyageData.value.tarifs_speciaux.find(t => {
+    const itemNom = (t.nom || '').toLowerCase().trim()
+    return itemNom !== '' && (selLower === itemNom || selLower.includes(itemNom) || itemNom.includes(selLower))
+  })
+  return found ? Number(found.prix) : null
+})
+
 const totalPrice = computed(() => {
+  if (specialTarifForType.value !== null && specialTarifForType.value > 0) {
+    return Math.round(specialTarifForType.value)
+  }
   if (isElectronic.value) {
     return Math.round(unitPriceObjet.value)
   }
@@ -135,6 +148,7 @@ const totalPrice = computed(() => {
 
 const formattedUnitPriceKg = computed(() => formatPrice(unitPriceKg.value, devise.value))
 const formattedUnitPriceObjet = computed(() => formatPrice(unitPriceObjet.value, devise.value))
+const formattedSpecialTarif = computed(() => specialTarifForType.value ? formatPrice(specialTarifForType.value, devise.value) : null)
 const formattedTotalPrice = computed(() => formatPrice(totalPrice.value, devise.value))
 
 import { compressImage } from '@/utils/imageCompressor'
@@ -270,8 +284,22 @@ const goToStep2 = () => {
           </button>
         </div>
 
+        <!-- Special Tarif Notice Box -->
+        <div v-if="specialTarifForType" class="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 rounded-2xl p-3.5 flex items-center justify-between gap-3 text-xs text-emerald-900 dark:text-emerald-200">
+          <div class="flex items-center gap-2.5">
+            <span class="text-xl">🏷️</span>
+            <div>
+              <div class="font-extrabold text-emerald-800 dark:text-emerald-300">Tarif Spécial pour "{{ selectedType }}"</div>
+              <div class="text-[11px] text-emerald-700 dark:text-emerald-300 font-medium">Un tarif fixe spécial s'applique pour cet objet sur ce voyage.</div>
+            </div>
+          </div>
+          <span class="text-xs font-black text-emerald-800 dark:text-emerald-300 bg-white dark:bg-slate-800 px-3 py-1 rounded-full border border-emerald-300 dark:border-emerald-700 shadow-2xs">
+            {{ formattedSpecialTarif }}
+          </span>
+        </div>
+
         <!-- Tariff notice box for electronic item vs standard -->
-        <div v-if="isElectronic" class="bg-blue-50 dark:bg-sky-950/40 border border-blue-200 dark:border-sky-800/80 rounded-2xl p-3.5 flex items-center gap-3 text-xs text-[#053754] dark:text-sky-200">
+        <div v-else-if="isElectronic" class="bg-blue-50 dark:bg-sky-950/40 border border-blue-200 dark:border-sky-800/80 rounded-2xl p-3.5 flex items-center gap-3 text-xs text-[#053754] dark:text-sky-200">
           <span class="text-xl">📱</span>
           <div>
             <div class="font-extrabold text-[#074C72] dark:text-sky-300">{{ t('booking.step1.electronicNoticeTitle') }}</div>
@@ -359,8 +387,8 @@ const goToStep2 = () => {
         </div>
       </div>
 
-      <!-- Poids estimé(Kg) Slider (Standard items only) -->
-      <div v-if="!isElectronic" class="bg-gray-50 dark:bg-slate-800/80 rounded-2xl p-5 border border-gray-200 dark:border-slate-700 space-y-3">
+      <!-- Poids estimé(Kg) Slider (Standard items without special tariff) -->
+      <div v-if="!specialTarifForType && !isElectronic" class="bg-gray-50 dark:bg-slate-800/80 rounded-2xl p-5 border border-gray-200 dark:border-slate-700 space-y-3">
         <div class="flex items-center justify-between">
           <div>
             <div class="text-sm font-bold text-[#074C72] dark:text-sky-300">{{ t('booking.step1.weightLabel') }}</div>
@@ -391,22 +419,6 @@ const goToStep2 = () => {
         </div>
       </div>
 
-      <!-- Electronic Object Tariff Banner (Electronic items) -->
-      <div v-else class="bg-sky-50/70 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/80 rounded-2xl p-5 space-y-2 shadow-2xs">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2 text-sm font-bold text-[#074C72] dark:text-sky-300">
-            <span class="text-lg">📱</span>
-            <span>{{ t('booking.step1.electronicFlatTariff') }}</span>
-          </div>
-          <span class="text-xs font-black text-[#B50302] dark:text-rose-400 bg-white dark:bg-slate-800 px-3 py-1 rounded-full border border-red-200 dark:border-rose-900 shadow-2xs">
-            {{ formattedUnitPriceObjet }} / objet
-          </span>
-        </div>
-        <p class="text-xs text-gray-600 dark:text-slate-300 font-medium leading-relaxed">
-          {{ t('booking.step1.electronicFlatNotice') }}
-        </p>
-      </div>
-
     </div>
 
     <!-- Bottom Price Bar & Submit CTA -->
@@ -414,7 +426,10 @@ const goToStep2 = () => {
       <div class="space-y-0.5">
         <div class="text-xs text-gray-500 dark:text-slate-400 font-medium">{{ t('booking.step1.totalEstimatedPrice') }}</div>
         <div class="text-sm sm:text-base font-extrabold text-[#B50302] dark:text-rose-400">
-          <template v-if="isElectronic">
+          <template v-if="specialTarifForType">
+            1 Objet ({{ selectedType }}) = {{ formattedTotalPrice }}
+          </template>
+          <template v-else-if="isElectronic">
             1 {{ t('booking.step1.electronicFlatTariff') }} = {{ formattedTotalPrice }}
           </template>
           <template v-else>

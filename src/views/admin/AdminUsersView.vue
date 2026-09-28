@@ -365,9 +365,9 @@ const toggleBlock = async (user) => {
     text: `Voulez-vous vraiment ${isBlocking ? 'bloquer' : 'débloquer'} le compte de ${user.prenom} ${user.nom} ?`,
     icon: 'warning',
     showCancelButton: true,
-    confirmButtonColor: isBlocking ? '#B50302' : '#053754',
+    confirmButtonColor: isBlocking ? '#B50302' : '#059669',
     cancelButtonColor: '#6B7280',
-    confirmButtonText: 'Oui, confirmer',
+    confirmButtonText: isBlocking ? 'Oui, bloquer' : 'Oui, débloquer',
     cancelButtonText: 'Annuler'
   })
 
@@ -376,19 +376,24 @@ const toggleBlock = async (user) => {
   actionLoadingId.value = user.id
   try {
     await adminService.toggleBlockUser(user.id, nextStatut)
-    await Swal.fire({
-      title: 'Succès !',
-      text: `Le compte a été ${isBlocking ? 'bloqué' : 'débloqué'} avec succès.`,
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
       icon: 'success',
-      confirmButtonColor: '#053754'
+      title: `Le compte a été ${isBlocking ? 'bloqué' : 'débloqué'} avec succès.`,
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
     })
     fetchUsers()
   } catch (err) {
     Swal.fire({
-      title: 'Erreur',
-      text: err.message || 'Erreur lors de la modification du statut',
+      toast: true,
+      position: 'top-end',
       icon: 'error',
-      confirmButtonColor: '#053754'
+      title: err.message || 'Erreur lors de la modification du statut',
+      showConfirmButton: false,
+      timer: 4000
     })
   } finally {
     actionLoadingId.value = null
@@ -416,7 +421,7 @@ const updateEntrepriseStatut = async (entrepriseId, newStatut) => {
     showCancelButton: true,
     confirmButtonColor: isValidating ? '#059669' : '#B50302',
     cancelButtonColor: '#6B7280',
-    confirmButtonText: 'Oui, confirmer',
+    confirmButtonText: isValidating ? 'Oui, valider' : 'Oui, refuser',
     cancelButtonText: 'Annuler'
   })
 
@@ -424,20 +429,25 @@ const updateEntrepriseStatut = async (entrepriseId, newStatut) => {
 
   try {
     await adminService.updateStatutEntreprise(entrepriseId, newStatut)
-    await Swal.fire({
-      title: 'Succès !',
-      text: `L'entreprise GP a été ${isValidating ? 'validée' : 'refusée'} avec succès.`,
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
       icon: 'success',
-      confirmButtonColor: '#053754'
+      title: `L'entreprise GP a été ${isValidating ? 'validée' : 'refusée'} avec succès.`,
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
     })
     fetchUsers()
     fetchStats()
   } catch (err) {
     Swal.fire({
-      title: 'Erreur',
-      text: err.response?.data?.message || err.message || 'Erreur lors de la mise à jour du statut',
+      toast: true,
+      position: 'top-end',
       icon: 'error',
-      confirmButtonColor: '#053754'
+      title: err.response?.data?.message || err.message || 'Erreur lors de la mise à jour du statut',
+      showConfirmButton: false,
+      timer: 4000
     })
   }
 }

@@ -757,6 +757,49 @@ const handleLogout = async () => {
               </div>
             </div>
           </div>
+
+          <!-- Section Pièce d'Identité du Gérant d'Entreprise GP -->
+          <div v-if="(user.entreprise || user.entrepriseGeree)?.cni_recto || (user.entreprise || user.entrepriseGeree)?.cni_verso" class="space-y-3 pt-2">
+            <h4 class="text-xs sm:text-sm font-bold text-principal-dark dark:text-sky-300 flex items-center gap-2">
+              <span>🆔 Pièce d'Identité du Gérant (CNI / Passeport)</span>
+            </h4>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div v-if="(user.entreprise || user.entrepriseGeree)?.cni_recto" class="border border-gray-200 dark:border-slate-700 rounded-2xl p-4 bg-gray-50 dark:bg-slate-800/80 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-950 text-purple-600 dark:text-purple-300 flex items-center justify-center font-bold text-sm">🪪</div>
+                  <div>
+                    <div class="text-xs font-bold text-gray-800 dark:text-slate-100">CNI / Passeport Gérant (Recto)</div>
+                    <div class="text-[10px] text-gray-400">N° {{ (user.entreprise || user.entrepriseGeree)?.numero_piece || 'Non spécifié' }}</div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  @click="openImagePreview((user.entreprise || user.entrepriseGeree).cni_recto, 'Pièce d\'identité Gérant - Recto')"
+                  class="px-3 py-1.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-gray-800 dark:text-slate-100 text-xs font-bold rounded-xl transition cursor-pointer"
+                >
+                  Voir
+                </button>
+              </div>
+
+              <div v-if="(user.entreprise || user.entrepriseGeree)?.cni_verso" class="border border-gray-200 dark:border-slate-700 rounded-2xl p-4 bg-gray-50 dark:bg-slate-800/80 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-950 text-purple-600 dark:text-purple-300 flex items-center justify-center font-bold text-sm">🪪</div>
+                  <div>
+                    <div class="text-xs font-bold text-gray-800 dark:text-slate-100">CNI / Passeport Gérant (Verso)</div>
+                    <div class="text-[10px] text-gray-400">Document officiel</div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  @click="openImagePreview((user.entreprise || user.entrepriseGeree).cni_verso, 'Pièce d\'identité Gérant - Verso')"
+                  class="px-3 py-1.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-gray-800 dark:text-slate-100 text-xs font-bold rounded-xl transition cursor-pointer"
+                >
+                  Voir
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- CAS B: Voyageur Classique -->

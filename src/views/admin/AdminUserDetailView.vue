@@ -216,6 +216,62 @@
           </div>
         </div>
 
+        <!-- Documents d'Identité du Gérant (CNI / Passeport) -->
+        <div class="space-y-3 pt-4 border-t border-gray-100 dark:border-slate-800">
+          <span class="text-xs font-extrabold text-[#053754] dark:text-sky-300 uppercase tracking-wider block">
+            🪪 Pièce d'Identité du Gérant (CNI / Passeport)
+          </span>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs mb-3">
+            <div class="p-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-1">
+              <span class="text-[10px] font-extrabold text-gray-400 dark:text-gray-400 uppercase tracking-wider block">Type de Pièce Gérant</span>
+              <p class="font-bold text-[#053754] dark:text-slate-100 text-sm uppercase">{{ entreprise.type_piece || 'CNI / Passeport' }}</p>
+            </div>
+            <div class="p-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-1">
+              <span class="text-[10px] font-extrabold text-gray-400 dark:text-gray-400 uppercase tracking-wider block">Numéro de Pièce Gérant</span>
+              <p class="font-mono font-bold text-[#053754] dark:text-slate-100 text-sm">{{ entreprise.numero_piece || 'Non renseigné' }}</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- CNI Recto Gérant -->
+            <div class="p-4 bg-[#FAF7F2] dark:bg-slate-800/80 border border-gray-200 dark:border-slate-700 rounded-2xl space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-wider block">Pièce Gérant - Face Recto</span>
+                <span v-if="entreprise.cni_recto" class="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">Fourni</span>
+              </div>
+
+              <div v-if="entreprise.cni_recto" class="relative h-48 rounded-xl overflow-hidden border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 group cursor-pointer" @click="openImagePreview(entreprise.cni_recto, 'Pièce Gérant - Recto')">
+                <img :src="formatImageUrl(entreprise.cni_recto)" class="w-full h-full object-contain p-2 transition-transform duration-300 group-hover:scale-105" />
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-2">
+                  🔍 Clic pour voir la pièce
+                </div>
+              </div>
+              <div v-else class="h-40 rounded-xl border border-dashed border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 flex flex-col items-center justify-center text-gray-400 text-xs font-semibold p-4 text-center">
+                <span>Aucune pièce recto téléchargée</span>
+              </div>
+            </div>
+
+            <!-- CNI Verso Gérant -->
+            <div class="p-4 bg-[#FAF7F2] dark:bg-slate-800/80 border border-gray-200 dark:border-slate-700 rounded-2xl space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-wider block">Pièce Gérant - Face Verso</span>
+                <span v-if="entreprise.cni_verso" class="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">Fourni</span>
+              </div>
+
+              <div v-if="entreprise.cni_verso" class="relative h-48 rounded-xl overflow-hidden border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 group cursor-pointer" @click="openImagePreview(entreprise.cni_verso, 'Pièce Gérant - Verso')">
+                <img :src="formatImageUrl(entreprise.cni_verso)" class="w-full h-full object-contain p-2 transition-transform duration-300 group-hover:scale-105" />
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-2">
+                  🔍 Clic pour voir la pièce
+                </div>
+              </div>
+              <div v-else class="h-40 rounded-xl border border-dashed border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 flex flex-col items-center justify-center text-gray-400 text-xs font-semibold p-4 text-center">
+                <span>Aucune pièce verso téléchargée</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Actions de validation Administrateur pour l'Entreprise -->
         <div class="flex flex-col sm:flex-row sm:items-center gap-3 pt-3 border-t border-gray-100 dark:border-slate-800">
           <template v-if="entreprise.statut_verification === 'verifiee'">
@@ -707,15 +763,16 @@ const getInitials = (prenom, nom) => {
 const toggleBlock = async () => {
   if (!user.value || actionLoading.value) return
   const nextStatut = user.value.statut === 'suspendu' ? 'actif' : 'suspendu'
+  const isUnblocking = user.value.statut === 'suspendu'
   
   const result = await Swal.fire({
-    title: user.value.statut === 'suspendu' ? 'Débloquer le compte' : 'Bloquer le compte',
-    text: `Voulez-vous vraiment changer le statut vers "${nextStatut}" pour ${user.value.prenom} ${user.value.nom} ?`,
+    title: isUnblocking ? 'Débloquer le compte' : 'Bloquer le compte',
+    text: `Voulez-vous vraiment ${isUnblocking ? 'débloquer' : 'bloquer'} le compte de ${user.value.prenom} ${user.value.nom} ?`,
     icon: 'warning',
     showCancelButton: true,
-    confirmButtonColor: '#053754',
-    cancelButtonColor: '#B50302',
-    confirmButtonText: 'Oui, confirmer',
+    confirmButtonColor: isUnblocking ? '#059669' : '#B50302',
+    cancelButtonColor: '#6B7280',
+    confirmButtonText: isUnblocking ? 'Oui, débloquer' : 'Oui, bloquer',
     cancelButtonText: 'Annuler'
   })
 
@@ -725,9 +782,24 @@ const toggleBlock = async () => {
   try {
     await adminService.toggleBlockUser(user.value.id, nextStatut)
     user.value.statut = nextStatut
-    Swal.fire('Succès !', `Statut mis à jour en "${nextStatut}".`, 'success')
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: `Compte ${isUnblocking ? 'débloqué' : 'bloqué'} avec succès`,
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
+    })
   } catch (err) {
-    Swal.fire('Erreur', err.message || 'Erreur lors du blocage', 'error')
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: err.message || 'Erreur lors du changement de statut',
+      showConfirmButton: false,
+      timer: 4000
+    })
   } finally {
     actionLoading.value = null
   }
@@ -735,13 +807,42 @@ const toggleBlock = async () => {
 
 const verifyVoyageur = async (statut) => {
   if (!user.value || !user.value.voyageur || actionLoading.value) return
+  const isValidation = statut === 'verifie'
+
+  const result = await Swal.fire({
+    title: isValidation ? 'Valider le compte Voyageur' : 'Refuser le compte Voyageur',
+    text: `Voulez-vous vraiment ${isValidation ? 'valider' : 'refuser'} ce compte voyageur ?`,
+    icon: isValidation ? 'question' : 'warning',
+    showCancelButton: true,
+    confirmButtonColor: isValidation ? '#059669' : '#B50302',
+    cancelButtonColor: '#6B7280',
+    confirmButtonText: isValidation ? 'Oui, valider' : 'Oui, refuser',
+    cancelButtonText: 'Annuler'
+  })
+  if (!result.isConfirmed) return
+
   actionLoading.value = statut
   try {
     await adminService.updateStatutVoyageur(user.value.voyageur.id, statut)
     user.value.voyageur.statut = statut
-    Swal.fire('Statut mis à jour', `Le statut voyageur a été mis à jour en '${statut}'`, 'success')
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: `Compte voyageur ${isValidation ? 'validé' : 'refusé'} avec succès`,
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
+    })
   } catch (err) {
-    Swal.fire('Erreur', err.message || 'Erreur lors de la vérification voyageur', 'error')
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: err.message || 'Erreur lors de la vérification voyageur',
+      showConfirmButton: false,
+      timer: 4000
+    })
   } finally {
     actionLoading.value = null
   }
@@ -760,7 +861,7 @@ const updateEntrepriseStatut = async (newStatut) => {
       showCancelButton: true,
       confirmButtonColor: '#B50302',
       cancelButtonColor: '#6B7280',
-      confirmButtonText: 'Confirmer le refus',
+      confirmButtonText: 'Oui, refuser',
       cancelButtonText: 'Annuler'
     })
     if (!isConfirmed) return
@@ -784,17 +885,22 @@ const updateEntrepriseStatut = async (newStatut) => {
     await adminService.updateStatutEntreprise(entreprise.value.id, newStatut, motifRefus)
     entreprise.value.statut_verification = newStatut
     Swal.fire({
-      title: 'Succès !',
-      text: `Statut de l'entreprise mis à jour avec succès en '${newStatut === 'verifiee' ? 'Validée' : 'Refusée'}'.`,
+      toast: true,
+      position: 'top-end',
       icon: 'success',
-      confirmButtonColor: '#053754'
+      title: `Entreprise GP ${newStatut === 'verifiee' ? 'validée' : 'refusée'} avec succès`,
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
     })
   } catch (err) {
     Swal.fire({
-      title: 'Erreur',
-      text: err.response?.data?.message || err.message || 'Erreur lors de la mise à jour',
+      toast: true,
+      position: 'top-end',
       icon: 'error',
-      confirmButtonColor: '#053754'
+      title: err.response?.data?.message || err.message || 'Erreur lors de la mise à jour',
+      showConfirmButton: false,
+      timer: 4000
     })
   } finally {
     actionLoading.value = null

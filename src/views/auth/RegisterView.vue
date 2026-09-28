@@ -59,7 +59,6 @@ const form = reactive({
   pays_entreprise: '',
   ninea: '',
   registre_commerce: '',
-  moyen_paiement_prefere: 'wave',
   ninea_doc: null,
   registre_commerce_doc: null,
   logo_entreprise: null
@@ -408,7 +407,11 @@ const handleSubmit = async () => {
       formData.append('pays', form.pays_entreprise || 'Sénégal')
       if (form.ninea) formData.append('ninea', form.ninea)
       if (form.registre_commerce) formData.append('registre_commerce', form.registre_commerce)
-      if (form.moyen_paiement_prefere) formData.append('moyen_paiement_prefere', form.moyen_paiement_prefere)
+
+      if (form.type_piece) formData.append('type_piece', form.type_piece)
+      if (form.numero_piece) formData.append('numero_piece', form.numero_piece)
+      if (form.cni_recto) formData.append('cni_recto', form.cni_recto)
+      if (form.cni_verso) formData.append('cni_verso', form.cni_verso)
 
       if (form.ninea_doc) formData.append('ninea_doc', form.ninea_doc)
       if (form.registre_commerce_doc) formData.append('registre_commerce_doc', form.registre_commerce_doc)
@@ -1172,21 +1175,6 @@ const handleSubmit = async () => {
               class="w-full h-11 px-3.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl outline-none font-medium"
             />
           </div>
-
-          <!-- Moyen de paiement préféré -->
-          <div class="space-y-1">
-            <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200">Moyen de paiement préféré</label>
-            <select
-              v-model="form.moyen_paiement_prefere"
-              class="w-full h-11 px-3.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl outline-none font-medium"
-            >
-              <option value="wave">Wave Mobile Money</option>
-              <option value="orange_money">Orange Money</option>
-              <option value="virement">Virement Bancaire</option>
-              <option value="carte">Carte Bancaire / Stripe</option>
-              <option value="cash">Paiement au Comptant / Espèces</option>
-            </select>
-          </div>
         </div>
 
         <div class="flex items-center gap-3 pt-2">
@@ -1246,6 +1234,60 @@ const handleSubmit = async () => {
                 placeholder="SN-DKR-2026-B-1234"
                 class="w-full h-11 px-3.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl outline-none font-medium"
               />
+            </div>
+          </div>
+
+          <!-- Section Pièce d'Identité du Gérant -->
+          <div class="pt-3 border-t border-gray-200 dark:border-slate-700 space-y-3">
+            <h4 class="text-[11px] font-extrabold uppercase tracking-wider text-[#053754] dark:text-sky-300 flex items-center gap-1.5">
+              <span>🆔 Pièce d'Identité du Gérant (CNI / Passeport)</span>
+            </h4>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="space-y-1">
+                <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200">Type de pièce du Gérant</label>
+                <select
+                  v-model="form.type_piece"
+                  class="w-full h-11 px-3.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl outline-none font-medium"
+                >
+                  <option value="cni">Carte Nationale d'Identité (CNI)</option>
+                  <option value="passeport">Passeport</option>
+                </select>
+              </div>
+
+              <div class="space-y-1">
+                <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200">Numéro de pièce</label>
+                <input
+                  v-model="form.numero_piece"
+                  type="text"
+                  placeholder="Ex: 1342199800123"
+                  class="w-full h-11 px-3.5 text-xs sm:text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl outline-none font-medium"
+                />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="space-y-1">
+                <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200">Photo Recto CNI/Passeport</label>
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  @change="(e) => handleFileChange(e, 'cni_recto')"
+                  class="w-full text-xs text-gray-500 dark:text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#053754]/10 file:text-[#053754] dark:file:text-sky-300 hover:file:bg-[#053754]/20 cursor-pointer"
+                />
+                <p v-if="rectoFileName" class="text-[11px] text-emerald-600 font-medium">✓ {{ rectoFileName }}</p>
+              </div>
+
+              <div class="space-y-1">
+                <label class="block text-xs font-semibold text-gray-700 dark:text-slate-200">Photo Verso CNI/Passeport</label>
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  @change="(e) => handleFileChange(e, 'cni_verso')"
+                  class="w-full text-xs text-gray-500 dark:text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#053754]/10 file:text-[#053754] dark:file:text-sky-300 hover:file:bg-[#053754]/20 cursor-pointer"
+                />
+                <p v-if="versoFileName" class="text-[11px] text-emerald-600 font-medium">✓ {{ versoFileName }}</p>
+              </div>
             </div>
           </div>
 

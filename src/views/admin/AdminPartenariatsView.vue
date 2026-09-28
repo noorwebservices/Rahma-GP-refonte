@@ -355,13 +355,41 @@ const openModal = (demande) => {
 }
 
 const updateStatut = async (id, statut) => {
+  const result = await Swal.fire({
+    title: 'Modifier le statut',
+    text: `Voulez-vous passer le statut de cette demande à "${statut}" ?`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#053754',
+    cancelButtonColor: '#6B7280',
+    confirmButtonText: 'Oui, modifier',
+    cancelButtonText: 'Annuler'
+  })
+
+  if (!result.isConfirmed) return
+
   try {
     await adminService.updateDemandePartenariatStatut(id, statut)
-    await Swal.fire('Succès !', 'Statut mis à jour avec succès.', 'success')
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: 'Statut mis à jour avec succès.',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
+    })
     selectedDemande.value = null
     fetchDemandes()
   } catch (err) {
-    Swal.fire('Erreur', err.message || 'Erreur lors de la mise à jour', 'error')
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: err.message || 'Erreur lors de la mise à jour',
+      showConfirmButton: false,
+      timer: 4000
+    })
   }
 }
 

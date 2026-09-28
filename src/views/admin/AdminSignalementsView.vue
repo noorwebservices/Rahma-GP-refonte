@@ -232,19 +232,23 @@ const processSignalement = async (sig, statut, decision) => {
   let title = 'Traitement du signalement'
   let text = 'Que souhaitez-vous faire pour ce signalement ?'
   let icon = 'question'
+  let confirmText = 'Oui, marquer traité'
 
   if (decision === 'bloque') {
     title = 'Bloquer le compte'
     text = `Voulez-vous vraiment bloquer le compte de ${sig.signale?.prenom || ''} ${sig.signale?.nom || ''} ?`
     icon = 'warning'
+    confirmText = 'Oui, bloquer'
   } else if (decision === 'avertissement') {
     title = 'Marquer comme Traité'
     text = `Confirmer la prise en charge de ce signalement ?`
     icon = 'info'
+    confirmText = 'Oui, marquer traité'
   } else if (decision === 'sans_suite') {
     title = 'Rejeter le signalement'
     text = `Marquer ce signalement comme sans suite ?`
     icon = 'question'
+    confirmText = 'Oui, rejeter'
   }
 
   const result = await Swal.fire({
@@ -254,7 +258,7 @@ const processSignalement = async (sig, statut, decision) => {
     showCancelButton: true,
     confirmButtonColor: decision === 'bloque' ? '#B50302' : '#053754',
     cancelButtonColor: '#6B7280',
-    confirmButtonText: 'Oui, confirmer',
+    confirmButtonText: confirmText,
     cancelButtonText: 'Annuler'
   })
 
@@ -263,10 +267,25 @@ const processSignalement = async (sig, statut, decision) => {
   actionLoadingId.value = sig.id
   try {
     await adminService.updateSignalementStatut(sig.id, statut, decision)
-    await Swal.fire('Succès !', 'Le signalement a été mis à jour avec succès.', 'success')
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: 'Signalement mis à jour avec succès.',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
+    })
     fetchSignalements()
   } catch (err) {
-    Swal.fire('Erreur', err.message || 'Erreur lors de la mise à jour', 'error')
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: err.message || 'Erreur lors de la mise à jour',
+      showConfirmButton: false,
+      timer: 4000
+    })
   } finally {
     actionLoadingId.value = null
   }
