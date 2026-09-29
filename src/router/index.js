@@ -140,6 +140,11 @@ const router = createRouter({
           component: () => import('../views/entreprise/EntrepriseActivitesView.vue')
         },
         {
+          path: 'evaluations',
+          name: 'entreprise-evaluations',
+          component: () => import('../views/voyageur/EvaluationsView.vue')
+        },
+        {
           path: 'trash',
           name: 'entreprise-trash',
           component: () => import('../views/entreprise/EntrepriseTrashView.vue')
@@ -283,6 +288,55 @@ const router = createRouter({
       ]
     },
     {
+      path: '/agent',
+      component: () => import('../views/agent/AgentLayout.vue'),
+      meta: { requiresAuth: true, requiresAgent: true },
+      children: [
+        {
+          path: '',
+          name: 'agent-dashboard',
+          component: () => import('../views/agent/AgentDashboardView.vue')
+        },
+        {
+          path: 'voyages',
+          redirect: '/agent'
+        },
+        {
+          path: 'voyages/:id',
+          name: 'agent-voyage-detail',
+          component: () => import('../views/agent/AgentVoyageDetailView.vue'),
+          meta: { showBack: true }
+        },
+        {
+          path: 'demandes',
+          name: 'agent-demandes',
+          component: () => import('../views/agent/AgentDemandesView.vue')
+        },
+        {
+          path: 'demandes/:id',
+          name: 'agent-demande-detail',
+          component: () => import('../views/agent/AgentDemandeDetailView.vue'),
+          meta: { showBack: true }
+        },
+        {
+          path: 'messages',
+          name: 'agent-messages',
+          component: () => import('../views/agent/AgentMessagesView.vue')
+        },
+        {
+          path: 'messages/:id',
+          name: 'agent-message-detail',
+          component: () => import('../views/agent/AgentMessageDetailView.vue'),
+          meta: { showBack: true }
+        },
+        {
+          path: 'evaluations',
+          name: 'agent-evaluations',
+          component: () => import('../views/voyageur/EvaluationsView.vue')
+        }
+      ]
+    },
+    {
       path: '/admin',
       component: () => import('../views/admin/AdminLayout.vue'),
       meta: { requiresAuth: true, requiresAdmin: true },
@@ -386,11 +440,17 @@ router.beforeEach((to, from) => {
   const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin)
   const requiresVoyageur = to.matched.some(record => record.meta.requiresVoyageur)
   const requiresEntreprise = to.matched.some(record => record.meta.requiresEntreprise) || to.path.startsWith('/entreprise')
+  const requiresAgent = to.matched.some(record => record.meta.requiresAgent) || to.path.startsWith('/agent')
 
   // Roles helpers
   const isAdmin = user && Array.isArray(user.roles)
     ? user.roles.some(r => typeof r === 'string' ? r === 'admin' : r.name === 'admin')
     : false
+
+  const isAgent = user && (
+    (Array.isArray(user.roles) && user.roles.some(r => typeof r === 'string' ? r === 'agent_gp' : r.name === 'agent_gp')) ||
+    !!user.agent_gp || !!user.agentGp
+  )
 
   const isVoyageur = user && (
     (Array.isArray(user.roles) && user.roles.some(r => typeof r === 'string' ? r === 'voyageur' : r.name === 'voyageur')) ||
@@ -416,6 +476,7 @@ router.beforeEach((to, from) => {
   // 2. Authenticated users trying to access guest-only routes (login/register)
   if (guestOnly && isAuthenticated && !isVerificationRoute) {
     if (isAdmin) return { name: 'admin-dashboard' }
+    if (isAgent) return { name: 'agent-dashboard' }
     if (isEntrepriseVerifiee) return { name: 'entreprise-dashboard' }
     if (isVoyageurVerifie && user?.mode_actuel === 'voyageur') return { name: 'voyageur-dashboard' }
     return { name: 'client-home' }
@@ -423,12 +484,20 @@ router.beforeEach((to, from) => {
 
   // 3. Non-admin users trying to access admin routes
   if (requiresAdmin && !isAdmin) {
+    if (isAgent) return { name: 'agent-dashboard' }
     if (isEntrepriseVerifiee) return { name: 'entreprise-dashboard' }
     if (isVoyageurVerifie && user?.mode_actuel === 'voyageur') return { name: 'voyageur-dashboard' }
     return { name: 'client-home' }
   }
 
-  // 4. Non-voyageur or UNVERIFIED voyageur trying to access voyageur routes
+  // 4. Agent routes protection
+  if (requiresAgent && !isAgent) {
+    if (isAdmin) return { name: 'admin-dashboard' }
+    if (isEntrepriseVerifiee) return { name: 'entreprise-dashboard' }
+    return { name: 'client-home' }
+  }
+
+  // 5. Non-voyageur or UNVERIFIED voyageur trying to access voyageur routes
   if (to.path.startsWith('/voyageur') || requiresVoyageur) {
     if (!isVoyageur) {
       return { name: 'profile', query: { registerVoyageur: 'true' } }
@@ -438,7 +507,7 @@ router.beforeEach((to, from) => {
     }
   }
 
-  // 5. Non-entreprise or UNVERIFIED entreprise trying to access entreprise workspace routes
+  // 6. Non-entreprise or UNVERIFIED entreprise trying to access entreprise workspace routes
   if (requiresEntreprise) {
     if (!isEntrepriseGerant) {
       return { name: 'client-home' }

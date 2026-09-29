@@ -83,6 +83,15 @@
             <span>Journal d'Audit</span>
           </router-link>
 
+          <router-link 
+            to="/entreprise/evaluations" 
+            @click="isMobileMenuOpen = false"
+            class="flex items-center px-4 py-3 rounded-2xl text-xs font-extrabold transition-all duration-200 cursor-pointer"
+            :class="$route.path.startsWith('/entreprise/evaluations') ? 'bg-[#053754] text-white shadow-md' : 'text-gray-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#053754] dark:hover:text-sky-400'"
+          >
+            <span>⭐ Avis & Évaluations</span>
+          </router-link>
+
 
           <router-link 
             to="/entreprise/profile" 
@@ -141,14 +150,6 @@
         </div>
 
         <div class="flex items-center gap-2 sm:gap-3">
-          <!-- Status Pill -->
-          <span 
-            class="hidden sm:inline-block px-3 py-1 rounded-full text-xs font-bold"
-            :class="isVerifie ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'"
-          >
-            {{ isVerifie ? '✓ Entreprise Vérifiée' : '⏳ En attente de vérification' }}
-          </span>
-
           <!-- Notification Bell -->
           <button
             @click="showNotifModal = true"

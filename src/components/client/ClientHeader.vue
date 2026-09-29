@@ -45,11 +45,25 @@ const props = defineProps({
 
 const router = useRouter()
 const route = useRoute()
-const { isAuthenticated } = useAuth()
+const { user, isAuthenticated } = useAuth()
 const unreadNotifCount = ref(0)
 const unreadMsgCount = ref(0)
 const showNotifModal = ref(false)
 let notifTimer = null
+
+const isEntrepriseUser = computed(() => {
+  if (!user.value) return false
+  const roles = user.value.roles || []
+  const hasRole = Array.isArray(roles) && roles.some(r => typeof r === 'string' ? (r === 'gerant_entreprise' || r === 'entreprise') : (r.name === 'gerant_entreprise' || r.name === 'entreprise'))
+  return hasRole || !!user.value.entreprise || user.value.role === 'entreprise' || user.value.mode_actuel === 'entreprise'
+})
+
+const isAgentUser = computed(() => {
+  if (!user.value) return false
+  const roles = user.value.roles || []
+  const hasRole = Array.isArray(roles) && roles.some(r => typeof r === 'string' ? r === 'agent_gp' : r.name === 'agent_gp')
+  return hasRole || !!user.value.agent_gp || !!user.value.agentGp || user.value.role === 'agent_gp'
+})
 
 const loadUnreadCount = async () => {
   const token = localStorage.getItem('rahma_token') || localStorage.getItem('token')
@@ -132,6 +146,25 @@ const goToMessages = () => {
 
         <!-- Right Action Badges -->
         <div class="flex items-center gap-1.5 sm:gap-2">
+          <!-- Enterprise Dashboard Switch Pill -->
+          <router-link
+            v-if="isEntrepriseUser"
+            to="/entreprise"
+            class="bg-[#053754] hover:bg-[#074C72] text-white text-xs font-extrabold px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 shadow-sm cursor-pointer border border-sky-400/30 active:scale-95 shrink-0"
+          >
+            <span>🏢</span>
+            <span class="hidden sm:inline">Espace Entreprise</span>
+          </router-link>
+
+          <router-link
+            v-else-if="isAgentUser"
+            to="/agent"
+            class="bg-[#053754] hover:bg-[#074C72] text-white text-xs font-extrabold px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1.5 shadow-sm cursor-pointer border border-sky-400/30 active:scale-95 shrink-0"
+          >
+            <span>👥</span>
+            <span class="hidden sm:inline">Espace Agent</span>
+          </router-link>
+
           <!-- Theme Toggle Button -->
           <ThemeToggle variant="pill" />
 

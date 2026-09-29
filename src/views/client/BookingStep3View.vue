@@ -58,7 +58,25 @@ const unitPriceKg = computed(() => draft.value?.voyage?.prix_kg || 8500)
 const unitPriceObjet = computed(() => draft.value?.voyage?.prix_objet || 15000)
 const devise = computed(() => draft.value?.voyage?.devise || 'XOF')
 
+const specialTarifForType = computed(() => {
+  if (draft.value?.colis?.prix_special !== undefined && draft.value?.colis?.prix_special !== null) {
+    return Number(draft.value.colis.prix_special)
+  }
+  const voyageData = draft.value?.voyage
+  if (!voyageData?.tarifs_speciaux || !Array.isArray(voyageData.tarifs_speciaux)) return null
+  const selType = draft.value?.colis?.type || ''
+  const selLower = selType.toLowerCase().trim()
+  const found = voyageData.tarifs_speciaux.find(t => {
+    const itemNom = (t.nom || '').toLowerCase().trim()
+    return itemNom !== '' && (selLower === itemNom || selLower.includes(itemNom) || itemNom.includes(selLower))
+  })
+  return found ? Number(found.prix) : null
+})
+
 const totalPrice = computed(() => {
+  if (specialTarifForType.value !== null && specialTarifForType.value > 0) {
+    return Math.round(specialTarifForType.value)
+  }
   if (isElectronic.value) {
     return Math.round(unitPriceObjet.value)
   }
@@ -144,7 +162,8 @@ const handlePayment = () => {
           <span class="text-gray-700 dark:text-slate-200 font-bold">{{ t('booking.step3.transportPriceTitle') }}</span>
           <div class="text-right">
             <span class="font-black text-[#B50302] dark:text-rose-400 text-base sm:text-lg block">{{ totalPrice.toLocaleString() }} {{ devise }}</span>
-            <span v-if="isElectronic" class="text-[10px] text-sky-700 dark:text-sky-300 font-extrabold bg-sky-50 dark:bg-sky-950/50 px-2 py-0.5 rounded-full border border-sky-200 dark:border-sky-800">{{ t('booking.step3.electronicFlatBadge') }}</span>
+            <span v-if="specialTarifForType !== null && specialTarifForType > 0" class="text-[10px] text-emerald-700 dark:text-emerald-300 font-extrabold bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">Tarif Spécial ({{ colisType }})</span>
+            <span v-else-if="isElectronic" class="text-[10px] text-sky-700 dark:text-sky-300 font-extrabold bg-sky-50 dark:bg-sky-950/50 px-2 py-0.5 rounded-full border border-sky-200 dark:border-sky-800">{{ t('booking.step3.electronicFlatBadge') }}</span>
             <span v-else class="text-[10px] text-gray-400 dark:text-slate-400 font-medium">{{ weightKg }} Kg × {{ unitPriceKg.toLocaleString() }} {{ devise }}</span>
           </div>
         </div>

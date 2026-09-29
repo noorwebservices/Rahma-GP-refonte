@@ -74,7 +74,25 @@ const unitPriceKg = computed(() => voyage.value?.prix_kg || 8500)
 const unitPriceObjet = computed(() => voyage.value?.prix_objet || 15000)
 const devise = computed(() => voyage.value?.devise || 'XOF')
 
+const specialTarifForType = computed(() => {
+  if (draft.value?.colis?.prix_special !== undefined && draft.value?.colis?.prix_special !== null) {
+    return Number(draft.value.colis.prix_special)
+  }
+  const v = voyage.value
+  if (!v?.tarifs_speciaux || !Array.isArray(v.tarifs_speciaux)) return null
+  const selType = draft.value?.colis?.type || ''
+  const selLower = selType.toLowerCase().trim()
+  const found = v.tarifs_speciaux.find(t => {
+    const itemNom = (t.nom || '').toLowerCase().trim()
+    return itemNom !== '' && (selLower === itemNom || selLower.includes(itemNom) || itemNom.includes(selLower))
+  })
+  return found ? Number(found.prix) : null
+})
+
 const totalPrice = computed(() => {
+  if (specialTarifForType.value !== null && specialTarifForType.value > 0) {
+    return Math.round(specialTarifForType.value)
+  }
   if (isElectronic.value) {
     return Math.round(unitPriceObjet.value)
   }

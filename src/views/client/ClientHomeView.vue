@@ -22,22 +22,18 @@ onMounted(async () => {
     const res = await fetchVoyages({ statut: 'publie' })
     if (res && res.data && Array.isArray(res.data)) {
       staticVoyages.value = res.data.map((v) => ({
-        id: v.id,
+        ...v,
         depart: v.ville_depart,
         pays_depart: v.pays_depart,
         destination: v.ville_destination,
         pays_destination: v.pays_destination,
         date: v.date_depart,
         date_raw: v.date_depart,
-        type_transporteur: 'Voyageur GP',
         poids_disponible: v.capacite_dispo !== undefined ? Number(v.capacite_dispo) : Number(v.capacite_totale || 0),
         poids_total: Number(v.capacite_totale) || 0,
         point_collecte: v.adresse_depot ? `${v.adresse_depot.adresse} (${v.adresse_depot.ville})` : 'Point Relais Rahma',
-        transporteur_nom: v.voyageur ? `${v.voyageur.prenom || v.voyageur.user?.prenom || ''} ${v.voyageur.nom || v.voyageur.user?.nom || ''}`.trim() || 'Transporteur GP' : 'Transporteur GP',
-        note: v.moyenne_notes || v.voyageur?.moyenne_notes || v.voyageur?.note_moyenne || (v.note && v.note !== '4.9' ? v.note : '0'),
         prix: `${v.prix_kg}`,
-        devise: v.devise || 'FCFA',
-        voyageur: v.voyageur
+        devise: v.devise || 'XOF'
       }))
     }
   } catch (err) {

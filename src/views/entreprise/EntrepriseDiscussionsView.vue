@@ -255,17 +255,25 @@ const loadDiscussions = async () => {
         const agentUser = item.agent_gp?.user || item.agent_gp || {}
         const voyage = item.voyage || {}
 
+        const clientUserId = clientUser.id || item.client_user_id || item.client_id || item.client?.user_id
+        const agentUserId = agentUser.id || item.agent_user_id || item.agent_id || item.agent_gp?.user_id
         const clientNom = [clientUser.prenom, clientUser.nom].filter(Boolean).join(' ') || item.client_nom || 'Client Anonyme'
         const agentNom = [agentUser.prenom, agentUser.nom].filter(Boolean).join(' ') || item.agent_nom || 'Agent GP'
         const trajet = voyage.ville_depart && voyage.ville_destination ? `${voyage.ville_depart} ➔ ${voyage.ville_destination}` : (item.trajet || 'Trajet non spécifié')
 
-        const msgsList = Array.isArray(item.messages) ? item.messages.map(m => ({
-          id: m.id,
-          expediteur_nom: m.expediteur ? `${m.expediteur.prenom || ''} ${m.expediteur.nom || ''}`.trim() : (m.expediteur_type === 'client' ? clientNom : agentNom),
-          expediteur_type: m.expediteur_id === clientUser.id || m.expediteur_type === 'client' ? 'client' : 'agent',
-          contenu: m.contenu,
-          heure: m.created_at ? new Date(m.created_at).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) : 'Récemment'
-        })) : []
+        const msgsList = Array.isArray(item.messages) ? item.messages.map(m => {
+          const senderRole = (m.expediteur?.role || m.role || '').toLowerCase()
+          const isClient = senderRole === 'client' || 
+                           (clientUserId && String(m.expediteur_id) === String(clientUserId)) ||
+                           (m.expediteur_type === 'client')
+          return {
+            id: m.id,
+            expediteur_nom: m.expediteur ? `${m.expediteur.prenom || ''} ${m.expediteur.nom || ''}`.trim() : (isClient ? clientNom : agentNom),
+            expediteur_type: isClient ? 'client' : 'agent',
+            contenu: m.contenu,
+            heure: m.created_at ? new Date(m.created_at).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) : 'Récemment'
+          }
+        }) : []
 
         const lastMsgObj = msgsList.length > 0 ? msgsList[msgsList.length - 1] : null
 
@@ -273,6 +281,8 @@ const loadDiscussions = async () => {
           id: resId,
           reservation_id: resId,
           code_reservation: codeRes,
+          client_user_id: clientUserId,
+          agent_user_id: agentUserId,
           client_nom: clientNom,
           agent_nom: agentNom,
           trajet: trajet,
@@ -361,7 +371,10 @@ const selectChat = async (chat) => {
     const rawMsgs = res?.messages || res?.data?.messages || []
     if (Array.isArray(rawMsgs) && rawMsgs.length > 0) {
       chat.messages = rawMsgs.map(m => {
-        const isClient = m.expediteur_id === chat.client_user_id || m.expediteur?.role === 'client' || m.expediteur_type === 'client'
+        const senderRole = (m.expediteur?.role || m.role || '').toLowerCase()
+        const isClient = senderRole === 'client' ||
+                         (chat.client_user_id && String(m.expediteur_id) === String(chat.client_user_id)) ||
+                         (m.expediteur_type === 'client')
         return {
           id: m.id,
           expediteur_nom: m.expediteur ? `${m.expediteur.prenom || ''} ${m.expediteur.nom || ''}`.trim() : (isClient ? chat.client_nom : chat.agent_nom),

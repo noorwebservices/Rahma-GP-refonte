@@ -6,6 +6,7 @@ import { fetchRevenus } from '@/services/revenuService'
 import { currentCurrency, formatPrice, convertAmount } from '@/utils/currencyState'
 import { useI18n } from '@/composables/useI18n'
 import { formatImageUrl } from '@/utils/imageUrl'
+import EntrepriseProfileView from '@/views/entreprise/EntrepriseProfileView.vue'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -30,6 +31,23 @@ const isEntrepriseUser = computed(() => {
   const roles = user.value.roles || []
   const hasRole = Array.isArray(roles) && roles.some(r => typeof r === 'string' ? (r === 'gerant_entreprise' || r === 'entreprise') : (r.name === 'gerant_entreprise' || r.name === 'entreprise'))
   return hasRole || !!user.value.entreprise || user.value.mode_actuel === 'entreprise'
+})
+
+const isAgentUser = computed(() => {
+  if (!user.value) return false
+  const roles = user.value.roles || []
+  const hasRole = Array.isArray(roles) && roles.some(r => typeof r === 'string' ? r === 'agent_gp' : r.name === 'agent_gp')
+  return hasRole || !!user.value.agent_gp || !!user.value.agentGp
+})
+
+const agentEnterprise = computed(() => {
+  if (!user.value) return null
+  return user.value.agent_gp?.entreprise || user.value.agentGp?.entreprise || user.value.entreprise || null
+})
+
+const agentMatricule = computed(() => {
+  if (!user.value) return ''
+  return user.value.agent_gp?.matricule || user.value.agentGp?.matricule || ''
 })
 
 const handleResendEmail = async () => {
@@ -377,6 +395,7 @@ import Swal from 'sweetalert2'
 import ClientHeader from '@/components/client/ClientHeader.vue'
 import ClientBottomNav from '@/components/client/ClientBottomNav.vue'
 import VoyageurBottomNav from '@/components/voyageur/VoyageurBottomNav.vue'
+import AgentBottomNav from '@/components/agent/AgentBottomNav.vue'
 
 // Logout with SweetAlert confirmation
 const handleLogout = async () => {
@@ -408,6 +427,10 @@ const handleLogout = async () => {
 
     <!-- Main Container -->
     <main class="max-w-5xl mx-auto px-4 sm:px-6 pt-6">
+      <template v-if="isEntrepriseUser">
+        <EntrepriseProfileView />
+      </template>
+      <template v-else>
       <!-- Unverified Voyageur Warning Banner -->
       <div v-if="user?.voyageur && (!user.is_voyageur_verifie || user.voyageur.statut !== 'verifie' || !user.voyageur.email_verifie_at)" class="mb-4 p-4 bg-amber-50 dark:bg-amber-950/80 border border-amber-200 dark:border-amber-900 text-amber-900 dark:text-amber-200 text-sm rounded-2xl flex items-start gap-3 shadow-xs">
         <svg class="w-6 h-6 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -468,9 +491,9 @@ const handleLogout = async () => {
               </h1>
               <span :class="[
                 'text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full font-extrabold uppercase tracking-wide',
-                isEntrepriseUser ? 'bg-[#053754] dark:bg-sky-900 text-white dark:text-sky-200' : (modeActuel === 'voyageur' ? 'bg-tertiaire text-principal-dark' : 'bg-principal-light/10 dark:bg-sky-950 text-principal dark:text-sky-300')
+                isAgentUser ? 'bg-[#053754] dark:bg-sky-900 text-white dark:text-sky-200' : (isEntrepriseUser ? 'bg-[#053754] dark:bg-sky-900 text-white dark:text-sky-200' : (modeActuel === 'voyageur' ? 'bg-tertiaire text-principal-dark' : 'bg-principal-light/10 dark:bg-sky-950 text-principal dark:text-sky-300'))
               ]">
-                {{ isEntrepriseUser ? 'Gérant Entreprise GP 🏢' : (modeActuel === 'voyageur' ? `Mode ${t('profile.modeVoyageur')}` : `Mode ${t('profile.modeClient')}`) }}
+                {{ isAgentUser ? 'Agent GP 👥' : (isEntrepriseUser ? 'Gérant Entreprise GP 🏢' : (modeActuel === 'voyageur' ? `Mode ${t('profile.modeVoyageur')}` : `Mode ${t('profile.modeClient')}`)) }}
               </span>
             </div>
 
@@ -487,9 +510,22 @@ const handleLogout = async () => {
 
         <!-- Action Buttons (Mode Switcher & Déconnexion) -->
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <!-- CAS 0: Agent GP -->
+          <button
+            v-if="isAgentUser"
+            @click="router.push('/agent')"
+            type="button"
+            class="px-5 py-3 rounded-2xl bg-[#053754] hover:bg-[#074C72] dark:bg-sky-600 dark:hover:bg-sky-500 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+          >
+            <svg class="w-4 h-4 text-sky-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <span>Accéder à mon espace Agent GP 👥</span>
+          </button>
+
           <!-- CAS 1: Gérant d'Entreprise GP -->
           <button
-            v-if="isEntrepriseUser"
+            v-else-if="isEntrepriseUser"
             @click="router.push('/entreprise')"
             type="button"
             class="px-5 py-3 rounded-2xl bg-[#053754] hover:bg-[#074C72] dark:bg-sky-600 dark:hover:bg-sky-500 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
@@ -563,7 +599,7 @@ const handleLogout = async () => {
             activeTab === 'voyageur' ? 'border-principal dark:border-sky-400 text-principal-dark dark:text-sky-300 font-bold' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200'
           ]"
         >
-          {{ isEntrepriseUser ? 'Statut & Profil Entreprise' : t('profile.voyageurStatus') }}
+          {{ isAgentUser ? 'Entreprise GP Rattachée' : (isEntrepriseUser ? 'Statut & Profil Entreprise' : t('profile.voyageurStatus')) }}
         </button>
         <button
           v-if="modeActuel === 'voyageur'"
@@ -635,8 +671,81 @@ const handleLogout = async () => {
       <!-- Tab 2: Voyageur / Entreprise Details -->
       <div v-else-if="activeTab === 'voyageur'" class="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-800">
         
+        <!-- CAS 0: L'utilisateur est un Agent GP -->
+        <div v-if="isAgentUser" class="space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-5 gap-4">
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 rounded-2xl bg-[#053754] dark:bg-slate-800 text-white font-black text-xl flex items-center justify-center shadow-md overflow-hidden border border-gray-200 dark:border-slate-700 shrink-0">
+                <img 
+                  v-if="agentEnterprise?.logo" 
+                  :src="formatImageUrl(agentEnterprise.logo)" 
+                  alt="Logo Entreprise" 
+                  class="w-full h-full object-cover" 
+                />
+                <span v-else>🏢</span>
+              </div>
+              <div>
+                <h3 class="text-xl font-bold text-principal-dark dark:text-sky-300 font-serif">
+                  {{ agentEnterprise?.nom || 'Entreprise GP Rattachée' }}
+                </h3>
+                <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
+                  Entreprise GP de rattachement
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span class="px-3 py-1 text-xs font-bold rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 uppercase tracking-wider">
+                Agent Actif ✓
+              </span>
+              <button
+                @click="router.push('/agent')"
+                class="px-4 py-2 bg-[#053754] hover:bg-[#074C72] text-white font-extrabold text-xs rounded-xl shadow-xs transition cursor-pointer flex items-center gap-1.5"
+              >
+                <span>Mon Espace Agent GP</span>
+                <span>➔</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Informations Entreprise Rattachée -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs sm:text-sm">
+            <div v-if="agentMatricule" class="bg-gray-50 dark:bg-slate-800/80 p-4 rounded-2xl border border-gray-100 dark:border-slate-800 space-y-1">
+              <span class="text-gray-400 dark:text-slate-400 font-medium block">Matricule Agent</span>
+              <span class="font-black text-[#053754] dark:text-sky-300 font-mono">{{ agentMatricule }}</span>
+            </div>
+
+            <div class="bg-gray-50 dark:bg-slate-800/80 p-4 rounded-2xl border border-gray-100 dark:border-slate-800 space-y-1">
+              <span class="text-gray-400 dark:text-slate-400 font-medium block">NINEA Entreprise</span>
+              <span class="font-black text-gray-800 dark:text-slate-100 font-mono">{{ agentEnterprise?.ninea || 'Non renseigné' }}</span>
+            </div>
+
+            <div class="bg-gray-50 dark:bg-slate-800/80 p-4 rounded-2xl border border-gray-100 dark:border-slate-800 space-y-1">
+              <span class="text-gray-400 dark:text-slate-400 font-medium block">Registre de Commerce (RCCM)</span>
+              <span class="font-black text-gray-800 dark:text-slate-100 font-mono">{{ agentEnterprise?.registre_commerce || 'Non renseigné' }}</span>
+            </div>
+
+            <div class="bg-gray-50 dark:bg-slate-800/80 p-4 rounded-2xl border border-gray-100 dark:border-slate-800 space-y-1">
+              <span class="text-gray-400 dark:text-slate-400 font-medium block">E-mail Entreprise</span>
+              <span class="font-bold text-gray-800 dark:text-slate-100 truncate block">{{ agentEnterprise?.email || 'Non renseigné' }}</span>
+            </div>
+
+            <div class="bg-gray-50 dark:bg-slate-800/80 p-4 rounded-2xl border border-gray-100 dark:border-slate-800 space-y-1">
+              <span class="text-gray-400 dark:text-slate-400 font-medium block">Téléphone Siège</span>
+              <span class="font-bold text-gray-800 dark:text-slate-100">{{ agentEnterprise?.telephone || 'Non renseigné' }}</span>
+            </div>
+
+            <div class="bg-gray-50 dark:bg-slate-800/80 p-4 rounded-2xl border border-gray-100 dark:border-slate-800 space-y-1">
+              <span class="text-gray-400 dark:text-slate-400 font-medium block">Adresse Siège</span>
+              <span class="font-bold text-gray-800 dark:text-slate-100 truncate block">
+                {{ agentEnterprise?.adresse || 'Non renseignée' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
         <!-- CAS A: L'utilisateur est une Entreprise GP -->
-        <div v-if="isEntrepriseUser && (user?.entreprise || user?.entrepriseGeree)" class="space-y-6">
+        <div v-else-if="isEntrepriseUser && (user?.entreprise || user?.entrepriseGeree)" class="space-y-6">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-5 gap-4">
             <div class="flex items-center gap-4">
               <div class="w-16 h-16 rounded-2xl bg-[#053754] dark:bg-slate-800 text-white font-black text-xl flex items-center justify-center shadow-md overflow-hidden border border-gray-200 dark:border-slate-700 shrink-0">
@@ -1198,8 +1307,8 @@ const handleLogout = async () => {
           </div>
         </form>
       </div>
-
-    </main>
+    </template>
+  </main>
 
     <!-- Modal Form: Création de Profil Voyageur -->
     <div v-if="showVoyageurModal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
@@ -1326,7 +1435,8 @@ const handleLogout = async () => {
     </div>
 
     <!-- Dynamic Bottom Navigation Bar based on current mode -->
-    <VoyageurBottomNav v-if="modeActuel === 'voyageur'" />
+    <AgentBottomNav v-if="isAgentUser" />
+    <VoyageurBottomNav v-else-if="modeActuel === 'voyageur'" />
     <ClientBottomNav v-else />
   </div>
 </template>

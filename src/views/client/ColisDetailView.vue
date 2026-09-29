@@ -89,13 +89,32 @@ const loadReservationData = async () => {
       const data = res.data
       const v = data.voyage || {}
       const c = data.colis || {}
-      const vUser = v.voyageur?.user || v.voyageur || {}
-      const transporteurName = `${vUser.prenom || ''} ${vUser.nom || ''}`.trim() || 'Voyageur GP'
-      const vId = v.voyageur_id || v.voyageur?.id || null
+      const vUser = v.voyageur?.user || v.voyageur || v.agent_gp?.user || v.agentGp?.user || {}
+
+      let transporteurName = ''
+      if (v.entreprise && v.entreprise.nom) {
+        transporteurName = v.entreprise.nom
+        if (vUser.prenom || vUser.nom) {
+          transporteurName += ` (${vUser.prenom || ''} ${vUser.nom || ''})`.trim()
+        }
+      } else if (v.agent_gp || v.agentGp) {
+        const agUser = v.agent_gp?.user || v.agentGp?.user || {}
+        transporteurName = `${agUser.prenom || ''} ${agUser.nom || ''}`.trim() || 'Agent GP'
+      } else {
+        transporteurName = `${vUser.prenom || ''} ${vUser.nom || ''}`.trim()
+      }
+      if (!transporteurName) transporteurName = 'Transporteur GP'
+
+      if (v.moyenne_notes !== undefined && v.moyenne_notes !== null) {
+        voyageurReviews.value.moyenneNotes = Number(v.moyenne_notes || 0)
+        voyageurReviews.value.totalEvaluations = Number(v.total_evaluations || 0)
+      }
+
+      const evalTargetId = v.voyageur_id || v.voyageur?.id || v.entreprise_id || v.entreprise?.id || v.agent_gp_id || v.agent_gp?.id || null
 
       reservation.value = {
         id: data.id,
-        voyageurId: vId,
+        voyageurId: evalTargetId,
         numero: data.numero || (c.numero_suivi ? `#${c.numero_suivi}` : `#RS-${data.id.slice(0, 8)}`),
         trackingCode: c.numero_suivi || data.code_tracking || 'TRK-EN-ATTENTE',
         statut: data.statut || 'en_attente',
@@ -112,6 +131,8 @@ const loadReservationData = async () => {
         rawDevise: v.devise || 'XOF',
         montantTotal: `${data.montant_total || data.prix_total || 0} ${v.devise || 'XOF'}`,
         modePaiement: data.mode_paiement_souhaite || data.mode_paiement || 'Au dépôt',
+        statutPaiement: data.paiement?.statut || (data.est_paye ? 'reussi' : 'en_attente'),
+        isPaid: Boolean(data.est_paye || data.paiement?.statut === 'reussi' || data.paiement?.statut === 'succes' || data.paiement?.statut === 'paye'),
         
         colisType: c.type || data.type_colis || 'Marchandise',
         colisDescription: c.description || data.description || 'Aucune description',
@@ -124,14 +145,14 @@ const loadReservationData = async () => {
         destinataireAdresse: c.destinataire_adresse || 'Non renseignée',
         
         transporteurNom: transporteurName,
-        transporteurPhone: vUser.telephone || 'Non renseigné',
+        transporteurPhone: vUser.telephone || (v.entreprise?.telephone || 'Non renseigné'),
         
         adresseDepot: v.adresse_depot || null,
         adresseRetrait: v.adresse_recuperation || null
       }
 
-      if (vId) {
-        await loadVoyageurReviews(vId)
+      if (evalTargetId) {
+        await loadVoyageurReviews(evalTargetId)
       }
 
       setHeaderRoute({
@@ -495,9 +516,26 @@ const allSteps = computed(() => {
 
       <!-- Information de paiement pour le client -->
       <div v-if="['acceptee', 'en_cours', 'livre', 'livree'].includes(reservation.statut)" class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-3">
-        <div class="flex items-center gap-2 border-b border-gray-100 dark:border-slate-800 pb-2.5">
-          <span class="text-lg">💳</span>
-          <h3 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">{{ t('parcelDetail.paymentSectionTitle') }}</h3>
+        <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-2.5">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">💳</span>
+            <h3 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">{{ t('parcelDetail.paymentSectionTitle') }}</h3>
+          </div>
+
+          <!-- Payment Status Badge -->
+          <span
+            v-if="reservation.isPaid"
+            class="px-3 py-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 text-xs font-bold rounded-full flex items-center gap-1 border border-emerald-200 dark:border-emerald-800"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+            Paiement Confirmé
+          </span>
+          <span
+            v-else
+            class="px-3 py-1 bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 text-xs font-bold rounded-full flex items-center gap-1 border border-amber-200 dark:border-amber-800"
+          >
+            ⏳ En attente de paiement
+          </span>
         </div>
 
         <div class="bg-slate-50 dark:bg-slate-800/80 p-4 rounded-xl border border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">

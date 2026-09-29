@@ -129,7 +129,24 @@ const pollNewMessages = async () => {
       let hasNew = false
       list.forEach(m => {
         const isMine = currentUserId ? (m.expediteur_id === currentUserId || m.expediteur?.id === currentUserId) : true
-        const existing = messages.value.find(msg => String(msg.id) === String(m.id))
+        let existing = messages.value.find(msg => String(msg.id) === String(m.id))
+        
+        if (!existing) {
+          existing = messages.value.find(msg => 
+            String(msg.id).startsWith('temp-') && 
+            msg.isMine === isMine && 
+            msg.text.trim() === (m.contenu || '').trim()
+          )
+          if (existing) {
+            existing.id = m.id
+            existing.isRead = Boolean(m.est_lu)
+            if (m.date_heure_envoi || m.created_at) {
+              existing.time = formatVoyageDate(m.date_heure_envoi || m.created_at)
+            }
+            return
+          }
+        }
+
         if (existing) {
           existing.isRead = Boolean(m.est_lu)
         } else {

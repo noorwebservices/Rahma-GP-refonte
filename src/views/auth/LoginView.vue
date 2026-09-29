@@ -114,6 +114,9 @@ const handleSubmit = async () => {
     const roles = user?.roles || []
     
     const isAdmin = (Array.isArray(roles) && roles.some(r => typeof r === 'string' ? r === 'admin' : r.name === 'admin')) || user?.mode_actuel === 'admin'
+    const isAgent = (Array.isArray(roles) && roles.some(r => typeof r === 'string' ? (r === 'agent_gp' || r === 'agent') : (r.name === 'agent_gp' || r.name === 'agent'))) ||
+                    user?.mode_actuel === 'agent_gp' ||
+                    !!user?.agent_gp || !!user?.agentGp
     const isEntreprise = (Array.isArray(roles) && roles.some(r => typeof r === 'string' ? (r === 'gerant_entreprise' || r === 'entreprise') : (r.name === 'gerant_entreprise' || r.name === 'entreprise'))) ||
                          user?.mode_actuel === 'entreprise' ||
                          !!user?.entreprise
@@ -122,6 +125,8 @@ const handleSubmit = async () => {
 
     if (isAdmin) {
       router.push('/admin')
+    } else if (isAgent) {
+      router.push('/agent')
     } else if (isEntreprise) {
       router.push('/entreprise')
     } else if (mode === 'voyageur') {

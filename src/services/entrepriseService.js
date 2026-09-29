@@ -175,8 +175,8 @@ export const entrepriseService = {
   /**
    * Obtenir l'analyse des revenus entreprise
    */
-  async getRevenus() {
-    return await api.get('/entreprise/revenus')
+  async getRevenus(params = {}) {
+    return await api.get('/entreprise/revenus', { params })
   },
 
   /**

@@ -36,13 +36,28 @@ const percentageUsed = computed(() => {
 })
 
 const transporteurNom = computed(() => {
-  if (props.voyage.voyageur) {
-    const p = props.voyage.voyageur.prenom || props.voyage.voyageur.user?.prenom || ''
-    const n = props.voyage.voyageur.nom || props.voyage.voyageur.user?.nom || ''
+  const v = props.voyage
+  if (v.entreprise) {
+    const eNom = v.entreprise.nom_entreprise || v.entreprise.nom
+    if (eNom) return eNom
+  }
+  if (v.agent_gp?.entreprise) {
+    const eNom = v.agent_gp.entreprise.nom_entreprise || v.agent_gp.entreprise.nom
+    if (eNom) return eNom
+  }
+  if (v.agent_gp?.user) {
+    const p = v.agent_gp.user.prenom || ''
+    const n = v.agent_gp.user.nom || ''
     const full = `${p} ${n}`.trim()
     if (full) return full
   }
-  return props.voyage.transporteur_nom || props.voyage.transporteur || 'Rahma GP Express'
+  if (v.voyageur) {
+    const p = v.voyageur.prenom || v.voyageur.user?.prenom || ''
+    const n = v.voyageur.nom || v.voyageur.user?.nom || ''
+    const full = `${p} ${n}`.trim()
+    if (full) return full
+  }
+  return v.transporteur_nom || v.transporteur || 'Transporteur GP'
 })
 
 const prixKg = computed(() => {
@@ -60,7 +75,13 @@ const pointCollecte = computed(() => {
 
 const voyageurNote = computed(() => {
   const v = props.voyage
-  const n = v.moyenne_notes ?? v.voyageur?.moyenne_notes ?? v.voyageur?.note_moyenne ?? v.note
+  const n = v.moyenne_notes 
+    ?? v.entreprise?.moyenne_notes 
+    ?? v.entreprise?.note_moyenne 
+    ?? v.agent_gp?.entreprise?.moyenne_notes 
+    ?? v.voyageur?.moyenne_notes 
+    ?? v.voyageur?.note_moyenne 
+    ?? v.note
   if (n !== undefined && n !== null && n !== '') {
     const val = Number(n)
     return !isNaN(val) && val > 0 ? val.toFixed(1) : '0.0'
@@ -70,7 +91,14 @@ const voyageurNote = computed(() => {
 
 const totalEvaluationsCount = computed(() => {
   const v = props.voyage
-  return v.total_evaluations ?? v.voyageur?.total_evaluations ?? 0
+  return v.total_evaluations ?? v.entreprise?.total_evaluations ?? v.voyageur?.total_evaluations ?? 0
+})
+
+const typeTransporteur = computed(() => {
+  const v = props.voyage
+  if (v.type_transporteur) return v.type_transporteur
+  if (v.entreprise || v.agent_gp || v.entreprise_id || v.agent_gp_id) return 'Entreprise GP'
+  return 'Voyageur GP'
 })
 
 const goToDetail = () => {
@@ -116,7 +144,7 @@ const goToDetail = () => {
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
         </svg>
-        <span>{{ voyage.type_transporteur || 'Voyageur GP' }}</span>
+        <span>{{ typeTransporteur }}</span>
       </div>
     </div>
 

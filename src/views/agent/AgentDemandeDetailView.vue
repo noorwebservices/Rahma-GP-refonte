@@ -9,7 +9,7 @@ import { getCountryFlag, formatVoyageDate, formatDateTime, getColisStatutLabel }
 import CountryFlag from '@/components/common/CountryFlag.vue'
 import { decodeId, encodeId } from '@/utils/idMasker'
 import { setHeaderRoute } from '@/utils/headerState'
-import { formatPrice } from '@/utils/currencyState'
+import { currentCurrency, formatPrice } from '@/utils/currencyState'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -41,7 +41,7 @@ const isSubmittingPaiement = ref(false)
 
 const colisStatutOptions = [
   { value: 'colis_depose', label: '📍 Colis déposé au point relais' },
-  { value: 'colis_pris_en_charge', label: '🧳 Colis pris en charge par le GP' },
+  { value: 'colis_pris_en_charge', label: '🧳 Colis pris en charge par l\'Agent GP' },
   { value: 'en_transit', label: '✈️ En transit / En vol' },
   { value: 'arrive', label: '🛬 Arrivé au point de destination' },
   { value: 'livre', label: '🎁 Livré au destinataire' }
@@ -154,7 +154,6 @@ const loadDemande = async () => {
       const v = data.voyage || {}
 
       const clientName = `${u.prenom || ''} ${u.nom || data.expediteur_nom || ''}`.trim() || 'Client Rahma'
-
       const rawPhoto = c.photo || c.photo_url || data.photo || data.photo_colis || data.photo_url || null
 
       const checkPaidStatus = (s) => {
@@ -186,9 +185,7 @@ const loadDemande = async () => {
             String(p.reservation?.id) === String(rawId)
           ))
         }
-      } catch (e) {
-        // fallback
-      }
+      } catch (e) {}
 
       const rawPaiements = data.paiements || data.paiement || c.paiements || c.paiement || []
       const paiements = Array.isArray(rawPaiements) ? rawPaiements : (rawPaiements ? [rawPaiements] : [])
@@ -409,58 +406,17 @@ const refuseDemande = async () => {
   }
 }
 
-const cancelDemande = async () => {
-  if (!demande.value) return
-  const result = await Swal.fire({
-    title: 'Annuler la réservation ?',
-    text: 'Cette action annulera définitivement cette demande de réservation.',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#B50302',
-    cancelButtonColor: '#6B7280',
-    confirmButtonText: 'Oui, annuler',
-    cancelButtonText: 'Conserver'
-  })
-
-  if (!result.isConfirmed) return
-
-  isUpdatingStatus.value = true
-  try {
-    await annulerReservation(demande.value.rawId)
-    demande.value.statut = 'annulee'
-    Swal.fire({
-      toast: true,
-      position: 'top-end',
-      icon: 'success',
-      title: 'Réservation annulée.',
-      showConfirmButton: false,
-      timer: 3000
-    })
-  } catch (err) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Erreur',
-      text: err?.message || err?.data?.message || 'Impossible d\'annuler la réservation.'
-    })
-  } finally {
-    isUpdatingStatus.value = false
-  }
-}
-
 const goToChat = () => {
   if (demande.value) {
-    router.push({
-      name: 'entreprise-discussions',
-      query: { reservation_id: demande.value.rawId }
-    })
+    router.push(`/agent/messages/${encodeId(demande.value.id)}`)
   }
 }
 
 const goBackToVoyage = () => {
   if (demande.value?.voyageId) {
-    router.push(`/entreprise/voyages/${encodeId(demande.value.voyageId)}`)
+    router.push(`/agent/voyages/${encodeId(demande.value.voyageId)}`)
   } else {
-    router.push('/entreprise/voyages')
+    router.push('/agent/demandes')
   }
 }
 </script>
@@ -475,7 +431,7 @@ const goBackToVoyage = () => {
         class="inline-flex items-center gap-2 text-xs font-bold text-gray-600 dark:text-slate-300 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 px-3.5 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors shadow-2xs cursor-pointer"
       >
         <span>←</span>
-        <span>{{ t('voyageur.voyageDetail.backBtn', 'Retour au voyage') }}</span>
+        <span>Retour au voyage</span>
       </button>
 
       <span
@@ -488,20 +444,20 @@ const goBackToVoyage = () => {
           'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 border-gray-300 dark:border-slate-700': demande.statut === 'annulee' || demande.statut === 'annule'
         }"
       >
-        {{ demande.statut === 'en_attente' ? t('voyageur.status.pending', '⏳ En attente') : demande.statut === 'acceptee' ? t('voyageur.status.accepted', '✓ Acceptée') : demande.statut === 'refusee' ? t('voyageur.status.refused', '✕ Refusée') : t('voyageur.status.cancelled', '🚫 Annulée') }}
+        {{ demande.statut === 'en_attente' ? '⏳ En attente' : demande.statut === 'acceptee' ? '✓ Acceptée' : demande.statut === 'refusee' ? '✕ Refusée' : '🚫 Annulée' }}
       </span>
     </div>
 
     <!-- Loading State -->
     <div v-if="isLoading" class="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center border border-gray-100 dark:border-slate-800 shadow-sm space-y-4">
       <div class="w-10 h-10 border-4 border-[#053754] dark:border-sky-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
-      <p class="text-sm font-bold text-gray-600 dark:text-slate-300">{{ t('voyageur.voyageDetail.loading', 'Chargement des détails de la demande...') }}</p>
+      <p class="text-sm font-bold text-gray-600 dark:text-slate-300">Chargement des détails de la demande...</p>
     </div>
 
     <!-- Error State -->
     <div v-else-if="errorMsg" class="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-3xl p-8 text-center space-y-3">
       <p class="text-sm font-bold text-red-800 dark:text-red-300">{{ errorMsg }}</p>
-      <button @click="goBackToVoyage" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-xl">{{ t('voyageur.voyageDetail.backBtn', 'Retour') }}</button>
+      <button @click="goBackToVoyage" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-xl">Retour</button>
     </div>
 
     <template v-else-if="demande">
@@ -510,14 +466,14 @@ const goBackToVoyage = () => {
         <div class="space-y-1">
           <div class="flex items-center gap-2 flex-wrap">
             <h1 class="text-lg sm:text-xl font-serif font-bold text-principal-dark dark:text-sky-300 flex items-center leading-none">
-              Détails de la réservation entreprise
+              Détails de la demande
             </h1>
             <span class="font-extrabold text-[#074C72] dark:text-sky-300 text-xs bg-sky-50 dark:bg-sky-950/50 px-2.5 py-1 rounded-full border border-sky-100 dark:border-sky-800 font-mono inline-flex items-center leading-none">
               {{ demande.code }}
             </span>
           </div>
           <p class="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5">
-            <span>{{ t('voyageur.demandeDetail.trackingCode', 'Code de Suivi :') }}</span>
+            <span>Code de Suivi :</span>
             <strong class="font-mono text-gray-800 dark:text-slate-200 bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded">{{ demande.codeTracking }}</strong>
           </p>
         </div>
@@ -547,7 +503,6 @@ const goBackToVoyage = () => {
             </div>
             <div>
               <h3 class="text-base font-extrabold text-gray-900 dark:text-slate-100 leading-tight">{{ demande.clientName }}</h3>
-              <p class="text-xs text-gray-500 dark:text-slate-400 font-medium">{{ demande.clientPhone }} • {{ demande.clientEmail }}</p>
               <span class="text-[10px] text-sky-700 dark:text-sky-300 font-extrabold bg-sky-50 dark:bg-sky-950/50 px-2 py-0.5 rounded-full border border-sky-100 dark:border-sky-800 mt-1 inline-block">Client Rahma GP</span>
             </div>
           </div>
@@ -563,54 +518,45 @@ const goBackToVoyage = () => {
 
         <!-- Parcel Description & Image Card -->
         <div class="space-y-3">
-          <h4 class="text-xs font-extrabold text-gray-400 dark:text-slate-400 uppercase tracking-wider">{{ t('voyageur.demandeDetail.parcelInfo', 'Détails du colis') }}</h4>
+          <h4 class="text-xs font-extrabold text-gray-400 dark:text-slate-400 uppercase tracking-wider">Détails du colis</h4>
           
           <div class="bg-gray-50 dark:bg-slate-800/60 rounded-2xl p-4 border border-gray-200/80 dark:border-slate-700/80 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
             <div class="space-y-2.5">
               <div>
-                <span class="text-gray-400 dark:text-slate-400 font-medium block">{{ t('voyageur.demandeDetail.contentType', 'Type de contenu :') }}</span>
+                <span class="text-gray-400 dark:text-slate-400 font-medium block">Type de contenu :</span>
                 <span class="font-extrabold text-[#053754] dark:text-sky-300 text-sm sm:text-base">{{ demande.parcelType }}</span>
               </div>
               <div>
-                <span class="text-gray-400 dark:text-slate-400 font-medium block">{{ t('voyageur.demandeDetail.parcelWeight', 'Poids du colis :') }}</span>
+                <span class="text-gray-400 dark:text-slate-400 font-medium block">Poids du colis :</span>
                 <span class="font-extrabold text-[#B50302] dark:text-red-400 text-sm">{{ demande.weight }}</span>
               </div>
               <div>
-                <span class="text-gray-400 dark:text-slate-400 font-medium block">{{ t('voyageur.demandeDetail.estimatedValue', 'Valeur estimée du colis :') }}</span>
+                <span class="text-gray-400 dark:text-slate-400 font-medium block">Valeur estimée du colis :</span>
                 <span class="font-bold text-gray-800 dark:text-slate-200 text-sm">{{ formattedEstimatedValue }}</span>
               </div>
               <div>
-                <span class="text-gray-400 dark:text-slate-400 font-medium block">{{ t('voyageur.demandeDetail.parcelNature', 'Nature du colis :') }}</span>
+                <span class="text-gray-400 dark:text-slate-400 font-medium block">Nature du colis :</span>
                 <span class="font-bold text-xs px-2.5 py-0.5 rounded-md inline-block mt-0.5" :class="demande.isFragile ? 'bg-amber-100 dark:bg-amber-950/50 text-amber-900 dark:text-amber-300 border border-amber-200 dark:border-amber-800' : 'bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300'">
-                  {{ demande.isFragile ? t('voyageur.demandeDetail.fragileLabel', '⚠️ Colis Fragile') : t('voyageur.demandeDetail.standardLabel', 'Standard') }}
+                  {{ demande.isFragile ? '⚠️ Colis Fragile' : 'Standard' }}
                 </span>
               </div>
               <div>
-                <span class="text-gray-400 dark:text-slate-400 font-medium block">{{ t('voyageur.demandeDetail.paymentMode', 'Mode de paiement souhaité :') }}</span>
+                <span class="text-gray-400 dark:text-slate-400 font-medium block">Mode de paiement souhaité :</span>
                 <span class="font-bold text-sky-800 dark:text-sky-300 uppercase tracking-wider">{{ demande.paymentMode }}</span>
-              </div>
-              <div>
-                <span class="text-gray-400 dark:text-slate-400 font-medium block">Statut du paiement :</span>
-                <span v-if="isPaymentDone" class="font-extrabold text-xs px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 inline-flex items-center gap-1 mt-0.5 border border-emerald-200 dark:border-emerald-800">
-                  ✓ Paiement Confirmé
-                </span>
-                <span v-else class="font-extrabold text-xs px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 inline-flex items-center gap-1 mt-0.5 border border-amber-200 dark:border-amber-800">
-                  ⏳ En attente de paiement
-                </span>
               </div>
             </div>
 
             <!-- Description & Photo -->
             <div class="space-y-2">
               <div>
-                <span class="text-gray-400 dark:text-slate-400 font-medium block">{{ t('voyageur.demandeDetail.description', 'Description :') }}</span>
+                <span class="text-gray-400 dark:text-slate-400 font-medium block">Description :</span>
                 <p class="text-xs text-gray-800 dark:text-slate-200 font-semibold bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-gray-200 dark:border-slate-700 leading-relaxed mt-1">
                   {{ demande.description }}
                 </p>
               </div>
 
               <div v-if="demande.photo" class="space-y-1">
-                <span class="text-gray-400 dark:text-slate-400 font-medium block">{{ t('voyageur.demandeDetail.parcelPhoto', 'Photo du colis :') }}</span>
+                <span class="text-gray-400 dark:text-slate-400 font-medium block">Photo du colis :</span>
                 <div 
                   class="w-full h-44 sm:h-52 rounded-2xl overflow-hidden border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 relative group cursor-pointer shadow-2xs" 
                   @click="openPhotoLightbox(demande.photo)"
@@ -622,7 +568,7 @@ const goBackToVoyage = () => {
                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
                   />
                   <div class="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1.5 backdrop-blur-[1px]">
-                    <span>{{ t('voyageur.demandeDetail.enlargeImage', '🔍 Agrandir l\'image') }}</span>
+                    <span>🔍 Agrandir l'image</span>
                   </div>
                 </div>
               </div>
@@ -632,26 +578,26 @@ const goBackToVoyage = () => {
 
         <!-- Recipient Information Card -->
         <div class="space-y-3 pt-2">
-          <h4 class="text-xs font-extrabold text-gray-400 dark:text-slate-400 uppercase tracking-wider">{{ t('voyageur.demandeDetail.recipientInfoTitle', 'Informations du Destinataire à l\'arrivée') }}</h4>
+          <h4 class="text-xs font-extrabold text-gray-400 dark:text-slate-400 uppercase tracking-wider">Informations du Destinataire à l'arrivée</h4>
 
           <div class="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/50 rounded-2xl p-4 space-y-1.5 shadow-2xs">
-            <div class="font-extrabold text-gray-900 dark:text-amber-200 text-sm sm:text-base">{{ demande.recipientName }} ({{ demande.recipientPhone }})</div>
+            <div class="font-extrabold text-gray-900 dark:text-amber-200 text-sm sm:text-base">{{ demande.recipientName }}</div>
             <div class="text-xs text-gray-600 dark:text-amber-300 font-medium pt-1 border-t border-amber-200/60 dark:border-amber-800/40">
               📍 {{ demande.recipientAddress }}
             </div>
           </div>
         </div>
 
-        <!-- Section Validation du Paiement en Espèces (Entreprise) -->
+        <!-- Section Validation du Paiement en Espèces (Agent GP) -->
         <div v-if="demande.statut === 'acceptee' && !isPaymentDone" class="space-y-3 pt-4 border-t border-gray-100 dark:border-slate-800">
           <div class="flex items-center gap-2">
             <span class="text-lg">💳</span>
-            <h4 class="text-xs font-extrabold text-[#053754] dark:text-sky-300 uppercase tracking-wider">{{ t('voyageur.demandeDetail.cashCollectionTitle', 'Encaissement du paiement en espèces') }}</h4>
+            <h4 class="text-xs font-extrabold text-[#053754] dark:text-sky-300 uppercase tracking-wider">Encaissement du paiement en espèces</h4>
           </div>
 
           <div class="p-4 bg-sky-50/60 dark:bg-slate-800/80 rounded-2xl border border-sky-100 dark:border-slate-700 space-y-3">
             <p class="text-xs text-gray-600 dark:text-slate-300 font-medium leading-relaxed">
-              {{ t('voyageur.demandeDetail.selectCashMode', 'Sélectionnez le mode d\'encaissement et confirmez la réception du paiement par le client :') }}
+              Sélectionnez le mode d'encaissement et confirmez la réception du paiement par le client :
             </p>
 
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
@@ -659,8 +605,8 @@ const goBackToVoyage = () => {
                 v-model="selectedPaymentMode"
                 class="flex-1 px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-sky-200 dark:border-slate-700 text-xs sm:text-sm font-semibold rounded-xl text-gray-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-[#074C72]/20"
               >
-                <option value="espece_depot">{{ t('voyageur.demandeDetail.cashDeposit', '💵 Espèces lors du dépôt') }}</option>
-                <option value="espece_retrait">{{ t('voyageur.demandeDetail.cashPickup', '💵 Espèces lors du retrait (À l\'arrivée)') }}</option>
+                <option value="espece_depot">💵 Espèces lors du dépôt</option>
+                <option value="espece_retrait">💵 Espèces lors du retrait (À l'arrivée)</option>
               </select>
 
               <button
@@ -669,25 +615,25 @@ const goBackToVoyage = () => {
                 type="button"
                 class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-5 py-3 rounded-xl shadow-md transition-all shrink-0 cursor-pointer active:scale-[0.99] disabled:opacity-50"
               >
-                {{ isSubmittingPaiement ? t('voyageur.demandeDetail.validating', 'VALIDATION...') : t('voyageur.demandeDetail.validatePayment', '✓ VALIDER LE PAIEMENT') }}
+                {{ isSubmittingPaiement ? 'VALIDATION...' : '✓ VALIDER LE PAIEMENT' }}
               </button>
             </div>
           </div>
         </div>
 
-        <!-- Section Suivi & Mise à jour du Colis (pour les réservations acceptées) -->
+        <!-- Section Suivi & Mise à jour du Colis (Agent GP) -->
         <div v-if="demande.statut === 'acceptee'" class="space-y-4 pt-4 border-t border-gray-100 dark:border-slate-800">
           <div class="flex items-center gap-2">
             <span class="text-lg">🚚</span>
             <h4 class="text-xs font-extrabold text-[#053754] dark:text-sky-300 uppercase tracking-wider">
-              {{ t('voyageur.demandeDetail.updateStatusModalTitle', 'Mettre à jour le Statut du Colis') }}
+              Mettre à jour le Statut du Colis
             </h4>
           </div>
 
           <div class="bg-sky-50/70 dark:bg-slate-800/80 border border-sky-200/80 dark:border-slate-700 rounded-2xl p-4 sm:p-5 space-y-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300 mb-1">{{ t('voyageur.demandeDetail.newParcelStatus', 'Nouveau statut du colis') }}</label>
+                <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300 mb-1">Nouveau statut du colis</label>
                 <select
                   v-if="availableColisStatutOptions.length > 0"
                   v-model="selectedColisStatut"
@@ -699,20 +645,20 @@ const goBackToVoyage = () => {
                 </select>
                 <div v-else class="px-3.5 py-2.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs font-bold flex items-center gap-1.5">
                   <span>🎉</span>
-                  <span>{{ t('voyageur.demandeDetail.allStatusesApplied', 'Tous les statuts de suivi ont été appliqués') }}</span>
+                  <span>Tous les statuts de suivi ont été appliqués</span>
                 </div>
                 <div v-if="!isVoyageClosedOrCompleted" class="mt-2 p-2.5 bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 border border-amber-200 dark:border-amber-800 rounded-xl text-[11px] font-medium flex items-start gap-1.5">
                   <span class="shrink-0 mt-0.5">⏳</span>
-                  <span>{{ t('voyageur.demandeDetail.ongoingTripNotice', 'Voyage en cours : les statuts Transit, Arrivé et Livré seront débloqués quand le voyage sera complet/fermé ou sa date de départ passée.') }}</span>
+                  <span>Voyage en cours : les statuts Transit, Arrivé et Livré seront débloqués quand le voyage sera complet/fermé ou sa date de départ passée.</span>
                 </div>
               </div>
 
               <div>
-                <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300 mb-1">{{ t('voyageur.demandeDetail.commentOptional', 'Commentaire (optionnel)') }}</label>
+                <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300 mb-1">Commentaire (optionnel)</label>
                 <input
                   v-model="colisCommentaire"
                   type="text"
-                  placeholder="ex: Le colis a été réceptionné au dépôt..."
+                  placeholder="ex: Le colis est dans l'avion en direction de Paris..."
                   class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 text-gray-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 rounded-xl text-xs font-medium outline-none focus:border-[#074C72] dark:focus:border-sky-500 focus:ring-2 focus:ring-[#074C72]/20"
                 />
               </div>
@@ -726,14 +672,14 @@ const goBackToVoyage = () => {
                 class="w-full sm:w-auto bg-[#053754] dark:bg-sky-600 hover:bg-[#074C72] dark:hover:bg-sky-500 text-white font-extrabold text-xs px-5 py-3 rounded-xl shadow-xs transition-all cursor-pointer flex items-center justify-center gap-2 uppercase tracking-wider disabled:opacity-50"
               >
                 <span v-if="isSubmittingColisStatut" class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                <span>{{ t('voyageur.demandeDetail.updateStatusBtn', 'METTRE À JOUR LE STATUT DU COLIS') }}</span>
+                <span>METTRE À JOUR LE STATUT DU COLIS</span>
               </button>
             </div>
 
             <!-- Historique des suivis du colis -->
             <div v-if="demande.suivis && demande.suivis.length > 0" class="pt-3 border-t border-sky-200/60 dark:border-slate-700 space-y-2">
               <span class="text-[11px] font-extrabold text-[#074C72] dark:text-sky-300 block uppercase tracking-wider">
-                {{ t('voyageur.demandeDetail.trackingHistory', 'Historique du suivi ({count})', { count: demande.suivis.length }) }}
+                Historique du suivi ({{ demande.suivis.length }})
               </span>
               <div class="space-y-2">
                 <div
@@ -757,7 +703,7 @@ const goBackToVoyage = () => {
         <!-- Price & Action CTA Row -->
         <div class="border-t border-gray-100 dark:border-slate-800 pt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <span class="text-xs text-gray-400 dark:text-slate-400 font-medium block">{{ t('voyageur.demandeDetail.totalTransportPrice', 'Prix total du transport :') }}</span>
+            <span class="text-xs text-gray-400 dark:text-slate-400 font-medium block">Prix total du transport :</span>
             <span class="font-black text-[#053754] dark:text-sky-300 text-xl sm:text-2xl">{{ formattedPrice }}</span>
           </div>
 
@@ -768,7 +714,7 @@ const goBackToVoyage = () => {
               type="button"
               class="flex-1 sm:flex-none px-5 py-3 rounded-xl bg-red-50 dark:bg-red-950/50 text-[#B50302] dark:text-red-400 border border-red-200 dark:border-red-900 font-extrabold text-xs hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors cursor-pointer"
             >
-              {{ t('voyageur.demandes.rejectBtn', 'REFUSER') }}
+              REFUSER
             </button>
 
             <button
@@ -777,13 +723,13 @@ const goBackToVoyage = () => {
               type="button"
               class="flex-1 sm:flex-none bg-[#053754] dark:bg-sky-600 hover:bg-[#074C72] dark:hover:bg-sky-500 text-white font-extrabold text-xs sm:text-sm py-3.5 px-6 rounded-xl shadow-lg transition-all cursor-pointer uppercase tracking-wider active:scale-[0.99]"
             >
-              ✓ {{ t('voyageur.demandes.acceptBtn', 'ACCEPTER LA RÉSERVATION') }}
+              ✓ ACCEPTER LA RÉSERVATION
             </button>
           </div>
 
           <div v-else-if="demande.statut === 'acceptee'">
             <span class="text-xs font-extrabold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 px-3.5 py-1.5 rounded-xl flex items-center gap-1.5">
-              ✓ {{ t('voyageur.demandeDetail.statusAccepted', 'Réservation acceptée') }}
+              ✓ Réservation acceptée
             </span>
           </div>
         </div>
@@ -814,6 +760,5 @@ const goBackToVoyage = () => {
         </div>
       </div>
     </Teleport>
-
   </div>
 </template>

@@ -214,7 +214,9 @@ const goToStep2 = () => {
       valeur_estimee: Number(estimatedValue.value) || 0,
       poids: Number(weightKg.value) || 1,
       est_fragile: Boolean(estFragile.value),
-      photo: photoUrl.value || null
+      photo: photoUrl.value || null,
+      prix_special: specialTarifForType.value,
+      prix_total: totalPrice.value
     }
   }
 
