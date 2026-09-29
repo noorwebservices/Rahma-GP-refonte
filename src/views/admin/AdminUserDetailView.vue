@@ -316,22 +316,122 @@
           <h3 class="font-extrabold text-base text-[#053754] dark:text-sky-300">
             👥 Agents de l'Entreprise ({{ entreprise.agents.length }})
           </h3>
+          <span class="text-xs text-slate-400 font-medium hidden sm:inline">Cliquez sur un agent pour afficher sa fiche complète</span>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          <div v-for="agent in entreprise.agents" :key="agent.id" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs space-y-2">
-            <div class="flex items-center gap-3">
-              <div class="w-9 h-9 rounded-full bg-[#053754] text-white font-extrabold text-xs flex items-center justify-center">
-                {{ getInitials(agent.user?.prenom, agent.user?.nom) }}
+        <!-- Table Format on Desktop & Cards on Mobile -->
+        <div class="overflow-x-auto rounded-2xl border border-gray-200 dark:border-slate-800">
+          <table class="w-full min-w-[700px] text-left text-xs bg-white dark:bg-slate-900">
+            <thead class="bg-slate-50 dark:bg-slate-800/80 text-[#053754] dark:text-sky-300 uppercase tracking-wider font-extrabold border-b border-gray-200 dark:border-slate-800 text-[11px] whitespace-nowrap">
+              <tr>
+                <th class="px-5 py-3">Agent GP</th>
+                <th class="px-5 py-3">Matricule & Poste</th>
+                <th class="px-5 py-3">Contact</th>
+                <th class="px-5 py-3">Statut</th>
+                <th class="px-5 py-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 dark:divide-slate-800 font-medium">
+              <tr 
+                v-for="agent in entreprise.agents" 
+                :key="agent.id"
+                @click="agent.user_id && router.push(`/admin/users/${encodeId(agent.user_id || agent.user?.id)}`)"
+                class="hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer group"
+              >
+                <!-- Agent Avatar & Name -->
+                <td class="px-5 py-3.5 whitespace-nowrap">
+                  <div class="flex items-center gap-3">
+                    <div v-if="agent.user?.avatar" class="w-9 h-9 rounded-full overflow-hidden shrink-0 border border-gray-200 dark:border-slate-700">
+                      <img :src="formatImageUrl(agent.user.avatar)" class="w-full h-full object-cover" />
+                    </div>
+                    <div v-else class="w-9 h-9 rounded-full bg-[#053754] text-white font-black text-xs flex items-center justify-center shrink-0 border border-gray-200 dark:border-slate-700">
+                      {{ getInitials(agent.user?.prenom, agent.user?.nom) }}
+                    </div>
+                    <div>
+                      <p class="font-extrabold text-[#053754] dark:text-slate-100 group-hover:text-[#074C72] dark:group-hover:text-sky-300 transition-colors">
+                        {{ agent.user?.prenom }} {{ agent.user?.nom }}
+                      </p>
+                      <span class="text-[10px] text-gray-400 font-mono">ID: {{ (agent.id || '').substring(0, 8) }}</span>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Matricule & Poste -->
+                <td class="px-5 py-3.5 whitespace-nowrap">
+                  <p class="font-bold text-slate-800 dark:text-slate-200">{{ agent.poste || 'Agent GP' }}</p>
+                  <p v-if="agent.matricule" class="text-[10px] font-mono text-indigo-600 dark:text-indigo-400 font-bold">Mat: {{ agent.matricule }}</p>
+                </td>
+
+                <!-- Contact -->
+                <td class="px-5 py-3.5 whitespace-nowrap">
+                  <p class="text-[#074C72] dark:text-sky-300 font-bold">{{ agent.user?.email || agent.email || 'Email non renseigné' }}</p>
+                  <p class="text-gray-500 dark:text-gray-400 font-mono text-[11px]">{{ agent.user?.telephone || agent.telephone }}</p>
+                </td>
+
+                <!-- Statut -->
+                <td class="px-5 py-3.5 whitespace-nowrap">
+                  <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold capitalize border" :class="agent.statut === 'actif' ? 'bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800' : 'bg-red-50 dark:bg-red-950/80 text-[#B50302] dark:text-red-400 border-red-200 dark:border-red-800'">
+                    {{ agent.statut || 'actif' }}
+                  </span>
+                </td>
+
+                <!-- Actions -->
+                <td class="px-5 py-3.5 text-right whitespace-nowrap">
+                  <button
+                    @click.stop="agent.user_id && router.push(`/admin/users/${encodeId(agent.user_id || agent.user?.id)}`)"
+                    class="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-[#053754] hover:bg-[#074C72] text-white transition-all shadow-xs inline-flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <span>👁️</span>
+                    <span>Voir Fiche</span>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Section Agent GP Info & Voyages (If user is an Agent GP) -->
+      <div v-if="user.agent_gp || user.agentGp" class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xs space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 dark:border-slate-800 pb-4">
+          <div>
+            <h3 class="font-extrabold text-base text-[#053754] dark:text-sky-300 flex items-center gap-2">
+              <span>👤 Profil Agent GP</span>
+              <span v-if="(user.agent_gp || user.agentGp)?.matricule" class="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">
+                (Matricule: {{ (user.agent_gp || user.agentGp).matricule }})
+              </span>
+            </h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">
+              Rattaché à l'entreprise GP : <strong class="text-[#053754] dark:text-sky-300">{{ (user.agent_gp || user.agentGp)?.entreprise?.nom || 'Entreprise GP' }}</strong>
+            </p>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-extrabold border bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800">
+            Statut: {{ (user.agent_gp || user.agentGp)?.statut || 'actif' }}
+          </span>
+        </div>
+
+        <!-- Voyages de l'Agent GP -->
+        <div class="space-y-3">
+          <h4 class="font-extrabold text-xs text-[#074C72] dark:text-sky-300 uppercase tracking-wider">
+            ✈️ Voyages affectés à cet Agent GP ({{ (user.agent_gp || user.agentGp)?.voyages?.length || 0 }})
+          </h4>
+
+          <div v-if="!(user.agent_gp || user.agentGp)?.voyages || (user.agent_gp || user.agentGp).voyages.length === 0" class="text-xs text-gray-400 italic">
+            Aucun voyage affecté à cet agent pour le moment.
+          </div>
+
+          <div v-else class="space-y-3">
+            <div v-for="v in (user.agent_gp || user.agentGp).voyages" :key="v.id" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs space-y-2">
+              <div class="flex items-center justify-between border-b border-gray-200 dark:border-slate-700 pb-2">
+                <span class="font-black text-[#053754] dark:text-sky-300 text-sm sm:text-base">✈️ {{ v.ville_depart }} ➔ {{ v.ville_destination || v.ville_arrivee }}</span>
+                <span class="px-2.5 py-0.5 rounded-full font-bold bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 text-[10px]">{{ v.statut }}</span>
               </div>
-              <div>
-                <p class="font-extrabold text-[#053754] dark:text-slate-100">{{ agent.user?.prenom }} {{ agent.user?.nom }}</p>
-                <span class="text-[10px] font-bold text-sky-700 dark:text-sky-300">{{ agent.poste || 'Agent GP' }}</span>
+              <div class="flex flex-wrap items-center gap-4 text-gray-600 dark:text-gray-300 font-medium">
+                <div>Départ: <strong>{{ formatDate(v.date_depart) }}</strong></div>
+                <div>Capacité: <strong>{{ v.capacite_totale }} kg</strong></div>
+                <div>Prix/kg: <strong>{{ v.prix_kg }} F CFA</strong></div>
+                <div>Réservations: <strong>{{ v.reservations ? v.reservations.length : 0 }}</strong></div>
               </div>
-            </div>
-            <div class="text-[11px] text-gray-500 dark:text-gray-400 space-y-0.5 border-t border-gray-200/60 dark:border-slate-700 pt-2">
-              <p>{{ agent.user?.email || agent.email }}</p>
-              <p class="font-mono">{{ agent.user?.telephone || agent.telephone }}</p>
             </div>
           </div>
         </div>
@@ -626,16 +726,15 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { adminService } from '@/services/adminService'
-import { decodeId } from '@/utils/idMasker'
+import { encodeId, decodeId } from '@/utils/idMasker'
 import Swal from 'sweetalert2'
 import { formatImageUrl } from '@/utils/imageUrl'
 
 const route = useRoute()
 const router = useRouter()
-const userId = decodeId(route.params.id) || route.params.id
 
 const user = ref(null)
 const loading = ref(true)
@@ -660,15 +759,23 @@ const openImagePreview = (url, title) => {
   previewModal.isOpen = true
 }
 
-onMounted(async () => {
-  if (!userId) {
+const fetchUserData = async () => {
+  const currentId = decodeId(route.params.id) || route.params.id
+  if (!currentId) {
     error.value = 'ID Utilisateur invalide.'
     loading.value = false
     return
   }
 
+  loading.value = true
+  error.value = ''
+  user.value = null
+  voyagesPage.value = 1
+  reservationsPage.value = 1
+  evaluationsPage.value = 1
+
   try {
-    const res = await adminService.getUserDetail(userId)
+    const res = await adminService.getUserDetail(currentId)
     if (res && res.data) {
       user.value = res.data
     } else {
@@ -679,7 +786,18 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
-})
+}
+
+onMounted(fetchUserData)
+
+watch(
+  () => route.params.id,
+  (newId, oldId) => {
+    if (newId && newId !== oldId) {
+      fetchUserData()
+    }
+  }
+)
 
 const entreprise = computed(() => {
   return user.value?.entreprise_geree || user.value?.agent_gp?.entreprise || null

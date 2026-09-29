@@ -1,14 +1,14 @@
 <template>
   <div class="space-y-6">
 
-    <!-- 3 Summary Cards: Clients, Voyageurs & Entreprises GP -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <!-- 4 Summary Cards: Clients, Voyageurs, Entreprises GP & Agents GP -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <!-- Card Clients -->
       <div class="bg-white dark:bg-slate-900 border border-sky-200/70 dark:border-slate-800 rounded-3xl p-5 shadow-2xs flex items-center justify-between">
         <div>
-          <span class="text-xs font-extrabold text-[#074C72] dark:text-sky-300 uppercase tracking-wider block">Total Clients (Uniquement)</span>
+          <span class="text-xs font-extrabold text-[#074C72] dark:text-sky-300 uppercase tracking-wider block">Total Clients</span>
           <h3 class="text-2xl sm:text-3xl font-black text-[#053754] dark:text-white mt-1">{{ totalClientsCount }}</h3>
-          <p class="text-[11px] font-medium text-gray-400 dark:text-gray-400">Comptes avec le rôle Client seulement</p>
+          <p class="text-[11px] font-medium text-gray-400 dark:text-gray-400">Comptes Clients uniquement</p>
         </div>
         <div class="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950 text-[#074C72] dark:text-sky-300 flex items-center justify-center font-bold text-xl shrink-0 border border-sky-100 dark:border-sky-900">
           👤
@@ -18,9 +18,9 @@
       <!-- Card Voyageurs -->
       <div class="bg-white dark:bg-slate-900 border border-emerald-200/70 dark:border-slate-800 rounded-3xl p-5 shadow-2xs flex items-center justify-between">
         <div>
-          <span class="text-xs font-extrabold text-emerald-800 dark:text-emerald-400 uppercase tracking-wider block">Total Voyageurs (GP)</span>
+          <span class="text-xs font-extrabold text-emerald-800 dark:text-emerald-400 uppercase tracking-wider block">Total Voyageurs</span>
           <h3 class="text-2xl sm:text-3xl font-black text-emerald-950 dark:text-white mt-1">{{ totalVoyageursCount }}</h3>
-          <p class="text-[11px] font-medium text-gray-400 dark:text-gray-400">Comptes avec le rôle Voyageur</p>
+          <p class="text-[11px] font-medium text-gray-400 dark:text-gray-400">Comptes Voyageurs (GP)</p>
         </div>
         <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 flex items-center justify-center font-bold text-xl shrink-0 border border-emerald-100 dark:border-emerald-900">
           ✈️
@@ -32,10 +32,22 @@
         <div>
           <span class="text-xs font-extrabold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider block">Entreprises GP</span>
           <h3 class="text-2xl sm:text-3xl font-black text-[#053754] dark:text-white mt-1">{{ totalEntreprisesCount }}</h3>
-          <p class="text-[11px] font-medium text-gray-400 dark:text-gray-400">Comptes Gérants Entreprise GP</p>
+          <p class="text-[11px] font-medium text-gray-400 dark:text-gray-400">Comptes Gérants d'Entreprises</p>
         </div>
         <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-bold text-xl shrink-0 border border-indigo-100 dark:border-indigo-900">
           🏢
+        </div>
+      </div>
+
+      <!-- Card Agents GP -->
+      <div class="bg-white dark:bg-slate-900 border border-purple-200/70 dark:border-slate-800 rounded-3xl p-5 shadow-2xs flex items-center justify-between">
+        <div>
+          <span class="text-xs font-extrabold text-purple-700 dark:text-purple-300 uppercase tracking-wider block">Agents GP</span>
+          <h3 class="text-2xl sm:text-3xl font-black text-[#053754] dark:text-white mt-1">{{ totalAgentsCount }}</h3>
+          <p class="text-[11px] font-medium text-gray-400 dark:text-gray-400">Agents des Entreprises GP</p>
+        </div>
+        <div class="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950 text-purple-700 dark:text-purple-300 flex items-center justify-center font-bold text-xl shrink-0 border border-purple-100 dark:border-purple-900">
+          👥
         </div>
       </div>
     </div>
@@ -45,7 +57,7 @@
       
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         
-        <!-- Tab Selector: Clients / Voyageurs / Entreprises GP -->
+        <!-- Tab Selector: Clients / Voyageurs / Entreprises GP / Agents GP -->
         <div class="bg-[#FAF7F2] dark:bg-slate-800 p-1 rounded-2xl flex items-center border border-gray-200 dark:border-slate-700 overflow-x-auto">
           <button
             @click="activeTab = 'client'; fetchUsers()"
@@ -72,6 +84,15 @@
           >
             <span>🏢</span>
             <span>Entreprises GP</span>
+          </button>
+
+          <button
+            @click="activeTab = 'agent'; fetchUsers()"
+            class="px-5 py-2.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap"
+            :class="activeTab === 'agent' ? 'bg-[#053754] text-white shadow-2xs' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'"
+          >
+            <span>👥</span>
+            <span>Agents GP</span>
           </button>
         </div>
 
@@ -107,24 +128,25 @@
       <!-- Loading State -->
       <div v-if="loading" class="p-12 text-center space-y-3">
         <div class="w-10 h-10 border-4 border-[#053754] dark:border-sky-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
-        <p class="text-xs font-bold text-[#074C72] dark:text-sky-300">Chargement de la liste des {{ activeTab === 'client' ? 'clients' : activeTab === 'voyageur' ? 'voyageurs' : 'entreprises GP' }}...</p>
+        <p class="text-xs font-bold text-[#074C72] dark:text-sky-300">Chargement de la liste des {{ activeTab === 'client' ? 'clients' : activeTab === 'voyageur' ? 'voyageurs' : activeTab === 'entreprise' ? 'entreprises GP' : 'agents GP' }}...</p>
       </div>
 
       <!-- Empty State -->
       <div v-else-if="filteredUsers.length === 0" class="text-center py-16 text-gray-400 font-semibold text-sm">
-        Aucun {{ activeTab === 'client' ? 'client' : activeTab === 'voyageur' ? 'voyageur' : 'gérant d\'entreprise GP' }} trouvé.
+        Aucun {{ activeTab === 'client' ? 'client' : activeTab === 'voyageur' ? 'voyageur' : activeTab === 'entreprise' ? 'gérant d\'entreprise GP' : 'agent GP' }} trouvé.
       </div>
 
       <div v-else class="overflow-x-auto">
         <table class="w-full min-w-[850px] text-left text-xs sm:text-sm">
           <thead class="bg-slate-50 dark:bg-slate-800/80 text-[#053754] dark:text-sky-300 uppercase tracking-wider font-extrabold border-b border-gray-200 dark:border-slate-800 text-[11px] whitespace-nowrap">
             <tr>
-              <th class="px-6 py-4">Utilisateur / Gérant</th>
+              <th class="px-6 py-4">Utilisateur / Nom</th>
               <th class="px-6 py-4">Contact</th>
               <th class="px-6 py-4">Dernière Connexion</th>
               <th class="px-6 py-4">Statut Compte</th>
               <th v-if="activeTab === 'voyageur'" class="px-6 py-4">Vérification KYC</th>
               <th v-if="activeTab === 'entreprise'" class="px-6 py-4">Entreprise GP & Validation</th>
+              <th v-if="activeTab === 'agent'" class="px-6 py-4">Entreprise Rattachée</th>
               <th class="px-6 py-4">Empreinte BD</th>
               <th class="px-6 py-4 text-right">Actions</th>
             </tr>
@@ -144,6 +166,7 @@
                   <div>
                     <p class="font-extrabold text-[#053754] dark:text-slate-100 text-xs sm:text-sm whitespace-nowrap">{{ user.prenom }} {{ user.nom }}</p>
                     <span v-if="user.entreprise_geree" class="text-[10px] font-bold text-sky-700 dark:text-sky-300 block">Gérant de {{ user.entreprise_geree.nom }}</span>
+                    <span v-else-if="user.agent_gp || user.agentGp" class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 block">Agent GP</span>
                   </div>
                 </div>
               </td>
@@ -181,6 +204,15 @@
                   <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold border uppercase tracking-wider" :class="getEntrepriseStatutBadge(user.entreprise_geree.statut_verification)">
                     {{ user.entreprise_geree.statut_verification === 'verifiee' ? 'Validée' : user.entreprise_geree.statut_verification === 'en_attente' ? 'En Attente' : 'Refusée' }}
                   </span>
+                </div>
+                <span v-else class="text-xs text-gray-400">-</span>
+              </td>
+
+              <!-- Entreprise Rattachée (if agent tab) -->
+              <td v-if="activeTab === 'agent'" class="px-6 py-4 whitespace-nowrap">
+                <div v-if="user.agent_gp?.entreprise || user.agentGp?.entreprise" class="space-y-1">
+                  <p class="font-extrabold text-[#053754] dark:text-sky-300 text-xs">{{ (user.agent_gp || user.agentGp)?.entreprise?.nom }}</p>
+                  <span v-if="(user.agent_gp || user.agentGp)?.matricule" class="text-[10px] font-mono text-indigo-600 dark:text-indigo-400 font-bold block">Mat: {{ (user.agent_gp || user.agentGp).matricule }}</span>
                 </div>
                 <span v-else class="text-xs text-gray-400">-</span>
               </td>
@@ -285,6 +317,7 @@ const perPage = 5
 const totalClientsCount = ref(0)
 const totalVoyageursCount = ref(0)
 const totalEntreprisesCount = ref(0)
+const totalAgentsCount = ref(0)
 
 const filters = reactive({
   search: '',
@@ -299,6 +332,7 @@ const fetchStats = async () => {
       totalClientsCount.value = d.users.clients || 0
       totalVoyageursCount.value = d.users.voyageurs || 0
       totalEntreprisesCount.value = d.users.entreprises || d.entreprises?.total || 0
+      totalAgentsCount.value = d.users.agents || 0
     }
   } catch (e) {
     console.error('Erreur fetch stats users:', e)

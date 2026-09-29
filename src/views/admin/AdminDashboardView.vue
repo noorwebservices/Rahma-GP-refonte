@@ -49,7 +49,9 @@
               <span>•</span>
               <span class="text-emerald-700 dark:text-emerald-400">{{ stats.users?.voyageurs || 0 }} Voyageur(s)</span>
               <span>•</span>
-              <span class="text-sky-600 dark:text-sky-300">{{ stats.users?.entreprises || 0 }} GP</span>
+              <span class="text-sky-600 dark:text-sky-300">{{ stats.users?.entreprises || 0 }} Ent. GP</span>
+              <span>•</span>
+              <span class="text-indigo-600 dark:text-indigo-400">{{ stats.users?.agents || 0 }} Agent(s)</span>
             </div>
           </div>
         </div>
@@ -63,9 +65,9 @@
             </div>
           </div>
           <div>
-            <h3 class="text-3xl font-black text-[#053754] dark:text-sky-300">{{ stats.entreprises?.en_attente || 0 }}</h3>
+            <h3 class="text-3xl font-black text-[#053754] dark:text-sky-300">{{ stats.entreprises?.total || 0 }}</h3>
             <p class="text-xs text-gray-500 dark:text-gray-400 font-semibold mt-2">
-              {{ stats.entreprises?.total || 0 }} entreprise(s) GP au total
+              <span class="text-emerald-600 dark:text-emerald-400 font-bold">{{ stats.entreprises?.verifiees || 0 }} validée(s)</span> • <span class="text-amber-600 dark:text-amber-400 font-bold">{{ stats.entreprises?.en_attente || 0 }} en attente</span>
             </p>
           </div>
         </div>

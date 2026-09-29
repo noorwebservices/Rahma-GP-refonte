@@ -43,5 +43,9 @@ export const adminService = {
 
   getVoyageursStats(params = {}) {
     return api.get('/admin/voyageurs-stats', { params })
+  },
+
+  getEntreprisesVoyagesStats(params = {}) {
+    return api.get('/admin/entreprises-voyages-stats', { params })
   }
 }
