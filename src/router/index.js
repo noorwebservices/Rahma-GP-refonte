@@ -77,6 +77,11 @@ const router = createRouter({
       component: () => import('../views/auth/AgentRegisterInviteView.vue')
     },
     {
+      path: '/register-invite',
+      name: 'register-invite',
+      component: () => import('../views/auth/AgentRegisterInviteView.vue')
+    },
+    {
       path: '/profile',
       name: 'profile',
       component: ProfileView,
@@ -440,7 +445,8 @@ router.beforeEach((to, from) => {
   const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin)
   const requiresVoyageur = to.matched.some(record => record.meta.requiresVoyageur)
   const requiresEntreprise = to.matched.some(record => record.meta.requiresEntreprise) || to.path.startsWith('/entreprise')
-  const requiresAgent = to.matched.some(record => record.meta.requiresAgent) || to.path.startsWith('/agent')
+  const isInviteRoute = to.path.includes('register-invite')
+  const requiresAgent = to.matched.some(record => record.meta.requiresAgent) || (to.path.startsWith('/agent') && !isInviteRoute)
 
   // Roles helpers
   const isAdmin = user && Array.isArray(user.roles)
@@ -471,7 +477,7 @@ router.beforeEach((to, from) => {
     return { name: 'login', query: { redirect: to.fullPath } }
   }
 
-  const isVerificationRoute = to.path.includes('/verify-entreprise') || to.path.includes('/verify-voyageur')
+  const isVerificationRoute = to.path.includes('/verify-entreprise') || to.path.includes('/verify-voyageur') || isInviteRoute
 
   // 2. Authenticated users trying to access guest-only routes (login/register)
   if (guestOnly && isAuthenticated && !isVerificationRoute) {

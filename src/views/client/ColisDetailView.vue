@@ -112,6 +112,11 @@ const loadReservationData = async () => {
 
       const evalTargetId = v.voyageur_id || v.voyageur?.id || v.entreprise_id || v.entreprise?.id || v.agent_gp_id || v.agent_gp?.id || null
 
+      const quantiteVal = Math.max(1, Number(c.quantite || data.quantite || 1))
+      const rawMontant = Number(data.montant_total || data.prix_total || 0)
+      const rawDev = v.devise || 'XOF'
+      const unitPriceVal = quantiteVal > 0 ? Math.round(rawMontant / quantiteVal) : rawMontant
+
       reservation.value = {
         id: data.id,
         voyageurId: evalTargetId,
@@ -126,10 +131,13 @@ const loadReservationData = async () => {
         paysDestination: v.pays_destination || '',
         dateDepart: v.date_depart || data.created_at,
         
+        quantite: quantiteVal,
+        unitPrice: unitPriceVal,
+        formattedUnitPrice: formatPrice(unitPriceVal, rawDev),
         poids: c.poids ? `${c.poids} Kg` : (data.poids ? `${data.poids} Kg` : 'Forfait Objet'),
-        rawMontantTotal: Number(data.montant_total || data.prix_total || 0),
-        rawDevise: v.devise || 'XOF',
-        montantTotal: `${data.montant_total || data.prix_total || 0} ${v.devise || 'XOF'}`,
+        rawMontantTotal: rawMontant,
+        rawDevise: rawDev,
+        montantTotal: `${rawMontant} ${rawDev}`,
         modePaiement: data.mode_paiement_souhaite || data.mode_paiement || 'Au dépôt',
         statutPaiement: data.paiement?.statut || (data.est_paye ? 'reussi' : 'en_attente'),
         isPaid: Boolean(data.est_paye || data.paiement?.statut === 'reussi' || data.paiement?.statut === 'succes' || data.paiement?.statut === 'paye'),
@@ -432,7 +440,7 @@ const allSteps = computed(() => {
         <div class="flex items-center justify-between">
           <span class="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-3.5 py-1 rounded-full text-xs font-extrabold text-sky-100 border border-white/10">
             <span>📦</span>
-            <span>{{ t('parcelDetail.parcelBadge') }} {{ reservation.poids }}</span>
+            <span>{{ t('parcelDetail.parcelBadge') }} {{ reservation.poids }} ({{ reservation.quantite }} {{ reservation.quantite > 1 ? 'unités' : 'unité' }})</span>
           </span>
 
           <span class="text-xs font-mono font-bold bg-white/10 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
@@ -546,9 +554,13 @@ const allSteps = computed(() => {
             </span>
           </div>
 
-          <div class="text-left sm:text-right">
-            <span class="text-gray-500 dark:text-slate-400 font-medium block">{{ t('parcelDetail.amountToPay') }}</span>
-            <span class="font-black text-[#B50302] dark:text-red-400 text-sm sm:text-base">{{ formattedMontantTotal }}</span>
+          <div class="text-left sm:text-right space-y-0.5">
+            <span class="text-gray-500 dark:text-slate-400 font-medium block text-xs">Quantité & Prix unitaire :</span>
+            <span class="font-extrabold text-[#053754] dark:text-sky-300 text-xs block">
+              {{ reservation.quantite }} {{ reservation.quantite > 1 ? 'unités' : 'unité' }} × {{ reservation.formattedUnitPrice }}
+            </span>
+            <span class="text-gray-500 dark:text-slate-400 font-medium block text-xs mt-1">{{ t('parcelDetail.amountToPay') }} :</span>
+            <span class="font-black text-[#B50302] dark:text-red-400 text-sm sm:text-base block">{{ formattedMontantTotal }}</span>
           </div>
         </div>
 

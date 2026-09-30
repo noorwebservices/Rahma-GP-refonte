@@ -72,10 +72,22 @@ const handleSubmit = async () => {
       localStorage.setItem('token', tokenVal)
       localStorage.setItem('auth_token', tokenVal)
 
-      const userVal = resData?.agent?.user || resData?.user
+      let userVal = resData?.agent?.user || resData?.user
       if (userVal) {
-        localStorage.setItem('rahma_user', JSON.stringify(userVal))
-        localStorage.setItem('user', JSON.stringify(userVal))
+        const rawAgent = resData?.agent
+        let cleanAgent = null
+        if (rawAgent) {
+          const { user, ...agentProps } = rawAgent
+          cleanAgent = agentProps
+        }
+
+        const finalUser = {
+          ...userVal,
+          agent_gp: cleanAgent || userVal.agent_gp || userVal.agentGp
+        }
+
+        localStorage.setItem('rahma_user', JSON.stringify(finalUser))
+        localStorage.setItem('user', JSON.stringify(finalUser))
       }
     }
 
@@ -86,8 +98,8 @@ const handleSubmit = async () => {
       confirmButtonColor: '#053754',
     })
 
-    // Redirection vers le tableau de bord entreprise / agent
-    router.push('/entreprise')
+    // Redirection vers l'espace agent GP
+    router.push('/agent')
   } catch (err) {
     console.error(err)
     const msg = err?.message || err?.response?.data?.message || 'Erreur lors de l\'activation de l\'invitation.'

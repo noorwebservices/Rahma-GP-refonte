@@ -16,11 +16,34 @@ const isLoading = ref(true)
 const errorMsg = ref('')
 const agent = ref(null)
 const voyages = ref([])
+const evaluations = ref([])
 const stats = ref({})
 const isSubmitting = ref(false)
 const searchQuery = ref('')
 const showStatusModal = ref(false)
 const selectedStatut = ref('actif')
+const evalPage = ref(1)
+const evalPerPage = ref(5)
+
+const noteMoyenne = computed(() => {
+  if (stats.value.note_moyenne) return Number(stats.value.note_moyenne)
+  if (!evaluations.value.length) return 5.0
+  const sum = evaluations.value.reduce((acc, e) => acc + (Number(e.note) || 5), 0)
+  return Number((sum / evaluations.value.length).toFixed(1))
+})
+
+const totalEvaluationsCount = computed(() => {
+  return stats.value.total_evaluations ?? evaluations.value.length
+})
+
+const totalEvalPages = computed(() => {
+  return Math.ceil(evaluations.value.length / evalPerPage.value) || 1
+})
+
+const paginatedEvaluations = computed(() => {
+  const start = (evalPage.value - 1) * evalPerPage.value
+  return evaluations.value.slice(start, start + evalPerPage.value)
+})
 
 const showToast = (icon, title) => {
   Swal.fire({
@@ -145,6 +168,22 @@ const loadAgentData = async () => {
       selectedStatut.value = res.agent.statut || 'actif'
       voyages.value = res.voyages || []
       stats.value = res.stats || {}
+      
+      let evals = res.evaluations || []
+      if (evals.length === 0 && voyages.value.length > 0) {
+        voyages.value.forEach(v => {
+          if (Array.isArray(v.reservations)) {
+            v.reservations.forEach(r => {
+              if (Array.isArray(r.evaluations)) {
+                r.evaluations.forEach(ev => {
+                  evals.push({ ...ev, voyage: v })
+                })
+              }
+            })
+          }
+        })
+      }
+      evaluations.value = evals
     } else {
       errorMsg.value = 'Agent introuvable.'
     }
@@ -443,8 +482,7 @@ const goBack = () => {
                 <tr
                   v-for="v in paginatedVoyages"
                   :key="v.id"
-                  @click="goToVoyageDetail(v)"
-                  class="hover:bg-sky-50/50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group"
+                  class="hover:bg-sky-50/50 dark:hover:bg-slate-800/50 transition-colors"
                 >
                   <td class="py-3.5 px-3 whitespace-nowrap">
                     <div class="flex items-center gap-2 font-extrabold text-[#053754] dark:text-sky-300 text-sm">
@@ -475,13 +513,13 @@ const goBack = () => {
                       {{ getVoyageStatusBadge(v.statut).text }}
                     </span>
                   </td>
-                  <td class="py-3.5 px-3 text-right" @click.stop>
+                  <td class="py-3.5 px-3 text-right">
                     <button
                       @click="goToVoyageDetail(v)"
                       type="button"
-                      class="bg-[#053754] hover:bg-[#074C72] text-white font-extrabold text-[11px] px-3 py-1.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1 shadow-2xs ml-auto"
+                      class="inline-flex items-center gap-1 bg-[#053754] hover:bg-[#074C72] text-white font-extrabold text-[11px] px-3 py-1.5 rounded-xl shadow-2xs transition-all cursor-pointer active:scale-95"
                     >
-                      <span>Détails</span>
+                      <span>Voir détail</span>
                       <span>➔</span>
                     </button>
                   </td>
@@ -495,8 +533,7 @@ const goBack = () => {
             <div
               v-for="v in paginatedVoyages"
               :key="v.id"
-              @click="goToVoyageDetail(v)"
-              class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-gray-200 dark:border-slate-800 shadow-sm space-y-3 cursor-pointer group"
+              class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-gray-200 dark:border-slate-800 shadow-sm space-y-3"
             >
               <div class="flex items-center justify-between">
                 <div class="font-extrabold text-[#053754] dark:text-sky-300 text-sm flex items-center gap-1.5">
@@ -522,9 +559,10 @@ const goBack = () => {
                 <button
                   @click="goToVoyageDetail(v)"
                   type="button"
-                  class="px-3 py-1 bg-[#053754] text-white font-bold text-xs rounded-xl"
+                  class="inline-flex items-center gap-1 bg-[#053754] hover:bg-[#074C72] text-white font-extrabold text-[11px] px-3 py-1.5 rounded-xl shadow-2xs transition-all cursor-pointer active:scale-95"
                 >
-                  Voir détails →
+                  <span>Voir détail</span>
+                  <span>➔</span>
                 </button>
               </div>
             </div>
@@ -582,6 +620,110 @@ const goBack = () => {
           </div>
           <p class="text-sm font-bold text-gray-700 dark:text-slate-200">Aucun voyage affecté à cet agent</p>
           <p class="text-xs text-gray-400">Les trajets attribués à cet Agent GP apparaîtront ici.</p>
+        </div>
+      </div>
+
+      <!-- Evaluations & Reviews Section -->
+      <div class="space-y-4 pt-4 border-t border-gray-200 dark:border-slate-800">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h2 class="text-base sm:text-lg font-bold text-principal-dark dark:text-sky-300 flex items-center gap-2">
+            <span>⭐ Évaluations & Avis des voyages de l'Agent</span>
+            <span class="bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 text-xs px-2.5 py-0.5 rounded-full font-black">
+              {{ evaluations.length }}
+            </span>
+          </h2>
+        </div>
+
+        <!-- Rating Summary Header Card -->
+        <div v-if="evaluations.length > 0" class="bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent dark:from-amber-500/20 dark:to-slate-900 border border-amber-200 dark:border-amber-900/60 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+          <div class="flex items-center gap-4">
+            <div class="text-3xl sm:text-4xl font-black text-amber-700 dark:text-amber-300 flex items-center gap-1">
+              <span>{{ noteMoyenne }}</span>
+              <span class="text-2xl text-amber-500">★</span>
+            </div>
+            <div>
+              <div class="flex items-center gap-1 text-amber-500 text-sm">
+                <span v-for="star in 5" :key="star" :class="star <= Math.round(noteMoyenne) ? 'opacity-100' : 'opacity-30'">★</span>
+              </div>
+              <p class="text-xs text-gray-600 dark:text-slate-300 font-bold mt-0.5">
+                Note moyenne basée sur {{ totalEvaluationsCount }} avis clients
+              </p>
+            </div>
+          </div>
+          <div class="text-xs text-gray-500 dark:text-slate-400 font-medium italic">
+            Évaluations déposées par les clients ayant réservé sur les trajets de cet Agent GP.
+          </div>
+        </div>
+
+        <!-- List of Evaluations -->
+        <div v-if="evaluations.length > 0" class="space-y-3">
+          <div
+            v-for="ev in paginatedEvaluations"
+            :key="ev.id"
+            class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-gray-200 dark:border-slate-800 shadow-2xs space-y-2.5 transition-all hover:border-amber-300 dark:hover:border-amber-700"
+          >
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-full bg-[#053754] text-white font-extrabold text-xs flex items-center justify-center shrink-0">
+                  {{ (ev.evaluateur?.prenom?.slice(0,1) || 'C') + (ev.evaluateur?.nom?.slice(0,1) || '') }}
+                </div>
+                <div>
+                  <h4 class="text-xs sm:text-sm font-extrabold text-gray-900 dark:text-slate-100">
+                    {{ ev.evaluateur ? `${ev.evaluateur.prenom || ''} ${ev.evaluateur.nom || ''}`.trim() : 'Client Anonyme' }}
+                  </h4>
+                  <p v-if="ev.voyage" class="text-[11px] text-gray-400 dark:text-slate-400 font-medium">
+                    Trajet : {{ ev.voyage.ville_depart }} ➔ {{ ev.voyage.ville_destination }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <div class="flex items-center text-amber-500 text-xs">
+                  <span v-for="star in 5" :key="star" :class="star <= (ev.note || 5) ? 'opacity-100' : 'opacity-25'">★</span>
+                </div>
+                <span class="text-xs font-black text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800">
+                  {{ ev.note }}/5
+                </span>
+                <span class="text-[10px] text-gray-400 font-medium ml-1">
+                  {{ ev.created_at ? new Date(ev.created_at).toLocaleDateString('fr-FR', { dateStyle: 'short' }) : '' }}
+                </span>
+              </div>
+            </div>
+
+            <p v-if="ev.commentaire" class="text-xs text-gray-700 dark:text-slate-300 italic font-medium bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl border border-slate-100 dark:border-slate-800">
+              « {{ ev.commentaire }} »
+            </p>
+          </div>
+
+          <!-- Pagination Controls for Evaluations -->
+          <div v-if="totalEvalPages > 1" class="flex items-center justify-between pt-3 text-xs">
+            <span class="text-gray-500 dark:text-slate-400 font-medium">Page {{ evalPage }} / {{ totalEvalPages }}</span>
+            <div class="flex items-center gap-2">
+              <button
+                @click="evalPage = Math.max(1, evalPage - 1)"
+                :disabled="evalPage === 1"
+                class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 font-bold text-gray-700 dark:text-slate-300 disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-slate-800 transition cursor-pointer"
+              >
+                ◄ Précédent
+              </button>
+              <button
+                @click="evalPage = Math.min(totalEvalPages, evalPage + 1)"
+                :disabled="evalPage === totalEvalPages"
+                class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 font-bold text-gray-700 dark:text-slate-300 disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-slate-800 transition cursor-pointer"
+              >
+                Suivant ►
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State for Evaluations -->
+        <div v-else class="bg-white dark:bg-slate-900 rounded-3xl p-8 text-center border border-gray-200 dark:border-slate-800 space-y-2">
+          <div class="w-12 h-12 rounded-full bg-amber-50 dark:bg-amber-950/50 text-amber-500 flex items-center justify-center text-xl mx-auto">
+            ⭐
+          </div>
+          <p class="text-sm font-bold text-gray-700 dark:text-slate-200">Aucune évaluation reçue pour le moment</p>
+          <p class="text-xs text-gray-400">Les avis déposés par les clients sur les voyages de cet agent s'afficheront ici.</p>
         </div>
       </div>
 

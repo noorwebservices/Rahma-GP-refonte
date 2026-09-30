@@ -18,6 +18,7 @@ const isLoadingVoyage = ref(false)
 
 const selectedType = ref('Vêtements')
 const weightKg = ref(1)
+const quantite = ref(1)
 const estimatedValue = ref('')
 const description = ref('')
 const estFragile = ref(false)
@@ -43,11 +44,19 @@ watch(maxWeight, (newMax) => {
   }
 }, { immediate: true })
 
+watch(selectedType, () => {
+  if (quantite.value < 1) quantite.value = 1
+})
+
 const defaultTypes = [
   { id: 'Vêtements', label: 'Vêtements', icon: '👗' },
   { id: 'Documents', label: 'Documents', icon: '📄' },
+  { id: 'Enveloppe', label: 'Enveloppes', icon: '✉️' },
   { id: 'Électronique & téléphones', label: 'Électroniques', icon: '📱' },
   { id: 'Cosmétiques & soins', label: 'Cosmétiques', icon: '💄' },
+  { id: 'Perruques', label: 'Perruques', icon: '💇‍♀️' },
+  { id: 'Baskets', label: 'Baskets', icon: '👟' },
+  { id: 'Sac à main', label: 'Sac à main', icon: '👜' },
   { id: 'Cadeaux', label: 'Cadeaux', icon: '🎁' },
   { id: 'Autres objets', label: 'Autres objets', icon: '📦' }
 ]
@@ -76,6 +85,7 @@ onMounted(async () => {
         description.value = parsed.colis.description ?? description.value
         estimatedValue.value = parsed.colis.valeur_estimee ?? estimatedValue.value
         weightKg.value = parsed.colis.poids || weightKg.value
+        quantite.value = parsed.colis.quantite || 1
         estFragile.value = Boolean(parsed.colis.est_fragile)
         photoUrl.value = parsed.colis.photo || photoUrl.value
         if (photoUrl.value) {
@@ -137,11 +147,12 @@ const specialTarifForType = computed(() => {
 })
 
 const totalPrice = computed(() => {
+  const qty = Math.max(1, Number(quantite.value) || 1)
   if (specialTarifForType.value !== null && specialTarifForType.value > 0) {
-    return Math.round(specialTarifForType.value)
+    return Math.round(specialTarifForType.value * qty)
   }
   if (isElectronic.value) {
-    return Math.round(unitPriceObjet.value)
+    return Math.round(unitPriceObjet.value * qty)
   }
   return Math.round(Math.ceil(Number(weightKg.value || 1)) * unitPriceKg.value)
 })
@@ -192,7 +203,7 @@ const goToStep2 = () => {
     return
   }
 
-  if (!isElectronic.value && Number(weightKg.value) > maxWeight.value) {
+  if (Number(weightKg.value) > maxWeight.value) {
     Swal.fire({
       icon: 'error',
       title: 'Capacité insuffisante',
@@ -213,6 +224,7 @@ const goToStep2 = () => {
       description: description.value.trim(),
       valeur_estimee: Number(estimatedValue.value) || 0,
       poids: Number(weightKg.value) || 1,
+      quantite: Number(quantite.value) || 1,
       est_fragile: Boolean(estFragile.value),
       photo: photoUrl.value || null,
       prix_special: specialTarifForType.value,
@@ -296,7 +308,7 @@ const goToStep2 = () => {
             </div>
           </div>
           <span class="text-xs font-black text-emerald-800 dark:text-emerald-300 bg-white dark:bg-slate-800 px-3 py-1 rounded-full border border-emerald-300 dark:border-emerald-700 shadow-2xs">
-            {{ formattedSpecialTarif }}
+            {{ formattedSpecialTarif }} / objet
           </span>
         </div>
 
@@ -306,6 +318,41 @@ const goToStep2 = () => {
           <div>
             <div class="font-extrabold text-[#074C72] dark:text-sky-300">{{ t('booking.step1.electronicNoticeTitle') }}</div>
             <div class="text-[11px] text-gray-600 dark:text-slate-300 font-medium">{{ t('booking.step1.electronicNoticeText') }} <strong class="text-[#B50302] dark:text-rose-400">{{ unitPriceObjet.toLocaleString() }} {{ devise }} / objet</strong></div>
+          </div>
+        </div>
+
+        <!-- Quantity Selector if special tariff or electronic -->
+        <div v-if="specialTarifForType || isElectronic" class="bg-slate-50 dark:bg-slate-800/80 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2">
+          <div class="flex items-center justify-between">
+            <div>
+              <label class="block text-xs font-bold text-[#074C72] dark:text-sky-300">
+                Quantité d'objets ({{ selectedType }}) <span class="text-[#B50302] dark:text-rose-400">*</span>
+              </label>
+              <span class="text-[11px] text-gray-500 dark:text-slate-400 font-medium">Spécifiez le nombre d'unités à transporter</span>
+            </div>
+
+            <div class="flex items-center gap-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl p-1 shadow-2xs">
+              <button
+                type="button"
+                @click="quantite = Math.max(1, quantite - 1)"
+                class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 text-gray-700 dark:text-slate-200 font-black text-sm flex items-center justify-center cursor-pointer select-none"
+              >
+                -
+              </button>
+              <input
+                v-model.number="quantite"
+                type="number"
+                min="1"
+                class="w-12 text-center text-sm font-black text-[#053754] dark:text-sky-300 outline-none bg-transparent"
+              />
+              <button
+                type="button"
+                @click="quantite = quantite + 1"
+                class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 text-gray-700 dark:text-slate-200 font-black text-sm flex items-center justify-center cursor-pointer select-none"
+              >
+                +
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -389,12 +436,12 @@ const goToStep2 = () => {
         </div>
       </div>
 
-      <!-- Poids estimé(Kg) Slider (Standard items without special tariff) -->
-      <div v-if="!specialTarifForType && !isElectronic" class="bg-gray-50 dark:bg-slate-800/80 rounded-2xl p-5 border border-gray-200 dark:border-slate-700 space-y-3">
+      <!-- Poids estimé(Kg) Slider (Always visible to reserve weight capacity) -->
+      <div class="bg-gray-50 dark:bg-slate-800/80 rounded-2xl p-5 border border-gray-200 dark:border-slate-700 space-y-3">
         <div class="flex items-center justify-between">
           <div>
-            <div class="text-sm font-bold text-[#074C72] dark:text-sky-300">{{ t('booking.step1.weightLabel') }}</div>
-            <div class="text-[11px] text-gray-400 dark:text-slate-400 font-medium italic">{{ t('booking.step1.weightCertHint') }}</div>
+            <div class="text-sm font-bold text-[#074C72] dark:text-sky-300">Estimation du poids total du colis (en Kg) <span class="text-[#B50302] dark:text-rose-400">*</span></div>
+            <div class="text-[11px] text-gray-400 dark:text-slate-400 font-medium italic">Indiquez le poids approximatif pour vérifier et réserver la capacité du trajet.</div>
           </div>
           <div class="text-lg font-black text-[#074C72] dark:text-sky-300">
             {{ weightKg }} Kg
@@ -412,8 +459,11 @@ const goToStep2 = () => {
         />
 
         <div class="flex items-center justify-between text-xs pt-1">
-          <span class="text-[#FF9F02] dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 px-3 py-1 rounded-full text-[11px] font-extrabold">
+          <span v-if="!specialTarifForType && !isElectronic" class="text-[#FF9F02] dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 px-3 py-1 rounded-full text-[11px] font-extrabold">
             1 Kg = {{ formattedUnitPriceKg }}
+          </span>
+          <span v-else class="text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 px-3 py-1 rounded-full text-[11px] font-extrabold">
+            Tarif au forfait (Poids réservé: {{ weightKg }} Kg)
           </span>
           <span v-if="voyageData" class="text-gray-500 dark:text-slate-400 font-bold text-[11px]">
             {{ t('booking.step1.capacityAvailable') }} {{ voyageData.capacite_dispo || voyageData.capacite_totale }} Kg
@@ -429,10 +479,10 @@ const goToStep2 = () => {
         <div class="text-xs text-gray-500 dark:text-slate-400 font-medium">{{ t('booking.step1.totalEstimatedPrice') }}</div>
         <div class="text-sm sm:text-base font-extrabold text-[#B50302] dark:text-rose-400">
           <template v-if="specialTarifForType">
-            1 Objet ({{ selectedType }}) = {{ formattedTotalPrice }}
+            {{ quantite }} {{ quantite > 1 ? 'Objets' : 'Objet' }} × {{ formattedSpecialTarif }} = {{ formattedTotalPrice }}
           </template>
           <template v-else-if="isElectronic">
-            1 {{ t('booking.step1.electronicFlatTariff') }} = {{ formattedTotalPrice }}
+            {{ quantite }} {{ quantite > 1 ? 'Objets' : 'Objet' }} × {{ formattedUnitPriceObjet }} = {{ formattedTotalPrice }}
           </template>
           <template v-else>
             {{ weightKg }} Kg × {{ formattedUnitPriceKg }} = {{ formattedTotalPrice }}

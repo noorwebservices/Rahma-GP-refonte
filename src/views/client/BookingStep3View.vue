@@ -51,6 +51,7 @@ const isElectronic = computed(() => isElectronicType(colisType.value))
 const typeIcon = computed(() => getCategoryIcon(colisType.value))
 const photoUrl = computed(() => draft.value?.colis?.photo || null)
 const weightKg = computed(() => draft.value?.colis?.poids || 1)
+const quantite = computed(() => Math.max(1, Number(draft.value?.colis?.quantite) || 1))
 const estimatedValue = computed(() => Number(draft.value?.colis?.valeur_estimee) || 0)
 const estFragile = computed(() => draft.value?.colis?.est_fragile || false)
 
@@ -74,11 +75,15 @@ const specialTarifForType = computed(() => {
 })
 
 const totalPrice = computed(() => {
+  if (draft.value?.colis?.prix_total !== undefined && draft.value?.colis?.prix_total !== null && Number(draft.value.colis.prix_total) > 0) {
+    return Number(draft.value.colis.prix_total)
+  }
+  const qty = quantite.value
   if (specialTarifForType.value !== null && specialTarifForType.value > 0) {
-    return Math.round(specialTarifForType.value)
+    return Math.round(specialTarifForType.value * qty)
   }
   if (isElectronic.value) {
-    return Math.round(unitPriceObjet.value)
+    return Math.round(unitPriceObjet.value * qty)
   }
   return Math.round(Math.ceil(Number(weightKg.value || 1)) * unitPriceKg.value)
 })
@@ -118,7 +123,7 @@ const handlePayment = () => {
         <span class="text-xs font-bold text-gray-500 dark:text-slate-400">{{ t('booking.step3.packageType') }}</span>
         <div class="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 px-4 py-2 rounded-2xl flex items-center gap-2 font-bold text-xs text-principal-dark dark:text-slate-100 shadow-2xs">
           <span>{{ typeIcon }}</span>
-          <span>{{ colisType }}</span>
+          <span>{{ colisType }} <template v-if="quantite > 1">({{ quantite }} objets)</template></span>
         </div>
       </div>
 
@@ -153,7 +158,7 @@ const handlePayment = () => {
           </span>
         </div>
 
-        <div v-if="!isElectronic" class="flex items-center justify-between">
+        <div class="flex items-center justify-between">
           <span class="text-gray-500 dark:text-slate-400 font-medium">{{ t('booking.step3.weightTitle') }}</span>
           <span class="font-extrabold text-principal-dark dark:text-sky-300 text-sm sm:text-base">{{ weightKg }} Kg</span>
         </div>
@@ -162,8 +167,12 @@ const handlePayment = () => {
           <span class="text-gray-700 dark:text-slate-200 font-bold">{{ t('booking.step3.transportPriceTitle') }}</span>
           <div class="text-right">
             <span class="font-black text-[#B50302] dark:text-rose-400 text-base sm:text-lg block">{{ totalPrice.toLocaleString() }} {{ devise }}</span>
-            <span v-if="specialTarifForType !== null && specialTarifForType > 0" class="text-[10px] text-emerald-700 dark:text-emerald-300 font-extrabold bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">Tarif Spécial ({{ colisType }})</span>
-            <span v-else-if="isElectronic" class="text-[10px] text-sky-700 dark:text-sky-300 font-extrabold bg-sky-50 dark:bg-sky-950/50 px-2 py-0.5 rounded-full border border-sky-200 dark:border-sky-800">{{ t('booking.step3.electronicFlatBadge') }}</span>
+            <span v-if="specialTarifForType !== null && specialTarifForType > 0" class="text-[10px] text-emerald-700 dark:text-emerald-300 font-extrabold bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
+              Tarif Spécial ({{ quantite }} × {{ colisType }})
+            </span>
+            <span v-else-if="isElectronic" class="text-[10px] text-sky-700 dark:text-sky-300 font-extrabold bg-sky-50 dark:bg-sky-950/50 px-2 py-0.5 rounded-full border border-sky-200 dark:border-sky-800">
+              Forfait Électronique ({{ quantite }} {{ quantite > 1 ? 'objets' : 'objet' }})
+            </span>
             <span v-else class="text-[10px] text-gray-400 dark:text-slate-400 font-medium">{{ weightKg }} Kg × {{ unitPriceKg.toLocaleString() }} {{ devise }}</span>
           </div>
         </div>

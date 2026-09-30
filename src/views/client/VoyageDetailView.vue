@@ -9,12 +9,9 @@ import { decodeId } from '@/utils/idMasker'
 
 import { setHeaderRoute } from '@/utils/headerState'
 import { currentCurrency, formatPrice } from '@/utils/currencyState'
-import ReportUserModal from '@/components/ReportUserModal.vue'
 import { useI18n } from '@/composables/useI18n'
 
 const { t } = useI18n()
-
-const showReportModal = ref(false)
 
 const route = useRoute()
 const router = useRouter()
@@ -398,18 +395,6 @@ const startBooking = () => {
             <span class="text-xs text-emerald-600 dark:text-emerald-300 font-bold bg-emerald-50 dark:bg-emerald-950/80 px-2.5 py-1 rounded-full border border-emerald-100 dark:border-emerald-800">{{ t('voyageDetail.verified') }}</span>
           </div>
 
-          <!-- Signaler ce compte button -->
-          <div class="pt-2 border-t border-gray-100 dark:border-slate-800 flex justify-end">
-            <button 
-              @click="showReportModal = true" 
-              type="button"
-              class="inline-flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-bold bg-red-50 dark:bg-red-950/80 hover:bg-red-100 dark:hover:bg-red-900 px-3 py-1.5 rounded-xl border border-red-100 dark:border-red-900 transition cursor-pointer"
-            >
-              <span>🚩</span>
-              <span>{{ t('voyageDetail.reportAccount') }}</span>
-            </button>
-          </div>
-
           <!-- Reviews list preview with 2-item pagination -->
           <div v-if="voyageurEvaluations.length > 0" class="pt-3 border-t border-gray-100 dark:border-slate-800 space-y-2.5">
             <span class="text-[11px] font-extrabold text-gray-400 dark:text-slate-400 uppercase tracking-wider block">{{ t('voyageDetail.latestReviews') }}</span>
@@ -454,13 +439,6 @@ const startBooking = () => {
       </div>
 
     </div>
-
-    <!-- Modal de Signalement -->
-    <ReportUserModal 
-      :show="showReportModal" 
-      :target-user="voyage?.voyageurUserId ? { id: voyage.voyageurUserId, prenom: voyage.transporteur, nom: '' } : null"
-      @close="showReportModal = false"
-    />
 
   </div>
 </template>

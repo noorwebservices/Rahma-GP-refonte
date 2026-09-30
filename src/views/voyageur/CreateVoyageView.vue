@@ -4,7 +4,8 @@ import { useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 import CitySelect from '@/components/client/CitySelect.vue'
 import { fetchAdresseDepots, createAdresseDepot, fetchAdresseRecuperations, createAdresseRecuperation } from '@/services/adresseService'
-import { createVoyage } from '@/services/voyageService'
+import { fetchVoyagesVoyageur, createVoyage } from '@/services/voyageService'
+import { checkDateOverlap, formatVoyageDate } from '@/utils/flagHelper'
 import { useAuth } from '@/composables/useAuth'
 import { useI18n } from '@/composables/useI18n'
 
@@ -14,6 +15,7 @@ const { t } = useI18n()
 
 const currentStep = ref(1)
 const isLoading = ref(false)
+const existingVoyages = ref([])
 
 // Toast Helper
 const showToast = (icon, title) => {
@@ -125,9 +127,17 @@ const newRecupForm = reactive({
   longitude: null
 })
 
-// Load existing addresses on mount
+// Load existing addresses & voyages on mount
 onMounted(async () => {
   await loadAddresses()
+  try {
+    const res = await fetchVoyagesVoyageur()
+    if (res && res.data) {
+      existingVoyages.value = Array.isArray(res.data) ? res.data : (res.data.data || [])
+    }
+  } catch (err) {
+    existingVoyages.value = []
+  }
 })
 
 const loadAddresses = async () => {
@@ -207,8 +217,6 @@ const dateError = ref('')
 
 const presetAutorises = ref([
   'Vêtements & tissus',
-  'Électronique & téléphones',
-  'Documents & papiers',
   'Cosmétiques & soins',
   'Médicaments sur ordonnance',
   'Bijoux & valeurs',
@@ -349,6 +357,32 @@ const formatDateForApi = (dateStr) => {
 // Submit Voyage to Backend API
 const handleSaveVoyage = async (targetStatut) => {
   if (!validateStep(1) || !validateStep(2) || !validateStep(3) || !validateStep(4)) return
+
+  if (form.date_depart && form.date_arrivee && existingVoyages.value.length > 0) {
+    const conflictingVoyage = existingVoyages.value.find(v => {
+      if (v.statut === 'annule') return false
+      return checkDateOverlap(form.date_depart, form.date_arrivee, v.date_depart, v.date_arrivee)
+    })
+
+    if (conflictingVoyage) {
+      const depStr = formatVoyageDate(conflictingVoyage.date_depart)
+      const arrStr = formatVoyageDate(conflictingVoyage.date_arrivee)
+      Swal.fire({
+        icon: 'warning',
+        title: 'Chevauchement de dates interdit ⚠️',
+        html: `
+          <div class="space-y-2 text-left text-xs p-3 bg-amber-50 dark:bg-amber-950/60 rounded-xl text-amber-900 dark:text-amber-200">
+            <p>Vous avez déjà un voyage prévu sur cette même période :</p>
+            <p class="font-bold text-[#053754] dark:text-sky-300">✈️ ${conflictingVoyage.ville_depart} ➔ ${conflictingVoyage.ville_destination}</p>
+            <p>📅 Du ${depStr} au ${arrStr}</p>
+            <p class="text-[11px] text-red-600 dark:text-rose-400 font-bold mt-2">Vous ne pouvez pas effectuer deux voyages au même moment.</p>
+          </div>
+        `,
+        confirmButtonColor: '#053754'
+      })
+      return
+    }
+  }
 
   form.statut = targetStatut
   isLoading.value = true

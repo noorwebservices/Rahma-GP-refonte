@@ -7,6 +7,7 @@ import { fetchAdresseDepots, createAdresseDepot, fetchAdresseRecuperations, crea
 import CitySelect from '@/components/client/CitySelect.vue'
 import { formatCurrency } from '@/utils/currencyState'
 import { encodeId } from '@/utils/idMasker'
+import { checkDateOverlap, formatVoyageDate } from '@/utils/flagHelper'
 import Swal from 'sweetalert2'
 
 const router = useRouter()
@@ -262,8 +263,6 @@ const submitNewRecupAddress = async () => {
 // Presets categories
 const presetAutorises = ref([
   'Vêtements & tissus',
-  'Électronique & téléphones',
-  'Documents & papiers',
   'Cosmétiques & soins',
   'Médicaments sur ordonnance',
   'Bijoux & valeurs',
@@ -459,6 +458,43 @@ const goToVoyageDetail = (voyage) => {
 const handleSaveVoyage = async (targetStatut) => {
   if (!validateStep(1) || !validateStep(2) || !validateStep(3) || !validateStep(4)) return
 
+  // Validation chevauchement de dates pour l'agent sélectionné
+  if (form.agent_gp_id && form.date_depart && form.date_arrivee) {
+    const targetAgent = agents.value.find(a => String(a.id) === String(form.agent_gp_id))
+    const agentName = targetAgent?.user ? `${targetAgent.user.prenom} ${targetAgent.user.nom}` : 'L\'agent GP'
+
+    const conflictingVoyage = voyages.value.find(v => {
+      if (isEditing.value && editingVoyageId.value && String(v.id) === String(editingVoyageId.value)) {
+        return false
+      }
+      if (v.statut === 'annule') return false
+
+      const vAgentId = v.agent_gp_id || v.agent_gp?.id
+      if (String(vAgentId) !== String(form.agent_gp_id)) return false
+
+      return checkDateOverlap(form.date_depart, form.date_arrivee, v.date_depart, v.date_arrivee)
+    })
+
+    if (conflictingVoyage) {
+      const depStr = formatVoyageDate(conflictingVoyage.date_depart)
+      const arrStr = formatVoyageDate(conflictingVoyage.date_arrivee)
+      Swal.fire({
+        icon: 'warning',
+        title: 'Chevauchement de dates interdit ⚠️',
+        html: `
+          <div class="space-y-2 text-left text-xs p-3 bg-amber-50 dark:bg-amber-950/60 rounded-xl text-amber-900 dark:text-amber-200">
+            <p><strong>${agentName}</strong> est déjà affecté(e) à un voyage sur cette même période :</p>
+            <p class="font-bold text-[#053754] dark:text-sky-300">✈️ ${conflictingVoyage.ville_depart} ➔ ${conflictingVoyage.ville_destination}</p>
+            <p>📅 Du ${depStr} au ${arrStr}</p>
+            <p class="text-[11px] text-red-600 dark:text-rose-400 font-bold mt-2">Un agent ne peut pas effectuer deux voyages au même moment.</p>
+          </div>
+        `,
+        confirmButtonColor: '#053754'
+      })
+      return
+    }
+  }
+
   isSubmitting.value = true
   const payload = {
     adresse_depot_id: form.adresse_depot_id,
@@ -511,6 +547,41 @@ const openAssignModal = (voyage) => {
 const handleAssignAgent = async () => {
   if (!selectedAgentId.value) {
     return showToast('warning', 'Veuillez sélectionner un agent GP.')
+  }
+
+  const vTarget = selectedVoyage.value
+  if (vTarget && vTarget.date_depart && vTarget.date_arrivee) {
+    const targetAgent = agents.value.find(a => String(a.id) === String(selectedAgentId.value))
+    const agentName = targetAgent?.user ? `${targetAgent.user.prenom} ${targetAgent.user.nom}` : 'Cet agent GP'
+
+    const conflictingVoyage = voyages.value.find(v => {
+      if (String(v.id) === String(vTarget.id)) return false
+      if (v.statut === 'annule') return false
+
+      const vAgentId = v.agent_gp_id || v.agent_gp?.id
+      if (String(vAgentId) !== String(selectedAgentId.value)) return false
+
+      return checkDateOverlap(vTarget.date_depart, vTarget.date_arrivee, v.date_depart, v.date_arrivee)
+    })
+
+    if (conflictingVoyage) {
+      const depStr = formatVoyageDate(conflictingVoyage.date_depart)
+      const arrStr = formatVoyageDate(conflictingVoyage.date_arrivee)
+      Swal.fire({
+        icon: 'warning',
+        title: 'Agent indisponible sur cette période ⚠️',
+        html: `
+          <div class="space-y-2 text-left text-xs p-3 bg-amber-50 dark:bg-amber-950/60 rounded-xl text-amber-900 dark:text-amber-200">
+            <p><strong>${agentName}</strong> a déjà un voyage prévu sur ce créneau :</p>
+            <p class="font-bold text-[#053754] dark:text-sky-300">✈️ ${conflictingVoyage.ville_depart} ➔ ${conflictingVoyage.ville_destination}</p>
+            <p>📅 Du ${depStr} au ${arrStr}</p>
+            <p class="text-[11px] text-red-600 dark:text-rose-400 font-bold mt-2">Un agent ne peut pas effectuer deux voyages simultanément.</p>
+          </div>
+        `,
+        confirmButtonColor: '#053754'
+      })
+      return
+    }
   }
 
   isSubmitting.value = true

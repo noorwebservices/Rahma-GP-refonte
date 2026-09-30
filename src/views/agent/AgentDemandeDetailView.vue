@@ -205,6 +205,11 @@ const loadDemande = async () => {
         hasPaidPayment
       )
 
+      const quantiteVal = Math.max(1, Number(c.quantite || data.quantite || 1))
+      const rawMontant = Number(data.montant_total || data.prix_total || 0)
+      const rawDev = v.devise || 'XOF'
+      const unitPriceVal = quantiteVal > 0 ? Math.round(rawMontant / quantiteVal) : rawMontant
+
       demande.value = {
         id: data.id,
         rawId: rawId,
@@ -222,6 +227,9 @@ const loadDemande = async () => {
         clientPhone: u.telephone || data.expediteur_telephone || 'Non renseigné',
         clientEmail: u.email || 'Non renseigné',
 
+        quantite: quantiteVal,
+        unitPrice: unitPriceVal,
+        formattedUnitPrice: formatPrice(unitPriceVal, rawDev),
         parcelType: c.type || data.type_colis || 'Colis de marchandise',
         description: c.description || data.description || 'Aucune description',
         weight: (c.poids !== undefined && c.poids !== null) ? `${c.poids} Kg` : (data.poids ? `${data.poids} Kg` : 'Objet'),
@@ -235,9 +243,9 @@ const loadDemande = async () => {
         recipientAddress: c.destinataire_adresse || 'Non renseignée',
 
         paymentMode: data.mode_paiement_souhaite || data.mode_paiement || 'Au dépôt',
-        rawPrice: Number(data.montant_total || data.prix_total || 0),
-        rawDevise: v.devise || 'XOF',
-        price: `${Number(data.montant_total || data.prix_total || 0).toLocaleString()} ${v.devise || 'XOF'}`,
+        rawPrice: rawMontant,
+        rawDevise: rawDev,
+        price: `${rawMontant.toLocaleString()} ${rawDev}`,
         createdAt: data.created_at,
 
         routeFrom: v.ville_depart || 'Départ',
@@ -525,6 +533,16 @@ const goBackToVoyage = () => {
               <div>
                 <span class="text-gray-400 dark:text-slate-400 font-medium block">Type de contenu :</span>
                 <span class="font-extrabold text-[#053754] dark:text-sky-300 text-sm sm:text-base">{{ demande.parcelType }}</span>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <span class="text-gray-400 dark:text-slate-400 font-medium block">Quantité :</span>
+                  <span class="font-extrabold text-[#053754] dark:text-sky-300 text-sm">{{ demande.quantite }} {{ demande.quantite > 1 ? 'unités' : 'unité' }}</span>
+                </div>
+                <div>
+                  <span class="text-gray-400 dark:text-slate-400 font-medium block">Prix unitaire :</span>
+                  <span class="font-extrabold text-emerald-600 dark:text-emerald-400 text-sm">{{ demande.formattedUnitPrice }}</span>
+                </div>
               </div>
               <div>
                 <span class="text-gray-400 dark:text-slate-400 font-medium block">Poids du colis :</span>

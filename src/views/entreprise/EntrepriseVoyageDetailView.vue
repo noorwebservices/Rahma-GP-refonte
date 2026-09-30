@@ -5,7 +5,7 @@ import { useI18n } from '@/composables/useI18n'
 import Swal from 'sweetalert2'
 import { fetchVoyage } from '@/services/voyageService'
 import { accepterReservation, refuserReservation } from '@/services/reservationService'
-import { getCountryFlag, formatVoyageDate } from '@/utils/flagHelper'
+import { getCountryFlag, getDisplayCountry, formatVoyageDate } from '@/utils/flagHelper'
 import CountryFlag from '@/components/common/CountryFlag.vue'
 import { decodeId, encodeId } from '@/utils/idMasker'
 import { setHeaderRoute } from '@/utils/headerState'
@@ -109,10 +109,10 @@ const loadVoyageData = async () => {
       voyage.value = {
         id: v.id,
         routeFrom: v.ville_depart || 'Départ',
-        countryFrom: v.pays_depart || '',
+        countryFrom: getDisplayCountry(v.ville_depart, v.pays_depart),
         flagFrom: getCountryFlag(v.ville_depart, v.pays_depart),
         routeTo: v.ville_destination || 'Destination',
-        countryTo: v.pays_destination || '',
+        countryTo: getDisplayCountry(v.ville_destination, v.pays_destination),
         flagTo: getCountryFlag(v.ville_destination, v.pays_destination),
         departureDate: v.date_depart,
         arrivalDate: v.date_arrivee,

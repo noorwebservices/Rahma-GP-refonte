@@ -65,7 +65,8 @@ const villeDestination = computed(() => voyage.value?.ville_destination || voyag
 const paysDestination = computed(() => voyage.value?.pays_destination || voyage.value?.paysDest || 'France')
 
 const dateDepart = computed(() => voyage.value?.date_depart || voyage.value?.date || '')
-const weightKg = computed(() => draft.value?.colis?.poids || 3.5)
+const weightKg = computed(() => draft.value?.colis?.poids || 1)
+const quantite = computed(() => Math.max(1, Number(draft.value?.colis?.quantite) || 1))
 
 import { currentCurrency, formatPrice } from '@/utils/currencyState'
 
@@ -90,17 +91,22 @@ const specialTarifForType = computed(() => {
 })
 
 const totalPrice = computed(() => {
+  if (draft.value?.colis?.prix_total !== undefined && draft.value?.colis?.prix_total !== null && Number(draft.value.colis.prix_total) > 0) {
+    return Number(draft.value.colis.prix_total)
+  }
+  const qty = quantite.value
   if (specialTarifForType.value !== null && specialTarifForType.value > 0) {
-    return Math.round(specialTarifForType.value)
+    return Math.round(specialTarifForType.value * qty)
   }
   if (isElectronic.value) {
-    return Math.round(unitPriceObjet.value)
+    return Math.round(unitPriceObjet.value * qty)
   }
   return Math.round(Math.ceil(Number(weightKg.value || 1)) * unitPriceKg.value)
 })
 
 const formattedUnitPriceKg = computed(() => formatPrice(unitPriceKg.value, devise.value))
 const formattedUnitPriceObjet = computed(() => formatPrice(unitPriceObjet.value, devise.value))
+const formattedSpecialTarif = computed(() => specialTarifForType.value ? formatPrice(specialTarifForType.value, devise.value) : null)
 const formattedTotalPrice = computed(() => formatPrice(totalPrice.value, devise.value))
 
 const handleConfirmBooking = async () => {
@@ -119,6 +125,8 @@ const handleConfirmBooking = async () => {
       description: draft.value?.colis?.description || '',
       valeur_estimee: Number(draft.value?.colis?.valeur_estimee) || 0,
       poids: Number(draft.value?.colis?.poids) || 1,
+      quantite: quantite.value,
+      prix_total: totalPrice.value,
       est_fragile: Boolean(draft.value?.colis?.est_fragile),
       destinataire_nom: draft.value?.colis?.destinataire_nom || '',
       destinataire_prenom: draft.value?.colis?.destinataire_prenom || '',

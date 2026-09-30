@@ -17,7 +17,7 @@ const setTab = (id) => {
         <!-- Subtitle Pill -->
         <div>
           <span class="inline-block px-5 py-2 rounded-full border border-secondaire/40 dark:border-sky-500/40 bg-secondaire/5 dark:bg-sky-500/10 text-secondaire dark:text-sky-300 text-xs sm:text-sm font-medium uppercase tracking-widest">
-            TROIS EXPERIENCES DÉDIÉES
+            TROIS EXPÉRIENCES DÉDIÉES
           </span>
         </div>
 
@@ -28,7 +28,7 @@ const setTab = (id) => {
 
         <!-- Description -->
         <p class="text-texte dark:text-slate-300 text-xs sm:text-base font-normal leading-relaxed max-w-3xl mx-auto px-2">
-          Rahma Delivery connecte les personnes qui souhaitent envoyer des colis avec celles qui disposent de capacités pour les transporter, qu'il s'agisse d'un voyageur ou d'une entreprise spécialisée. Chaque profil bénéficie d'une expérience adaptée à ses besoins.
+          Rahma Delivery connecte les expéditeurs de colis avec des voyageurs particuliers disposant de kilos bagages inutilisés ou avec des entreprises GP certifiées spécialisées dans le transport international.
         </p>
       </div>
 
@@ -87,7 +87,7 @@ const setTab = (id) => {
           <svg class="w-4 h-4 sm:w-8 sm:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
           </svg>
-          <span>Entreprise Pro</span>
+          <span>Entreprise Pro & Agence GP</span>
         </button>
 
       </div>
@@ -109,25 +109,25 @@ const setTab = (id) => {
             </h3>
 
             <p class="text-texte dark:text-slate-300 font-normal text-xs sm:text-base leading-relaxed">
-              Vous souhaitez envoyer un colis à vos proches ou clients ? Trouvez immédiatement un voyageur ou un transporteur certifié effectuant le trajet.
+              Vous souhaitez envoyer un colis à vos proches ou clients ? Trouvez immédiatement un voyageur certifié ou une entreprise GP qualifiée effectuant le trajet souhaité.
             </p>
 
             <ul class="space-y-3">
               <li class="flex items-start gap-3 text-xs sm:text-base text-texte dark:text-slate-300 font-medium">
                 <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 dark:bg-emerald-950/60 text-tertiaire dark:text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
-                <span>Recherche simple par ville de départ et de destination</span>
+                <span>Recherche rapide par ville de départ, de destination et date</span>
               </li>
               <li class="flex items-start gap-3 text-xs sm:text-base text-texte dark:text-slate-300 font-medium">
                 <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 dark:bg-emerald-950/60 text-tertiaire dark:text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
-                <span>Transparence totale sur les kilos restants et les dates</span>
+                <span>Transparence totale sur les kilos disponibles, tarifs au kg et avis vérifiés</span>
               </li>
               <li class="flex items-start gap-3 text-xs sm:text-base text-texte dark:text-slate-300 font-medium">
                 <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 dark:bg-emerald-950/60 text-tertiaire dark:text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
-                <span>Formulaire de demande détaillé pour vos colis</span>
+                <span>Réservation en ligne avec description détaillée et photos du colis</span>
               </li>
               <li class="flex items-start gap-3 text-xs sm:text-base text-texte dark:text-slate-300 font-medium">
                 <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 dark:bg-emerald-950/60 text-tertiaire dark:text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
-                <span>Historique des envois et notifications instantanées</span>
+                <span>Suivi d'expédition étape par étape et messagerie instantanée</span>
               </li>
             </ul>
           </div>
@@ -198,33 +198,33 @@ const setTab = (id) => {
           <!-- Left Text Details -->
           <div class="lg:col-span-7 space-y-5 sm:space-y-6">
             <span class="inline-block px-4 py-1.5 rounded-full bg-slate-200/80 dark:bg-slate-800 text-principal dark:text-sky-300 font-bold text-xs sm:text-sm border border-slate-300 dark:border-slate-700">
-              Profil 2 : Voyageur particulier
+              Profil 2 : Voyageur Particulier
             </span>
 
             <h3 class="text-lg sm:text-xl font-extrabold text-secondaire dark:text-sky-400 leading-tight">
-              Rentabilisez vos bagages et amortissez vos billets d'avion
+              Rentabilisez vos bagages et amortissez vos billets de voyage
             </h3>
 
             <p class="text-texte dark:text-slate-300 font-normal text-xs sm:text-base leading-relaxed">
-              Vous avez prévu un voyage et il vous reste de la place dans vos bagages ? Proposez votre capacité disponible sur Rahma Delivery et transportez les colis de personnes qui en ont besoin.
+              Vous avez un voyage prévu et disposez d'espace libre dans vos bagages ? Proposez vos kilos disponibles sur Rahma Delivery et gagnez de l'argent en transportant des colis en toute sécurité.
             </p>
 
             <ul class="space-y-3">
               <li class="flex items-start gap-3 text-xs sm:text-base text-texte dark:text-slate-300 font-medium">
                 <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 dark:bg-emerald-950/60 text-tertiaire dark:text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
-                <span>Publication ultra-rapide de votre trajet (5 kg à 25 kg)</span>
+                <span>Publication ultra-rapide de votre trajet (vol ou route) et des kilos disponibles</span>
               </li>
               <li class="flex items-start gap-3 text-xs sm:text-base text-texte dark:text-slate-300 font-medium">
                 <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 dark:bg-emerald-950/60 text-tertiaire dark:text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
-                <span>Contrôle et vérification des demandes reçues</span>
+                <span>Liberté totale d'accepter ou de refuser chaque demande de colis</span>
               </li>
               <li class="flex items-start gap-3 text-xs sm:text-base text-texte dark:text-slate-300 font-medium">
                 <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 dark:bg-emerald-950/60 text-tertiaire dark:text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
-                <span>Liberté absolue d'accepter ou de refuser chaque colis</span>
+                <span>Déduction et mise à jour automatique des kilos disponibles selon les réservations</span>
               </li>
               <li class="flex items-start gap-3 text-xs sm:text-base text-texte dark:text-slate-300 font-medium">
                 <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 dark:bg-emerald-950/60 text-tertiaire dark:text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
-                <span>Déduction automatique des kilos acceptés</span>
+                <span>Bascule en 1 clic entre votre profil Client et votre espace Voyageur</span>
               </li>
             </ul>
           </div>
@@ -236,7 +236,7 @@ const setTab = (id) => {
                 
                 <!-- Dark Blue Header -->
                 <div class="p-3 sm:p-4 text-white flex items-center justify-between border-b border-white/10 dark:border-slate-800">
-                  <span class="font-bold text-xs sm:text-base">Mes Prochains Vols</span>
+                  <span class="font-bold text-xs sm:text-base">Mes Prochains Voyages</span>
                   <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full font-bold">
                     Dispo
                   </span>
@@ -245,7 +245,7 @@ const setTab = (id) => {
                 <!-- Card Body -->
                 <div class="bg-slate-50/95 dark:bg-slate-900/95 p-3.5 sm:p-5 space-y-3 sm:space-y-4 text-[11px] sm:text-sm">
                   <div class="flex items-center justify-between">
-                    <span class="text-slate-600 dark:text-slate-400 font-medium">Vol :</span>
+                    <span class="text-slate-600 dark:text-slate-400 font-medium">Trajet :</span>
                     <span class="font-bold text-tertiaire dark:text-amber-400">Dakar ➔ Madrid</span>
                   </div>
 
@@ -257,7 +257,7 @@ const setTab = (id) => {
                   <div class="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-1.5">
                     <div class="flex items-center justify-between font-bold text-[11px] sm:text-sm">
                       <span class="text-slate-700 dark:text-slate-300">Demandes acceptées :</span>
-                      <span class="text-tertiaire dark:text-amber-400">8Kg/15Kg</span>
+                      <span class="text-tertiaire dark:text-amber-400">8 kg / 15 kg</span>
                     </div>
                     <div class="w-full h-2 sm:h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
                       <div class="h-full bg-principal dark:bg-sky-500 rounded-full w-[53%]"></div>
@@ -277,33 +277,33 @@ const setTab = (id) => {
           <!-- Left Text Details -->
           <div class="lg:col-span-7 space-y-5 sm:space-y-6">
             <span class="inline-block px-4 py-1.5 rounded-full bg-slate-200/80 dark:bg-slate-800 text-principal dark:text-sky-300 font-bold text-xs sm:text-sm border border-slate-300 dark:border-slate-700">
-              Profil 3 : Entreprise Pro
+              Profil 3 : Entreprise Pro & Agence GP
             </span>
 
             <h3 class="text-lg sm:text-xl font-extrabold text-secondaire dark:text-sky-400 leading-tight">
-              Un véritable espace professionnel de gestion du transport
+              Un espace professionnel pour piloter vos lignes de fret et votre équipe
             </h3>
 
             <p class="text-texte dark:text-slate-300 font-normal text-xs sm:text-base leading-relaxed">
-              Vous êtes une entreprise spécialisée dans le transport de colis à l'international ? Publiez vos voyages, indiquez les capacités disponibles et recevez directement les demandes des clients pour vos acheminements.
+              Vous êtes une agence GP ou une entreprise spécialisée dans le transport international ? Publiez vos plannings réguliers, invitez vos agents et optimisez le taux de remplissage de vos frets.
             </p>
 
             <ul class="space-y-3">
               <li class="flex items-start gap-3 text-xs sm:text-base text-texte dark:text-slate-300 font-medium">
                 <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 dark:bg-emerald-950/60 text-tertiaire dark:text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
-                <span>Gestion multi-voyages et lignes régulières internationales</span>
+                <span>Gestion multi-voyages et plannings de lignes régulières internationales</span>
               </li>
               <li class="flex items-start gap-3 text-xs sm:text-base text-texte dark:text-slate-300 font-medium">
                 <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 dark:bg-emerald-950/60 text-tertiaire dark:text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
-                <span>Tableau de bord pro : suivi des capacités réservées & disponibles</span>
+                <span>Invitation et affectation des demandes à vos agents GP terrain</span>
               </li>
               <li class="flex items-start gap-3 text-xs sm:text-base text-texte dark:text-slate-300 font-medium">
                 <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 dark:bg-emerald-950/60 text-tertiaire dark:text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
-                <span>Gestion des statuts de livraison (Transit, Livré, Attente)</span>
+                <span>Tableau de bord Pro : suivi global des capacités, réservations et chiffre d'affaires</span>
               </li>
               <li class="flex items-start gap-3 text-xs sm:text-base text-texte dark:text-slate-300 font-medium">
                 <span class="shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-tertiaire/20 dark:bg-emerald-950/60 text-tertiaire dark:text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs font-bold mt-0.5">✓</span>
-                <span>Outils de statistique et d'optimisation de fret</span>
+                <span>Gestion des statuts d'expédition (Collecté, En transit, Reçu, Livré)</span>
               </li>
             </ul>
           </div>
@@ -315,9 +315,9 @@ const setTab = (id) => {
                 
                 <!-- Dark Blue Header -->
                 <div class="p-3 sm:p-4 text-white flex items-center justify-between border-b border-white/10 dark:border-slate-800">
-                  <span class="font-bold text-xs sm:text-base">Espace Entreprise Pro</span>
+                  <span class="font-bold text-xs sm:text-base">Espace Entreprise GP</span>
                   <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full font-bold">
-                    Dispo
+                    Pro Vérifiée
                   </span>
                 </div>
 
@@ -344,7 +344,7 @@ const setTab = (id) => {
                   <div class="bg-slate-200/60 dark:bg-slate-800/80 p-2.5 sm:p-4 rounded-xl flex items-center justify-between">
                     <div>
                       <p class="font-bold text-principal dark:text-sky-300 text-[11px] sm:text-sm">Dakar ➔ Paris (#102)</p>
-                      <p class="text-[9px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">300kg total | 210kg réservé</p>
+                      <p class="text-[9px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">300 kg total | 210 kg réservés</p>
                     </div>
                     <span class="font-bold text-tertiaire dark:text-amber-400 text-[10px] sm:text-sm whitespace-nowrap">
                       70% Rempli

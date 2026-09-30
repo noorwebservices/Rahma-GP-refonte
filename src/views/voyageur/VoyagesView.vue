@@ -10,7 +10,7 @@ import { fetchReservations } from '@/services/reservationService'
 import { fetchMyEvaluations } from '@/services/evaluationService'
 import { fetchRevenus } from '@/services/revenuService'
 import { currentCurrency, formatPrice, convertAmount } from '@/utils/currencyState'
-import { getCountryFlag } from '@/utils/flagHelper'
+import { getCountryFlag, checkDateOverlap } from '@/utils/flagHelper'
 import { useI18n } from '@/composables/useI18n'
 
 const { t } = useI18n()
@@ -479,8 +479,6 @@ const customInterdit = ref('')
 
 const presetAutorises = ref([
   'Vêtements & tissus',
-  'Électronique & téléphones',
-  'Documents & papiers',
   'Cosmétiques & soins',
   'Médicaments sur ordonnance',
   'Bijoux & valeurs',
@@ -592,6 +590,40 @@ const formatDateForApi = (dateStr) => {
 // Submit Wizard (Create or Update)
 const handleSaveVoyage = async (targetStatut) => {
   if (!validateWizardStep(1) || !validateWizardStep(2) || !validateWizardStep(3) || !validateWizardStep(4)) return
+
+  if (form.date_depart && form.date_arrivee && voyages.value.length > 0) {
+    const conflictingVoyage = voyages.value.find(v => {
+      if (isEditing.value && editingVoyageId.value && String(v.id) === String(editingVoyageId.value)) {
+        return false
+      }
+      if (v.statut === 'annule') return false
+
+      const depDate = v.departureDate || v.rawObject?.date_depart
+      const arrDate = v.arrivalDate || v.rawObject?.date_arrivee
+      return checkDateOverlap(form.date_depart, form.date_arrivee, depDate, arrDate)
+    })
+
+    if (conflictingVoyage) {
+      const depStr = formatVoyageDate(conflictingVoyage.departureDate || conflictingVoyage.rawObject?.date_depart)
+      const arrStr = formatVoyageDate(conflictingVoyage.arrivalDate || conflictingVoyage.rawObject?.date_arrivee)
+      const vFrom = conflictingVoyage.routeFrom || conflictingVoyage.rawObject?.ville_depart
+      const vTo = conflictingVoyage.routeTo || conflictingVoyage.rawObject?.ville_destination
+      Swal.fire({
+        icon: 'warning',
+        title: 'Chevauchement de dates interdit ⚠️',
+        html: `
+          <div class="space-y-2 text-left text-xs p-3 bg-amber-50 dark:bg-amber-950/60 rounded-xl text-amber-900 dark:text-amber-200">
+            <p>Vous avez déjà un voyage prévu sur cette même période :</p>
+            <p class="font-bold text-[#053754] dark:text-sky-300">✈️ ${vFrom} ➔ ${vTo}</p>
+            <p>📅 Du ${depStr} au ${arrStr}</p>
+            <p class="text-[11px] text-red-600 dark:text-rose-400 font-bold mt-2">Vous ne pouvez pas effectuer deux voyages au même moment.</p>
+          </div>
+        `,
+        confirmButtonColor: '#053754'
+      })
+      return
+    }
+  }
 
   form.statut = targetStatut
   isLoading.value = true

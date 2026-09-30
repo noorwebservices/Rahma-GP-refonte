@@ -145,28 +145,44 @@ export const getCountryIso = (city = '', country = '') => {
   const cleanCity = (city || '').trim().toLowerCase()
   const cleanCountry = (country || '').trim()
 
-  // 1. Resolve country via i18n-iso-countries (French then English)
-  if (cleanCountry) {
-    const isoCode = countries.getAlpha2Code(cleanCountry, 'fr') || countries.getAlpha2Code(cleanCountry, 'en')
-    if (isoCode) return isoCode.toUpperCase()
-  }
-
-  // 2. Known major cities map override (fixes Paris -> FR, Dakar -> SN, etc.)
+  // 1. Known major cities map override (fixes Abidjan -> CI, Dakar -> SN, Paris -> FR, etc.)
   if (cleanCity && knownCityIsoMap.has(cleanCity)) {
     return knownCityIsoMap.get(cleanCity)
   }
 
-  // 3. Resolve city via country-state-city library
+  // 2. Resolve city via country-state-city library
   if (cleanCity) {
     const map = getCityToIsoMap()
     if (map.has(cleanCity)) {
       return map.get(cleanCity)
     }
+  }
+
+  // 3. Resolve country via i18n-iso-countries (French then English)
+  if (cleanCountry) {
+    const isoCode = countries.getAlpha2Code(cleanCountry, 'fr') || countries.getAlpha2Code(cleanCountry, 'en')
+    if (isoCode) return isoCode.toUpperCase()
+  }
+
+  // 4. Fallback resolve city directly via i18n-iso-countries if city name matches a country
+  if (cleanCity) {
     const isoCode = countries.getAlpha2Code(cleanCity, 'fr') || countries.getAlpha2Code(cleanCity, 'en')
     if (isoCode) return isoCode.toUpperCase()
   }
 
   return null
+}
+
+/**
+ * Returns the localized French country name for a given city & country
+ */
+export const getDisplayCountry = (city = '', country = '') => {
+  const iso = getCountryIso(city, country)
+  if (iso) {
+    const frName = countries.getName(iso, 'fr')
+    if (frName) return frName
+  }
+  return country || city || ''
 }
 
 /**
@@ -269,8 +285,12 @@ export const getColisStatutLabel = (statut) => {
 export const getCategoryIcon = (name = '') => {
   if (!name) return '📦'
   const lower = name.toLowerCase()
+  if (lower.includes('perruque') || lower.includes('pérruque') || lower.includes('cheveux') || lower.includes('tissage')) return '💇‍♀️'
+  if (lower.includes('basket') || lower.includes('basquet') || lower.includes('sneaker')) return '👟'
+  if (lower.includes('sac à main') || lower.includes('sac a main') || lower.includes('handbag')) return '👜'
+  if (lower.includes('enveloppe') || lower.includes('pli')) return '✉️'
   if (lower.includes('vêtement') || lower.includes('vetement') || lower.includes('tissu') || lower.includes('habit') || lower.includes('laine')) return '👗'
-  if (lower.includes('téléphone') || lower.includes('telephone') || lower.includes('électronique') || lower.includes('electronique') || lower.includes('high-tech')) return '📱'
+  if (lower.includes('téléphone') || lower.includes('telephone') || lower.includes('électronique') || lower.includes('electronique') || lower.includes('high-tech') || lower.includes('ordinateur') || lower.includes('tablette')) return '📱'
   if (lower.includes('document') || lower.includes('papier') || lower.includes('lettre')) return '📄'
   if (lower.includes('cosmétique') || lower.includes('cosmetique') || lower.includes('soin') || lower.includes('beauté')) return '💄'
   if (lower.includes('médicament') || lower.includes('medicament') || lower.includes('ordonnance') || lower.includes('santé')) return '💊'
@@ -289,5 +309,21 @@ export const isElectronicType = (name = '') => {
   if (!name) return false
   const lower = name.toLowerCase()
   return lower.includes('électronique') || lower.includes('electronique') || lower.includes('téléphone') || lower.includes('telephone') || lower.includes('high-tech') || lower.includes('hightech') || lower.includes('ordinateur') || lower.includes('tablette')
+}
+
+/**
+ * Checks if two date ranges [startA, endA] and [startB, endB] overlap.
+ * Returns true if there is an overlap.
+ */
+export const checkDateOverlap = (startA, endA, startB, endB) => {
+  if (!startA || !endA || !startB || !endB) return false
+  const sA = new Date(startA).getTime()
+  const eA = new Date(endA).getTime()
+  const sB = new Date(startB).getTime()
+  const eB = new Date(endB).getTime()
+
+  if (isNaN(sA) || isNaN(eA) || isNaN(sB) || isNaN(eB)) return false
+
+  return sA < eB && eA > sB
 }
 

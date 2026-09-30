@@ -420,19 +420,50 @@
             Aucun voyage affecté à cet agent pour le moment.
           </div>
 
-          <div v-else class="space-y-3">
-            <div v-for="v in (user.agent_gp || user.agentGp).voyages" :key="v.id" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs space-y-2">
-              <div class="flex items-center justify-between border-b border-gray-200 dark:border-slate-700 pb-2">
-                <span class="font-black text-[#053754] dark:text-sky-300 text-sm sm:text-base">✈️ {{ v.ville_depart }} ➔ {{ v.ville_destination || v.ville_arrivee }}</span>
-                <span class="px-2.5 py-0.5 rounded-full font-bold bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 text-[10px]">{{ v.statut }}</span>
-              </div>
-              <div class="flex flex-wrap items-center gap-4 text-gray-600 dark:text-gray-300 font-medium">
-                <div>Départ: <strong>{{ formatDate(v.date_depart) }}</strong></div>
-                <div>Capacité: <strong>{{ v.capacite_totale }} kg</strong></div>
-                <div>Prix/kg: <strong>{{ v.prix_kg }} F CFA</strong></div>
-                <div>Réservations: <strong>{{ v.reservations ? v.reservations.length : 0 }}</strong></div>
-              </div>
-            </div>
+          <div v-else class="overflow-x-auto rounded-2xl border border-gray-200 dark:border-slate-800">
+            <table class="w-full min-w-[600px] text-left text-xs bg-white dark:bg-slate-900">
+              <thead class="bg-slate-50 dark:bg-slate-800/80 text-[#053754] dark:text-sky-300 uppercase tracking-wider font-extrabold border-b border-gray-200 dark:border-slate-800 text-[11px] whitespace-nowrap">
+                <tr>
+                  <th class="px-4 py-3">Trajet</th>
+                  <th class="px-4 py-3">Date Départ</th>
+                  <th class="px-4 py-3">Capacité</th>
+                  <th class="px-4 py-3">Prix / kg</th>
+                  <th class="px-4 py-3">Statut</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100 dark:divide-slate-800 font-medium whitespace-nowrap">
+                <tr
+                  v-for="v in (user.agent_gp || user.agentGp).voyages"
+                  :key="v.id"
+                  class="hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors"
+                >
+                  <td class="px-4 py-3.5">
+                    <div class="flex items-center gap-1.5 font-extrabold text-[#053754] dark:text-sky-300 text-xs sm:text-sm">
+                      <span>{{ v.ville_depart }}</span>
+                      <span class="text-gray-400 text-xs">➔</span>
+                      <span>{{ v.ville_destination || v.ville_arrivee }}</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-3.5 font-bold text-gray-800 dark:text-slate-200">
+                    {{ formatDate(v.date_depart) }}
+                  </td>
+                  <td class="px-4 py-3.5 font-bold text-emerald-600 dark:text-emerald-400">
+                    {{ v.capacite_totale }} kg
+                  </td>
+                  <td class="px-4 py-3.5 font-extrabold text-[#B50302] dark:text-rose-400">
+                    {{ v.prix_kg ? `${v.prix_kg} F CFA` : '—' }}
+                  </td>
+                  <td class="px-4 py-3.5">
+                    <span
+                      class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider border"
+                      :class="v.statut === 'publie' ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300' : 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-slate-800 dark:text-slate-300'"
+                    >
+                      {{ v.statut || 'brouillon' }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
