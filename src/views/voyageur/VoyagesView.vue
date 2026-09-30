@@ -271,7 +271,8 @@ const form = reactive({
   date_arrivee: '',
   capacite_totale: null,
   prix_kg: null,
-  prix_objet: null,
+  prix_objet: 0,
+  tarifs_speciaux: [],
   devise: 'XOF',
   description: '',
   objets_autorises: [],
@@ -328,7 +329,8 @@ const openCreateModal = () => {
   form.date_arrivee = ''
   form.capacite_totale = null
   form.prix_kg = null
-  form.prix_objet = null
+  form.prix_objet = 0
+  form.tarifs_speciaux = []
   form.devise = 'XOF'
   form.description = ''
   form.objets_autorises = []
@@ -368,7 +370,8 @@ const openEditModal = (voyage) => {
 
   form.capacite_totale = raw.capacite_totale || voyage.capaciteTotale || 20
   form.prix_kg = raw.prix_kg || 8500
-  form.prix_objet = raw.prix_objet || 15000
+  form.prix_objet = 0
+  form.tarifs_speciaux = Array.isArray(raw.tarifs_speciaux) ? [...raw.tarifs_speciaux] : []
   form.devise = raw.devise || 'XOF'
   form.description = raw.description || ''
   form.objets_autorises = raw.objets_autorises ? [...raw.objets_autorises] : ['Vêtements & tissus', 'Électronique & téléphones', 'Documents & papiers']
@@ -473,6 +476,52 @@ const submitNewRecupAddress = async () => {
   }
 }
 
+// Special Tariffs Management
+const customItemNom = ref('')
+const customItemPrix = ref(null)
+
+const presetTarifsSpeciaux = ref([
+  { nom: 'Baskets', prix: 25 },
+  { nom: 'Perruques', prix: 30 },
+  { nom: 'Enveloppe', prix: 20 },
+  { nom: 'Téléphone / Ordinateur', prix: 50 },
+  { nom: 'Sac à main', prix: 35 }
+])
+
+const addSpecialTarif = (nom, prix) => {
+  if (!nom || !nom.trim()) return
+  const nomClean = nom.trim()
+  const existingIndex = form.tarifs_speciaux.findIndex(t => t.nom.toLowerCase() === nomClean.toLowerCase())
+  if (existingIndex > -1) {
+    form.tarifs_speciaux[existingIndex].prix = Number(prix) || 0
+  } else {
+    form.tarifs_speciaux.push({
+      nom: nomClean,
+      prix: Number(prix) || 0
+    })
+  }
+  if (!form.objets_autorises.includes(nomClean)) {
+    form.objets_autorises.push(nomClean)
+  }
+}
+
+const removeSpecialTarif = (index) => {
+  form.tarifs_speciaux.splice(index, 1)
+}
+
+const addCustomSpecialTarif = () => {
+  if (customItemNom.value.trim() && customItemPrix.value !== null && customItemPrix.value >= 0) {
+    addSpecialTarif(customItemNom.value, customItemPrix.value)
+    customItemNom.value = ''
+    customItemPrix.value = null
+  }
+}
+
+const getSpecialTarifFor = (catName) => {
+  if (!catName || !form.tarifs_speciaux) return null
+  return form.tarifs_speciaux.find(t => t.nom.toLowerCase() === catName.toLowerCase()) || null
+}
+
 // Category custom inputs
 const customAutorise = ref('')
 const customInterdit = ref('')
@@ -494,7 +543,14 @@ const presetInterdits = ref([
 ])
 
 const allAutorisesList = computed(() => {
-  return Array.from(new Set([...presetAutorises.value, ...form.objets_autorises]))
+  const specialTarifNames = (form.tarifs_speciaux || []).map(t => t.nom)
+  const presetSpecialNames = (presetTarifsSpeciaux.value || []).map(t => t.nom)
+  return Array.from(new Set([
+    ...presetAutorises.value,
+    ...presetSpecialNames,
+    ...specialTarifNames,
+    ...form.objets_autorises
+  ]))
 })
 
 const allInterditsList = computed(() => {
@@ -639,7 +695,8 @@ const handleSaveVoyage = async (targetStatut) => {
     date_arrivee: formatDateForApi(form.date_arrivee),
     capacite_totale: Number(form.capacite_totale),
     prix_kg: Number(form.prix_kg) || 0,
-    prix_objet: Number(form.prix_objet) || 0,
+    prix_objet: 0,
+    tarifs_speciaux: form.tarifs_speciaux || [],
     devise: form.devise,
     description: form.description,
     objets_autorises: form.objets_autorises,
@@ -1065,15 +1122,10 @@ const goToDemandes = () => router.push('/voyageur/demandes')
                 </select>
               </div>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">{{ t('voyageur.createVoyageModal.pricePerKg', 'Prix au Kg ({currency}) *', { currency: form.devise }) }}</label>
-                <input v-model.number="form.prix_kg" type="number" placeholder="ex: 8500" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none" />
-              </div>
-              <div>
-                <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">{{ t('voyageur.createVoyageModal.pricePerObject', 'Prix par objet ({currency})', { currency: form.devise }) }}</label>
-                <input v-model.number="form.prix_objet" type="number" placeholder="ex: 15000" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none" />
-              </div>
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">{{ t('voyageur.createVoyageModal.pricePerKg', 'Prix au Kg ({currency}) *', { currency: form.devise }) }}</label>
+              <input v-model.number="form.prix_kg" type="number" placeholder="ex: 8500" class="w-full bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-gray-800 dark:text-slate-100 outline-none font-bold" />
+              <p class="text-[11px] text-gray-500 dark:text-slate-400">Ce tarif au kilo est appliqué par défaut aux objets standards.</p>
             </div>
             <div>
               <label class="block text-xs font-bold text-gray-700 dark:text-slate-300 mb-1">{{ t('voyageur.createVoyageModal.descriptionLabel', 'Description / Consignes') }}</label>
@@ -1113,27 +1165,137 @@ const goToDemandes = () => router.push('/voyageur/demandes')
           </div>
         </div>
 
-        <!-- STEP 5: OBJECTS LIST JSON -->
-        <div v-if="wizardStep === 5" class="space-y-4">
+        <!-- STEP 5: OBJECTS LIST JSON & SPECIAL RATES -->
+        <div v-if="wizardStep === 5" class="space-y-6">
           <h4 class="text-sm font-extrabold text-[#053754] dark:text-sky-300">{{ t('voyageur.createVoyageModal.step5', '5. Catégories d\'objets autorisées & interdites') }}</h4>
           
           <!-- Accepted -->
-          <div class="space-y-2">
-            <label class="block text-xs font-bold text-emerald-800 dark:text-emerald-300">{{ t('voyageur.createVoyageModal.authorizedItems', '✅ Objets Autorisés') }}</label>
-            <div class="grid grid-cols-2 gap-2">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <label class="block text-xs font-extrabold text-emerald-800 dark:text-emerald-300">✅ {{ t('voyageur.createVoyageModal.authorizedItems', 'Obés & Colis Acceptés') }}</label>
+              <span v-if="form.tarifs_speciaux.length > 0" class="text-[10px] text-sky-700 dark:text-sky-300 bg-sky-100 dark:bg-sky-950 px-2 py-0.5 rounded-full font-bold">
+                🏷️ {{ form.tarifs_speciaux.length }} objet(s) avec Tarif Spécial
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <div
                 v-for="cat in allAutorisesList" :key="cat"
                 @click="toggleAutorise(cat)"
-                class="p-2.5 rounded-xl border text-xs font-bold flex items-center justify-between cursor-pointer transition-all"
-                :class="form.objets_autorises.includes(cat) ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300' : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700'"
+                class="p-3 rounded-xl border text-xs font-bold flex items-center justify-between cursor-pointer transition-all gap-2"
+                :class="form.objets_autorises.includes(cat) ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 shadow-2xs' : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700'"
               >
-                <span>{{ cat }}</span>
-                <span v-if="form.objets_autorises.includes(cat)" class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span>
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span>{{ cat }}</span>
+                  <span
+                    v-if="getSpecialTarifFor(cat)"
+                    class="text-[10px] bg-sky-100 dark:bg-sky-950 text-[#074C72] dark:text-sky-300 px-2 py-0.5 rounded-full font-extrabold border border-sky-200 dark:border-sky-800 shrink-0"
+                  >
+                    🏷️ {{ getSpecialTarifFor(cat).prix }} {{ form.devise }}
+                  </span>
+                </div>
+                <span v-if="form.objets_autorises.includes(cat)" class="text-emerald-600 dark:text-emerald-400 font-bold shrink-0">✓</span>
               </div>
             </div>
             <div class="flex gap-2 pt-1">
               <input v-model="customAutorise" type="text" placeholder="Autre objet autorisé (ex: Épices scellées)" class="flex-1 bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-gray-800 dark:text-slate-100 outline-none" @keyup.enter="addCustomAutorise" />
               <button @click="addCustomAutorise" type="button" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-3.5 py-2 rounded-xl cursor-pointer shrink-0">{{ t('voyageur.createVoyageModal.addCustomItem', '+ Ajouter') }}</button>
+            </div>
+          </div>
+
+          <!-- SECTION TARIFS SPÉCIAUX PAR OBJET -->
+          <div class="p-4 bg-sky-50/70 dark:bg-slate-800/80 border-2 border-sky-200 dark:border-slate-700 rounded-2xl space-y-3">
+            <div>
+              <div class="flex items-center justify-between">
+                <label class="block text-xs font-extrabold text-[#053754] dark:text-sky-300 uppercase tracking-wider">
+                  🏷️ Tarifs Spéciaux par Objet (Forfaits spécifiques)
+                </label>
+                <span class="text-[10px] font-bold text-sky-700 dark:text-sky-300 bg-sky-100 dark:bg-sky-950 px-2 py-0.5 rounded-full">Optionnel</span>
+              </div>
+              <p class="text-[11px] text-gray-600 dark:text-slate-300 mt-1">
+                Définissez des prix fixes pour des objets spécifiques (ex: <strong>Baskets: 25 {{ form.devise }}</strong>, <strong>Perruque: 30 {{ form.devise }}</strong>, <strong>Enveloppe: 20 {{ form.devise }}</strong>). Les autres objets utiliseront le prix au kilo par défaut.
+              </p>
+            </div>
+
+            <!-- Presets d'objets rapides -->
+            <div class="space-y-1">
+              <span class="text-[10px] font-extrabold text-gray-500 uppercase tracking-wider block">Suggestions de tarifs rapides :</span>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  v-for="preset in presetTarifsSpeciaux"
+                  :key="preset.nom"
+                  @click="addSpecialTarif(preset.nom, preset.prix)"
+                  type="button"
+                  class="px-3 py-1.5 rounded-xl border border-sky-300 dark:border-sky-700 bg-white dark:bg-slate-900 text-[#074C72] dark:text-sky-300 text-xs font-extrabold hover:bg-sky-100 dark:hover:bg-slate-800 transition cursor-pointer flex items-center gap-1 shadow-2xs"
+                >
+                  <span>+ {{ preset.nom }} ({{ preset.prix }} {{ form.devise }})</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Formulaire ajout d'un tarif personnalisé -->
+            <div class="p-3 bg-white dark:bg-slate-900 rounded-xl border border-sky-100 dark:border-slate-800 space-y-2">
+              <span class="text-[10px] font-extrabold text-gray-500 uppercase tracking-wider block">+ Ajouter un tarif spécifique :</span>
+              <div class="flex flex-col sm:flex-row gap-2">
+                <input
+                  v-model="customItemNom"
+                  type="text"
+                  placeholder="Nom de l'objet (ex: Télévision 43 pouces)"
+                  class="flex-1 bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-gray-800 dark:text-slate-100 outline-none"
+                />
+                <div class="flex items-center gap-2">
+                  <input
+                    v-model.number="customItemPrix"
+                    type="number"
+                    placeholder="Prix"
+                    class="w-24 bg-[#F3F4F6] dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-gray-800 dark:text-slate-100 outline-none font-bold"
+                  />
+                  <span class="text-xs font-bold text-gray-500">{{ form.devise }}</span>
+                  <button
+                    @click="addCustomSpecialTarif"
+                    type="button"
+                    class="px-4 py-2 bg-[#053754] hover:bg-[#074C72] text-white text-xs font-extrabold rounded-xl transition cursor-pointer shrink-0"
+                  >
+                    Ajouter
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Liste des tarifs spéciaux enregistrés -->
+            <div v-if="form.tarifs_speciaux.length > 0" class="space-y-2 pt-1">
+              <span class="text-[10px] font-extrabold text-[#053754] dark:text-sky-300 uppercase tracking-wider block">
+                Tarifs spéciaux configurés ({{ form.tarifs_speciaux.length }}) :
+              </span>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div
+                  v-for="(item, idx) in form.tarifs_speciaux"
+                  :key="idx"
+                  class="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-sky-200 dark:border-slate-700 flex items-center justify-between shadow-2xs"
+                >
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm">🏷️</span>
+                    <span class="text-xs font-extrabold text-[#053754] dark:text-slate-100">{{ item.nom }}</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <input
+                      v-model.number="item.prix"
+                      type="number"
+                      min="0"
+                      class="w-16 bg-gray-50 dark:bg-slate-800 text-right outline-none font-bold text-xs px-2 py-1 rounded-lg border border-gray-200 dark:border-slate-700 text-emerald-600 dark:text-emerald-400"
+                    />
+                    <span class="text-xs font-bold text-gray-500">{{ form.devise }}</span>
+                    <button
+                      @click="removeSpecialTarif(idx)"
+                      type="button"
+                      class="text-red-500 hover:text-red-700 dark:text-rose-400 font-bold p-1 text-xs cursor-pointer ml-1"
+                      title="Supprimer ce tarif spécial"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 

@@ -36,17 +36,25 @@ export function useI18n() {
     setLanguage(nextLang)
   }
 
-  const t = (key, fallbackOrParams = {}, defaultFallback = '') => {
+  const t = (key, arg2, arg3) => {
     initLang()
     let params = {}
-    let fallbackText = typeof fallbackOrParams === 'string' ? fallbackOrParams : defaultFallback
+    let fallbackText = ''
 
-    if (typeof fallbackOrParams === 'object' && fallbackOrParams !== null && !Array.isArray(fallbackOrParams)) {
-      params = fallbackOrParams
+    if (typeof arg2 === 'string') {
+      fallbackText = arg2
+      if (typeof arg3 === 'object' && arg3 !== null && !Array.isArray(arg3)) {
+        params = arg3
+      }
+    } else if (typeof arg2 === 'object' && arg2 !== null && !Array.isArray(arg2)) {
+      params = arg2
+      if (typeof arg3 === 'string') {
+        fallbackText = arg3
+      }
     }
 
     const dict = translations[currentLang.value] || translations.fr
-    const keys = key.split('.')
+    const keys = key ? key.split('.') : []
     let result = dict
 
     for (const k of keys) {
@@ -55,14 +63,20 @@ export function useI18n() {
       } else {
         // Fallback to FR if key not found in active lang
         let fallback = translations.fr
+        let foundFallback = true
         for (const fk of keys) {
           if (fallback && typeof fallback === 'object' && fk in fallback) {
             fallback = fallback[fk]
           } else {
-            return fallbackText || key
+            foundFallback = false
+            break
           }
         }
-        result = fallback
+        if (foundFallback && typeof fallback === 'string') {
+          result = fallback
+        } else {
+          result = fallbackText || key
+        }
         break
       }
     }
@@ -70,7 +84,8 @@ export function useI18n() {
     if (typeof result === 'string') {
       if (params && typeof params === 'object') {
         Object.keys(params).forEach(paramKey => {
-          result = result.replaceAll(`{${paramKey}}`, params[paramKey])
+          const val = params[paramKey] !== undefined && params[paramKey] !== null ? params[paramKey] : ''
+          result = result.replaceAll(`{${paramKey}}`, val)
         })
       }
       return result

@@ -125,7 +125,7 @@ const saveChanges = async () => {
     date_arrivee: formatDateForApi(form.date_arrivee),
     capacite_totale: Number(form.capacite_totale),
     prix_kg: Number(form.prix_kg) || 0,
-    prix_objet: Number(form.prix_objet) || 0,
+    prix_objet: 0,
     devise: form.devise,
     description: form.description,
     statut: 'brouillon'
